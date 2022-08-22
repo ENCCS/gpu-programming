@@ -17,11 +17,11 @@
 
 # -- Project information -----------------------------------------------------
 
-project = "LESSON NAME"
+project = "GPU programming: why, when and how?"
 copyright = "2021, The contributors"
 author = "The contributors"
 github_user = "ENCCS"
-github_repo_name = ""  # auto-detected from dirname if blank
+github_repo_name = "GPU-programming"  # auto-detected from dirname if blank
 github_version = "main"
 conf_py_path = "/content/"  # with leading and trailing slash
 
