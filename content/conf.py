@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = "GPU programming: why, when and how?"
-copyright = "2021, The contributors"
+copyright = "2022, The contributors"
 author = "The contributors"
 github_user = "ENCCS"
 github_repo_name = "GPU-programming"  # auto-detected from dirname if blank
