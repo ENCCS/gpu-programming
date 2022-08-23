@@ -74,19 +74,19 @@ Credits
 -------
 
 The lesson file structure and browsing layout is inspired by and derived from
-`work <https://github.com/coderefinery/sphinx-lesson>`_ by `CodeRefinery
-<https://coderefinery.org/>`_ licensed under the `MIT license
-<http://opensource.org/licenses/mit-license.html>`_. We have copied and adapted
+`work <https://github.com/coderefinery/sphinx-lesson>`__ by `CodeRefinery
+<https://coderefinery.org/>`__ licensed under the `MIT license
+<http://opensource.org/licenses/mit-license.html>`__. We have copied and adapted
 most of their license text.
 
 Instructional Material
 ^^^^^^^^^^^^^^^^^^^^^^
 
 This instructional material is made available under the
-`Creative Commons Attribution license (CC-BY-4.0) <https://creativecommons.org/licenses/by/4.0/>`_.
+`Creative Commons Attribution license (CC-BY-4.0) <https://creativecommons.org/licenses/by/4.0/>`__.
 The following is a human-readable summary of (and not a substitute for) the
 `full legal text of the CC-BY-4.0 license
-<https://creativecommons.org/licenses/by/4.0/legalcode>`_.
+<https://creativecommons.org/licenses/by/4.0/legalcode>`__.
 You are free to:
 
 - **share** - copy and redistribute the material in any medium or format
@@ -98,7 +98,7 @@ The licensor cannot revoke these freedoms as long as you follow these license te
 - **Attribution** - You must give appropriate credit (mentioning that your work
   is derived from work that is Copyright (c) ENCCS and individual contributors and, where practical, linking
   to `<https://enccs.github.io/sphinx-lesson-template>`_), provide a `link to the license
-  <https://creativecommons.org/licenses/by/4.0/>`_, and indicate if changes were
+  <https://creativecommons.org/licenses/by/4.0/>`__, and indicate if changes were
   made. You may do so in any reasonable manner, but not in any way that suggests
   the licensor endorses you or your use.
 - **No additional restrictions** - You may not apply legal terms or
@@ -119,5 +119,5 @@ Software
 ^^^^^^^^
 
 Except where otherwise noted, the example programs and other software provided
-with this repository are made available under the `OSI <http://opensource.org/>`_-approved
-`MIT license <https://opensource.org/licenses/mit-license.html>`_.
+with this repository are made available under the `OSI <http://opensource.org/>`__-approved
+`MIT license <https://opensource.org/licenses/mit-license.html>`__.
