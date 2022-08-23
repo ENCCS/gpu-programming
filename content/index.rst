@@ -1,21 +1,13 @@
-LESSON NAME
-===========
+The hitchhiker's guide to GPU programming
+=========================================
 
 Intro
-
 
 
 .. prereq::
 
    prerequisites
 
-
-
-.. csv-table::
-   :widths: auto
-   :delim: ;
-
-   20 min ; :doc:`filename`
 
 
 .. toctree::
