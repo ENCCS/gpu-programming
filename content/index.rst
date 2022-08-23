@@ -1,12 +1,41 @@
 The hitchhiker's guide to GPU programming
 =========================================
 
-Intro
+Graphical processing units (GPUs) are the workhorse of many high performance 
+computing (HPC) systems around the world. The number of GPU-enabled supercomputers 
+on the `Top500 <https://www.top500.org/>`__ has been steadily increasing in recent years 
+and this development is expected to continue. In the near future the majority of HPC 
+computing power available to researchers and engineers is likely to be provided by GPUs 
+or other types of accelerators. Programming GPUs and other accelerators is thus increasingly 
+important to developers who write software which is executed on HPC systems.
 
+However, the landscape of GPU hardware, software and programming environments is complicated. 
+Multiple vendors compete in the high-end GPU market, each vendor provides their own software 
+stack and development toolkits, and even beyond that there is a proliferation of tools, 
+languages and frameworks that can be used to write code for GPUs.
+It can thus be difficult for individual developers and project owners to know how to 
+navigate this landscape and select the most appropriate GPU programming framework for their 
+projects based on the requirements of a given project and technical specifics of any 
+existing code.
+
+This material is meant to help both software developers and decision makers navigate the 
+GPU programming landscape and make more informed decisions on which languages or frameworks 
+to learn and use for their projects. Specifically, you will:
+
+- Understand why and when to use GPUs.
+- Become comfortable with key concepts in GPU programming.
+- Acquire a comprehensive overview of different software frameworks, what levels they operate at, and which to use when.
+- Learn the fundamentals in at least one framework to a level which will enable you to quickly become a productive GPU programmer.
 
 .. prereq::
 
-   prerequisites
+   This material is most relevant to researchers and engineers who already develop software 
+   which runs on CPUs in workstations or supercomputers, but also to decision makers or 
+   project managers who don't write code but make strategic decisions in software projects, 
+   whether it's in academia, industry or the public sector.
+
+   Familiarity with one or more programming languages like C/C++, Fortran, Python or 
+   Julia is recommended.
 
 .. csv-table::
    :widths: auto
