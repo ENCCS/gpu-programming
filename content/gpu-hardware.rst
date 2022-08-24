@@ -18,7 +18,7 @@ Introduction to GPU hardware
 Overview of GPU hardware
 ------------------------
 
-.. figure:: img/hardware/CUDA/CPUAndGPU.png
+.. figure:: img/hardware/CPUAndGPU.png
     :align: center
 
     A comparison of the CPU and GPU architecture.
