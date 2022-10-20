@@ -36,18 +36,7 @@ to learn and use for their projects. Specifically, you will:
 
    Familiarity with one or more programming languages like C/C++, Fortran, Python or 
    Julia is recommended.
-
-.. csv-table::
-   :widths: auto
-   :delim: ;
-
-   20 min ; :doc:`gpu-history`
-   20 min ; :doc:`gpu-hardware`
-   20 min ; :doc:`gpu-problems`
-   20 min ; :doc:`gpu-concepts`
-   20 min ; :doc:`gpu-software`
-   20 min ; :doc:`gpu-porting`
-   20 min ; :doc:`gpu-levels`   
+   
 
 .. toctree::
    :maxdepth: 1
