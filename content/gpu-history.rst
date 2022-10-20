@@ -5,14 +5,18 @@ Why GPUs?
 
 .. questions::
 
-   - 
+   - q1
+   - q2
 
 .. objectives::
 
-   - 
+   - o1
+   - o2
 
+.. instructor-note::
 
-.. keypoints::
+   - X min teaching
+   - X min exercises
 
 
 Moore's law
@@ -51,3 +55,9 @@ Based on highly parallel architectures, which allows to take advantage of the in
 Using GPUs allows one to achieve very high performance per node.
 As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
 The drawback is: usually major rewrites of programs is required.
+
+
+.. keypoints::
+
+   - k1
+   - k2

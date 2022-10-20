@@ -5,14 +5,18 @@ GPU programming concepts
 
 .. questions::
 
-   - 
+   - q1
+   - q2
 
 .. objectives::
 
-   - 
+   - o1
+   - o2
 
+.. instructor-note::
 
-.. keypoints::
+   - X min teaching
+   - X min exercises
 
 
 
@@ -44,3 +48,8 @@ Another type of parallelism is a task parallelism.
 This is when an application consists of more than one task that requiring to perform different operations with (the same or) different data.
 An example of task parallelism is cooking: slicing vegetables and grilling are very different tasks and can be done at the same time.
 Note that the tasks can consume totally different resources, which also can be explored.
+
+.. keypoints::
+
+   - k1
+   - k2

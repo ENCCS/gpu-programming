@@ -5,14 +5,18 @@ Introduction to GPU hardware
 
 .. questions::
 
-   - 
+   - q1
+   - q2
 
 .. objectives::
 
-   - 
+   - o1
+   - o2
 
+.. instructor-note::
 
-.. keypoints::
+   - X min teaching
+   - X min exercises
 
 
 Overview of GPU hardware
@@ -45,3 +49,7 @@ Accelerators like to be overloaded with the number of threads, because they can 
 This allows to hide the memory operations: while some threads wait, others can compute.
 
 
+.. keypoints::
+
+   - k1
+   - k2
