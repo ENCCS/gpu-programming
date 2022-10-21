@@ -36,18 +36,7 @@ to learn and use for their projects. Specifically, you will:
 
    Familiarity with one or more programming languages like C/C++, Fortran, Python or 
    Julia is recommended.
-
-.. csv-table::
-   :widths: auto
-   :delim: ;
-
-   20 min ; :doc:`gpu-history`
-   20 min ; :doc:`gpu-hardware`
-   20 min ; :doc:`gpu-problems`
-   20 min ; :doc:`gpu-concepts`
-   20 min ; :doc:`gpu-software`
-   20 min ; :doc:`gpu-porting`
-   20 min ; :doc:`gpu-levels`   
+   
 
 .. toctree::
    :maxdepth: 1
@@ -97,6 +86,15 @@ See also
 
 Credits
 -------
+
+Several sections in this lesson have been adapted from the following sources created by 
+`ENCCS <https://enccs.se/>`__ and `CSC <https://csc.fi/>`__, which are 
+all distributed under a 
+`Creative Commons Attribution license (CC-BY-4.0) <https://creativecommons.org/licenses/by/4.0/>`__:
+
+- `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__--
+- `High Performance Data Analytics in Python <https://enccs.github.io/HPDA-Python/>`__
+
 
 The lesson file structure and browsing layout is inspired by and derived from
 `work <https://github.com/coderefinery/sphinx-lesson>`__ by `CodeRefinery

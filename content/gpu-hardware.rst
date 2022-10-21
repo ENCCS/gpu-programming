@@ -49,6 +49,51 @@ Accelerators like to be overloaded with the number of threads, because they can 
 This allows to hide the memory operations: while some threads wait, others can compute.
 
 
+
+How do GPUs differ from CPUs?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+CPUs and GPUs were designed with different goals in mind. While the CPU 
+is designed to excel at executing a sequence of operations, called a thread, 
+as fast as possible and can execute a few tens of these threads in parallel, 
+the GPU is designed to excel at executing many thousands of them in parallel. 
+GPUs were initially developed for highly-parallel task of graphic processing 
+and therefore designed such that more transistors are devoted to data processing 
+rather than data caching and flow control. More transistors dedicated to 
+data processing is beneficial for highly parallel computations; the GPU can 
+hide memory access latencies with computation, instead of relying on large data caches 
+and complex flow control to avoid long memory access latencies, 
+both of which are expensive in terms of transistors.
+
+
+
+
+.. list-table::  
+   :widths: 100 100
+   :header-rows: 1
+
+   * - CPU
+     - GPU
+   * - General purpose
+     - Highly specialized for parallelism
+   * - Good for serial processing
+     - Good for parallel processing
+   * - Great for task parallelism
+     - Great for data parallelism
+   * - Low latency per thread
+     - High-throughput
+   * - Large area dedicated cache and control
+     - Hundreds of floating-point execution units
+
+
+Summary
+^^^^^^^
+
+- GPUs are highly parallel devices that can execute certain parts of the program in many parallel threads.
+- CPU controls the works flow and makes all the allocations and data transfers.
+- In order to use the GPU efficiently, one has to split their the problem  in many parts that can run simultaneously.
+
+
 .. keypoints::
 
    - k1
