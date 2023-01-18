@@ -30,15 +30,20 @@ WRITEME begin
 
 WRITEME end
 
-OpenMP is de facto standard for threaded based parallelism. It is relatively easy to 
-implement. The whole technology suite contains the library routines, the compiler 
-directives and environment variables. The parallelization is done providing "hints" 
-(directives) about the regions of code which are targeted for parallelization. 
-The compiler then chooses how to implement these hints as best as possible. 
-The compiler directives are comments in Fortran and pragmas in C/C++. 
-If there is no OpenMP support in the system they become comments and the code works just 
-as any other serial code.
+The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
+ The parallelization is done by introducing directives in places which are targeted for parallelization. 
+OpenACC is known to be more **descriptive**, which means the programmer uses directives to 
+tell the compiler how/where to parallelize the code and to move the data. OpenMP offloading approach, 
+on the other hand, is known to be more **prescriptive**, where the programmer uses directives to 
+tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
 
+In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
+special comments identified by unique sentinels in Fortran. Compilers can ingnore the 
+directives if the support for OpenMP/OpenACC is not enabled.
+
+The compiler directives are used for various purposes: for thread creation, workload 
+distribution (work sharing), data-environment management, serializing sections of code or 
+for synchronization of work among the threads.
 
 Execution model 
 ~~~~~~~~~~~~~~~
@@ -69,37 +74,130 @@ WRITEME end
 Directives
 ~~~~~~~~~~
 
-In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
-special comments identified by unique sentinels in Fortran. Compilers can ingnore the 
-directives if the support for OpenMP/OpenACC is not enabled.
+In OpenACC, one of the most commonly used directives is ``kernels``,
+which defines a region to be transferred into a series of kernels to be executed in sequence on a GPU. 
+Work sharing is defined automatically for the separate kernels, but tuning prospects is limited.
 
 
-Parallel regions 
-~~~~~~~~~~~~~~~~
+.. challenge:: Example: ``kernels``
 
-The compiler directives are used for various purposes: for thread creation, workload 
-distribution (work sharing), data-environment management, serializing sections of code or 
-for synchronization of work among the threads. The parallel regions are created using the 
-**parallel** construct. When this construct is encounter additional thread are forked to 
-carry out the work enclose in it. 
+   .. tabs::
 
-.. figure:: img/levels/omp-parallel.png
-   :scale: 70%
-   :align: center
-    
-   Outside of a parallel region there is only one thread, while inside there are N threads 
-   
+      .. tab:: C/C++
 
-Clauses
-~~~~~~~
+         .. literalinclude:: examples/acc/vec_add_kernels.c 
+                        :language: cpp
+                        :emphasize-lines: 17
 
-TODO: simplify paragraphs on clauses
+      .. tab:: Fortran
 
-Together with compiler directives, OpenMP provides **clauses** that  can used to control 
-the parallelism of regions of code. The clauses specify additional behaviour the user wants 
-to occur and they refer to how the variables are visible to the threads (private or shared), 
-synchronization, scheduling, control, etc. The clauses are appended in the code to the 
-directives.
+         .. literalinclude:: examples/acc/vec_add_kernels.f90
+                        :language: fortran
+                        :emphasize-lines: 14,18
+
+
+
+.. note:: 
+
+    - data was created/destroyed on the device
+    - data was transferred between the host and the device
+    - the loop was parallized and execution was offloaded on the device
+
+
+The other approach of OpenACC to define parallel regions is to use ``parallel`` directive.
+Contrary to the ``kernels`` directive, the ``parallel`` directive is more explicit and requires 
+more analysis by the programmer. Work sharing has to be defined manually using the ``loop`` directive, 
+and refined tuning is possible to achieve. The above example can be re-write as the following:
+
+
+.. challenge:: Example: ``parallel loop``
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: examples/acc/vec_add_loop.c 
+                        :language: cpp
+                        :emphasize-lines: 17
+
+      .. tab:: Fortran
+
+         .. literalinclude:: examples/acc/vec_add_loop.f90
+                        :language: fortran
+                        :emphasize-lines: 14,18
+
+
+
+		  
+
+
+
+
+With OpenMP, the ``TARGET`` directive is used for device offloading. 
+
+.. challenge:: Example: ``TARGET`` construct 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. literalinclude:: examples/acc/vec_add_target.c 
+                        :language: cpp
+                        :emphasize-lines: 16
+
+      .. tab:: Fortran
+
+         .. literalinclude:: examples/acc/vec_add_target.f90
+                        :language: fortran
+                        :emphasize-lines: 14,18
+
+
+Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop. 
+To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants:
+
+.. challenge:: Syntax
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+             .. code-block:: c
+             	:emphasize-lines: 3
+
+		  #pragma omp target 
+                  {
+                  #pragma omp teams loop
+                      for (i = 0; i < NX; i++) {
+                          vecC[i] = vecA[i] + vecB[i];
+                      }
+                  }
+		  
+
+
+      .. tab:: Fortran
+
+             .. code-block:: fortran
+             	:emphasize-lines: 2,6
+
+		  !$omp target 
+		  !$omp teams loop
+		  do i = 1, nx
+                     vecC(i) = vecA(i) + vecB(i)
+                  end do
+		  !$omp end teams loop
+		  !$omp end target
+
+
+
+
+
+
+.. note:: 
+
+    Together with compiler directives, **clauses** that  can used to control  
+    the parallelism of regions of code. The clauses specify additional behaviour the user wants 
+    to occur and they refer to how the variables are visible to the threads (private or shared), 
+    synchronization, scheduling, control, etc. The clauses are appended in the code to the directives.
 
 
 Examples
@@ -122,13 +220,13 @@ TODO: test, simplify and harmonize all versions below
          #include <math.h>
          #define NX 102400
 
-         int main(int argc, char argv[]){
+         int main(void){
              double vecA[NX],vecB[NX],vecC[NX];
 
              /* Initialize vectors */
              for (int i = 0; i < NX; i++) {
-                 vecA[i] = pow(r, i-1);
-                 vecB(i) = 1.0;
+                 vecA[i] = 1.0;
+                 vecB[i] = 1.0;
              }  
 
              #pragma omp parallel
@@ -172,10 +270,7 @@ TODO: test, simplify and harmonize all versions below
       .. code-block:: C++
 
          #include <stdio.h>
-         #ifdef _OPENACC
          #include <openacc.h>
-         #endif
-
          #define NX 102400
 
          int main(void) {
@@ -184,8 +279,8 @@ TODO: test, simplify and harmonize all versions below
 
              /* Initialization of the vectors */
              for (int i = 0; i < NX; i++) {
-                 vecA[i] = pow(r, i-1);
-                 vecB(i) = 1.0;
+                 vecA[i] = 1.0;
+                 vecB[i] = 1.0;
              }
 
              #pragma acc data copy(vecA,vecB,vecC)
@@ -204,7 +299,31 @@ TODO: test, simplify and harmonize all versions below
 
       .. code-block:: Fortran
 
-         WRITEME
+         program dotproduct
+             implicit none
+ 
+             integer, parameter :: nx = 102400
+             real, dimension(:), allocatable :: vecA,vecB,vecC
+             real, parameter :: r=0.2
+             integer :: i
+
+             allocate (vecA(nx), vecB(nx),vecC(nx))
+             ! Initialization of vectors
+             do i = 1, nx
+                vecA(i) = r**(i-1)
+                vecB(i) = 1.0
+             end do     
+
+             !$acc data copy(vecA,vecB,vecC)
+             !$acc parallel 
+             !$acc loop
+                 do i=1,NX
+                     vecC(i) = vecA(i) * vecB(i)
+                 enddo  
+             !$acc end loop
+             !$acc end parallel
+             !$acc end data
+         end program dotproduct
 
 Reduction
 ^^^^^^^^^
@@ -306,7 +425,15 @@ WRITEME
 Pros and cons of kernel-based frameworks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WRITEME
+- Easy to work with
+- Porting of existing software requires less work
+- Same code can be compiled to CPU and GPU versions easily
+
+
+
+- Get access to all features of the GPU hardware
+- More optimization possibilities
+
 
 
 
