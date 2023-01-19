@@ -42,14 +42,15 @@ to learn and use for their projects. Specifically, you will:
    :maxdepth: 1
    :caption: The lesson
 
-   gpu-history
-   gpu-hardware
-   gpu-problems
-   gpu-concepts
-   gpu-software
-   gpu-porting
-   gpu-levels
-   example-heat
+   1-gpu-history
+   2-gpu-hardware
+   3-gpu-problems
+   4-gpu-concepts
+   5-gpu-software
+   6-gpu-porting
+   7-gpu-levels
+   8-recommendations
+   9-examples
 
 .. toctree::
    :maxdepth: 1
