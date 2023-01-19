@@ -78,7 +78,7 @@ Processes and threads
 ~~~~~~~~~~~~~~~~~~~~~
 
 The type of environment (distributed- or shared-memory) determines the programming model. 
-There are two types of parallelism possible, process based and thread based. 
+There are two types of parallelism possible, process based and :abbr:`thread` based. 
 
 .. figure:: img/history/processes-threads.png
    :align: center
