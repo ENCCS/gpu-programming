@@ -56,6 +56,7 @@ to learn and use for their projects. Specifically, you will:
    :caption: Reference
 
    quick-reference
+   glossary
    guide
 
 
