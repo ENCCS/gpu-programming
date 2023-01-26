@@ -5,13 +5,13 @@ Why GPUs?
 
 .. questions::
 
-   - q1
-   - q2
+   - What is Moore's law?
+   - What problem do GPUs solve?
 
 .. objectives::
 
-   - o1
-   - o2
+   - Explain the historical development of microprocessors and how GPUs enable 
+     continued scaling of computational power
 
 .. instructor-note::
 
@@ -103,7 +103,6 @@ and by the access speed. In addition in the shared parallel model it is much eas
 create race conditions.
 
 
-
 Graphics processing units
 -------------------------
 
@@ -117,6 +116,13 @@ Based on highly parallel architectures, which allows to take advantage of the in
 Using GPUs allows one to achieve very high performance per node.
 As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
 The drawback is: usually major rewrites of programs is required.
+
+
+Energy efficiency
+-----------------
+
+
+
 
 
 .. keypoints::
