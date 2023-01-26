@@ -98,6 +98,13 @@ This is when an application consists of more than one task that requiring to per
 An example of task parallelism is cooking: slicing vegetables and grilling are very different tasks and can be done at the same time.
 Note that the tasks can consume totally different resources, which also can be explored.
 
+
+GPU execution model
+-------------------
+
+In order to obtain maximum performance it is important to understand how GPUs execute the programs. As mentioned before a CPU is a flexible device oriented towards general purpose usage. It's fast and versatile, designed to run operating systems and various, very different types of applications. It has lots of features, such as better control logic, caches and cache coherence, that are not related to pure computing. CPUs optimize the execution by trying to achieve low latency via heavy caching and branch prediction. In contrast the GPUs
+
+
 .. keypoints::
 
    - k1
