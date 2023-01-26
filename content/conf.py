@@ -123,6 +123,37 @@ class TypealongDirective(_BaseCRDirective):
 DIRECTIVES = [SignatureDirective, ParametersDirective, TypealongDirective]
 
 
+abbr_map = { }
+abbr_map['thread'] = "definition of thread.  In aaa, bbb.  In xxx, yyy."
+abbr_map['threads'] = abbr_map['thread']
+
+
+from docutils import nodes
+from sphinx import roles
+import logging
+import sphinx.util.logging
+
+class AutoAbbreviation(roles.Abbreviation):
+    """A derivative of the Sphinx `abbr`, but with defaults.
+
+    Used as :abbr:`name`.
+    """
+
+    _logger = sphinx.util.logging.getLogger('auto-abbr')
+
+    def run(self):
+        if '(' not in self.text:
+            if self.text in abbr_map:
+                options = self.options.copy()
+                options['explanation'] = abbr_map[self.text]
+                return [nodes.abbreviation(self.rawtext, self.text, **options)], []
+            self._logger.warning("Abbreviation with no definition (%s): %s:%s",
+                                 self.rawtext, *self.get_source_info())
+        return super().run()
+
+
 def setup(app):
     for obj in DIRECTIVES:
         app.add_directive(obj.cssname(), obj)
+
+    app.add_role('abbr', AutoAbbreviation(), override=True)
