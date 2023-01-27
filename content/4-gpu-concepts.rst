@@ -160,33 +160,25 @@ Software
    * - CUDA
      - HIP
      - OpenCL
-     - SYCL
    * - grid of threads
      - grid of threads
-     - NDRange
      - NDRange
    * - block
      - block
      - work-group
-     - work-group
    * - warp
      - wavefront
-     - sub-group
      - sub-group
    * - thread
      - thread
      - work-item
-     - work-item
    * - shared memory
      - local data share
      - local memory 
-     - local memory
    * - registers
      - 
      - private memory
-     - private memory
    * - 
-     - 
      - 
      - 
 
