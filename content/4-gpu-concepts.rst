@@ -119,8 +119,15 @@ Every cuda thread is associated with a particular intrinsic index which can be u
 
 Apart from being much leight weigheted there are more differences between CUDA threads and CPU threads. The CUDA threads are grouped together in groups call *warps*. This done at harfware level. 
 
-There are 2 very important aspects to this model of execution. Firstly all member of a warp have to execute the same instruction. This is a Single Instruction Multiple Threads (SIMT) model and also a Single Instruction Multiple Data (SIMD) model. This is done to achieve higher performance, but there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch.
+There are 2 very important aspects to this model of execution. **Firstly** all member of a warp have to execute the same instruction. This is a Single Instruction Multiple Threads (SIMT) model and also a Single Instruction Multiple Data (SIMD) model. This is done to achieve higher performance, but there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch.
 
+This execution model is needed because of the way the GPUs are built. The CUDA cores are grouped togheter in so called SIMT units. A warp is executed by a SMT unit and it can not be splitted.
+
+.. figure:: img/concepts/WARP_SMTU.png
+    :align: center
+    :scale: 40 %
+
+**Secondly** all memory accesses to the GPU memory are as a group in blocks of spefic sizes (32B, 64B, 128 B etc.). To obtain good performance the CUDA threads in the same warp need to access which are adjacent in the memory.
 
 
 
