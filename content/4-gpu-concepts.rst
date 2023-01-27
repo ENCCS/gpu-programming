@@ -152,7 +152,7 @@ At the moment there are three GPU producers Nvidia, Intel, and AMD. While the ba
 Software
 ~~~~~~~~
 
-. list-table:: Title
+.. list-table:: Title
    :widths: 25 25 50
    :header-rows: 1
 
