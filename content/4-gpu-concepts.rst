@@ -106,6 +106,9 @@ In order to obtain maximum performance it is important to understand how GPUs ex
 
 In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of cuda cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of cuda cores. The cuda threads are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions. 
 
+CUDA Threads, Warps, Blocks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 In order to perform some work the program launches a function called *kernel*, which is executed simultaneously by tens of thousands of CUDA threads that can be run on CUDA cores parallelly. The cuda threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing"  the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
 
 .. figure:: img/concepts/THREAD_CORE.png
