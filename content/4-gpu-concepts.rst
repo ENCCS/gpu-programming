@@ -119,7 +119,7 @@ Every cuda thread is associated with a particular intrinsic index which can be u
 
 Apart from being much leight weigheted there are more differences between CUDA threads and CPU threads. The CUDA threads are grouped together in groups call *warps*. This done at harfware level. 
 
-There are 2 very important aspects to this model of execution. Firstly all member of a warp have to execute the same instruction. This is **S** ingle **I** nstruction **M** ultiple **T** hreads model and also **S** ingle **I** nstruction **M** ultiple **D** ata model. This is done for achieving higher performance, there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch.
+There are 2 very important aspects to this model of execution. Firstly all member of a warp have to execute the same instruction. This is **S**ingle **I** nstruction **M** ultiple **T** hreads model and also **S** ingle **I** nstruction **M** ultiple **D** ata model. This is done for achieving higher performance, there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch.
 
 
 
