@@ -178,9 +178,15 @@ Software
    * - registers
      - 
      - private memory
-   * - threadIdx.\{x,y,x\},BlockIdx.\{x,y,x\}, BlockDim.\{x,y,x\}
-     - threadIdx.\{x,y,x\},BlockIdx.\{x,y,x\}, BlockDim.\{x,y,x\}
-     - nd_item::get_local(\{0,1,2\}), nd_item::get_group(\{0,1,2\}), nd_item::get_local(\{0,1,2\})
+   * - threadIdx.\{x,y,z\}
+     - threadIdx.\{x,y,z\}
+     - nd_item::get_local(\{0,1,2\})
+   * - BlockIdx.\{x,y,z\}
+     - BlockIdx.\{x,y,z\}
+     - nd_item::get_group(\{0,1,2\})
+   * - BlockDim.\{x,y,z\}
+     - BlockDim.\{x,y,z\}
+     - nd_item::get_local(\{0,1,2\})
 
 
 Hardware
