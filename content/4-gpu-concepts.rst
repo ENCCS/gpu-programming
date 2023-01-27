@@ -159,7 +159,7 @@ Software
 
    * - CUDA
      - HIP
-     - OpenCL
+     - SYCL
    * - grid of threads
      - grid of threads
      - NDRange
@@ -178,13 +178,31 @@ Software
    * - registers
      - 
      - private memory
-   * - 
-     - 
-     - 
+   * - threadIdx.\{x,y,x\},BlockIdx.\{x,y,x\}, BlockDim.\{x,y,x\}
+     - threadIdx.\{x,y,x\},BlockIdx.\{x,y,x\}, BlockDim.\{x,y,x\}
+     - nd_item::get_local(\{0,1,2\}), nd_item::get_group(\{0,1,2\}), nd_item::get_local(\{0,1,2\})
 
 
 Hardware
 ~~~~~~~~
+
+
+.. list-table:: Hardware
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Nvidia
+     - AMD
+     - Intel
+   * - streaming processor
+     - SIMD lane
+     - 
+   * - SIMT unit
+     - SIMD unit
+     - 
+   * - streaming multiprocessor
+     - computing unit 
+     - execution unit
 
 
 
