@@ -129,7 +129,7 @@ This execution model is needed because of the way the GPUs are built. The CUDA c
 
 **Secondly** all memory accesses to the GPU memory are as a group in blocks of spefic sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called *coalesced* memory access. Finally  all threads part of a warp are synchronized. Some data sharing between the threads inside a warp is possible, however this is artchitecture dependent. 
 
-There is another level in the CUDA threads hierarchy. The warps are grouped togheter in so called *blocks*. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programers as a user controled cache which is accesable by all the threads in a block. In CUDA this is called *shared memory*. The share memory is used to "cache" data that is used by more than one CUDA thread, thus avoiding multiple reads from the global memory or it can be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in coalesced manner as well. 
+There is another level in the CUDA threads hierarchy. The warps are grouped togheter in so called *blocks*. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programers as a user controled cache which is accesable by all the threads in a block. In CUDA this is called *shared memory*. The share memory is used to "cache" data that is used by more than one CUDA thread, thus avoiding multiple reads from the global memory or it can be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in coalesced manner as well. All CUDA threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchrozation is compulsory to ensure correctness of the program.
 
 
 
@@ -137,11 +137,12 @@ There is another level in the CUDA threads hierarchy. The warps are grouped togh
     :align: center
     :scale: 40 %
 
-Note that the CUDA threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchrozatio is compulsory to ensure correctness of the program
-
-Finally, a block of threads can not be splitted among SMPs. For performance blocks should have more than a warp. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are suficient, due to fast context swithcing an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.
 
 
+Finally, a block of threads can not be splitted among SMPs. For performance blocks should have more than a warp. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are suficient, due to fast context swithcing, an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.
+
+
+To summarize this section. In order to take advantage of GPUs the algorithm must allow the division of work in many small subtasks which can be executed in the same time.  The compuations are offloaded to GPUs, by launch tens of thousands of threads all executing the same function, *kernel*, each thread working on different part of the problem. The threads are executed in groups called *blocks*, each block being assigned to a SMP. Furthermore the threads of a block are divided in *warps* each assigned to a SIMT unit. All threads in a warp execute the same instructions and all memory accesses are done collectively at warp level. The threads can synchronize and shared data only at block level. Depending on the architecture, some data sharing can be done as well at warp level. 
 .. keypoints::
 
    - k1
