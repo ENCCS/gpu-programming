@@ -147,53 +147,49 @@ To summarize this section. In order to take advantage of GPUs the algorithms mus
 Terminology
 -----------
 
-At the moment there are three GPU producers Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for programming GPUs, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.,.
+At the moment there are three GPU producers Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for programming GPUs, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
 Software
 ~~~~~~~~
+
+
+.. list-table:: Software mapping naming
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - CUDA
+     - HIP
+     - OpenCL
+   * - grid of threads
+     - grid of threads
+     - NDRange
+   * - block
+     - block
+     - work-group
+   * - warp
+     - wavefront
+     - sub-group
+   * - thread
+     - thread
+     - work-item
+   * - shared memory
+     - local data share
+     - 
 
 
 .. list-table:: Title
    :widths: 25 25 50
    :header-rows: 1
 
-   * - CUDA
-     - HIP
-     - SYCL
-     - OpenCL
-     - Kokkos
-     - OneAPI
-   * - grid of threads
-     - grid of threads
-     - NDRange
-     - NDRange
-     - 
-     - 
-   * - block
-     - block
-     - work-group
-     - work-group
-     - 
+   * - Heading row 1, column 1
+     - Heading row 1, column 2
+     - Heading row 1, column 3
+   * - Row 1, column 1
      -
-   * - warp
-     - wavefront
-     - sub-group
-     - sub-group
-     - 
-     -
-   * - thread
-     - thread
-     - work-item
-     - work-item
-     - 
-     -
-   * - shared memory
-     - local data share
-     - 
-     - 
-     - 
-     -
-
+     - Row 1, column 3
+   * - Row 2, column 1
+     - Row 2, column 2
+     - Row 2, column 3
 
 Hardware
 ~~~~~~~~
