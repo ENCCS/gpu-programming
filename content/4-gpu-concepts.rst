@@ -186,7 +186,7 @@ Software
      - nd_item::get_group(\{0,1,2\})
    * - BlockDim.\{x,y,z\}
      - BlockDim.\{x,y,z\}
-     - nd_item::get_local(\{0,1,2\})
+     - nd_item::get_local_range(\{0,1,2\})
 
 
 Hardware
