@@ -115,20 +115,31 @@ In order to perform some work the program launches a function called *kernel*, w
     :align: center
     :scale: 40 %
 
-Every cuda thread is associated with a particular intrinsic index which can be used to calculate and access  memory locations in an array. 
+Every cuda thread is associated with a particular intrinsic index which can be used to calculate and access  memory locations in an array. Each CUDA thread has its context and set of private variables. All threads have access to the global GPU memory, but there is no general way to synchronized when executing a kernel. If some threads need data from the global memory which was modified by other threads the code would have to be splitted in several kernels because only at the completion of a kernel it is ensured that the writing to the global memory was completed.  
 
-Apart from being much leight weigheted there are more differences between CUDA threads and CPU threads. The CUDA threads are grouped together in groups call *warps*. This done at harfware level. 
+Apart from being much light weighted there are more differences between CUDA threads and CPU threads. The CUDA threads are grouped together in groups call *warps*. This done at harfware level. 
 
 There are 2 very important aspects to this model of execution. **Firstly** all member of a warp have to execute the same instruction. This is a Single Instruction Multiple Threads (SIMT) model and also a Single Instruction Multiple Data (SIMD) model. This is done to achieve higher performance, but there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch.
 
-This execution model is needed because of the way the GPUs are built. The CUDA cores are grouped togheter in so called SIMT units. A warp is executed by a SMT unit and it can not be splitted.
+This execution model is needed because of the way the GPUs are built. The CUDA cores are very light computing units grouped togheter in so called SIMT units. A warp is executed by a SMT unit and it can not be splitted.
 
 .. figure:: img/concepts/WARP_SMTU.png
     :align: center
     :scale: 40 %
 
-**Secondly** all memory accesses to the GPU memory are as a group in blocks of spefic sizes (32B, 64B, 128 B etc.). To obtain good performance the CUDA threads in the same warp need to access which are adjacent in the memory.
+**Secondly** all memory accesses to the GPU memory are as a group in blocks of spefic sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called *coalesced* memory access. Finally  all threads part of a warp are synchronized. Some data sharing between the threads inside a warp is possible, however this is artchitecture dependent. 
 
+There is another level in the CUDA threads hierarchy. The warps are grouped togheter in so called *blocks*. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programers as a user controled cache which is accesable by all the threads in a block. In CUDA this is called *shared memory*. The share memory is used to "cache" data that is used by more than one CUDA thread, thus avoiding multiple reads from the global memory or it can be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in coalesced manner as well. 
+
+
+
+.. figure:: img/concepts/BLOCK_SMP.png
+    :align: center
+    :scale: 40 %
+
+Note that the CUDA threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchrozatio is compulsory to ensure correctness of the program
+
+Finally, a block of threads can not be splitted among SMPs. For performance blocks should have more than a warp. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are suficient, due to fast context swithcing an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.
 
 
 .. keypoints::
