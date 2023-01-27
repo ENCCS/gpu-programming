@@ -156,15 +156,42 @@ Software
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Heading row 1, column 1
-     - Heading row 1, column 2
-     - Heading row 1, column 3
-   * - Row 1, column 1
+   * - CUDA
+     - HIP
+     - SYCL
+     - OpenCL
+     - Kokkos
+     - OneAPI
+   * - grid of threads
+     - grid of threads
+     - NDRange
+     - NDRange
+     - 
+     - 
+   * - block
+     - block
+     - work-group
+     - work-group
+     - 
      -
-     - Row 1, column 3
-   * - Row 2, column 1
-     - Row 2, column 2
-     - Row 2, column 3
+   * - warp
+     - wavefront
+     - sub-group
+     - sub-group
+     - 
+     -
+   * - thread
+     - thread
+     - work-item
+     - work-item
+     - 
+     -
+   * - shared memory
+     - local data share
+     - 
+     - 
+     - 
+     -
 
 Hardware
 ~~~~~~~~
