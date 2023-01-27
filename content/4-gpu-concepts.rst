@@ -185,10 +185,10 @@ Software
      - 
      - private memory
      - private memory
-   * - threaIdx.{x,y,z}, blockIdx.{x,y,z}, blockDim.{x, y, z}
-     - threaIdx.{x,y,z}, blockIdx.{x,y,z}, blockDim.{x, y, z}
-     - get_local({0,1,2}), get_group({0,1,2}), get_local_range({0,1,2})
-     - nd_item::get_local({0,1,2}), nd_item::get_group({0,1,2}), nd_item::get_local_range({0,1,2})
+   * - 
+     - 
+     - 
+     - 
 
 
 Hardware
