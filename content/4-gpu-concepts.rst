@@ -196,7 +196,7 @@ Hardware
      - Intel
    * - streaming processor
      - SIMD lane
-     - 
+     - processing element???
    * - SIMT unit
      - SIMD unit
      - 
