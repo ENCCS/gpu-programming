@@ -160,36 +160,36 @@ Software
    * - CUDA
      - HIP
      - OpenCL
+     - SYCL
    * - grid of threads
      - grid of threads
+     - NDRange
      - NDRange
    * - block
      - block
      - work-group
+     - work-group
    * - warp
      - wavefront
+     - sub-group
      - sub-group
    * - thread
      - thread
      - work-item
+     - work-item
    * - shared memory
      - local data share
+     - local memory 
+     - local memory
+   * - registers
      - 
+     - private memory
+     - private memory
+   * - threaIdx.{x,y,z}, blockIdx.{x,y,z}, blockDim.{x, y, z}
+     - threaIdx.{x,y,z}, blockIdx.{x,y,z}, blockDim.{x, y, z}
+     - get_local({0,1,2}), get_group({0,1,2}), get_local_range({0,1,2})
+     - nd_item::get_local({0,1,2}), nd_item::get_group({0,1,2}), nd_item::get_local_range({0,1,2})
 
-
-.. list-table:: Title
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - Heading row 1, column 1
-     - Heading row 1, column 2
-     - Heading row 1, column 3
-   * - Row 1, column 1
-     -
-     - Row 1, column 3
-   * - Row 2, column 1
-     - Row 2, column 2
-     - Row 2, column 3
 
 Hardware
 ~~~~~~~~
