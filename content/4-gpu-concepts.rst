@@ -156,7 +156,7 @@ Below there is an example of how the threads in a grid can be associated with sp
 
 The thread marked by orange color is part of a grid of size 4096 which are grouped in blocks of size 256. It has index 3 in the block 2 and the global calculated index 515.
 
-For a vector addition this would be used as follow `c[index]=a[index]+b[index]`.
+For a vector addition this would be used as follow ``c[index]=a[index]+b[index]``.
 
 Terminology
 -----------
