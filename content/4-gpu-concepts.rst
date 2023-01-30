@@ -208,9 +208,9 @@ Hardware
    * - SIMT unit
      - SIMD unit
      - 
-   * - streaming multiprocessor
-     - computing unit 
-     - execution unit
+   * - streaming multiprocessor (SMP)
+     - computing unit (CU)
+     - execution unit (EU)
 
 
 
