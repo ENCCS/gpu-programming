@@ -202,9 +202,9 @@ Hardware
    * - Nvidia
      - AMD
      - Intel
-   * - streaming processor
+   * - streaming processor/streaming core
      - SIMD lane
-     - processing element???
+     - processing element
    * - SIMT unit
      - SIMD unit
      - 
