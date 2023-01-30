@@ -146,6 +146,16 @@ To summarize this section. In order to take advantage of GPUs the algorithms mus
 
 In order to hide latencies it is recommended to "over-subscribe" the GPU. There should be many more blocks than SMPs presen on the device. Also in order to ensure a good occupancy of the cuda cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the cuda cores, thus ensuring a high occupancy of the GPU.
 
+Below there is an example of how the threads in a grid can be associated with specific elements of an array
+
+
+
+.. figure:: img/concepts/Indexing.png
+    :align: center
+    :scale: 40 %
+
+The thread marked by orange color has index 3 from the block 2 of size 255 and the global calcualted index 515 from the grid of size 4096.
+
 Terminology
 -----------
 
