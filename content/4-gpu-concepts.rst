@@ -154,7 +154,7 @@ Below there is an example of how the threads in a grid can be associated with sp
     :align: center
     :scale: 40 %
 
-The thread marked by orange color is part of a grid of size 4096 which are grouped in blocks of size 256. It has index 3 in the block 2 and the global calculated index 515.
+The thread marked by orange color is part of a grid of threads size 4096. The threads are grouped in blocks of size 256. The "orange" thread has index 3 in the block 2 and the global calculated index 515.
 
 For a vector addition example this would be used as follow ``c[index]=a[index]+b[index]``.
 
