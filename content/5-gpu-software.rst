@@ -24,7 +24,7 @@ However these are quite limited cases and in general some programming might be n
 
 Directive based programming
 ---------------------------
- A very fast and cheap way is to use **directive based** approaches. In this case the existing *serial* code is annotated with *hints* which indicate to the compiler which loops and regions should be executed on the GPU. . In the absence of the API the directives are treated as comments and the code will just be executed as a usual serial code.  This approach is focused on productivity and easy usage, getting performance with minimum programming effort  by adding parallelism to existing code without the need to write GPU-specific code. There are two possible ways to program using directives, namely **OpenAcc** and **OpenMP**.
+A very fast and cheap way is to use **directive based** approaches. In this case the existing *serial* code is annotated with *hints* which indicate to the compiler which loops and regions should be executed on the GPU. . In the absence of the API the directives are treated as comments and the code will just be executed as a usual serial code.  This approach is focused on productivity and easy usage, getting performance with minimum programming effort  by adding parallelism to existing code without the need to write GPU-specific code. There are two possible ways to program using directives, namely **OpenAcc** and **OpenMP**.
  
  
 
