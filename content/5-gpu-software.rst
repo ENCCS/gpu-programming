@@ -54,7 +54,7 @@ Kokkos is an open-source performance portable programming model for heterogeneou
 Both,  directive based aproaches and frameworks, provide abstraction layers make the codes portable and easy to write, but come at a cost. They can provide realatively good performance in many situations, but for maximum performance a more direct approach is needed. 
 
 
-Direct GPU Programming
+Native GPU Programming
 ----------------------
 
 When doing direct GPU programming the developer has a large level of control by riting low-level code that directly communicates with the GPU and its hardware. Theoreticallydirect GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used.
