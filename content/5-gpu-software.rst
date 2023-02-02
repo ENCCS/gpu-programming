@@ -59,17 +59,24 @@ Direct GPU Programming
 
 When doing direct GPU programming the developer has a large level of control by riting low-level code that directly communicates with the GPU and its hardware. Theoreticallydirect GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used.
 
-CUDA: CUDA (Compute Unified Device Architecture) is a parallel computing platform and API developed by NVIDIA. It allows developers to write C-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications.
+Compute Unified Device Architecture
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Compute Unified Device Architecture (CUDA) is a parallel computing platform and API developed by NVIDIA. It allows developers to write C-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is limited to the Nvidia hardware.
 
-OpenCL: OpenCL (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on GPUs and CPUs. It supports a wide range of hardware, including GPUs from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms.
+Heterogeneous-compute Interface for Portability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Heterogeneous-compute Interface for Portability (HIP) is an API developed by AMD that provides a high-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides a similar programming interface to CUDA.
 
-OpenACC: OpenACC is a high-level directive-based programming model for parallel programming of GPUs. It allows developers to write programs using familiar C, C++, and Fortran code and add directive annotations to identify areas of code to be executed on the GPU. OpenACC is designed to make GPU programming accessible to a wider range of developers, including those with limited experience in GPU programming.
+Open Computing Language
+~~~~~~~~~~~~~~~~~~~~~~~ 
+Open Computing Language (OpenCL) is a cross-platform, open-standard API for general-purpose parallel computing on GPUs and CPUs. It supports a wide range of hardware, including GPUs from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms.
 
-HIP: HIP (Heterogeneous-compute Interface for Portability) is an API developed by AMD that provides a high-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides a similar programming interface to CUDA.
 
-SYCL: SYCL is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. SYCL enables developers to write programs that can be executed on a variety of platforms and supports OpenCL as its underlying implementation.
+SYCL
+~~~~ 
+SYCL is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is a C++ based high level programming model the developers still need to expose the parallelism in the code in order to take advantage of the GPUs.
 
-Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences.
+Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming modeland  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
 
 
 .. keypoints::
