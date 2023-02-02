@@ -146,6 +146,8 @@ To summarize this section. In order to take advantage of GPUs the algorithms mus
 
 In order to hide latencies it is recommended to "over-subscribe" the GPU. There should be many more blocks than SMPs presen on the device. Also in order to ensure a good occupancy of the cuda cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the cuda cores, thus ensuring a high occupancy of the GPU.
 
+In addition to this there are some features of which the developers  can be take advantage, but are supported only on the Nvidia GPUs. Warp-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow threads within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
+
 Below there is an example of how the threads in a grid can be associated with specific elements of an array
 
 
