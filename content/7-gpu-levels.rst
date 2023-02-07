@@ -31,7 +31,7 @@ WRITEME begin
 WRITEME end
 
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
- The parallelization is done by introducing directives in places which are targeted for parallelization. 
+The parallelization is done by introducing directives in places which are targeted for parallelization. 
 OpenACC is known to be more **descriptive**, which means the programmer uses directives to 
 tell the compiler how/where to parallelize the code and to move the data. OpenMP offloading approach, 
 on the other hand, is known to be more **prescriptive**, where the programmer uses directives to 
