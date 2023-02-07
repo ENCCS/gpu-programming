@@ -163,47 +163,39 @@ For a vector addition example this would be used as follow ``c[index]=a[index]+b
 Terminology
 -----------
 
-At the moment there are three GPU producers Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for programming GPUs, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
+At the moment there are three major GPU producers Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for programming GPUs, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
 Software
 ~~~~~~~~
 
+.. table:: Software mapping naming
+   :align: center
 
-.. list-table:: Software mapping naming
-   :widths: 25 25 50
-   :header-rows: 1
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | CUDA                    | HIP                     | OpenCL                    | SYCL                                              |
+   +=========================+=========================+===========================+===================================================+
+   | grid of threads                                   | NDRange                                                                       |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | block                                             | work-group                                                                    |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | warp                    | wavefront               | sub-group                                                                     |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | thread                                            | work-item                                                                     |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | registers                                         | private memory                                                                |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | shared memory           | local data share        | local memory                                                                  |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | threadIdx.\{x,y,z\}                               | get_local_id(\{0,1,2\})   | nd_item::get_local(\{2,1,0\}) [#syclindex]_       |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | blockIdx.\{x,y,z\}                                | get_group_id(\{0,1,2\})   | nd_item::get_group(\{2,1,0\}) [#syclindex]_       |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
+   | blockDim.\{x,y,z\}                                | get_local_size(\{0,1,2\}) | nd_item::get_local_range(\{2,1,0\}) [#syclindex]_ |
+   +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
 
-   * - CUDA
-     - HIP
-     - SYCL
-   * - grid of threads
-     - grid of threads
-     - NDRange
-   * - block
-     - block
-     - work-group
-   * - warp
-     - wavefront
-     - sub-group
-   * - thread
-     - thread
-     - work-item
-   * - shared memory
-     - local data share
-     - local memory 
-   * - registers
-     - 
-     - private memory
-   * - threadIdx.\{x,y,z\}
-     - threadIdx.\{x,y,z\}
-     - nd_item::get_local(\{0,1,2\})
-   * - BlockIdx.\{x,y,z\}
-     - BlockIdx.\{x,y,z\}
-     - nd_item::get_group(\{0,1,2\})
-   * - BlockDim.\{x,y,z\}
-     - BlockDim.\{x,y,z\}
-     - nd_item::get_local_range(\{0,1,2\})
-
+.. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consequtive X (0) index in CUDA, HIP, and OpenCL, but consequtive Z (2) index in SYCL. 
+   In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
+   Same applies for block dimensions and indexing. 
 
 Hardware
 ~~~~~~~~

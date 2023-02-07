@@ -96,3 +96,29 @@
 .eqno {
     float: right;
 }
+
+/* Aligning text in tables */
+.align-left {
+    text-align: left;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
+/* Aligning text in table headers */
+.rst-content table.docutils.align-left > thead {
+    text-align: left;
+}
+
+.rst-content table.docutils.align-center > thead {
+    text-align: center;
+}
+
+.rst-content table.docutils.align-right > thead {
+    text-align: right;
+}
