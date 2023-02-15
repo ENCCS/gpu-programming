@@ -1,0 +1,36 @@
+.. _gpu-platforms:
+
+GPU platforms
+=============
+
+.. questions::
+
+   - q1
+   - q2
+
+.. objectives::
+
+   - o1
+   - o2
+
+.. instructor-note::
+
+   - X min teaching
+   - X min exercises
+
+GPUs in HPC
+-----------
+
+Nvidia
+~~~~~~
+
+AMD
+~~~
+
+Intel
+~~~~~
+
+.. keypoints::
+
+   - k1
+   - k2
