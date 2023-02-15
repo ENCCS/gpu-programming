@@ -21,7 +21,7 @@ GPU platforms
 GPUs in HPC
 -----------
 
-There are three major companies which design and produces GPUs for HPC, *Nvidia*, *AMD/ATI*, and *Intel*. 
+*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC. They also  provide APIs that work in conjunction with the hardware. 
 
 Nvidia
 ~~~~~~
