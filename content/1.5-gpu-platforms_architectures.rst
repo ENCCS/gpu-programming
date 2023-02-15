@@ -21,7 +21,15 @@ GPU platforms
 GPUs in HPC
 -----------
 
-*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC. They also  provide APIs that work in conjunction with the hardware. 
+*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC.  GPUs come together with software stacks which 
+They provide as well whole ecosystems 
+They develop and and distribute  as well  APIs that work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. APIs also provide access to low level functionality, such as memory management, data tranffer between CPU and GPU, and the scheduling and execution of parallel processing on the GPU. In addition this low_level functionality the API 
+
+In order to facilitate the developers to optimize and write correct tool, debugging profiling tools are also included. 
+
+In addition they tipically include as well high-level libraries which are optimized for specfic HPC tasks, such as matrix multiplications or fast Fourier transforms.  
+
+
 
 Nvidia
 ~~~~~~
