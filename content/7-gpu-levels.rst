@@ -379,6 +379,184 @@ Kernel-based approaches
 Examples
 ~~~~~~~~
 
+Parallel for with Unified Memory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+
+         #include <Kokkos_Core.hpp>
+         
+         int main(int argc, char* argv[]) {
+         
+           // Initialize Kokkos
+           Kokkos::initialize(argc, argv);
+         
+           {
+             unsigned n = 5;
+         
+             // Allocate on Kokkos default memory space (Unified Memory)
+             int* a = (int*) Kokkos::kokkos_malloc(n * sizeof(int));
+           
+             // Initialize values on host
+             for (unsigned i = 0; i < n; i++)
+               a[i] = i;
+           
+             // Print parallel from the device
+             Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
+               printf("a[%d] = %d\n", i, a[i]);
+             });
+           }
+  
+           // Finalize Kokkos
+           Kokkos::finalize();
+           return 0;
+         }
+
+   .. tab:: SYCL
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: HIP
+
+      .. code-block:: C
+
+         WRITEME
+
+Parallel for with GPU buffers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+
+          #include <Kokkos_Core.hpp>
+          
+          int main(int argc, char* argv[]) {
+          
+            // Initialize Kokkos
+            Kokkos::initialize(argc, argv);
+          
+            {
+              unsigned n = 5;
+          
+              // Allocate on Kokkos host memory space
+              Kokkos::View<int*, Kokkos::HostSpace> h_a("h_a", n);
+          
+              // Allocate on Kokkos default memory space (eg, GPU memory)
+              Kokkos::View<int*> a("a", n);
+            
+              // Initialize values
+              for (unsigned i = 0; i < n; i++)
+                h_a[i] = i;
+              
+              // Copy from host to device
+              Kokkos::deep_copy(a, h_a);
+            
+              // Print parallel from the device
+              Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
+                printf("a[%d] = %d\n", i, a[i]);
+              });
+            }
+            
+            // Finalize Kokkos
+            Kokkos::finalize();
+            return 0;
+          }
+
+
+   .. tab:: SYCL
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: HIP
+
+      .. code-block:: C
+
+         WRITEME
+
+Parallel for with streams
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+
+         #include <Kokkos_Core.hpp>
+         
+         int main(int argc, char* argv[]) {
+         
+           // Initialize Kokkos
+           Kokkos::initialize(argc, argv);
+         
+           {
+             unsigned nincr = 5;
+             unsigned nx = 1000;
+         
+             // Allocate on Kokkos default memory space (eg, GPU memory)
+             Kokkos::View<int*> a("a", nx);
+         
+             // Create execution space instances (streams) for each increment
+             auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
+           
+             for(unsigned incr = 0; incr < nincr; incr++) {
+               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[incr], nx / nincr * incr, nx / nincr * (incr + 1)), KOKKOS_LAMBDA(const int i) {
+                 a[i] = i;
+               });
+             }
+
+             // Sync execution space instances (streams)
+             for(unsigned incr = 0; incr < nincr; incr++)
+               ex[incr].fence();
+           }
+           
+           // Finalize Kokkos
+           Kokkos::finalize();
+           return 0;
+         }
+
+
+   .. tab:: SYCL
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: HIP
+
+      .. code-block:: C
+
+         WRITEME
+
 Vector addition
 ^^^^^^^^^^^^^^^
 
@@ -412,14 +590,60 @@ Vector addition
    .. tab:: HIP Fortran
 
       .. code-block:: Fortran
-
+sum
          WRITEME
 
 
 Reduction
 ^^^^^^^^^
+.. tabs:: 
 
-WRITEME
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+
+         #include <Kokkos_Core.hpp>
+         
+         int main(int argc, char* argv[]) {
+         
+           // Initialize Kokkos
+           Kokkos::initialize(argc, argv);
+         
+           {
+             unsigned n = 5;
+             
+             // Initialize sum variable
+             int sum = 0;
+           
+             // Print parallel from the device
+             Kokkos::parallel_reduce(n, KOKKOS_LAMBDA(const int i, int &lsum) {
+               lsum += i;
+             }, sum);
+           }
+  
+           // Finalize Kokkos
+           Kokkos::finalize();
+           return 0;
+         }
+
+
+   .. tab:: SYCL
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: HIP
+
+      .. code-block:: C
+
+         WRITEME
 
 
 Pros and cons of kernel-based frameworks
