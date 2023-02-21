@@ -52,6 +52,10 @@ Kokkos is an open-source performance portable programming model for heterogeneou
 
 Both,  directive based approaches and frameworks, provide abstraction layers make the codes portable and easy to write, but come at a cost. They can provide relatively good performance in many situations, but for maximum performance a more direct approach is needed. 
 
+SYCL
+~~~~ 
+SYCL is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
+
 
 Native GPU Programming
 ----------------------
@@ -69,11 +73,6 @@ HIP (Heterogeneous Interface for Portability) is an API developed by AMD that pr
 OpenCL
 ~~~~~~
 OpenCL (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on GPUs and CPUs. It supports a wide range of hardware, including GPUs from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike CUDA, HIP, and SYCL, OpenCL uses separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is more widely used.
-
-
-SYCL
-~~~~ 
-SYCL is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
 
 Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
 
