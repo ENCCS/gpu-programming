@@ -1,7 +1,7 @@
 .. _gpu-platforms:
 
-GPU platforms
-=============
+GPU APIs
+========
 
 .. questions::
 
