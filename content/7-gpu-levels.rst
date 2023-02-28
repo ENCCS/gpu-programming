@@ -514,6 +514,9 @@ Parallel for with GPU buffers
               Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
                 printf("a[%d] = %d\n", i, a[i]);
               });
+
+              // Kokkos synchronization
+              Kokkos::fence();
             }
             
             // Finalize Kokkos
