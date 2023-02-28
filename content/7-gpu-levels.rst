@@ -436,7 +436,32 @@ Parallel for with Unified Memory
 
       .. code-block:: C
 
-         WRITEME
+         #include <CL/sycl.hpp>
+         using namespace cl;
+         
+         int main(int argc, char* argv[]) {
+         
+           sycl::queue q;
+           unsigned n = 5;
+         
+           // Allocate shared memory (Unified Memory)
+           int *a = sycl::malloc_shared<int>(n * sizeof(int), q);
+           
+           // Initialize values on host
+           for (unsigned i = 0; i < n; i++)
+             a[i] = i;
+         
+           // Print parallel from the device
+           q.parallel_for(sycl::range<1>{n}, [=](sycl::id<1> i) {
+             printf("a[%d] = %d\n", (int)i, a[i]);
+           }).wait();
+         
+           //Free SYCL allocation (Unified Memory)
+           sycl::free(a, q);
+         
+           return 0;
+         }
+
 
    .. tab:: CUDA
 
