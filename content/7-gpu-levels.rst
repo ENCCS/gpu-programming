@@ -666,6 +666,9 @@ Reduction
              Kokkos::parallel_reduce(n, KOKKOS_LAMBDA(const int i, int &lsum) {
                lsum += i;
              }, sum);
+
+             // Kokkos synchronization
+             Kokkos::fence();
            }
   
            // Finalize Kokkos
