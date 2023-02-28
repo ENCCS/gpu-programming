@@ -459,7 +459,7 @@ Parallel for with Unified Memory
              printf("a[%d] = %d\n", (int)i, a[i]);
            }).wait();
          
-           //Free SYCL allocation (Unified Memory)
+           // Free shared memory allocation (Unified Memory)
            sycl::free(a, q);
          
            return 0;
