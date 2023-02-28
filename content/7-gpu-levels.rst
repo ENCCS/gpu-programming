@@ -422,8 +422,11 @@ Parallel for with Unified Memory
              Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
                printf("a[%d] = %d\n", i, a[i]);
              });
+
+             // Kokkos synchronization
+             Kokkos::fence();
             
-             //Free Kokkos allocation (Unified Memory)
+             // Free Kokkos allocation (Unified Memory)
              Kokkos::kokkos_free(a);
            }
   
