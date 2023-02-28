@@ -529,7 +529,36 @@ Parallel for with GPU buffers
 
       .. code-block:: C
 
-         WRITEME
+         #include <CL/sycl.hpp>
+         using namespace cl;
+         
+         int main(int argc, char **argv) {
+         
+           sycl::queue q;
+           unsigned n = 5;
+         
+           // Allocate space for 5 ints using malloc
+           int *a = (int *)malloc(n * sizeof(int));
+         
+           // Initialize values
+           for (unsigned i = 0; i < n; i++)
+             a[i] = i;
+         
+           // Create a SYCL buffer for a
+           auto a_buf = sycl::buffer<int>(a, sycl::range<1>(n));
+           
+           // Submit a SYCL kernel into a queue and sync afterwards
+           q.submit([&](sycl::handler &cgh) {
+             // Create a SYCL read accessor 'a' over the sycl buffer 'a_buf'
+             auto a = a_buf.get_access<sycl::access::mode::read>(cgh);
+             // Print parallel from the device
+             cgh.parallel_for<class vec_add>(sycl::range<1>{n}, [=](sycl::id<1> i) {
+                 printf("a[%d] = %d\n", (int)i, a[i]);
+             });
+           }).wait();
+         
+           return 0;
+         }
 
    .. tab:: CUDA
 
