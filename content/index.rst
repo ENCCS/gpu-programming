@@ -51,6 +51,7 @@ to learn and use for their projects. Specifically, you will:
    7-gpu-levels
    8-recommendations
    9-examples
+   10-humanities-examples
 
 .. toctree::
    :maxdepth: 1
