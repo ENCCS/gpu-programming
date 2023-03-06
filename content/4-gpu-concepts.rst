@@ -200,6 +200,7 @@ Software
 Hardware
 ~~~~~~~~
 
+THIS TABLE COULD BE MOVED TO EPISODE 2
 
 .. list-table:: Hardware
    :widths: 25 25 50
