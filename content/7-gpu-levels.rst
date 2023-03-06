@@ -74,6 +74,10 @@ WRITEME end
 Directives
 ~~~~~~~~~~
 
+
+OpenACC
+^^^^^^^
+
 In OpenACC, one of the most commonly used directives is ``kernels``,
 which defines a region to be transferred into a series of kernels to be executed in sequence on a GPU. 
 Work sharing is defined automatically for the separate kernels, but tuning prospects is limited.
@@ -128,10 +132,90 @@ and refined tuning is possible to achieve. The above example can be re-write as 
 
 
 
+Sometimes we can obtain a little more performance by guiding the compiler to make specific choices. 
+OpenACC has four levels of parallelism for offloading execution: 
+
+  - **gang** coarse garin: the iterations are distributed among the gangs
+  - **worker** fine grain: worker's threads are activated within gangs and iterations are shared among the threads 
+  - **vector** each worker activtes its threads working in SIMT fashion and the work is shared among the threads
+  - **seq** the iterations are executed sequentially
+
+By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
+
+
+
+.. challenge:: Examples of nested loops with 
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+             .. code-block:: c
+             	:emphasize-lines: 3
+
+		  #pragma acc parallel 
+                  {
+                  #pragma acc loop gang worker vector
+                      for (i = 0; i < NX; i++) {
+                          data[i] = 1.0;
+                      }
+                  }
 		  
 
+      .. tab:: Fortran
+
+             .. code-block:: fortran
+             	:emphasize-lines: 2,9,11,19,21,23
+
+		  !$acc parallel 
+		  !$acc loop gang worker vector
+		  do i = 1, nx
+                     data1(i) = 1.0
+                  end do
+		  !$acc end parallel
+
+		  !$acc parallel 
+		  !$acc loop gang worker
+		  do j = 1, ny
+		  !$acc loop vector
+                     do i = 1, nx
+                        data2(i,j) = 1.0
+                     end do
+                  end do
+		  !$acc end parallel
+
+		  !$acc parallel 
+		  !$acc loop gang
+		  do k = 1, nz
+		  !$acc loop worker
+		     do j = 1, ny
+		  !$acc loop vector
+                        do i = 1, nx
+                           data3(i,j,k) = 1.0
+                        end do
+                     end do
+                  end do
+		  !$acc end parallel
 
 
+
+
+
+.. note:: 
+
+    There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
+    The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of 
+    gangs, workers and vector length. The optimal numbers are highly archetecture dependent though.
+
+
+#.. image:: img/gang_worker_vector.png
+
+This image represents a single gang. When parallelizing our for loops, the loop iterations will be broken up evenly among a number of gangs. Each gang will contain a number of threads. These threads are organized into blocks. A worker is a row of threads. In the above graphic, there are 3 workers, which means that there are 3 rows of threads. The vector refers to how long each row is. So in the above graphic, the vector is 8, because each row is 8 threads long.
+
+
+
+OpenMP Offloading
+^^^^^^^^^^^^^^^^^
 
 With OpenMP, the ``TARGET`` directive is used for device offloading. 
 
@@ -141,19 +225,25 @@ With OpenMP, the ``TARGET`` directive is used for device offloading.
 
       .. tab:: C/C++
 
-         .. literalinclude:: examples/acc/vec_add_target.c 
+         .. literalinclude:: examples/omp/vec_add_target.c 
                         :language: cpp
                         :emphasize-lines: 16
 
       .. tab:: Fortran
 
-         .. literalinclude:: examples/acc/vec_add_target.f90
+         .. literalinclude:: examples/omp/vec_add_target.f90
                         :language: fortran
                         :emphasize-lines: 14,18
 
 
 Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop. 
-To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants:
+To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants. 
+OpenMP offloading offers multiple levels of parallelism as well:
+
+  - **teams** coarse garin: the iterations are distributed among the teams
+  - **distribute** distributes the iterations across the master threads in the teams, but no worksharing among the threads within one team
+  - **parallel do/for** fine grain: threads are activated within one team and worksharing among them
+  - **SIMD** like the ``vector`` directive for OpenACC
 
 .. challenge:: Syntax
 
@@ -180,14 +270,41 @@ To achieve proper parallelisation, one needs to be more prescriptive and specify
              	:emphasize-lines: 2,6
 
 		  !$omp target 
-		  !$omp teams loop
+		  !$omp teams distribute parallel do SIMD
 		  do i = 1, nx
-                     vecC(i) = vecA(i) + vecB(i)
+                     data1(i) = 1.0
                   end do
-		  !$omp end teams loop
+		  !$omp end teams distribute parallel do SIMD
 		  !$omp end target
 
 
+		  !$omp target 
+		  !$omp teams distribute
+		  do j = 1, ny
+		  !$omp parallel do SIMD
+                     do i = 1, nx
+                        data2(i,j) = 1.0
+                     end do
+                  !$omp end parallel do SIMD
+                  end do
+		  !$omp end teams distribute
+		  !$omp end target
+
+		  !$omp target 
+		  !$omp teams distribute
+		  do k = 1, nz
+		  !$omp parallel do
+		     do j = 1, ny
+		  !$omp SIMD
+                        do i = 1, nx
+                           data3(i,j,k) = 1.0
+                        end do
+                  !$omp end SIMD
+                     end do
+                  !$omp end parallel do
+                  end do
+		  !$omp end teams distribute
+		  !$omp end target
 
 
 
@@ -366,6 +483,13 @@ Example of a *reduction* loop without race condition by using private variables:
 
 Pros and cons of directive-based frameworks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- incremental programming
+- Porting of existing software requires less work
+- Same code can be compiled to CPU and GPU versions easily using compiler flag
+- low learning curve, do not need to know low-level hardware details
+- good portability
+
 
 WRITEME
 
