@@ -33,7 +33,7 @@ Overview of GPU hardware
 One of the most important features that allows the accelerators to reach this high performance is their scalability.
 Computational cores on accelerators are usually grouped into multiprocessors.
 The multiprocessors share the data and logical elements.
-This alows to achieve a very high density of a compute elements on a GPU.
+This allows to achieve a very high density of a compute elements on a GPU.
 This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
 
 

@@ -57,14 +57,14 @@ end. The communication between them is done explicitly via message passing like 
 On the shared memory architectures it is possible to use a thread based parallelism.  
 The threads are light execution units and can be created and destroyed at a relatively 
 small cost. The threads have their own state information but they *share* the *same memory* 
-adress space. When needed the communication is done though the shared memory. 
+address space. When needed the communication is done though the shared memory. 
 
 
 Both approaches have their advantages and disadvantages.  Distributed machines are 
 relatively cheap to build and they  have an "infinite " capacity. In principle one could 
 add more and more computing units. In practice the more computing units are used the more 
-time consuming is the communication. The shared memory systems can achive good performance 
-and the programing model is quite simple. However they are limited by the memory capacity 
+time consuming is the communication. The shared memory systems can achieve good performance 
+and the programming model is quite simple. However they are limited by the memory capacity 
 and by the access speed. In addition in the shared parallel model it is much easier to 
 create race conditions.
 
@@ -72,9 +72,9 @@ create race conditions.
 Exposing parallelism
 --------------------
 
-The are two types of parallelism tha can be explored.
+The are two types of parallelism that can be explored.
 The data parallelism is when the data can be distributed across computational units that can run in parallel.
-They than process the data applying the same or very simular operation to diffenet data elements.
+They than process the data applying the same or very similar operation to different data elements.
 A common example is applying a blur filter to an image --- the same function is applied to all the pixels on the image.
 This parallelism is natural for the GPU, where the same instruction set is executed in multiple :term:`threads <thread>`.
 
@@ -193,7 +193,7 @@ Software
    | blockDim.\{x,y,z\}                                | get_local_size(\{0,1,2\}) | nd_item::get_local_range(\{2,1,0\}) [#syclindex]_ |
    +-------------------------+-------------------------+---------------------------+---------------------------------------------------+
 
-.. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consequtive X (0) index in CUDA, HIP, and OpenCL, but consequtive Z (2) index in SYCL. 
+.. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consecutive X (0) index in CUDA, HIP, and OpenCL, but consecutive Z (2) index in SYCL. 
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies for block dimensions and indexing. 
 
