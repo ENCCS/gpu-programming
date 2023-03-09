@@ -38,7 +38,7 @@ on the other hand, is known to be more **prescriptive**, where the programmer us
 tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
 
 In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
-special comments identified by unique sentinels in Fortran. Compilers can ingnore the 
+special comments identified by unique sentinels in Fortran. Compilers can ignore the 
 directives if the support for OpenMP/OpenACC is not enabled.
 
 The compiler directives are used for various purposes: for thread creation, workload 
@@ -205,7 +205,7 @@ By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector
 
     There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
     The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of 
-    gangs, workers and vector length. The optimal numbers are highly archetecture dependent though.
+    gangs, workers and vector length. The optimal numbers are highly architecture-dependent though.
 
 
 #.. image:: img/gang_worker_vector.png
@@ -240,7 +240,7 @@ Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will n
 To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants. 
 OpenMP offloading offers multiple levels of parallelism as well:
 
-  - **teams** coarse garin: the iterations are distributed among the teams
+  - **teams** coarse grain: the iterations are distributed among the teams
   - **distribute** distributes the iterations across the master threads in the teams, but no worksharing among the threads within one team
   - **parallel do/for** fine grain: threads are activated within one team and worksharing among them
   - **SIMD** like the ``vector`` directive for OpenACC
@@ -537,21 +537,31 @@ Parallel for with Unified Memory
          
              // Allocate on Kokkos default memory space (Unified Memory)
              int* a = (int*) Kokkos::kokkos_malloc(n * sizeof(int));
+             int* b = (int*) Kokkos::kokkos_malloc(n * sizeof(int));
+             int* c = (int*) Kokkos::kokkos_malloc(n * sizeof(int));
            
              // Initialize values on host
              for (unsigned i = 0; i < n; i++)
+             {
                a[i] = i;
+               b[i] = n - i;
+             }
            
              // Print parallel from the device
              Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
-               printf("a[%d] = %d\n", i, a[i]);
+               c[i] = a[i] * b[i];
              });
 
              // Kokkos synchronization
              Kokkos::fence();
+             
+             for (unsigned i = 0; i < n; i++)
+               printf("c[%d] = %d\n", i, c[i]);
             
              // Free Kokkos allocation (Unified Memory)
              Kokkos::kokkos_free(a);
+             Kokkos::kokkos_free(b);
+             Kokkos::kokkos_free(c);
            }
   
            // Finalize Kokkos
@@ -561,30 +571,41 @@ Parallel for with Unified Memory
 
    .. tab:: SYCL
 
-      .. code-block:: C
+      .. code-block:: C++
 
-         #include <CL/sycl.hpp>
-         using namespace cl;
+         #include <sycl/sycl.hpp>
          
          int main(int argc, char* argv[]) {
          
            sycl::queue q;
            unsigned n = 5;
          
-           // Allocate shared memory (Unified Memory)
-           int *a = sycl::malloc_shared<int>(n * sizeof(int), q);
+           // Allocate shared memory (Unified Shared Memory)
+           int *a = sycl::malloc_shared<int>(n, q);
+           int *b = sycl::malloc_shared<int>(n, q);
+           int *c = sycl::malloc_shared<int>(n, q);
            
            // Initialize values on host
            for (unsigned i = 0; i < n; i++)
+           {
              a[i] = i;
+             b[i] = 1;
+           }
          
-           // Print parallel from the device
+           // Run element-wise multiplication on device
            q.parallel_for(sycl::range<1>{n}, [=](sycl::id<1> i) {
-             printf("a[%d] = %d\n", (int)i, a[i]);
+             c[i] = a[i] * b[i];
            }).wait();
+           
+           for (unsigned i = 0; i < n; i++)
+           {
+             printf("c[%d] = %d\n", i, c[i]);
+           }
          
            // Free shared memory allocation (Unified Memory)
            sycl::free(a, q);
+           sycl::free(b, q);
+           sycl::free(c, q);
          
            return 0;
          }
@@ -653,36 +674,54 @@ Parallel for with GPU buffers
 
       .. code-block:: C
 
-         #include <CL/sycl.hpp>
-         using namespace cl;
+         #include <sycl/sycl.hpp>
          
          int main(int argc, char **argv) {
-         
+
            sycl::queue q;
            unsigned n = 5;
-         
-           // Allocate space for 5 ints using malloc
-           int *a = (int *)malloc(n * sizeof(int));
-         
+
+           // Allocate space for 5 ints
+           auto a_buf = sycl::buffer<int>(sycl::range<1>(n));
+           auto b_buf = sycl::buffer<int>(sycl::range<1>(n));
+           auto c_buf = sycl::buffer<int>(sycl::range<1>(n));
+
            // Initialize values
-           for (unsigned i = 0; i < n; i++)
-             a[i] = i;
-         
-           // Create a SYCL buffer for a
-           auto a_buf = sycl::buffer<int>(a, sycl::range<1>(n));
-           
-           // Submit a SYCL kernel into a queue and sync afterwards
+           // We must use curly braces to limit host accessors' lifetime
+           //    and indicate when we're done working with them:
+           {
+             auto a_host_acc = a_buf.get_host_access();
+             auto b_host_acc = b_buf.get_host_access();
+             for (unsigned i = 0; i < n; i++)
+             {
+               a_host_acc[i] = i;
+               b_host_acc[i] = 1;
+             }
+           }
+
+           // Submit a SYCL kernel into a queue
            q.submit([&](sycl::handler &cgh) {
-             // Create a SYCL read accessor 'a' over the sycl buffer 'a_buf'
-             auto a = a_buf.get_access<sycl::access::mode::read>(cgh);
+             // Create read accessors over a_buf and b_buf
+             auto a_acc = a_buf.get_access<sycl::access_mode::read>(cgh);
+             auto b_acc = b_buf.get_access<sycl::access_mode::read>(cgh);
+             // Create write accesor over c_buf
+             auto c_acc = c_buf.get_access<sycl::access_mode::write>(cgh);
              // Print parallel from the device
              cgh.parallel_for<class vec_add>(sycl::range<1>{n}, [=](sycl::id<1> i) {
-                 printf("a[%d] = %d\n", (int)i, a[i]);
+                 c_acc[i] = a_acc[i] * b_acc[i];
              });
-           }).wait();
-         
+           });
+
+           // No need to synchronize, creating the accessor for c_buf will do it automatically
+           {
+               const auto c_host_acc = c_buf.get_host_access();
+               for (unsigned i = 0; i < n; i++)
+                 printf("c[%d] = %d\n", i, c_host_acc[i]);
+           }
+
            return 0;
          }
+
 
    .. tab:: CUDA
 
