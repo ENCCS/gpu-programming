@@ -497,21 +497,45 @@ Kernel-based approaches
 -----------------------
 
 Native programming models (non-portable kernels)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+CUDA
+^^^^
 
-- CUDA
-- HIP
+HIP
+^^^
+
+Pros and cons of native programming models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Cross-platform portability libraries (portable kernels)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The goal of the portability libraries is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability libraries are Kokkos, SYCL, and Raja.
 
 Kokkos
+^^^^^^
 
 Kokkos is an open-source performance portability library for parallelization on large heterogeneous hardware architectures of which development has mostly taken place on Sandia National Laboratories. The project started in 2011 as a parallel C++ programming model, but have since expanded into a more broad ecosystem including Kokkos Core (the programming model), Kokkos Kernels (math library), and Kokkos Tools (debugging, profiling and tuning tools). By preparing proposals for the C++ standard committee, the project also aims to influence the ISO/C++ language standard such that, eventually, Kokkos capabilities will become native to the language standard. A more detailed introduction is found `HERE <https://www.sandia.gov/news/publications/hpc-annual-reports/article/kokkos/>`_.
 
 The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a large amount of search results and stackoverflow discussions can be found.
 
-SYCL...
+SYCL
+^^^^
+
+
+Pros and cons of cross-platform portability libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    The amount of code duplication is minimized
+
+    The same code can be compiled to multiple architectures from different vendors
+
+    Higher level of abstraction, does not require as much knowledge of the underlying architecture
+
+    Less matured ecosystem compared to CUDA, more uncertainty about future
+
+    Less learning resources (stackoverflow, course material, documentation)
+
 
 Examples
 ~~~~~~~~
@@ -875,19 +899,6 @@ Reduction
       .. code-block:: C
 
          WRITEME
-
-
-Pros and cons of kernel-based frameworks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Easy to work with
-- Porting of existing software requires less work
-- Same code can be compiled to CPU and GPU versions easily
-
-
-
-- Get access to all features of the GPU hardware
-- More optimization possibilities
 
 
 
