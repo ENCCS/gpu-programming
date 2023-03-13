@@ -525,7 +525,8 @@ Furthermore, one challenge with some cross-platform portability libraries is tha
 
    .. tab:: Kokkos
 
-      .. code-block:: shell
+      .. code-block:: none
+         
          default: build
    
          # Set compiler
