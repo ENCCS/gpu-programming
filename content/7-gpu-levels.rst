@@ -644,26 +644,41 @@ Parallel for with GPU buffers
             {
               unsigned n = 5;
           
-              // Allocate on Kokkos host memory space
+              // Allocate space for 5 ints on Kokkos host memory space
               Kokkos::View<int*, Kokkos::HostSpace> h_a("h_a", n);
+              Kokkos::View<int*, Kokkos::HostSpace> h_b("h_b", n);
+              Kokkos::View<int*, Kokkos::HostSpace> h_c("h_c", n);
           
-              // Allocate on Kokkos default memory space (eg, GPU memory)
+              // Allocate space for 5 ints on Kokkos default memory space (eg, GPU memory)
               Kokkos::View<int*> a("a", n);
+              Kokkos::View<int*> b("b", n);
+              Kokkos::View<int*> c("c", n);
             
-              // Initialize values
+              // Initialize values on host
               for (unsigned i = 0; i < n; i++)
+              {
                 h_a[i] = i;
+                h_b[i] = i;
+              }
               
               // Copy from host to device
               Kokkos::deep_copy(a, h_a);
+              Kokkos::deep_copy(b, h_b);
             
-              // Print parallel from the device
+              // Run element-wise multiplication on device
               Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
-                printf("a[%d] = %d\n", i, a[i]);
+                c[i] = a[i] * b[i];
               });
+
+              // Copy from device to host
+              Kokkos::deep_copy(h_c, c);
 
               // Kokkos synchronization
               Kokkos::fence();
+
+              // Print results
+              for (unsigned i = 0; i < n; i++)
+                printf("c[%d] = %d\n", i, h_c[i]);
             }
             
             // Finalize Kokkos
@@ -689,7 +704,7 @@ Parallel for with GPU buffers
            auto c_buf = sycl::buffer<int>(sycl::range<1>(n));
 
            // Initialize values
-           // We must use curly braces to limit host accessors' lifetime
+           // We should use curly braces to limit host accessors' lifetime
            //    and indicate when we're done working with them:
            {
              auto a_host_acc = a_buf.get_host_access();
@@ -708,7 +723,7 @@ Parallel for with GPU buffers
              auto b_acc = b_buf.get_access<sycl::access_mode::read>(cgh);
              // Create write accesor over c_buf
              auto c_acc = c_buf.get_access<sycl::access_mode::write>(cgh);
-             // Print parallel from the device
+             // Run element-wise multiplication on device
              cgh.parallel_for<class vec_add>(sycl::range<1>{n}, [=](sycl::id<1> i) {
                  c_acc[i] = a_acc[i] * b_acc[i];
              });
@@ -717,6 +732,7 @@ Parallel for with GPU buffers
            // No need to synchronize, creating the accessor for c_buf will do it automatically
            {
                const auto c_host_acc = c_buf.get_host_access();
+               // Print results
                for (unsigned i = 0; i < n; i++)
                  printf("c[%d] = %d\n", i, c_host_acc[i]);
            }
@@ -737,7 +753,7 @@ Parallel for with GPU buffers
 
          WRITEME
 
-Parallel for with streams
+Asynchronous parallel for kernels
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. tabs:: 
@@ -754,24 +770,29 @@ Parallel for with streams
            Kokkos::initialize(argc, argv);
          
            {
-             unsigned nincr = 5;
-             unsigned nx = 1000;
+             unsigned n = 5;
+             unsigned nx = 20;
          
              // Allocate on Kokkos default memory space (eg, GPU memory)
              Kokkos::View<int*> a("a", nx);
          
-             // Create execution space instances (streams) for each increment
+             // Create execution space instances (maps to streams in CUDA/HIP) for each regionement
              auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
            
-             for(unsigned incr = 0; incr < nincr; incr++) {
-               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[incr], nx / nincr * incr, nx / nincr * (incr + 1)), KOKKOS_LAMBDA(const int i) {
-                 a[i] = i;
+             // Launch multiple potentially asynchronous kernels in different execution space instances
+             for(unsigned region = 0; region < n; region++) {
+               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[region], nx / n * region, nx / n * (region + 1)), KOKKOS_LAMBDA(const int i) {
+                 a[i] = region + i;
                });
              }
 
-             // Sync execution space instances (streams)
-             for(unsigned incr = 0; incr < nincr; incr++)
-               ex[incr].fence();
+             // Sync execution space instances (maps to streams in CUDA/HIP)
+             for(unsigned region = 0; region < n; region++)
+               ex[region].fence();
+
+             // Print results
+             for (unsigned i = 0; i < nx; i++)
+               printf("a[%d] = %d\n", i, a[i]);
            }
            
            // Finalize Kokkos
@@ -798,43 +819,6 @@ Parallel for with streams
 
          WRITEME
 
-Vector addition
-^^^^^^^^^^^^^^^
-
-.. tabs:: 
-
-   .. tab:: CUDA C 
-
-      .. code-block:: C
-
-         __global__ void vecAdd(int *a_d, int *b_d, int *c_d, int N)
-         {
-             int i = blockIdx.x * blockDim.x + threadIdx.x;
-             if(i<N)
-             {
-               c_d[i] = a_d[i] + b_d[i];
-             }
-         }
-
-   .. tab:: CUDA Fortran
-
-      .. code-block:: Fortran
-
-         WRITEME
-
-   .. tab:: HIP C
-
-      .. code-block:: C
-
-         WRITEME
-
-   .. tab:: HIP Fortran
-
-      .. code-block:: Fortran
-sum
-         WRITEME
-
-
 Reduction
 ^^^^^^^^^
 .. tabs:: 
@@ -856,13 +840,16 @@ Reduction
              // Initialize sum variable
              int sum = 0;
            
-             // Print parallel from the device
+             // Run sum reduction kernel
              Kokkos::parallel_reduce(n, KOKKOS_LAMBDA(const int i, int &lsum) {
                lsum += i;
              }, sum);
 
              // Kokkos synchronization
              Kokkos::fence();
+
+             // Print results
+             printf("sum = %d\n", sum);
            }
   
            // Finalize Kokkos
