@@ -776,7 +776,7 @@ Asynchronous parallel for kernels
              // Allocate on Kokkos default memory space (eg, GPU memory)
              Kokkos::View<int*> a("a", nx);
          
-             // Create execution space instances (maps to streams in CUDA/HIP) for each regionement
+             // Create execution space instances (maps to streams in CUDA/HIP) for each region
              auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
            
              // Launch multiple potentially asynchronous kernels in different execution space instances
