@@ -521,25 +521,27 @@ The Kokkos library provides an abstraction layer for a variety of different cust
 
 Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system. However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings and including the Kokkos Makefile in the user Makefile. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a Kokkos project that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
 
-.. code-block:: C++
-   default: build
-   
-   # Set compiler
-   KOKKOS_PATH = $(shell pwd)/kokkos
-   CXX = ${KOKKOS_PATH}/bin/nvcc_wrapper
-   
-   # Variables for the Makefile.kokkos
-   KOKKOS_DEVICES = "Cuda"
-   KOKKOS_ARCH = "Volta70"
-   KOKKOS_CUDA_OPTIONS = "enable_lambda,force_uvm"
-   
-   # Include Makefile.kokkos
-   include $(KOKKOS_PATH)/Makefile.kokkos
-   
-   build: $(KOKKOS_LINK_DEPENDS) $(KOKKOS_CPP_DEPENDS) hello.cpp
-   $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
+.. tabs:: 
 
+   .. tab:: Kokkos
 
+      .. code-block:: shell
+         default: build
+   
+         # Set compiler
+         KOKKOS_PATH = $(shell pwd)/kokkos
+         CXX = ${KOKKOS_PATH}/bin/nvcc_wrapper
+         
+         # Variables for the Makefile.kokkos
+         KOKKOS_DEVICES = "Cuda"
+         KOKKOS_ARCH = "Volta70"
+         KOKKOS_CUDA_OPTIONS = "enable_lambda,force_uvm"
+         
+         # Include Makefile.kokkos
+         include $(KOKKOS_PATH)/Makefile.kokkos
+         
+         build: $(KOKKOS_LINK_DEPENDS) $(KOKKOS_CPP_DEPENDS) hello.cpp
+         $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
 
 SYCL
 ^^^^
