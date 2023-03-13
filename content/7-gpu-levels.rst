@@ -544,10 +544,10 @@ Parallel for with Unified Memory
              for (unsigned i = 0; i < n; i++)
              {
                a[i] = i;
-               b[i] = n - i;
+               b[i] = i;
              }
            
-             // Print parallel from the device
+             // Run element-wise multiplication on device
              Kokkos::parallel_for(n, KOKKOS_LAMBDA(const int i) {
                c[i] = a[i] * b[i];
              });
@@ -555,6 +555,7 @@ Parallel for with Unified Memory
              // Kokkos synchronization
              Kokkos::fence();
              
+             // Print results
              for (unsigned i = 0; i < n; i++)
                printf("c[%d] = %d\n", i, c[i]);
             
@@ -597,6 +598,7 @@ Parallel for with Unified Memory
              c[i] = a[i] * b[i];
            }).wait();
            
+           // Print results
            for (unsigned i = 0; i < n; i++)
            {
              printf("c[%d] = %d\n", i, c[i]);
