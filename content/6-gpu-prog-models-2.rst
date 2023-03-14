@@ -1,6 +1,6 @@
 .. _gpu-levels:
 
-GPU programming types
+GPU programming models 2 (detailed)
 =====================
 
 .. questions::

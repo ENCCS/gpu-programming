@@ -1,6 +1,6 @@
 .. _gpu-software:
 
-GPU software environments
+GPU programming models 1 (intro)
 =========================
 
 .. questions::
@@ -39,25 +39,22 @@ OpenMP started a multi-platform, shared-memory parallel programming API for mult
 
 In theory the directive based approaches should work with both C/C++ and FORTRAN codes and third party extensions are available for other languages. 
 
-High Level Frameworks
+Cross-platform portability ecosystems (portable kernels)
 ---------------------
-High level frameworks are high abstractions layer which provide a convenient and easy-to-use programming model for GPU programming, and they can help reduce the time and effort required to develop and deploy GPU-accelerated applications. The goal of the frameworks are focus on ease of use and performance portability. 
 
-There a lots of available frameworks like TensorFlow and PyTorch (for deep learning and linear operations), CuPy(CUDA-accelerated NumPy), RAPIDS, Numba, and many more which allow developers to write GPU-accelerated code in pure Python. In C++ the most notable are RAJA, KOKKOS, and ALPAKA.
+Cross-platform portability ecosystems provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming, and they can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are Alpaka, Kokkos, Raja, and SYCL.
 
-KOKKOS
+Kokkos
 ~~~~~~
 
 Kokkos is an open-source performance portable programming model for heterogeneous parallel computing that was developed at Sandia National Laboratories. It is a C++ library that provides a high-level programming model for developing efficient and scalable parallel applications that run on many-core processors such as GPUs and CPUs. Kokkos provides a variety of abstractions, including parallel algorithms, data parallelism, and task-based parallelism, which enable developers to write portable and performant code for GPU and CPU systems. Kokkos also integrates well with other software libraries and technologies, such as MPI and OpenMP.
-
-Both,  directive based approaches and frameworks, provide abstraction layers make the codes portable and easy to write, but come at a cost. They can provide relatively good performance in many situations, but for maximum performance a more direct approach is needed. 
 
 SYCL
 ~~~~ 
 SYCL is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
 
 
-Native GPU Programming
+Native programming models (non-portable kernels)
 ----------------------
 
 When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used.
