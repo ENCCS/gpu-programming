@@ -18,11 +18,11 @@ Preparing code for GPU porting
    - X min teaching
    - X min exercises
 
-Taking advantage of the parallel processing capability of the GPUs requires modifying the original. However some work is required before writing actual code running on the GPUs:
+Taking advantage of the parallel processing capability of the GPUs requires modifying the original code. However some work is required before writing actual code running on the GPUs:
 
 * identify (or decide)  the parts of the code targeted by the porting. These are computational intensive parts of the code such as loops or matrix operations
-* if a cpu library is used one should idnetify the equivalent one on the GPUs. For example BLAS library has cu/hipBLAS, or mkl equivlanents. 
-* when porting a loop directly works needs to be done to refactor it in a way that is suitable for the GPUs.(example missing here). Loops are mapped to kernels which are executed by many gpu threads. Due to data dependency (the gpu threads have very limited communications among themselves) and performance considerations, it is possible that a CPU loop to be splitted in many kernels.
+* if a cpu library is used one should identify the equivalent one on the GPUs. For example BLAS library has cu/hipBLAS, or mkl equivalents. 
+* when porting a loop directly works needs to be refactored it in a way that is suitable for the GPUs.(example missing here). This involves splitting the loop in several steps or changing some operations to reflect the independence of the operations in different iterations or give a better memory access. Each "step" of the original loop is then mapped to a kernels which is many gpu threads, each gpu thread correspoding to an iteration. 
 
 
 .. keypoints::
