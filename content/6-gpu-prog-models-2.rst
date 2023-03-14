@@ -1,4 +1,4 @@
-.. _gpu-levels:
+.. _gpu-prog-models-2:
 
 GPU programming models 2 (detailed)
 =====================
