@@ -46,9 +46,9 @@ to learn and use for their projects. Specifically, you will:
    2-gpu-hardware
    3-gpu-problems
    4-gpu-concepts
-   5-gpu-software
-   6-gpu-porting
-   7-gpu-levels
+   5-gpu-prog-models-1
+   6-gpu-prog-models-2
+   7-gpu-porting
    8-recommendations
    9-examples
 
