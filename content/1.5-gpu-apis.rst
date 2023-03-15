@@ -36,9 +36,9 @@ ROCm
 ~~~~
 
 * Drivers and runtimes, provided by the amdgpu kernel model and dev-libs/roct-thunk-interface and dev-libs/rocr-runtime.
-* Programming models. See ROCm#Programming_models for details.
+* Programming models (OpenCL, HIP, OpenMP)
 * Compilers and tools. 
-* Libraries. Most libraries prefixed by roc and hip in sci-libs category, with src_test enabled. All roc* packages are written in HIP and uses hipamd as backend, while hip* are simple wrappers.
+* Libraries. Most libraries prefixed by roc and hip. All roc* packages are written in HIP and uses hipamd as backend, while hip* are simple wrappers.
 * Deployment tools
 
 OneAPI
