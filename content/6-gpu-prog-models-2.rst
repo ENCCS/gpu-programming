@@ -927,7 +927,7 @@ Reduction
            q.submit([&](sycl::handler& cgh) {
          
              // Create temporary objects describing variables with reduction semantics
-             auto sum_reduction = sycl::::reduction(sum, sycl::plus<int>(), cgh);
+             auto sum_reduction = sycl::reduction(sum, sycl::plus<int>(), cgh);
          
              // A reference to the reducer is passed to the lambda
              cgh.parallel_for(sycl::range<1> {n}, sum_reduction,
