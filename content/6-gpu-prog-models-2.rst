@@ -907,11 +907,39 @@ Reduction
          }
 
 
-   .. tab:: SYCL
+   .. tab:: SYCL (THIS SHOULD BE TESTED)
 
       .. code-block:: C
 
-         WRITEME
+         // THE FOLLOWING BLOCK OF CODE SHOULD BE TESTED, OPENSYCL APPEARS TO NOT SUPPORT "reduction"-FUNCTION YET
+
+         #include <CL/sycl.hpp>
+         using namespace cl;
+         
+         int main(int argc, char* argv[]) {
+         
+           sycl::queue q;
+           unsigned n = 5;
+         
+           // Buffers with just 1 element to get the reduction results
+           int sum = 0;
+         
+           q.submit([&](sycl::handler& cgh) {
+         
+             // Create temporary objects describing variables with reduction semantics
+             auto sum_reduction = sycl::::reduction(sum, sycl::plus<int>(), cgh);
+         
+             // A reference to the reducer is passed to the lambda
+             cgh.parallel_for(sycl::range<1> {n}, sum_reduction,
+               [=](sycl::id<1> idx, auto& lsum) {
+                 lsum += idx;
+               });
+           });
+         
+           // Print results
+           printf("sum = %d\n", sum);
+         }
+         
 
    .. tab:: CUDA
 
