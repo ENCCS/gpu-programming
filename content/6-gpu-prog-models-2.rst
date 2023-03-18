@@ -510,7 +510,7 @@ Pros and cons of native programming models
 Cross-platform portability ecosystems (portable kernels)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The goal of the portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Kokkos, SYCL, and Raja. Kokkos and RAJA are individual projects whereas SYCL is a standard that is followed by several SYCL-based projects, eg, Intel DPC++, hipSYCL, and triSYCL, among other library implementations.
+The goal of the portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Kokkos, SYCL, and RAJA. Kokkos and RAJA are individual projects whereas SYCL is a standard that is followed by several projects implementing (and extending) it, notably `Intel DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `Open SYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (formerly hipSYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 Kokkos
 ^^^^^^
@@ -525,7 +525,7 @@ Furthermore, one challenge with some cross-platform portability libraries is tha
 
    .. tab:: Makefile
 
-      .. code-block:: none
+      .. code-block:: makefile
 
          default: build
    
@@ -624,40 +624,38 @@ Parallel for with Unified Memory
       .. code-block:: C++
 
          #include <sycl/sycl.hpp>
-         
+
          int main(int argc, char* argv[]) {
-         
+
            sycl::queue q;
            unsigned n = 5;
-         
+
            // Allocate shared memory (Unified Shared Memory)
            int *a = sycl::malloc_shared<int>(n, q);
            int *b = sycl::malloc_shared<int>(n, q);
            int *c = sycl::malloc_shared<int>(n, q);
-           
+
            // Initialize values on host
-           for (unsigned i = 0; i < n; i++)
-           {
+           for (unsigned i = 0; i < n; i++) {
              a[i] = i;
              b[i] = 1;
            }
-         
+
            // Run element-wise multiplication on device
            q.parallel_for(sycl::range<1>{n}, [=](sycl::id<1> i) {
              c[i] = a[i] * b[i];
            }).wait();
-           
+
            // Print results
-           for (unsigned i = 0; i < n; i++)
-           {
+           for (unsigned i = 0; i < n; i++) {
              printf("c[%d] = %d\n", i, c[i]);
            }
-         
+
            // Free shared memory allocation (Unified Memory)
            sycl::free(a, q);
            sycl::free(b, q);
            sycl::free(c, q);
-         
+
            return 0;
          }
 
@@ -738,7 +736,7 @@ Parallel for with GPU buffers
 
    .. tab:: SYCL
 
-      .. code-block:: C
+      .. code-block:: C++
 
          #include <sycl/sycl.hpp>
          
@@ -758,8 +756,7 @@ Parallel for with GPU buffers
            {
              auto a_host_acc = a_buf.get_host_access();
              auto b_host_acc = b_buf.get_host_access();
-             for (unsigned i = 0; i < n; i++)
-             {
+             for (unsigned i = 0; i < n; i++) {
                a_host_acc[i] = i;
                b_host_acc[i] = 1;
              }
@@ -852,9 +849,39 @@ Asynchronous parallel for kernels
 
    .. tab:: SYCL
 
-      .. code-block:: C
+      .. code-block:: C++
 
-         WRITEME
+         #include <sycl/sycl.hpp>
+         
+         int main(int argc, char* argv[]) {
+
+           sycl::queue q;
+           unsigned n = 5;
+           unsigned nx = 20;
+
+           // Allocate shared memory (Unified Shared Memory)
+           int *a = sycl::malloc_shared<int>(nx, q);
+
+           // Launch multiple potentially asynchronous kernels on different parts of the array
+           for(unsigned region = 0; region < n; region++) {
+             q.parallel_for(sycl::range<1>{n}, [=](sycl::id<1> i) {
+               const int iShifted = i + nx / n * region;
+               a[iShifted] = region + iShifted;
+             });
+           }
+
+           // Synchronize
+           q.wait();
+
+           // Print results
+           for (unsigned i = 0; i < nx; i++)
+             printf("a[%d] = %d\n", i, a[i]);
+
+           // Free shared memory allocation (Unified Memory)
+           sycl::free(a, q);
+
+           return 0;
+         }
 
    .. tab:: CUDA
 
@@ -907,38 +934,33 @@ Reduction
          }
 
 
-   .. tab:: SYCL (THIS SHOULD BE TESTED)
+   .. tab:: SYCL
 
-      .. code-block:: C
+      .. code-block:: C++
 
-         // THE FOLLOWING BLOCK OF CODE SHOULD BE TESTED, OPENSYCL APPEARS TO NOT SUPPORT "reduction"-FUNCTION YET
+         #include <sycl/sycl.hpp>
 
-         #include <CL/sycl.hpp>
-         using namespace cl;
-         
-         int main(int argc, char* argv[]) {
-         
+         int main(int argc, char *argv[]) {
            sycl::queue q;
            unsigned n = 5;
-         
+
            // Buffers with just 1 element to get the reduction results
-           int sum = 0;
-         
-           q.submit([&](sycl::handler& cgh) {
-         
+           int* sum = sycl::malloc_shared<int>(1, q);
+           *sum = 0;
+
+           q.submit([&](sycl::handler &cgh) {
              // Create temporary objects describing variables with reduction semantics
-             auto sum_reduction = sycl::reduction(sum, sycl::plus<int>(), cgh);
-         
+             auto sum_reduction = sycl::reduction(sum, sycl::plus<int>());
+
              // A reference to the reducer is passed to the lambda
-             cgh.parallel_for(sycl::range<1> {n}, sum_reduction,
-               [=](sycl::id<1> idx, auto& lsum) {
-                 lsum += idx;
-               });
-           });
-         
+             cgh.parallel_for(sycl::range<1>{n}, sum_reduction,
+                               [=](sycl::id<1> idx, auto &reducer) { reducer.combine(idx[0]); });
+           }).wait();
+
            // Print results
-           printf("sum = %d\n", sum);
+           printf("sum = %d\n", *sum);
          }
+
          
 
    .. tab:: CUDA
