@@ -786,6 +786,70 @@ Parallel for with GPU buffers
            return 0;
          }
 
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+
+          // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+          #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+          #define CL_HPP_TARGET_OPENCL_VERSION 110
+          #include <CL/opencl.hpp>
+
+          // For larger kernels, we can store source in a separate file
+          static const std::string kernel_source{
+              "__kernel void dot(__global const int *a, __global const int *b, __global "
+              "int *c) {\n"
+              "    int i = get_global_id(0);\n"
+              "    c[i] = a[i] * b[i];\n"
+              "}"};
+
+          int main(int argc, char *argv[]) {
+
+            cl::Device device = cl::Device::getDefault();
+            cl::Context context(device);
+            cl::CommandQueue queue(context, device);
+
+            // Compile OpenCL program for found device.
+            cl::Program program(context, kernel_source);
+            program.build(device);
+            cl::Kernel kernel_dot(program, "dot");
+
+            unsigned n = 5;
+
+            std::vector<int> a(n), b(n), c(n);
+
+            // Initialize values on host
+            for (unsigned i = 0; i < n; i++) {
+              a[i] = i;
+              b[i] = 1;
+            }
+
+            // Create buffers and copy input data to device.
+            cl::Buffer dev_a(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                            n * sizeof(int), a.data());
+            cl::Buffer dev_b(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                            n * sizeof(int), b.data());
+            cl::Buffer dev_c(context, CL_MEM_READ_WRITE, n * sizeof(int));
+
+            // We must use cl::Kernel::setArg to pass arguments to device
+            kernel_dot.setArg(0, dev_a);
+            kernel_dot.setArg(1, dev_b);
+            kernel_dot.setArg(2, dev_c);
+
+            // We don't need to apply any offset to thread IDs
+            const auto offset = cl::NullRange;
+            queue.enqueueNDRangeKernel(kernel_dot, offset, n);
+
+            queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, n * sizeof(int), c.data());
+
+            // Print results
+            for (unsigned i = 0; i < n; i++) {
+              printf("c[%d] = %d\n", i, c[i]);
+            }
+
+            return 0;
+          }
+
 
    .. tab:: CUDA
 
