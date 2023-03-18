@@ -1,7 +1,7 @@
 .. _gpu-prog-models-1:
 
 GPU programming models 1 (intro)
-=========================
+================================
 
 .. questions::
 

@@ -1,7 +1,7 @@
 .. _gpu-prog-models-2:
 
 GPU programming models 2 (detailed)
-=====================
+===================================
 
 .. questions::
 
@@ -508,7 +508,7 @@ Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Cross-platform portability ecosystems (portable kernels)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The goal of the portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Kokkos, SYCL, and RAJA. Kokkos and RAJA are individual projects whereas SYCL is a standard that is followed by several projects implementing (and extending) it, notably `Intel DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `Open SYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (formerly hipSYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
@@ -549,7 +549,7 @@ SYCL
 
 
 Pros and cons of cross-platform portability ecosystems
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     The amount of code duplication is minimized
 
@@ -864,7 +864,7 @@ Parallel for with GPU buffers
          WRITEME
 
 Asynchronous parallel for kernels
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. tabs:: 
 
