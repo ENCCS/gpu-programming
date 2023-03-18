@@ -124,7 +124,16 @@ DIRECTIVES = [SignatureDirective, ParametersDirective, TypealongDirective]
 
 
 abbr_map = { }
-abbr_map['thread'] = "definition of thread.  In aaa, bbb.  In xxx, yyy."
+abbr_map['grid'] = "In OpenCL and SYCL: NDRange."
+abbr_map['block'] = "In OpenCL and SYCL: work-group."
+abbr_map['warp'] = "In HIP: wavefront. In OpenCL and SYCL: sub-group."
+abbr_map['thread'] = "In OpenCL and SYCL: work-item."
+abbr_map['grid'] = "In OpenCL and SYCL: NDRange."
+abbr_map['register'] = "In OpenCL and SYCL: private memory."
+abbr_map['shared memory'] = "In OpenCL and SYCL: local memory (not to be confused with CUDA and HIP local memory)."
+abbr_map['grids'] = abbr_map['grid']
+abbr_map['blocks'] = abbr_map['block']
+abbr_map['warps'] = abbr_map['warp']
 abbr_map['threads'] = abbr_map['thread']
 
 
