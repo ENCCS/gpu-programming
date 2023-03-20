@@ -360,7 +360,7 @@ TODO: test, simplify and harmonize all versions below
       .. code-block:: Fortran
          
          program dotproduct
-             implicit none
+             implicit none  
  
              integer, parameter :: nx = 102400
              real, dimension(nx) :: vecA,vecB,vecC
