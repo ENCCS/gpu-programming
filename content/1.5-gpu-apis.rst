@@ -1,7 +1,7 @@
 .. _gpu-platforms:
 
-GPU APIs
-========
+GPU software suits
+==================
 
 .. questions::
 
