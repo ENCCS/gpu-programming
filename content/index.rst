@@ -44,6 +44,7 @@ to learn and use for their projects. Specifically, you will:
 
    1-gpu-history
    2-gpu-hardware
+   1.5-gpu-apis
    3-gpu-problems
    4-gpu-concepts
    5-gpu-prog-models-1
