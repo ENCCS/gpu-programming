@@ -53,6 +53,7 @@ to learn and use for their projects. Specifically, you will:
    9-gpu-porting
    10-recommendations
    11-examples
+   12-humanities-examples
 
 .. toctree::
    :maxdepth: 1

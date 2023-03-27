@@ -116,7 +116,7 @@ and refined tuning is possible to achieve. The above example can be re-write as 
 Sometimes we can obtain a little more performance by guiding the compiler to make specific choices. 
 OpenACC has four levels of parallelism for offloading execution: 
 
-  - **gang** coarse garin: the iterations are distributed among the gangs
+  - **gang** coarse grain: the iterations are distributed among the gangs
   - **worker** fine grain: worker's threads are activated within gangs and iterations are shared among the threads 
   - **vector** each worker activtes its threads working in SIMT fashion and the work is shared among the threads
   - **seq** the iterations are executed sequentially
