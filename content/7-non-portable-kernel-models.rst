@@ -16,7 +16,7 @@ Examples
 Parallel for with Unified Memory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**I was thinking about having the exact same example cases for each 4 backend in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos, and sycl?**
+**I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos, and sycl?**
 
 .. tabs:: 
 
