@@ -12,6 +12,10 @@ Kokkos is an open-source performance portability ecosystem for parallelization o
 
 The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a much larger amount of search results and stackoverflow discussions can be found.
 
+
+Kokkos compilation
+~~~~~~~~~~~~~~~~~~
+
 Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system. However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html>`_) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
 
 .. tabs:: 
@@ -36,6 +40,10 @@ Furthermore, one challenge with some cross-platform portability libraries is tha
          
          build: $(KOKKOS_LINK_DEPENDS) $(KOKKOS_CPP_DEPENDS) hello.cpp
                  $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
+
+
+Kokkos programming
+~~~~~~~~~~~~~~~~~~
 
 When starting to write a project using Kokkos, the first step is understand Kokkos initialization and finalization. Kokkos must be initialized by calling ``Kokkos::initialize(int& argc, char* argv[])`` and finalized by calling ``Kokkos::finalize()``. More details are given in `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Initialization.html>`_.
 
@@ -75,10 +83,10 @@ SYCL
 ^^^^
 
 Examples
-~~~~~~~~
+^^^^^^^^
 
 Parallel for with Unified Memory
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
 
@@ -185,7 +193,7 @@ Parallel for with Unified Memory
          WRITEME
 
 Parallel for with GPU buffers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
 
@@ -376,7 +384,7 @@ Parallel for with GPU buffers
          WRITEME
 
 Asynchronous parallel for kernels
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
 
@@ -472,7 +480,7 @@ Asynchronous parallel for kernels
          WRITEME
 
 Reduction
-^^^^^^^^^
+~~~~~~~~~
 .. tabs:: 
 
    .. tab:: Kokkos
