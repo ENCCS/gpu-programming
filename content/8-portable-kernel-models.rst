@@ -74,21 +74,6 @@ OpenCL
 SYCL
 ^^^^
 
-
-Pros and cons of cross-platform portability ecosystems
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-    The amount of code duplication is minimized
-
-    The same code can be compiled to multiple architectures from different vendors
-
-    Higher level of abstraction, does not require as much knowledge of the underlying architecture
-
-    Less matured ecosystem compared to CUDA, more uncertainty about future
-
-    Less learning resources (stackoverflow, course material, documentation)
-
-
 Examples
 ~~~~~~~~
 
@@ -566,23 +551,19 @@ Reduction
 
          WRITEME
 
+Pros and cons of cross-platform portability ecosystems
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+    The amount of code duplication is minimized
 
-Cost-benefit analysis
----------------------
+    The same code can be compiled to multiple architectures from different vendors
 
-WRITEME begin
+    Higher level of abstraction, does not require as much knowledge of the underlying architecture
 
-- how to choose between frameworks?
-- depends on:
+    Less matured ecosystem compared to CUDA, more uncertainty about future
 
-  - specifics of the problem at hand
-  - whether starting from scratch or from existing code
-  - background knowledge of programmer
-  - how much time can be invested
-  - performance needs
+    Less learning resources (stackoverflow, course material, documentation)
 
-WRITEME end
 
 .. keypoints::
 
