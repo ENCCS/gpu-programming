@@ -40,25 +40,25 @@ OpenMP
 
 In theory the directive based approaches should work with both C/C++ and FORTRAN codes and third party extensions are available for other languages. 
 
-Portable kernel models (cross-platform portability ecosystems)
+Portable kernel-based models (cross-platform portability ecosystems)
 --------------------------------------------------------------
 
-Cross-platform portability ecosystems provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming, and they can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
+Cross-platform portability ecosystems often provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming, and they can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `OpenCL <https://www.khronos.org/opencl/>`_, `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
 
 Kokkos
 ~~~~~~
 
 `Kokkos <https://github.com/kokkos/kokkos>`_ is an open-source performance portable programming model for heterogeneous parallel computing that was developed at Sandia National Laboratories. It is a C++ library that provides a high-level programming model for developing efficient and scalable parallel applications that run on many-core processors such as GPUs and CPUs. Kokkos provides a variety of abstractions, including parallel algorithms, data parallelism, and task-based parallelism, which enable developers to write portable and performant code for GPU and CPU systems. Kokkos also integrates well with other software libraries and technologies, such as MPI and OpenMP.
 
-SYCL
-~~~~
-
-`SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
-
 OpenCL
 ~~~~~~
 
 `OpenCL <https://www.khronos.org/opencl/>`_ (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on GPUs and CPUs. It supports a wide range of hardware, including GPUs from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike CUDA, HIP, and SYCL, OpenCL uses separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is more widely used.
+
+SYCL
+~~~~
+
+`SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
 
 Non-portable kernel-based models (native programming models)
 ------------------------------------------------------------
