@@ -10,14 +10,13 @@ CUDA
 HIP
 ^^^
 
-Pros and cons of native programming models
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 Examples
-~~~~~~~~
+^^^^^^^^
 
 Parallel for with Unified Memory
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**I was thinking about having the exact same example cases for each 4 backend in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos, and sycl?**
 
 .. tabs:: 
 
@@ -124,7 +123,7 @@ Parallel for with Unified Memory
 
 
 Parallel for with GPU buffers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
 
@@ -315,7 +314,7 @@ Parallel for with GPU buffers
 
 
 Asynchronous parallel for kernels
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
 
@@ -411,7 +410,7 @@ Asynchronous parallel for kernels
          }
 
 Reduction
-^^^^^^^^^
+~~~~~~~~~
 .. tabs:: 
 
    .. tab:: CUDA
@@ -488,6 +487,8 @@ Reduction
            printf("sum = %d\n", *sum);
          }
 
+Pros and cons of native programming models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. keypoints::
 

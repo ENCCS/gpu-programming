@@ -22,7 +22,7 @@ There are different way to use GPUs for computations. In the best case someone a
 However these are quite limited cases and in general some programming might be needed. There are several GPU programming software environments and APIs available such as, **directive based**, **high level frameworks**, or direct GPU programming. 
 
 
-Directive based programming
+Directive-based programming
 ---------------------------
 
 A very fast and cheap way is to use **directive based** approaches. In this case the existing *serial* code is annotated with *hints* which indicate to the compiler which loops and regions should be executed on the GPU. In the absence of the API the directives are treated as comments and the code will just be executed as a usual serial code.  This approach is focused on productivity and easy usage, getting performance with minimum programming effort  by adding parallelism to existing code without the need to write GPU-specific code. There are two possible ways to program using directives, namely **OpenAcc** and **OpenMP**.
@@ -40,8 +40,8 @@ OpenMP
 
 In theory the directive based approaches should work with both C/C++ and FORTRAN codes and third party extensions are available for other languages. 
 
-Cross-platform portability ecosystems (portable kernels)
---------------------------------------------------------
+Portable kernel models (cross-platform portability ecosystems)
+--------------------------------------------------------------
 
 Cross-platform portability ecosystems provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming, and they can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
 
@@ -60,8 +60,8 @@ OpenCL
 
 `OpenCL <https://www.khronos.org/opencl/>`_ (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on GPUs and CPUs. It supports a wide range of hardware, including GPUs from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike CUDA, HIP, and SYCL, OpenCL uses separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is more widely used.
 
-Native programming models (non-portable kernels)
-------------------------------------------------
+Non-portable kernel-based models (native programming models)
+------------------------------------------------------------
 
 When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used.
 
@@ -76,6 +76,18 @@ HIP
 `HIP <https://github.com/ROCm-Developer-Tools/HIP>`_ (Heterogeneous Interface for Portability) is an API developed by AMD that provides a high-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides a similar programming interface to CUDA.
 
 Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
+
+
+High-level language support
+---------------------------
+
+WRITEME: General paragraph about modern GPU libraries for high-level languages:
+
+- Python
+- Julia
+- SYCL
+
+
 
 
 .. keypoints::

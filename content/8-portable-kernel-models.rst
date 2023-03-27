@@ -1,9 +1,9 @@
 .. _portable-kernel-models:
 
-Portable kernel models (cross-platform portability ecosystems)
-==============================================================
+Portable kernel-based models
+====================================================================
 
-The goal of the portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Kokkos, SYCL, and RAJA. Kokkos and RAJA are individual projects whereas SYCL is a standard that is followed by several projects implementing (and extending) it, notably `Intel DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `Open SYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (formerly hipSYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which uses a separate-source model for the kernel code. Unlike in many conventional CUDA or HIP implementations, a kernel needs to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Kokkos, SYCL, and RAJA. Kokkos and RAJA are individual projects whereas SYCL is a standard that is followed by several projects implementing (and extending) it, notably `Intel DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `Open SYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (formerly hipSYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 Kokkos
 ^^^^^^
@@ -562,19 +562,6 @@ Reduction
       .. code-block:: C
 
          WRITEME
-
-
-
-
-High-level language support
----------------------------
-
-WRITEME: General paragraph about modern GPU libraries for high-level languages:
-
-- Python
-- Julia
-- SYCL
-
 
 
 
