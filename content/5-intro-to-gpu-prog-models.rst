@@ -1,17 +1,17 @@
-.. _gpu-prog-models-1:
+.. _intro-to-gpu-prog-models:
 
-GPU programming models 1 (intro)
+Introduction to GPU programming models
 ================================
 
 .. questions::
 
-   - q1
-   - q2
+   - What are the key differences between different GPU programming approaches?
+   - How should I choose which framework to use for my project?
 
 .. objectives::
 
-   - o1
-   - o2
+   - Understand basic examples in different GPU programming frameworks
+   - Perform a quick cost-benefit analysis in the context of own code projects
 
 .. instructor-note::
 
