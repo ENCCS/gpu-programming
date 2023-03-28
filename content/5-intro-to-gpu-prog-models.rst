@@ -21,6 +21,16 @@ Introduction to GPU programming models
 There are different ways to use GPUs for computations. In the best case, when someone has already written the code, one only needs to set the parameters and initial configurations in order to get started. Or in some cases the problem is in such a way that it is only needed to use a library to solve the most intensive part of the code. 
 However these are quite limited cases and in general some programming might be needed. There are several GPU programming software environments and APIs available such as, **directive-based models**, **non-portable kernel-based models**, and **portable kernel-based models**, as well as high-level frameworks and libraries.
 
+Standard C++/Fortran
+--------------------
+
+Programs written in standard C++ and Fortran languages can now take advantage of NVIDIA GPUs without
+depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`_
+suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
+can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`_ while
+those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`_.
+The performance of these two approaches is promising as it can be seen in the examples provided in those
+guidelines.
 
 Directive-based programming
 ---------------------------
