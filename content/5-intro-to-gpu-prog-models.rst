@@ -53,9 +53,8 @@ CUDA
 HIP
 ~~~
 
-`HIP <https://github.com/ROCm-Developer-Tools/HIP>`_ (Heterogeneous Interface for Portability) is an API developed by AMD that provides a high-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides a similar programming interface to CUDA.
+`HIP <https://github.com/ROCm-Developer-Tools/HIP>`_ (Heterogeneous Interface for Portability) is an API developed by AMD that provides a low-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides an almost identical programming interface to CUDA.
 
-Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
 
 Portable kernel-based models (cross-platform portability ecosystems)
 --------------------------------------------------------------
@@ -104,6 +103,12 @@ WRITEME begin
   - performance needs
 
 WRITEME end
+
+
+Summary
+-------
+
+Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
 
 
 
