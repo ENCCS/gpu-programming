@@ -79,6 +79,7 @@ Finally, Kokkos provides three different parallel operations: ``parallel_for``, 
 OpenCL
 ^^^^^^
 
+
 SYCL
 ^^^^
 
@@ -469,13 +470,13 @@ Asynchronous parallel for kernels
 
    .. tab:: CUDA
 
-      .. code-block:: C
+      .. code-block:: C++
 
          WRITEME
 
    .. tab:: HIP
 
-      .. code-block:: C
+      .. code-block:: C++
 
          WRITEME
 
@@ -545,7 +546,62 @@ Reduction
            printf("sum = %d\n", *sum);
          }
 
+   .. tab:: OpenCL (maybe show full reduction kernel, atomicadd is almost never used in reality)
+
+      .. code-block:: C++
+
+         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+         #define CL_HPP_TARGET_OPENCL_VERSION 110
+         #include <CL/opencl.hpp>
          
+         // For larger kernels, we can store source in a separate file
+         static const std::string kernel_source = R"(
+           __kernel void reduce(__global int* sum) {
+             int i = get_global_id(0);
+             atomic_add(sum, i);
+           }
+         )";
+         
+         int main(int argc, char* argv[]) {
+         
+           // Initialize OpenCL
+           cl::Device device = cl::Device::getDefault();
+           cl::Context context(device);
+           cl::CommandQueue queue(context, device);
+         
+           // Compile OpenCL program for found device
+           cl::Program program(context, kernel_source);
+           program.build(device);
+           cl::Kernel kernel_reduce(program, "reduce");
+         
+           {
+             unsigned n = 5;
+         
+             // Initialize sum variable
+             int sum = 0;
+         
+             // Create buffer for sum
+             cl::Buffer buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int), &sum);
+         
+             // We must use cl::Kernel::setArg to pass arguments to device
+             kernel_reduce.setArg(0, buffer);
+         
+             // Enqueue kernel
+             queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
+         
+             // Wait for completion
+             queue.finish();
+         
+             // Read result
+             queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(int), &sum);
+         
+             // Print result
+             printf("sum = %d\n", sum);
+           }
+         
+           return 0;
+         }         
 
    .. tab:: CUDA
 
