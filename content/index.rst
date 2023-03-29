@@ -43,7 +43,7 @@ to learn and use for their projects. Specifically, you will:
    :caption: The lesson
 
    1-gpu-history
-   2-gpu-hardware
+   2-gpu-ecosystem
    3-gpu-problems
    4-gpu-concepts
    5-intro-to-gpu-prog-models
