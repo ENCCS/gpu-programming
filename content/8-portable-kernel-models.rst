@@ -172,39 +172,42 @@ Parallel for with Unified Memory
            {
              unsigned n = 5;
            
-             // Create SVM buffer object on host side 
-             int *a = (int*)clSVMAlloc(context(), CL_MEM_READ_ONLY, n * sizeof(int), 0);
-             int *b = (int*)clSVMAlloc(context(), CL_MEM_READ_ONLY, n * sizeof(int), 0);
-             int *c = (int*)clSVMAlloc(context(), CL_MEM_WRITE_ONLY, n * sizeof(int), 0);
+             // Create SVM buffer objects on host side 
+             cl::SVMAllocator<int, cl::SVMTraitReadOnly<>> svmAllocRead(context);
+             int *a = svmAllocRead.allocate(n);
+             int *b = svmAllocRead.allocate(n);
+         
+             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAllocWrite(context);
+             int *c = svmAllocWrite.allocate(n);
            
              // Pass arguments to device kernel
-             clSetKernelArgSVMPointer(kernel_dot(), 0, a);
-             clSetKernelArgSVMPointer(kernel_dot(), 1, b);
-             clSetKernelArgSVMPointer(kernel_dot(), 2, c);
+             kernel_dot.setArg(0, a);
+             kernel_dot.setArg(1, b);
+             kernel_dot.setArg(2, c);
            
              // Create mappings for host and initialize values
-             clEnqueueSVMMap(queue(), CL_TRUE, CL_MAP_WRITE, a, n * sizeof(int), 0, NULL, NULL);
-             clEnqueueSVMMap(queue(), CL_TRUE, CL_MAP_WRITE, b, n * sizeof(int), 0, NULL, NULL);
+             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
+             queue.enqueueMapSVM(b, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
              for (unsigned i = 0; i < n; i++) {
                a[i] = i;
                b[i] = 1;
              }
-             clEnqueueSVMUnmap(queue(), a, 0, NULL, NULL);
-             clEnqueueSVMUnmap(queue(), b, 0, NULL, NULL);
+             queue.enqueueUnmapSVM(a);
+             queue.enqueueUnmapSVM(b);
            
              // We don't need to apply any offset to thread IDs
              queue.enqueueNDRangeKernel(kernel_dot, cl::NullRange, cl::NDRange(n), cl::NullRange);
            
              // Create mapping for host and print results
-             clEnqueueSVMMap(queue(), CL_TRUE, CL_MAP_READ, c, n * sizeof(int), 0, NULL, NULL);
+             queue.enqueueMapSVM(c, CL_TRUE, CL_MAP_READ, n * sizeof(int));
              for (unsigned i = 0; i < n; i++)
                printf("c[%d] = %d\n", i, c[i]);
-             clEnqueueSVMUnmap(queue(), c, 0, NULL, NULL);
+             queue.enqueueUnmapSVM(c);
            
              // Free SVM buffers
-             clSVMFree(context(), a);
-             clSVMFree(context(), b);
-             clSVMFree(context(), c);
+             svmAllocRead.deallocate(a, n);
+             svmAllocRead.deallocate(b, n);
+             svmAllocRead.deallocate(c, n);
            }
          
            return 0;
@@ -643,30 +646,31 @@ Reduction
            cl::Kernel kernel_reduce(program, "reduce");
          
            {
-             unsigned n = 10;
-         
-             // Create SVM buffer for sum
-             int *sum = (int*)clSVMAlloc(context(), CL_MEM_READ_WRITE, sizeof(int), 0);
-         
-             // Pass arguments to device kernel
-             clSetKernelArgSVMPointer(kernel_reduce(), 0, sum); // pass SVM pointer to device
-             kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
-         
-             // Create mapping for host and initialize sum variable
-             clEnqueueSVMMap(queue(), CL_TRUE, CL_MAP_WRITE, sum, sizeof(int), 0, NULL, NULL);
-             *sum = 0;
-             clEnqueueSVMUnmap(queue(), sum, 0, NULL, NULL);
-         
-             // Enqueue kernel
-             queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
-         
-             // Create mapping for host and print result
-             clEnqueueSVMMap(queue(), CL_TRUE, CL_MAP_READ, sum, sizeof(int), 0, NULL, NULL);
-             printf("sum = %d\n", *sum);
-             clEnqueueSVMUnmap(queue(), sum, 0, NULL, NULL);
-         
-             // Free SVM buffer
-             clSVMFree(context(), sum);
+              unsigned n = 10;
+          
+              // Create SVM buffer for sum
+              cl::SVMAllocator<int, cl::SVMTraitReadWrite<>> svmAlloc(context);
+              int *sum = svmAlloc.allocate(1);
+          
+              // Pass arguments to device kernel
+              kernel_reduce.setArg(0, sum); // pass SVM pointer to device
+              kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
+          
+              // Create mapping for host and initialize sum variable
+              queue.enqueueMapSVM(sum, CL_TRUE, CL_MAP_WRITE, sizeof(int));
+              *sum = 0;
+              queue.enqueueUnmapSVM(sum);
+          
+              // Enqueue kernel
+              queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
+          
+              // Create mapping for host and print result
+              queue.enqueueMapSVM(sum, CL_TRUE, CL_MAP_READ, sizeof(int));
+              printf("sum = %d\n", *sum);
+              queue.enqueueUnmapSVM(sum);
+          
+              // Free SVM buffer
+              svmAlloc.deallocate(sum, 1);
            }
          
            return 0;
