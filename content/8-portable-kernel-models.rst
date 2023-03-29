@@ -317,57 +317,57 @@ Parallel for with GPU buffers
           #include <CL/opencl.hpp>
 
           // For larger kernels, we can store source in a separate file
-          static const std::string kernel_source{
-              "__kernel void dot(__global const int *a, __global const int *b, __global "
-              "int *c) {\n"
-              "    int i = get_global_id(0);\n"
-              "    c[i] = a[i] * b[i];\n"
-              "}"};
-
+          static const std::string kernel_source = R"(
+            __kernel void dot(__global const int *a, __global const int *b, __global int *c) {
+              int i = get_global_id(0);
+              c[i] = a[i] * b[i];
+            }
+          )";
+          
           int main(int argc, char *argv[]) {
-
+          
             cl::Device device = cl::Device::getDefault();
             cl::Context context(device);
             cl::CommandQueue queue(context, device);
-
+          
             // Compile OpenCL program for found device.
             cl::Program program(context, kernel_source);
             program.build(device);
             cl::Kernel kernel_dot(program, "dot");
-
+          
             unsigned n = 5;
-
+          
             std::vector<int> a(n), b(n), c(n);
-
+          
             // Initialize values on host
             for (unsigned i = 0; i < n; i++) {
               a[i] = i;
               b[i] = 1;
             }
-
+          
             // Create buffers and copy input data to device.
             cl::Buffer dev_a(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                            n * sizeof(int), a.data());
+                             n * sizeof(int), a.data());
             cl::Buffer dev_b(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                            n * sizeof(int), b.data());
-            cl::Buffer dev_c(context, CL_MEM_READ_WRITE, n * sizeof(int));
-
+                             n * sizeof(int), b.data());
+            cl::Buffer dev_c(context, CL_MEM_WRITE_ONLY, n * sizeof(int));
+          
             // We must use cl::Kernel::setArg to pass arguments to device
             kernel_dot.setArg(0, dev_a);
             kernel_dot.setArg(1, dev_b);
             kernel_dot.setArg(2, dev_c);
-
+          
             // We don't need to apply any offset to thread IDs
-            const auto offset = cl::NullRange;
-            queue.enqueueNDRangeKernel(kernel_dot, offset, n);
-
+            queue.enqueueNDRangeKernel(kernel_dot, cl::NullRange, cl::NDRange(n), cl::NullRange);
+          
+            // Read result
             queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, n * sizeof(int), c.data());
-
+          
             // Print results
             for (unsigned i = 0; i < n; i++) {
               printf("c[%d] = %d\n", i, c[i]);
             }
-
+          
             return 0;
           }
 
@@ -556,19 +556,19 @@ Reduction
         #include <CL/opencl.hpp>
 
         // For larger kernels, we can store source in a separate file
-        std::string kernel_source = R"(
+        static const std::string kernel_source = R"(
           __kernel void reduce(__global int* sum, __local int* local_mem) {
-
+            
             // Get work group and work item information
             int gsize = get_global_size(0); // global work size
             int gid = get_global_id(0); // global work item index
             int lsize = get_local_size(0); // local work size
             int lid = get_local_id(0); // local work item index
-
+            
             // Store reduced item into local memory
             local_mem[lid] = gid; // initialize local memory
             barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory
-
+            
             // Perform reduction across the local work group
             for (int s = 1; s < lsize; s *= 2) { // loop over local memory with stride doubling each iteration
               if (lid % (2 * s) == 0) {
@@ -576,54 +576,52 @@ Reduction
               }
               barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory
             }
-
+            
             if (lid == 0) { // only one work item per work group
               atomic_add(sum, local_mem[0]); // add partial sum to global sum atomically
             }
           }
         )";
-
-
+        
+        
         int main(int argc, char* argv[]) {
-
+        
           // Initialize OpenCL
           cl::Device device = cl::Device::getDefault();
           cl::Context context(device);
           cl::CommandQueue queue(context, device);
-
+        
           // Compile OpenCL program for found device
           cl::Program program(context, kernel_source);
           program.build(device);
           cl::Kernel kernel_reduce(program, "reduce");
-
+        
           {
             unsigned n = 10;
-
+        
             // Initialize sum variable
             int sum = 0;
-
+        
             // Create buffer for sum
-            cl::Buffer buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int), &sum);
-
+            cl::Buffer buffer(context, CL_MEM_WRITE_ONLY | CL_MEM_COPY_HOST_PTR, 
+                              sizeof(int), &sum);
+        
             // We must use cl::Kernel::setArg to pass arguments to device
             kernel_reduce.setArg(0, buffer); // pass buffer to device
-            kernel_reduce.setArg(1, n * sizeof(int), NULL); // pass dynamically allocated local memory to device
-
+            kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
+        
             // Enqueue kernel
             queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
-
-            // Wait for completion
-            queue.finish();
-
+        
             // Read result
             queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(int), &sum);
-
+        
             // Print result
             printf("sum = %d\n", sum);
           }
-
+        
           return 0;
-        }   
+        }
 
    .. tab:: CUDA
 
