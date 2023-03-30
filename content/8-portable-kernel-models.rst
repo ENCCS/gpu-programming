@@ -353,9 +353,6 @@ Parallel for with GPU buffers
             cl::Device device = cl::Device::getDefault();
             cl::Context context(device);
             cl::CommandQueue queue(context, device);
-
-            // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-            cl::CommandQueue::setDefault(queue);            
           
             // Compile OpenCL program for found device.
             cl::Program program(context, kernel_source);
