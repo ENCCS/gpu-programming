@@ -482,8 +482,8 @@ Asynchronous parallel for kernels
              unsigned n = 5;
              unsigned nx = 20;
          
-             // Allocate on Kokkos default memory space (eg, GPU memory)
-             Kokkos::View<int*> a("a", nx);
+             // Allocate on Kokkos default memory space (Unified Memory)
+             int* a = (int*) Kokkos::kokkos_malloc(nx * sizeof(int));
          
              // Create execution space instances (maps to streams in CUDA/HIP) for each region
              auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
@@ -502,6 +502,9 @@ Asynchronous parallel for kernels
              // Print results
              for (unsigned i = 0; i < nx; i++)
                printf("a[%d] = %d\n", i, a[i]);
+
+             // Free Kokkos allocation (Unified Memory)
+             Kokkos::kokkos_free(a);
            }
            
            // Finalize Kokkos
