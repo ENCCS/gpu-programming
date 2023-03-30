@@ -170,6 +170,7 @@ Parallel for with Unified Memory
            cl::Kernel kernel_dot(program, "dot");
          
            {
+             // Set problem dimensions
              unsigned n = 5;
            
              // Create SVM buffer objects on host side 
@@ -356,6 +357,7 @@ Parallel for with GPU buffers
             cl::Kernel kernel_dot(program, "dot");
           
             {
+              // Set problem dimensions
               unsigned n = 5;
             
               std::vector<int> a(n), b(n), c(n);
@@ -508,6 +510,62 @@ Asynchronous parallel for kernels
 
       .. code-block:: C++
 
+         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
+         #define CL_HPP_TARGET_OPENCL_VERSION 200
+         #include <CL/opencl.hpp>
+         
+         // For larger kernels, we can store source in a separate file
+         static const std::string kernel_source = R"(
+           __kernel void async(__global int *a) {
+             int i = get_global_id(0);
+             int region = i / get_global_size(0);
+             a[i] = region + i;
+           }
+         )";
+         
+         int main(int argc, char *argv[]) {
+         
+           // Initialize OpenCL
+           cl::Device device = cl::Device::getDefault();
+           cl::Context context(device);
+           cl::CommandQueue queue(context, device);
+         
+           // Compile OpenCL program for found device.
+           cl::Program program(context, kernel_source);
+           program.build(device);
+           cl::Kernel kernel_async(program, "async");
+         
+           {
+             // Set problem dimensions
+             unsigned n = 5;
+             unsigned nx = 20;
+           
+             // Create SVM buffer object on host side 
+             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAlloc(context);
+             int *a = svmAlloc.allocate(nx);
+           
+             // Pass arguments to device kernel
+             kernel_async.setArg(0, a);
+           
+             // Launch multiple potentially asynchronous kernels on different parts of the array
+             for(unsigned region = 0; region < n; region++) {
+               queue.enqueueNDRangeKernel(kernel_async, cl::NDRange(nx / n * region), 
+                 cl::NDRange(nx / n), cl::NullRange);
+             }
+           
+             // Create mapping for host and print results
+             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_READ, nx * sizeof(int));
+             for (unsigned i = 0; i < nx; i++)
+               printf("a[%d] = %d\n", i, a[i]);
+             queue.enqueueUnmapSVM(a);
+           
+             // Free SVM buffer
+             svmAlloc.deallocate(a, nx);
+           }
+         
+           return 0;
+         }
 
    .. tab:: SYCL
 
@@ -646,6 +704,7 @@ Reduction
            cl::Kernel kernel_reduce(program, "reduce");
          
            {
+              // Set problem dimensions
               unsigned n = 10;
           
               // Create SVM buffer for sum
