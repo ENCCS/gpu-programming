@@ -792,24 +792,24 @@ Pros and cons of cross-platform portability ecosystems
 
 General observations
 ~~~~~~~~~~~~~~~~~~~~
-    -The amount of code duplication is minimized
-    -The same code can be compiled to multiple architectures from different vendors
-    -Limited learning resources compared to CUDA (stackoverflow, course material, documentation)
+    - The amount of code duplication is minimized
+    - The same code can be compiled to multiple architectures from different vendors
+    - Limited learning resources compared to CUDA (stackoverflow, course material, documentation)
 
 Lambda-based kernel models (Kokkos, SYCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
-    -Higher level of abstraction 
-    -Less knowledge of the underlying architecture is needed
-    -Very nice and readable source code (C++ API)
-    -The models are relatively new and not very popular yet
+    - Higher level of abstraction 
+    - Less knowledge of the underlying architecture is needed
+    - Very nice and readable source code (C++ API)
+    - The models are relatively new and not very popular yet
     
 Separate-source kernel models (OpenCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    -Very good portability
-    -Matured ecosystem 
-    -Low-level API gives more control and allows fine tuning
-    -Both C, and C++ APIs available (C++ API is less mature)
-    -The low-level API and separate-source kernel model are less user friendly
+    - Very good portability
+    - Matured ecosystem 
+    - Low-level API gives more control and allows fine tuning
+    - Both C, and C++ APIs available (C++ API is less mature)
+    - The low-level API and separate-source kernel model are less user friendly
 
 .. keypoints::
 
