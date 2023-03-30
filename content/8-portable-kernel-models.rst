@@ -114,7 +114,7 @@ Parallel for with Unified Memory
              for (unsigned i = 0; i < n; i++)
              {
                a[i] = i;
-               b[i] = i;
+               b[i] = 1;
              }
            
              // Run element-wise multiplication on device
@@ -302,7 +302,7 @@ Parallel for with GPU buffers
               for (unsigned i = 0; i < n; i++)
               {
                 h_a[i] = i;
-                h_b[i] = i;
+                h_b[i] = 1;
               }
               
               // Copy from host to device
@@ -482,14 +482,17 @@ Asynchronous parallel for kernels
              // Allocate on Kokkos default memory space (Unified Memory)
              int* a = (int*) Kokkos::kokkos_malloc(nx * sizeof(int));
          
-             // Create execution space instances (maps to streams in CUDA/HIP) for each region
-             auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
+             // Create 'n' execution space instances (maps to streams in CUDA/HIP)
+             auto ex = Kokkos::Experimental::partition_space(
+               Kokkos::DefaultExecutionSpace(), 1,1,1,1,1);
            
-             // Launch multiple potentially asynchronous kernels in different execution space instances
+             // Launch 'n' potentially asynchronous kernels 
+             // Each kernel has their own execution space instances
              for(unsigned region = 0; region < n; region++) {
-               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[region], nx / n * region, nx / n * (region + 1)), KOKKOS_LAMBDA(const int i) {
-                 a[i] = region + i;
-               });
+               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[region], 
+                 nx / n * region, nx / n * (region + 1)), KOKKOS_LAMBDA(const int i) {
+                   a[i] = region + i;
+                 });
              }
 
              // Sync execution space instances (maps to streams in CUDA/HIP)
