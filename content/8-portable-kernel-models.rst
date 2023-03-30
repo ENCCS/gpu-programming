@@ -667,10 +667,9 @@ Reduction
       .. code-block:: C++
 
          // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
-         #define CL_HPP_TARGET_OPENCL_VERSION 200
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+         #define CL_HPP_TARGET_OPENCL_VERSION 110
          #include <CL/opencl.hpp>
-         
          
          // For larger kernels, we can store source in a separate file
          static const std::string kernel_source = R"(
@@ -699,16 +698,13 @@ Reduction
              }
            }
          )";
-               
+          
          int main(int argc, char* argv[]) {
          
            // Initialize OpenCL
            cl::Device device = cl::Device::getDefault();
            cl::Context context(device);
            cl::CommandQueue queue(context, device);
-
-           // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-           cl::CommandQueue::setDefault(queue);           
          
            // Compile OpenCL program for found device
            cl::Program program(context, kernel_source);
@@ -716,32 +712,27 @@ Reduction
            cl::Kernel kernel_reduce(program, "reduce");
          
            {
-              // Set problem dimensions
-              unsigned n = 10;
-          
-              // Create SVM buffer for sum
-              cl::SVMAllocator<int, cl::SVMTraitReadWrite<>> svmAlloc(context);
-              int *sum = svmAlloc.allocate(1);
-          
-              // Pass arguments to device kernel
-              kernel_reduce.setArg(0, sum); // pass SVM pointer to device
-              kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
-          
-              // Create mapping for host and initialize sum variable
-              queue.enqueueMapSVM(sum, CL_TRUE, CL_MAP_WRITE, sizeof(int));
-              *sum = 0;
-              queue.enqueueUnmapSVM(sum);
-          
-              // Enqueue kernel
-              queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
-          
-              // Create mapping for host and print result
-              queue.enqueueMapSVM(sum, CL_TRUE, CL_MAP_READ, sizeof(int));
-              printf("sum = %d\n", *sum);
-              queue.enqueueUnmapSVM(sum);
-          
-              // Free SVM buffer
-              svmAlloc.deallocate(sum, 1);
+             // Set problem dimensions
+             unsigned n = 10;
+         
+             // Initialize sum variable
+             int sum = 0;
+         
+             // Create buffer for sum
+             cl::Buffer buffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int), &sum);
+         
+             // Pass arguments to device kernel
+             kernel_reduce.setArg(0, buffer); // pass buffer to device
+             kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
+         
+             // Enqueue kernel
+             queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
+         
+             // Read result
+             queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(int), &sum);
+         
+             // Print result
+             printf("sum = %d\n", sum);
            }
          
            return 0;
@@ -753,27 +744,29 @@ Reduction
       .. code-block:: C++
 
          #include <sycl/sycl.hpp>
-
+         
          int main(int argc, char *argv[]) {
            sycl::queue q;
            unsigned n = 10;
-
-           // Buffers with just 1 element to get the reduction results
-           int* sum = sycl::malloc_shared<int>(1, q);
-           *sum = 0;
-
+         
+           // Create a buffer for sum to get the reduction results
+           int sum = 0;
+           sycl::buffer<int> sum_buf{&sum, 1};
+         
+           // Submit a SYCL kernel into a queue
            q.submit([&](sycl::handler &cgh) {
-             // Create temporary objects describing variables with reduction semantics
-             auto sum_reduction = sycl::reduction(sum, sycl::plus<int>());
-
+             // Create temporary object describing variables with reduction semantics
+             auto sum_reduction = sycl::reduction(sum_buf, cgh, sycl::plus<>());
+         
              // A reference to the reducer is passed to the lambda
              cgh.parallel_for(sycl::range<1>{n}, sum_reduction,
-                               [=](sycl::id<1> idx, auto &reducer) { reducer.combine(idx[0]); });
+                             [=](sycl::id<1> idx, auto &reducer) { reducer.combine(idx[0]); });
            }).wait();
-
-           // Print results
-           printf("sum = %d\n", *sum);
+         
+           // Print results, no need to synchronize, accessor handles the synchronization
+           printf("sum = %d\n", sum_buf.get_host_access()[0]);
          }
+
 
    .. tab:: CUDA
 
