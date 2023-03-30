@@ -317,9 +317,6 @@ Parallel for with GPU buffers
               // Copy from device to host
               Kokkos::deep_copy(h_c, c);
 
-              // Kokkos synchronization
-              Kokkos::fence();
-
               // Print results
               for (unsigned i = 0; i < n; i++)
                 printf("c[%d] = %d\n", i, h_c[i]);
