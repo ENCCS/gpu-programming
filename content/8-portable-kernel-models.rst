@@ -640,7 +640,7 @@ Reduction
            Kokkos::initialize(argc, argv);
          
            {
-             unsigned n = 5;
+             unsigned n = 10;
              
              // Initialize sum variable
              int sum = 0;
@@ -756,7 +756,7 @@ Reduction
 
          int main(int argc, char *argv[]) {
            sycl::queue q;
-           unsigned n = 5;
+           unsigned n = 10;
 
            // Buffers with just 1 element to get the reduction results
            int* sum = sycl::malloc_shared<int>(1, q);
