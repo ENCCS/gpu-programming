@@ -211,7 +211,7 @@ Parallel for with Unified Memory
              // Free SVM buffers
              svmAllocRead.deallocate(a, n);
              svmAllocRead.deallocate(b, n);
-             svmAllocRead.deallocate(c, n);
+             svmAllocWrite.deallocate(c, n);
            }
          
            return 0;
