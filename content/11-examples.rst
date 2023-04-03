@@ -26,7 +26,7 @@ Heat flows in objects according to local temperature differences, as if seeking 
 .. figure:: img/stencil/heat_montage.png
    :align: center
    
-   Over time, the temperature distribution progresses from the initial state toward an end state where upper triangle is cold and lower is warm. The average temperature tends to (70 + 85 + 20 + 5) / 4 = 45.
+   Over time, the temperature distribution progresses from the initial state toward an end state where upper triangle is warm and lower is cold. The average temperature tends to (70 + 85 + 20 + 5) / 4 = 45.
 
 Technique: stencil computation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -36,7 +36,7 @@ Heat transfer in the system above is governed by the partial differential equati
 .. math::
    \frac{\partial u}{\partial t} = \alpha \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial x^2}\right)
    
-The standard way to numerically solve differential equations is to _discretize_ them, i. e. to consider only a set/ grid of specific area points at specific moments in time. That way, partial derivatives :math:`{\partial u}` are converted into differences between adjacent grid points :math:`u^{m}(i,j)`, with :math:`m, i, j` denoting time and spatial grid points, respectively. Temperature change in time at a certain point can now be computed from the values of neighboring points at earlier time; the same expression, called _stencil_, is applied to every point on the grid.
+The standard way to numerically solve differential equations is to *discretize* them, i. e. to consider only a set/ grid of specific area points at specific moments in time. That way, partial derivatives :math:`{\partial u}` are converted into differences between adjacent grid points :math:`u^{m}(i,j)`, with :math:`m, i, j` denoting time and spatial grid points, respectively. Temperature change in time at a certain point can now be computed from the values of neighboring points at earlier time; the same expression, called *stencil*, is applied to every point on the grid.
 
 .. figure:: img/stencil/stencil.svg
    :align: center
@@ -47,6 +47,39 @@ The standard way to numerically solve differential equations is to _discretize_ 
    :math:`m+1`.
 
 Stencil computation is a common occurrence in solving numerical equations, image processing (for 2D convolution) and other areas.
+
+.. solution:: Stencil expression and time-step limit
+   
+   WRITEME
+
+
+Technical considerations
+------------------------
+
+**1. How fast and/ or accurate can the solution be?**
+
+Spatial resolution of the temperature field is controlled by the number/ density of the grid points. As the full grid update is required to proceed from one time point to the next, stencil computation is the main target of parallelization (on CPU or GPU).
+
+Moreover, in many cases the chosen time step cannot be arbitrarily large, otherwise the numerical differentiation will fail, and dense/ accurate grids imply small time steps (see inset above), which makes efficient spatial update even more important.
+
+**2. What to do with area boundaries?**
+
+Naturally, stencil expression can't be applied directly to the outermost grid points that have no outer neighbors. This can be solved by either changing the expression for those points or by adding an additional layer of grid that is used in computing update, but not updated itself -- points of fixed temperature for the sides are being used in this example.
+
+**3.**
+
+
+
+CPU parallelization (with OpenMP)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+WRITEME
+
+
+
+GPU parallelization examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 
