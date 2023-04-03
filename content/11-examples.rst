@@ -1,7 +1,7 @@
 .. _example-heat:
 
-Problem example: heat equation
-==============================
+Problem example: stencil computation
+====================================
 
 .. questions::
 
@@ -10,7 +10,7 @@ Problem example: heat equation
 
 .. objectives::
 
-   - o1
+   - To show a self-contained example of parallel computation executed on CPU (via OpenMP) and GPU (different models)
    - o2
 
 .. instructor-note::
