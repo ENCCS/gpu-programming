@@ -76,9 +76,43 @@ Finally, Kokkos provides three different parallel operations: ``parallel_for``, 
 
 
 
+
 OpenCL
 ^^^^^^
+OpenCL (Open Computing Language) is a cross-platform, open-standard API for writing parallel programs that execute across heterogeneous platforms consisting of central processing units (CPUs), graphics processing units (GPUs), field-programmable gate arrays (FPGAs) and other devices. The first version of OpenCL (1.0) was released in December 2008, and the latest version of OpenCL (3.0) was released in September 2020. OpenCL is supported by a number of vendors, including AMD, ARM, Intel, NVIDIA, and Qualcomm. It is a royalty-free standard, and the OpenCL specification is maintained by the Khronos Group. OpenCL provides a low-level programming interface initially based on C, but more recently also a C++ interface has become available.
 
+OpenCL compilation
+~~~~~~~~~~~~~~~~~~
+OpenCL supports two modes for compiling the programs: online and offline. Online compilation occurs at runtime, when the host program calls a function to compile the source code. Online mode allows dynamic generation and loading of kernels, but may incur some overhead due to compilation time and possible errors. Offline compilation occurs before runtime, when the source code of a kernel is compiled into a binary format that can be loaded by the host program. This mode allows faster execution and better optimization of kernels, but may limit the portability and flexibility of the program, because the binary can only run on the architectures it was compiled for.
+
+OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by commands such as ``dpcpp cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc -arch=sm_80 cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``-arch=sm_80`` in the latter represents the desired CUDA architecture.
+
+OpenCL programming
+~~~~~~~~~~~~~~~~~~
+OpenCL programs consist of two parts: a host program that runs on the host device (usually a CPU) and one or more kernels that run on compute devices (such as GPUs). The host program is responsible for creating a context and a command queue for the platform, allocating memory objects, building and enqueuqing kernels, and managing memory objects. 
+
+INIT; DEVICES; CONTEXT; QUEUE (WRITE HERE ABOUT THE OPENCL INITIALIZATION PROCEDURE)
+
+OpenCL provides two main programming models to manage the memory hierarchy of host and accelerator devices: buffers and shared virtual memory (SVM). Buffers are the traditional memory model of OpenCL, where the host and the devices have separate address spaces and the programmer has to explicitly specify the memory allocations and how and where the memory is accessed. Buffers are supported since early versions of OpenCL, and work well across different architectures. Buffers can also take advantage of device-specific memory features, such as constant or local memory.
+
+SVM is a newer memory model of OpenCL, introduced in version 2.0, where the host and the devices share a single virtual address space. Thus, the programmer can use the same pointers to access the data from host and devices simplifying the programming effort. In OpenCL SVM comes in different levels such as coarse-grained buffer SVM, fine-grained buffer SVM, and fine-grained system SVM. All levels allow using the same pointers across host and devices, but they differ in their granularity and synchronization requirements for the memory regions. Furthermore, the support for SVM is not universal across all OpenCL platforms, and for example, GPUs such as NVIDIA V100 and A100 only support the coarse-grained SVM buffer. This level requires explicit synchronization of memory accesses from host and devices (using functions ``enqueueMapSVM()`` and ``enqueueUnmapSVM()``), making the usage of SVM less convenient. It is further noted that this is unlike the regular Unified Memory offered by CUDA, which is closer to the fine-grained system SVM level in OpenCL. 
+
+OpenCL uses a separate-source kernel model where the kernel code is often kept in separate files that may be compiled during runtime. The model allows the kernel source code to be passed as a string to the OpenCL driver after which the program object can be executed on a specific device. Although referred to as the separate-source kernel model, the kernels can still be defined as a string in the host program compilation units as well, which may be a more convenient approach in some cases.
+
+The online compilation with the separate-source kernel model has several advantages over the binary model, which requires offline compilation of kernels into device-specific binaries that can are loaded by the application at runtime. Online compilation preserves the portability and flexibility of OpenCL, as the same kernel source code can run on any supported device. Furthermore, dynamic optimization of kernels based on runtime information, such as input size, work-group size, or device capabilities, is possible. An example of an OpenCL kernel, defined by a string in the host compilation unit, and assigning the global thread index into a global device memory is shown below:
+
+.. tabs:: 
+
+   .. tab:: C++
+      
+      .. code-block:: C++
+         
+         static const std::string kernel_source = R"(
+           __kernel void async(__global int *a) {
+             int i = get_global_id(0);
+             a[i] = i;
+           }
+         )";
 
 SYCL
 ^^^^
