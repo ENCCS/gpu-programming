@@ -16,11 +16,13 @@ The Kokkos library provides an abstraction layer for a variety of different cust
 Kokkos compilation
 ~~~~~~~~~~~~~~~~~~
 
-Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system. However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html>`_) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
+Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system. 
+
+However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html>`_) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
 
 .. tabs:: 
 
-   .. tab:: Makefile
+   .. tab:: Makefile for hello.cpp
 
       .. code-block:: makefile
 
@@ -39,8 +41,9 @@ Furthermore, one challenge with some cross-platform portability libraries is tha
          include $(KOKKOS_PATH)/Makefile.kokkos
          
          build: $(KOKKOS_LINK_DEPENDS) $(KOKKOS_CPP_DEPENDS) hello.cpp
-                 $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
+          $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
 
+To build a hello.cpp project with the above Makefile, no steps other than cloning the Kokkos project into the current directory is required. 
 
 Kokkos programming
 ~~~~~~~~~~~~~~~~~~
@@ -55,7 +58,7 @@ The following is an example of a Kokkos program that initializes Kokkos and prin
 
 .. tabs:: 
 
-   .. tab:: C++
+   .. tab:: hello.cpp
       
       .. code-block:: C++
 
@@ -64,8 +67,10 @@ The following is an example of a Kokkos program that initializes Kokkos and prin
          
          int main(int argc, char* argv[]) {
            Kokkos::initialize(argc, argv);
-           std::cout << "Execution Space: " << typeid(Kokkos::DefaultExecutionSpace).name() << std::endl;
-           std::cout << "Memory Space: " << typeid(Kokkos::DefaultExecutionSpace::memory_space).name() << std::endl;
+           std::cout << "Execution Space: " << 
+             typeid(Kokkos::DefaultExecutionSpace).name() << std::endl;
+           std::cout << "Memory Space: " << 
+             typeid(Kokkos::DefaultExecutionSpace::memory_space).name() << std::endl;
            Kokkos::finalize();
            return 0;
          }
@@ -103,7 +108,7 @@ The online compilation with the separate-source kernel model has several advanta
 
 .. tabs:: 
 
-   .. tab:: C++
+   .. tab:: OpenCL kernel example
       
       .. code-block:: C++
          
