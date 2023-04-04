@@ -11,12 +11,13 @@ Problem example: stencil computation
 .. objectives::
 
    - To show a self-contained example of parallel computation executed on CPU (via OpenMP) and GPU (different models)
-   - o2
+   - To show differences of implementing the same procedure in natural "style" of different models
 
 .. instructor-note::
 
    - X min teaching
    - X min exercises
+
 
 Problem: heat flow in two-dimensional area
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -27,6 +28,7 @@ Heat flows in objects according to local temperature differences, as if seeking 
    :align: center
    
    Over time, the temperature distribution progresses from the initial state toward an end state where upper triangle is warm and lower is cold. The average temperature tends to (70 + 85 + 20 + 5) / 4 = 45.
+
 
 Technique: stencil computation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,8 +68,7 @@ Stencil computation is a common occurrence in solving numerical equations, image
    Time-update schemes also have a limit on the maximum allowed time step :math:`\Delta t`. For the current scheme, it is equal to
    
    .. math::
-      \Delta t_{max} = \frac{(\Delta x)^2 (\Delta x)^2}{(2 \alpha (\Delta x + \Delta y))}
-
+      \Delta t_{max} = \frac{(\Delta x)^2 (\Delta y)^2}{2 \alpha ((\Delta x)^2 + (\Delta y)^2)}
 
 Technical considerations
 ------------------------
@@ -81,9 +82,6 @@ Moreover, in many cases the chosen time step cannot be arbitrarily large, otherw
 **2. What to do with area boundaries?**
 
 Naturally, stencil expression can't be applied directly to the outermost grid points that have no outer neighbors. This can be solved by either changing the expression for those points or by adding an additional layer of grid that is used in computing update, but not updated itself -- points of fixed temperature for the sides are being used in this example.
-
-**3.** (?)
-
 
 
 CPU parallelization (with OpenMP)
@@ -122,7 +120,9 @@ WRITEME
 
    .. tab:: OpenMP
 
-         WRITEME
+         .. literalinclude:: examples/stencil/base/core-omp.cpp 
+                        :language: cpp
+                        :emphasize-lines: 23-25
          
    .. tab:: SYCL
 
