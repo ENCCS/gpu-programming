@@ -79,18 +79,18 @@ WRITEME
 
    .. tab:: Main function
 
-         .. literalinclude:: content/examples/stencil/base/main.cpp 
+         .. literalinclude:: examples/stencil/base/main.cpp 
                         :language: cpp
                         :emphasize-lines: 37
    .. tab:: Stencil update
 
-         .. literalinclude:: content/examples/stencil/base/core.cpp 
+         .. literalinclude:: examples/stencil/base/core.cpp 
                         :language: cpp
                         :emphasize-lines: 23
                         
    .. tab:: Default params
 
-         .. literalinclude:: content/examples/stencil/base/heat.h 
+         .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
                         :linenos: 6-33       
 
