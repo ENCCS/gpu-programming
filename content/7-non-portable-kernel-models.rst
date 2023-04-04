@@ -10,27 +10,15 @@ CUDA
 HIP
 ^^^
 
+
 Examples
 ^^^^^^^^
+**I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos,opencl, and sycl?**
 
 Parallel for with Unified Memory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos, and sycl?**
-
 .. tabs:: 
-
-   .. tab:: CUDA
-
-      .. code-block:: C
-
-         WRITEME
-
-   .. tab:: HIP
-
-      .. code-block:: C
-
-         WRITEME
 
    .. tab:: Kokkos
 
@@ -55,7 +43,7 @@ Parallel for with Unified Memory
              for (unsigned i = 0; i < n; i++)
              {
                a[i] = i;
-               b[i] = i;
+               b[i] = 1;
              }
            
              // Run element-wise multiplication on device
@@ -78,6 +66,83 @@ Parallel for with Unified Memory
   
            // Finalize Kokkos
            Kokkos::finalize();
+           return 0;
+         }
+
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+
+         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
+         #define CL_HPP_TARGET_OPENCL_VERSION 200
+         #include <CL/opencl.hpp>
+         
+         // For larger kernels, we can store source in a separate file
+         static const std::string kernel_source = R"(
+           __kernel void dot(__global const int *a, __global const int *b, __global int *c) {
+             int i = get_global_id(0);
+             c[i] = a[i] * b[i];
+           }
+         )";
+         
+         int main(int argc, char *argv[]) {
+         
+           // Initialize OpenCL
+           cl::Device device = cl::Device::getDefault();
+           cl::Context context(device);
+           cl::CommandQueue queue(context, device);
+
+           // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
+           cl::CommandQueue::setDefault(queue);
+         
+           // Compile OpenCL program for found device.
+           cl::Program program(context, kernel_source);
+           program.build(device);
+           cl::Kernel kernel_dot(program, "dot");
+         
+           {
+             // Set problem dimensions
+             unsigned n = 5;
+           
+             // Create SVM buffer objects on host side 
+             cl::SVMAllocator<int, cl::SVMTraitReadOnly<>> svmAllocRead(context);
+             int *a = svmAllocRead.allocate(n);
+             int *b = svmAllocRead.allocate(n);
+         
+             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAllocWrite(context);
+             int *c = svmAllocWrite.allocate(n);
+           
+             // Pass arguments to device kernel
+             kernel_dot.setArg(0, a);
+             kernel_dot.setArg(1, b);
+             kernel_dot.setArg(2, c);
+           
+             // Create mappings for host and initialize values
+             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
+             queue.enqueueMapSVM(b, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
+             for (unsigned i = 0; i < n; i++) {
+               a[i] = i;
+               b[i] = 1;
+             }
+             queue.enqueueUnmapSVM(a);
+             queue.enqueueUnmapSVM(b);
+           
+             // We don't need to apply any offset to thread IDs
+             queue.enqueueNDRangeKernel(kernel_dot, cl::NullRange, cl::NDRange(n), cl::NullRange);
+           
+             // Create mapping for host and print results
+             queue.enqueueMapSVM(c, CL_TRUE, CL_MAP_READ, n * sizeof(int));
+             for (unsigned i = 0; i < n; i++)
+               printf("c[%d] = %d\n", i, c[i]);
+             queue.enqueueUnmapSVM(c);
+           
+             // Free SVM buffers
+             svmAllocRead.deallocate(a, n);
+             svmAllocRead.deallocate(b, n);
+             svmAllocWrite.deallocate(c, n);
+           }
+         
            return 0;
          }
 
@@ -121,12 +186,6 @@ Parallel for with Unified Memory
            return 0;
          }
 
-
-Parallel for with GPU buffers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. tabs:: 
-
    .. tab:: CUDA
 
       .. code-block:: C
@@ -138,6 +197,11 @@ Parallel for with GPU buffers
       .. code-block:: C
 
          WRITEME
+
+Parallel for with GPU buffers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. tabs:: 
 
    .. tab:: Kokkos
 
@@ -167,7 +231,7 @@ Parallel for with GPU buffers
               for (unsigned i = 0; i < n; i++)
               {
                 h_a[i] = i;
-                h_b[i] = i;
+                h_b[i] = 1;
               }
               
               // Copy from host to device
@@ -182,9 +246,6 @@ Parallel for with GPU buffers
               // Copy from device to host
               Kokkos::deep_copy(h_c, c);
 
-              // Kokkos synchronization
-              Kokkos::fence();
-
               // Print results
               for (unsigned i = 0; i < n; i++)
                 printf("c[%d] = %d\n", i, h_c[i]);
@@ -194,6 +255,73 @@ Parallel for with GPU buffers
             Kokkos::finalize();
             return 0;
           }
+
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+
+          // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+          #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+          #define CL_HPP_TARGET_OPENCL_VERSION 110
+          #include <CL/opencl.hpp>
+          
+          // For larger kernels, we can store source in a separate file
+          static const std::string kernel_source = R"(
+            __kernel void dot(__global const int *a, __global const int *b, __global int *c) {
+              int i = get_global_id(0);
+              c[i] = a[i] * b[i];
+            }
+          )";
+          
+          int main(int argc, char *argv[]) {
+          
+            // Initialize OpenCL
+            cl::Device device = cl::Device::getDefault();
+            cl::Context context(device);
+            cl::CommandQueue queue(context, device);
+          
+            // Compile OpenCL program for found device.
+            cl::Program program(context, kernel_source);
+            program.build(device);
+            cl::Kernel kernel_dot(program, "dot");
+          
+            {
+              // Set problem dimensions
+              unsigned n = 5;
+            
+              std::vector<int> a(n), b(n), c(n);
+            
+              // Initialize values on host
+              for (unsigned i = 0; i < n; i++) {
+                a[i] = i;
+                b[i] = 1;
+              }
+            
+              // Create buffers and copy input data to device.
+              cl::Buffer dev_a(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                               n * sizeof(int), a.data());
+              cl::Buffer dev_b(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                               n * sizeof(int), b.data());
+              cl::Buffer dev_c(context, CL_MEM_WRITE_ONLY, n * sizeof(int));
+            
+              // Pass arguments to device kernel
+              kernel_dot.setArg(0, dev_a);
+              kernel_dot.setArg(1, dev_b);
+              kernel_dot.setArg(2, dev_c);
+            
+              // We don't need to apply any offset to thread IDs
+              queue.enqueueNDRangeKernel(kernel_dot, cl::NullRange, cl::NDRange(n), cl::NullRange);
+            
+              // Read result
+              queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, n * sizeof(int), c.data());
+            
+              // Print results
+              for (unsigned i = 0; i < n; i++)
+                printf("c[%d] = %d\n", i, c[i]);
+            }
+          
+            return 0;
+          }          
 
 
    .. tab:: SYCL
@@ -248,76 +376,6 @@ Parallel for with GPU buffers
            return 0;
          }
 
-   .. tab:: OpenCL
-
-      .. code-block:: C++
-
-          // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-          #define CL_HPP_MINIMUM_OPENCL_VERSION 110
-          #define CL_HPP_TARGET_OPENCL_VERSION 110
-          #include <CL/opencl.hpp>
-
-          // For larger kernels, we can store source in a separate file
-          static const std::string kernel_source{
-              "__kernel void dot(__global const int *a, __global const int *b, __global "
-              "int *c) {\n"
-              "    int i = get_global_id(0);\n"
-              "    c[i] = a[i] * b[i];\n"
-              "}"};
-
-          int main(int argc, char *argv[]) {
-
-            cl::Device device = cl::Device::getDefault();
-            cl::Context context(device);
-            cl::CommandQueue queue(context, device);
-
-            // Compile OpenCL program for found device.
-            cl::Program program(context, kernel_source);
-            program.build(device);
-            cl::Kernel kernel_dot(program, "dot");
-
-            unsigned n = 5;
-
-            std::vector<int> a(n), b(n), c(n);
-
-            // Initialize values on host
-            for (unsigned i = 0; i < n; i++) {
-              a[i] = i;
-              b[i] = 1;
-            }
-
-            // Create buffers and copy input data to device.
-            cl::Buffer dev_a(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                            n * sizeof(int), a.data());
-            cl::Buffer dev_b(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-                            n * sizeof(int), b.data());
-            cl::Buffer dev_c(context, CL_MEM_READ_WRITE, n * sizeof(int));
-
-            // We must use cl::Kernel::setArg to pass arguments to device
-            kernel_dot.setArg(0, dev_a);
-            kernel_dot.setArg(1, dev_b);
-            kernel_dot.setArg(2, dev_c);
-
-            // We don't need to apply any offset to thread IDs
-            const auto offset = cl::NullRange;
-            queue.enqueueNDRangeKernel(kernel_dot, offset, n);
-
-            queue.enqueueReadBuffer(dev_c, CL_TRUE, 0, n * sizeof(int), c.data());
-
-            // Print results
-            for (unsigned i = 0; i < n; i++) {
-              printf("c[%d] = %d\n", i, c[i]);
-            }
-
-            return 0;
-          }
-
-
-Asynchronous parallel for kernels
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. tabs:: 
-
    .. tab:: CUDA
 
       .. code-block:: C
@@ -329,6 +387,11 @@ Asynchronous parallel for kernels
       .. code-block:: C
 
          WRITEME
+
+Asynchronous parallel for kernels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. tabs:: 
 
    .. tab:: Kokkos
 
@@ -345,17 +408,20 @@ Asynchronous parallel for kernels
              unsigned n = 5;
              unsigned nx = 20;
          
-             // Allocate on Kokkos default memory space (eg, GPU memory)
-             Kokkos::View<int*> a("a", nx);
+             // Allocate on Kokkos default memory space (Unified Memory)
+             int* a = (int*) Kokkos::kokkos_malloc(nx * sizeof(int));
          
-             // Create execution space instances (maps to streams in CUDA/HIP) for each region
-             auto ex = Kokkos::Experimental::partition_space(Kokkos::DefaultExecutionSpace(),1,1,1,1,1);
+             // Create 'n' execution space instances (maps to streams in CUDA/HIP)
+             auto ex = Kokkos::Experimental::partition_space(
+               Kokkos::DefaultExecutionSpace(), 1,1,1,1,1);
            
-             // Launch multiple potentially asynchronous kernels in different execution space instances
+             // Launch 'n' potentially asynchronous kernels 
+             // Each kernel has their own execution space instances
              for(unsigned region = 0; region < n; region++) {
-               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[region], nx / n * region, nx / n * (region + 1)), KOKKOS_LAMBDA(const int i) {
-                 a[i] = region + i;
-               });
+               Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(ex[region], 
+                 nx / n * region, nx / n * (region + 1)), KOKKOS_LAMBDA(const int i) {
+                   a[i] = region + i;
+                 });
              }
 
              // Sync execution space instances (maps to streams in CUDA/HIP)
@@ -365,6 +431,9 @@ Asynchronous parallel for kernels
              // Print results
              for (unsigned i = 0; i < nx; i++)
                printf("a[%d] = %d\n", i, a[i]);
+
+             // Free Kokkos allocation (Unified Memory)
+             Kokkos::kokkos_free(a);
            }
            
            // Finalize Kokkos
@@ -372,6 +441,69 @@ Asynchronous parallel for kernels
            return 0;
          }
 
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+
+         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
+         #define CL_HPP_TARGET_OPENCL_VERSION 200
+         #include <CL/opencl.hpp>
+         
+         // For larger kernels, we can store source in a separate file
+         static const std::string kernel_source = R"(
+           __kernel void async(__global int *a) {
+             int i = get_global_id(0);
+             int region = i / get_global_size(0);
+             a[i] = region + i;
+           }
+         )";
+         
+         int main(int argc, char *argv[]) {
+         
+           // Initialize OpenCL
+           cl::Device device = cl::Device::getDefault();
+           cl::Context context(device);
+           cl::CommandQueue queue(context, device);
+
+           // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
+           cl::CommandQueue::setDefault(queue);           
+         
+           // Compile OpenCL program for found device.
+           cl::Program program(context, kernel_source);
+           program.build(device);
+           cl::Kernel kernel_async(program, "async");
+         
+           {
+             // Set problem dimensions
+             unsigned n = 5;
+             unsigned nx = 20;
+           
+             // Create SVM buffer object on host side 
+             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAlloc(context);
+             int *a = svmAlloc.allocate(nx);
+           
+             // Pass arguments to device kernel
+             kernel_async.setArg(0, a);
+           
+             // Launch multiple potentially asynchronous kernels on different parts of the array
+             for(unsigned region = 0; region < n; region++) {
+               queue.enqueueNDRangeKernel(kernel_async, cl::NDRange(nx / n * region), 
+                 cl::NDRange(nx / n), cl::NullRange);
+             }
+           
+             // Create mapping for host and print results
+             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_READ, nx * sizeof(int));
+             for (unsigned i = 0; i < nx; i++)
+               printf("a[%d] = %d\n", i, a[i]);
+             queue.enqueueUnmapSVM(a);
+           
+             // Free SVM buffer
+             svmAlloc.deallocate(a, nx);
+           }
+         
+           return 0;
+         }
 
    .. tab:: SYCL
 
@@ -409,21 +541,21 @@ Asynchronous parallel for kernels
            return 0;
          }
 
-Reduction
-~~~~~~~~~
-.. tabs:: 
-
    .. tab:: CUDA
 
-      .. code-block:: C
+      .. code-block:: C++
 
          WRITEME
 
    .. tab:: HIP
 
-      .. code-block:: C
+      .. code-block:: C++
 
          WRITEME
+
+Reduction
+~~~~~~~~~
+.. tabs:: 
 
    .. tab:: Kokkos
 
@@ -437,7 +569,7 @@ Reduction
            Kokkos::initialize(argc, argv);
          
            {
-             unsigned n = 5;
+             unsigned n = 10;
              
              // Initialize sum variable
              int sum = 0;
@@ -459,33 +591,125 @@ Reduction
            return 0;
          }
 
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+
+         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
+         #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+         #define CL_HPP_TARGET_OPENCL_VERSION 110
+         #include <CL/opencl.hpp>
+         
+         // For larger kernels, we can store source in a separate file
+         static const std::string kernel_source = R"(
+           __kernel void reduce(__global int* sum, __local int* local_mem) {
+             
+             // Get work group and work item information
+             int gsize = get_global_size(0); // global work size
+             int gid = get_global_id(0); // global work item index
+             int lsize = get_local_size(0); // local work size
+             int lid = get_local_id(0); // local work item index
+             
+             // Store reduced item into local memory
+             local_mem[lid] = gid; // initialize local memory
+             barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory
+             
+             // Perform reduction across the local work group
+             for (int s = 1; s < lsize; s *= 2) { // loop over local memory with stride doubling each iteration
+               if (lid % (2 * s) == 0) {
+                 local_mem[lid] += local_mem[lid + s];
+               }
+               barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory
+             }
+             
+             if (lid == 0) { // only one work item per work group
+               atomic_add(sum, local_mem[0]); // add partial sum to global sum atomically
+             }
+           }
+         )";
+          
+         int main(int argc, char* argv[]) {
+         
+           // Initialize OpenCL
+           cl::Device device = cl::Device::getDefault();
+           cl::Context context(device);
+           cl::CommandQueue queue(context, device);
+         
+           // Compile OpenCL program for found device
+           cl::Program program(context, kernel_source);
+           program.build(device);
+           cl::Kernel kernel_reduce(program, "reduce");
+         
+           {
+             // Set problem dimensions
+             unsigned n = 10;
+         
+             // Initialize sum variable
+             int sum = 0;
+         
+             // Create buffer for sum
+             cl::Buffer buffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(int), &sum);
+         
+             // Pass arguments to device kernel
+             kernel_reduce.setArg(0, buffer); // pass buffer to device
+             kernel_reduce.setArg(1, sizeof(int), NULL); // allocate local memory
+         
+             // Enqueue kernel
+             queue.enqueueNDRangeKernel(kernel_reduce, cl::NullRange, cl::NDRange(n), cl::NullRange);
+         
+             // Read result
+             queue.enqueueReadBuffer(buffer, CL_TRUE, 0, sizeof(int), &sum);
+         
+             // Print result
+             printf("sum = %d\n", sum);
+           }
+         
+           return 0;
+         }
+
 
    .. tab:: SYCL
 
       .. code-block:: C++
 
          #include <sycl/sycl.hpp>
-
+         
          int main(int argc, char *argv[]) {
            sycl::queue q;
-           unsigned n = 5;
-
-           // Buffers with just 1 element to get the reduction results
-           int* sum = sycl::malloc_shared<int>(1, q);
-           *sum = 0;
-
-           q.submit([&](sycl::handler &cgh) {
-             // Create temporary objects describing variables with reduction semantics
-             auto sum_reduction = sycl::reduction(sum, sycl::plus<int>());
-
-             // A reference to the reducer is passed to the lambda
-             cgh.parallel_for(sycl::range<1>{n}, sum_reduction,
+           unsigned n = 10;
+         
+           // Initialize sum
+           int sum = 0;
+           {
+             // Create a buffer for sum to get the reduction results
+             sycl::buffer<int> sum_buf{&sum, 1};
+           
+             // Submit a SYCL kernel into a queue
+             q.submit([&](sycl::handler &cgh) {
+               // Create temporary object describing variables with reduction semantics
+               auto sum_reduction = sycl::reduction(sum_buf, cgh, sycl::plus<>());
+           
+               // A reference to the reducer is passed to the lambda
+               cgh.parallel_for(sycl::range<1>{n}, sum_reduction,
                                [=](sycl::id<1> idx, auto &reducer) { reducer.combine(idx[0]); });
-           }).wait();
-
+             }).wait();
+             // The contents of sum_buf are copied back to sum by the destructor of sum_buf
+           }
            // Print results
-           printf("sum = %d\n", *sum);
+           printf("sum = %d\n", sum);
          }
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+
+         WRITEME
+
+   .. tab:: HIP
+
+      .. code-block:: C
+
+         WRITEME
 
 Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
