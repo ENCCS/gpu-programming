@@ -126,7 +126,9 @@ WRITEME
          
    .. tab:: SYCL
 
-         WRITEME
+         .. literalinclude:: examples/stencil/sycl/core.cpp 
+                        :language: cpp
+                        :emphasize-lines: 30,34
                         
    .. tab:: Python
 
