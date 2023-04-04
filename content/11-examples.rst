@@ -50,7 +50,23 @@ Stencil computation is a common occurrence in solving numerical equations, image
 
 .. solution:: Stencil expression and time-step limit
    
-   WRITEME
+   Differential equation shown above can be discretized using different schemes. For this example, temperature values at each grid point :math:`u^{m}(i,j)` are updated from one time point (:math:`m`) to the next (:math:`m+1`), using the following expressions:
+      
+   .. math::
+       u^{m+1}(i,j) = u^m(i,j) + \Delta t \alpha \nabla^2 u^m(i,j) ,
+   
+   where
+   
+   .. math::
+      \nabla^2 u  &= \frac{u(i-1,j)-2u(i,j)+u(i+1,j)}{(\Delta x)^2} \\
+          &+ \frac{u(i,j-1)-2u(i,j)+u(i,j+1)}{(\Delta y)^2} ,
+   
+   and :math:`\Delta x`, :math:`\Delta y`, :math:`\Delta t` are step sizes in space and time, respectively.
+   
+   Time-update schemes also have a limit on the maximum allowed time step :math:`\Delta t`. For the current scheme, it is equal to
+   
+   .. math::
+      \Delta t_{max} = \frac{(\Delta x)^2 (\Delta x)^2}{(2 \alpha (\Delta x + \Delta y))}
 
 
 Technical considerations
@@ -92,7 +108,7 @@ WRITEME
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
-                        :linenos: 6-33       
+                        :lines: 6-33       
 
 WRITEME (comments and some benchmarks?)
 
