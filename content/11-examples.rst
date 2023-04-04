@@ -66,7 +66,7 @@ Moreover, in many cases the chosen time step cannot be arbitrarily large, otherw
 
 Naturally, stencil expression can't be applied directly to the outermost grid points that have no outer neighbors. This can be solved by either changing the expression for those points or by adding an additional layer of grid that is used in computing update, but not updated itself -- points of fixed temperature for the sides are being used in this example.
 
-**3.**
+**3.** (?)
 
 
 
@@ -75,12 +75,56 @@ CPU parallelization (with OpenMP)
 
 WRITEME
 
+.. tabs::
+
+   .. tab:: Main function
+
+         .. literalinclude:: content/examples/stencil/base/main.cpp 
+                        :language: cpp
+                        :emphasize-lines: 37
+   .. tab:: Stencil update
+
+         .. literalinclude:: content/examples/stencil/base/core.cpp 
+                        :language: cpp
+                        :emphasize-lines: 23
+                        
+   .. tab:: Default params
+
+         .. literalinclude:: content/examples/stencil/base/heat.h 
+                        :language: cpp
+                        :linenos: 6-33       
+
+WRITEME (comments and some benchmarks?)
 
 
 GPU parallelization examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+WRITEME
 
+.. tabs::
+
+   .. tab:: OpenMP
+
+         WRITEME
+         
+   .. tab:: SYCL
+
+         WRITEME
+                        
+   .. tab:: Python
+
+         WRITEME
+         
+   .. tab:: Julia
+
+         WRITEME  
+
+   .. tab:: (more?)
+
+         WRITEME 
+
+WRITEME
 
 
 .. keypoints::
