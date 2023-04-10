@@ -97,7 +97,8 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
 
 
 CUDA
-~~~~~~
+~~~~
+
 The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on NVIDIA GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
 
 
