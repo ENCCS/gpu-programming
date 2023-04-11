@@ -127,7 +127,7 @@ OpenCL
 ^^^^^^ 
 
 
-GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X`spcify the major architecture and it is between 1 and 9, and `Y`the minor. For AMD cards when compilingw wiht `hipcc` 
+GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X`spcify the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use `--gpu-architecture=sm_XY`, while on AMD platforms `--offload-arch=gfx90a`.
 
 Summary
 -------
