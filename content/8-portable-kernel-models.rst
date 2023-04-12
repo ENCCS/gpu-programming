@@ -90,7 +90,7 @@ OpenCL compilation
 ~~~~~~~~~~~~~~~~~~
 OpenCL supports two modes for compiling the programs: online and offline. Online compilation occurs at runtime, when the host program calls a function to compile the source code. Online mode allows dynamic generation and loading of kernels, but may incur some overhead due to compilation time and possible errors. Offline compilation occurs before runtime, when the source code of a kernel is compiled into a binary format that can be loaded by the host program. This mode allows faster execution and better optimization of kernels, but may limit the portability of the program, because the binary can only run on the architectures it was compiled for.
 
-OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``dpcpp cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc -arch=sm_80 cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``-arch=sm_80`` in the latter represents the desired CUDA architecture.
+OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``dpcpp cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc -arch=sm_80 cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file and ``-arch=sm_80`` in the latter represents the desired CUDA architecture.
 
 OpenCL programming
 ~~~~~~~~~~~~~~~~~~
