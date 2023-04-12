@@ -112,25 +112,25 @@ When programming mistakes are inevitable they have to be fixed as soon as possib
 
 In addition to this the command line tool **compute-sanitizer** can be used to look esclusively for memory access problems: unallocated buffers, out of bounds accesses, race conditions, and unitilized variables. 
 
-Finally, in order to utilize the GPUs at maximum some performance analysis tools. Nvidia provides NVIDIA Nsight Systems and NVIDIA Nsight Compute tools for helping the developers to optimize their applications. The former, NVIDIA Nsight Systems, is a system-wide performance analysis tool that  provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, NVIDIA Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy.
+Finally, in order to utilize the GPUs at maximum some performance analysis tools. Nvidia provides NVIDIA Nsight Systems and NVIDIA Nsight Compute tools for helping the developers to optimize their applications. The former, NVIDIA Nsight Systems, is a system-wide performance analysis tool that  provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, NVIDIA Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have grahical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.
+
+Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
 
 ROCm
 ^^^^
+ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. ROCm is not only meant 
 
 * Drivers and runtimes, provided by the amdgpu kernel model and dev-libs/roct-thunk-interface and dev-libs/rocr-runtime.
 * Programming models (OpenCL, HIP, OpenMP)
 * Compilers and tools. 
 * Libraries. Most libraries prefixed by roc and hip. All roc* packages are written in HIP and uses hipamd as backend, while hip* are simple wrappers.
-* Deployment tools
 
 OneAPI
 ^^^^^^
 
-OpenCL
-^^^^^^ 
 
 
-GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling optoin `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code like `90a` for the MI250X gpus or `908` for MI100).
+GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling optoin `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code such as `90a` for the MI200 series or `908` for MI100 series).
 
 Summary
 -------
