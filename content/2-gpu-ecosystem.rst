@@ -118,12 +118,11 @@ Apart from what was presented above there are many others tools and features pro
 
 ROCm
 ^^^^
-ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. ROCm is not only meant 
+ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. for debugging provide the command line tool `roc-gdb`, while for perforance analysis `roc-prof` and `roctracer`.  
 
-* Drivers and runtimes, provided by the amdgpu kernel model and dev-libs/roct-thunk-interface and dev-libs/rocr-runtime.
-* Programming models (OpenCL, HIP, OpenMP)
-* Compilers and tools. 
-* Libraries. Most libraries prefixed by roc and hip. All roc* packages are written in HIP and uses hipamd as backend, while hip* are simple wrappers.
+In order to produce code for the AMD GPUs one can Heterogeneous-Computing Interface for Portability (HIP). HIP provides source portability to either Nvidia or AMD plaform. It  provides the hipcc compiler driver, which will call the appropriate toolchain depending on the desired platform. On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang compiler. On an Nvidia platform, HIP provides header file which translate from the HIP runtime APIs to CUDA runtime APIs. The header file contains mostly inlined functions and thus has very low overhead. The code is then compiled with nvcc, the standard C++ compiler provided with the CUDA.
+
+On AMD platforms libraries are prefixed by `roc`, which can be called directly from HIP. In order to make portable call one call the libraries using `hip` prefixed wrappers. These can be used at no perfomrance cost and insure that a HIP code can be use on other platforms with no changes. 
 
 OneAPI
 ^^^^^^
