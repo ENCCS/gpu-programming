@@ -9,7 +9,7 @@ using namespace sycl;
 //   prev: temperature values from previous time step
 //   a: diffusivity
 //   dt: time step
-void evolve(field *curr, field *prev, double a, double dt)
+void evolve(queue &Q, field *curr, field *prev, double a, double dt)
 {
   // Help the compiler avoid being confused by the structs
   double *currdata = curr->data.data();
