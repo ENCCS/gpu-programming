@@ -125,63 +125,6 @@ By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector
 
 
 
-.. challenge:: Examples of nested loops with 
-
-   .. tabs::
-
-      .. tab:: C/C++
-
-             .. code-block:: c
-             	:emphasize-lines: 3
-
-		  #pragma acc parallel 
-                  {
-                  #pragma acc loop gang worker vector
-                      for (i = 0; i < NX; i++) {
-                          data[i] = 1.0;
-                      }
-                  }
-		  
-
-      .. tab:: Fortran
-
-             .. code-block:: fortran
-             	:emphasize-lines: 2,9,11,19,21,23
-
-		  !$acc parallel 
-		  !$acc loop gang worker vector
-		  do i = 1, nx
-                     data1(i) = 1.0
-                  end do
-		  !$acc end parallel
-
-		  !$acc parallel 
-		  !$acc loop gang worker
-		  do j = 1, ny
-		  !$acc loop vector
-                     do i = 1, nx
-                        data2(i,j) = 1.0
-                     end do
-                  end do
-		  !$acc end parallel
-
-		  !$acc parallel 
-		  !$acc loop gang
-		  do k = 1, nz
-		  !$acc loop worker
-		     do j = 1, ny
-		  !$acc loop vector
-                        do i = 1, nx
-                           data3(i,j,k) = 1.0
-                        end do
-                     end do
-                  end do
-		  !$acc end parallel
-
-
-
-
-
 .. note:: 
 
     There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
@@ -189,9 +132,6 @@ By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector
     gangs, workers and vector length. The optimal numbers are highly architecture-dependent though.
 
 
-#.. image:: img/gang_worker_vector.png
-
-This image represents a single gang. When parallelizing our for loops, the loop iterations will be broken up evenly among a number of gangs. Each gang will contain a number of threads. These threads are organized into blocks. A worker is a row of threads. In the above graphic, there are 3 workers, which means that there are 3 rows of threads. The vector refers to how long each row is. So in the above graphic, the vector is 8, because each row is 8 threads long.
 
 
 
@@ -224,69 +164,40 @@ OpenMP offloading offers multiple levels of parallelism as well:
   - **teams** coarse grain: the iterations are distributed among the teams
   - **distribute** distributes the iterations across the master threads in the teams, but no worksharing among the threads within one team
   - **parallel do/for** fine grain: threads are activated within one team and worksharing among them
-  - **SIMD** like the ``vector`` directive for OpenACC
+  - **SIMD** like the ``vector`` directive in OpenACC
 
-.. challenge:: Syntax
+
+.. note:: 
+
+    Since OpenMP 5.0, there is a new ``loop`` directive available, which has the similar functionality as the corresponding one in OpenACC.
+
+
+.. challenge:: Syntax for ``loop`` directive
 
    .. tabs::
 
       .. tab:: C/C++
 
              .. code-block:: c
-             	:emphasize-lines: 3
+             	:emphasize-lines: 1
 
-		  #pragma omp target 
-                  {
-                  #pragma omp teams loop
+                  #pragma omp target teams loop
                       for (i = 0; i < NX; i++) {
                           vecC[i] = vecA[i] + vecB[i];
                       }
-                  }
 		  
 
 
       .. tab:: Fortran
 
              .. code-block:: fortran
-             	:emphasize-lines: 2,6
+             	:emphasize-lines: 1,5
 
-		  !$omp target 
-		  !$omp teams distribute parallel do SIMD
+		  !$omp target teams loop
 		  do i = 1, nx
-                     data1(i) = 1.0
+                     vecC(i) = vecA(i) + vecB(i)
                   end do
-		  !$omp end teams distribute parallel do SIMD
-		  !$omp end target
-
-
-		  !$omp target 
-		  !$omp teams distribute
-		  do j = 1, ny
-		  !$omp parallel do SIMD
-                     do i = 1, nx
-                        data2(i,j) = 1.0
-                     end do
-                  !$omp end parallel do SIMD
-                  end do
-		  !$omp end teams distribute
-		  !$omp end target
-
-		  !$omp target 
-		  !$omp teams distribute
-		  do k = 1, nz
-		  !$omp parallel do
-		     do j = 1, ny
-		  !$omp SIMD
-                        do i = 1, nx
-                           data3(i,j,k) = 1.0
-                        end do
-                  !$omp end SIMD
-                     end do
-                  !$omp end parallel do
-                  end do
-		  !$omp end teams distribute
-		  !$omp end target
-
+		  !$omp end target teams loop
 
 
 
@@ -306,170 +217,314 @@ Vector addition
 
 Example of a trivially parallelizable problem using the *loop* workshare construct:
 
-TODO: test, simplify and harmonize all versions below
 
 .. tabs::
 
-   .. tab:: OpenMP C/C++
+   .. tab:: OpenMP 
       
-      .. code-block:: C++
+      .. tabs::
+
+         .. tab::  C/C++
+
+            .. code-block:: C++
             
-         #include <stdio.h>
-         #include <math.h>
-         #define NX 102400
+               #include <stdio.h>
+               #include <math.h>
+               #define NX 102400
 
-         int main(void){
-             double vecA[NX],vecB[NX],vecC[NX];
+               int main(void){
+                   double vecA[NX],vecB[NX],vecC[NX];
 
-             /* Initialize vectors */
-             for (int i = 0; i < NX; i++) {
-                 vecA[i] = 1.0;
-                 vecB[i] = 1.0;
-             }  
+                   /* Initialize vectors */
+                   for (int i = 0; i < NX; i++) {
+                       vecA[i] = 1.0;
+                       vecB[i] = 1.0;
+                   }  
 
-             #pragma omp parallel
-             {
-                 #pragma omp for
-                 for (int i = 0; i < NX; i++) {
-                    vecC[i] = vecA[i] * vecB[i];
-                 }
-             }
-         }
+		   #pragma omp target teams distribute parallel for
+		   {
+		       for (int i = 0; i < NX; i++) {
+			  vecC[i] = vecA[i] + vecB[i];
+		       }
+		   }
+               }
                               
-   .. tab:: OpenMP Fortran
+         .. tab::  Fortran
       
-      .. code-block:: Fortran
+            .. code-block:: Fortran
          
-         program dotproduct
-             implicit none
+               program vecsum
+                   implicit none
  
-             integer, parameter :: nx = 102400
-             real, dimension(nx) :: vecA,vecB,vecC
-             real, parameter :: r=0.2
-             integer :: i
+                   integer, parameter :: nx = 102400
+                   real, dimension(nx) :: vecA,vecB,vecC
+                   integer :: i
 
-             ! Initialization of vectors
-             do i = 1, nx
-                vecA(i) = r**(i-1)
-                vecB(i) = 1.0
-             end do     
+                   ! Initialization of vectors
+                   do i = 1, nx
+                      vecA(i) = 1.0
+                      vecB(i) = 1.0
+                   end do     
 
-             !$omp parallel 
-             !$omp do
-                 do i=1,NX
-                     vecC(i) = vecA(i) * vecB(i)
-                 enddo  
-             !$omp end do
-             !$omp end parallel
-         end program dotproduct
+                  !$omp target teams distribute parallel do
+                       do i=1,nx
+                           vecC(i) = vecA(i) + vecB(i)
+                       enddo  
+                  !$omp end target teams distribute parallel do
+               end program vecsum
 
-   .. tab:: OpenACC C/C++
+   .. tab:: OpenACC 
       
-      .. code-block:: C++
+      .. tabs::
 
-         #include <stdio.h>
-         #include <openacc.h>
-         #define NX 102400
+         .. tab:: C/C++
+      
+            .. code-block:: C++
 
-         int main(void) {
-             double vecA[NX], vecB[NX], vecC[NX];
-             double sum;
+               #include <stdio.h>
+               #include <openacc.h>
+               #define NX 102400
 
-             /* Initialization of the vectors */
-             for (int i = 0; i < NX; i++) {
-                 vecA[i] = 1.0;
-                 vecB[i] = 1.0;
-             }
+	       int main(void) {
+		   double vecA[NX], vecB[NX], vecC[NX];
 
-             #pragma acc data copy(vecA,vecB,vecC)
-             {
-                 #pragma acc parallel
-                 {
-                 #pragma acc loop
-                     for (int i = 0; i < NX; i++) {
-                         vecC[i] = vecA[i] * vecB[i];
-                     }
-                 }
-             }
-         }         
+		   /* Initialization of the vectors */
+		   for (int i = 0; i < NX; i++) {
+		       vecA[i] = 1.0;
+		       vecB[i] = 1.0;
+		   }
+		   #pragma acc parallel loop
+		   {
+		       for (int i = 0; i < NX; i++) {
+			   vecC[i] = vecA[i] + vecB[i];
+		       }
+		   }
+	       }         
 
-   .. tab:: OpenACC Fortran
+	 .. tab:: Fortran
 
-      .. code-block:: Fortran
+	    .. code-block:: Fortran
 
-         program dotproduct
-             implicit none
+	       program vecsum
+		   implicit none
+
+		   integer, parameter :: nx = 102400
+		   real, dimension(:), allocatable :: vecA,vecB,vecC
+		   integer :: i
+
+		   allocate (vecA(nx), vecB(nx),vecC(nx))
+		   ! Initialization of vectors
+		   do i = 1, nx
+		      vecA(i) = 1.0
+		      vecB(i) = 1.0
+		   end do     
+
+		   !$acc parallel loop
+		       do i=1,nx
+			   vecC(i) = vecA(i) + vecB(i)
+		       enddo  
+		   !$acc end parallel loop
+	       end program vecsum
+
+
+
+Data Movement
+~~~~~~~~~~~~~
+
+Due to distinct memory spaces on host and device, transferring data becomes inevitable. 
+New directives are needed to specify how variables are transferred from the host to the device data environment. 
+The common transferred items consist of arrays (array sections), scalars, pointers, and structure elements. 
+Various data clauses used for data movement is summarised in the following table
+
+.. csv-table::
+   :widths: auto
+   :delim: ;
+
+   ``OpenMP`` ; ``OpenACC`` ; 
+   ``map(to:list)`` ; ``copyin(list)`` ; :doc:`On entering the region, variables in the list are initialized on the device using the original values from the host`
+   ``map(from:list)`` ; ``copyout(list)`` ;  :doc:`At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized`       
+   ``map(tofrom:list)`` ; ``copy(list)`` ; :doc:`the effect of both a map-to and a map-from`
+   ``map(alloc:list)`` ;  ``create(list)`` ; :doc:`On entering the region, data is allocated and uninitialized on the device`
+
+
+.. +----------------------+-------------------+----------------------------------------------+
+   |                      |                   |                                              |
+   +======================+==================================================================+
+   | OpenMP               | OpenACC           |                                              |
+   +----------------------+-------------------+----------------------------------------------+
+   | ``map(to:list)``     | ``copyin(list)``  |On entering the region, variables in the list |
+   |                      |                   |are initialized on the device using the       |
+   |                      |                   |original values from the host                 |
+   +----------------------+-------------------+----------------------------------------------+
+   | ``map(from:list)``   | ``copyout(list)`` | At the end of the target region, the values  |
+   |                      |                   |from variables in the list are copied into    |
+   |                      |                   |the original variables on the host. On        |
+   |                      |                   |entering the region, the initial value of the |
+   |                      |                   |variables on the device is not initialized    |
+   +----------------------+-------------------+----------------------------------------------+
+   | ``map(tofrom:list)`` | ``copy(list)``    |the effect of both a map-to/copyin and        |
+   |                      |                   |a map-from/copyout                            |
+   +----------------------+-------------------+----------------------------------------------+
+   | ``map(alloc:list)``  | ``create(list)``  |On entering the region, data is allocated and |
+   |                      |                   |uninitialized on the device                   |
+   +----------------------+-------------------+----------------------------------------------+
  
-             integer, parameter :: nx = 102400
-             real, dimension(:), allocatable :: vecA,vecB,vecC
-             real, parameter :: r=0.2
-             integer :: i
+   
 
-             allocate (vecA(nx), vecB(nx),vecC(nx))
-             ! Initialization of vectors
-             do i = 1, nx
-                vecA(i) = r**(i-1)
-                vecB(i) = 1.0
-             end do     
+.. note::
 
-             !$acc data copy(vecA,vecB,vecC)
-             !$acc parallel 
-             !$acc loop
-                 do i=1,NX
-                     vecC(i) = vecA(i) * vecB(i)
-                 enddo  
-             !$acc end loop
-             !$acc end parallel
-             !$acc end data
-         end program dotproduct
+	When mapping data arrays or pointers, be careful about the array section notation:
+	  - In C/C++: array[lower-bound:length]. The notation :N is equivalent to 0:N.
+	  - In Fortran:array[lower-bound:upper-bound]. The notation :N is equivalent to 1:N.
 
-Reduction
-^^^^^^^^^
 
-Example of a *reduction* loop without race condition by using private variables:
+Data region
+^^^^^^^^^^^
+
+The specific data clause combined with the data directive constitutes the start of a data region.
+How the directives create storage, transfer data, and remove storage on the device are clasiffied as two categories: 
+structured data region and unstructured data region. 
+A structured data region is convenient for providing persistent data on the device which could be used for subseqent GPU directives.
+However it is inconvenient in real applications using structured data region, therefore the unstructured data region  
+with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
+
+
+.. challenge:: Syntax for structured data region
 
 .. tabs::
 
-   .. tab:: OpenMP C/C++
-      
-      .. code-block:: C++
-            
-         #pragma omp parallel for shared(x,y,n) private(i) reduction(+:asum){
-            for(i=0; i < n; i++) {
-                  asum = asum + x[i] * y[i];
-            }
-         }
-                              
-   .. tab:: OpenMP Fortran
-      
-      .. code-block:: Fortran
-         
-         !$omp parallel do shared(x,y,n) private(i) reduction(+:asum)
-            do i = 1, n
-               asum = asum + x(i)*y(i)
-            end do
-         !$omp end parallel
+   .. tab:: OpenMP 
 
-   .. tab:: OpenACC C/C++
-      
-      .. code-block:: C++
+      .. tabs::
 
-         WRITEME
+	 .. tab:: C/C++
 
-   .. tab:: OpenACC Fortran
-      
-      .. code-block:: Fortran
-         
-         WRITEME
+		.. code-block:: c
+
+		     #pragma omp target data [clauses]
+			{structured-block}
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$omp target data [clauses]
+		        structured-block
+		     !$omp end target data
+
+
+   .. tab:: OpenACC 
+
+      .. tabs::
+
+	 .. tab:: C/C++
+
+		.. code-block:: c
+
+		     #pragma acc data [clauses]
+	                {structured-block}
+
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$acc data [clauses]
+		        structured-block
+		     !$acc end data
+
+
+
+.. challenge:: Syntax for unstructured data region
+
+.. tabs::
+
+   .. tab:: OpenMP 
+
+      .. tabs::
+
+	 .. tab:: C/C++
+
+		.. code-block:: c
+
+		     #pragma omp target enter data [clauses]
+
+		.. code-block:: c
+
+		     #pragma omp target exit data
+	   
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$omp target enter data [clauses] 
+
+		.. code-block:: fortran
+
+		     !$omp target exit data
+
+
+   .. tab:: OpenACC 
+
+      .. tabs::
+
+	 .. tab:: C/C++
+
+		.. code-block:: c
+
+		     #pragma acc enter data [clauses]
+
+		.. code-block:: c
+
+		     #pragma acc exit data
+
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$acc enter data [clauses] 
+
+		.. code-block:: fortran
+
+		     !$acc exit data
+
+
+
+.. keypoints::
+
+  Structured Data Region
+    - start and end points within a single subroutine
+    - Memory exists within the data region
+
+  Unstructured Data Region
+    - multiple start and end points across different subroutines
+    - Memory exists until explicitly deallocated
+
+
+Optimize Data Transfers
+^^^^^^^^^^^^^^^^^^^^^^^
+
+- Explicitely transfer the data as much as possible
+- Reduce the amount of data mapping between host and device, get rid of unnecessary data transfer
+- Try to keep data environment residing on the device as long as possible
+
+
+
 
 Pros and cons of directive-based frameworks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- incremental programming
+- Incremental programming
 - Porting of existing software requires less work
 - Same code can be compiled to CPU and GPU versions easily using compiler flag
-- low learning curve, do not need to know low-level hardware details
-- good portability
+- Low learning curve, do not need to know low-level hardware details
+- Good portability
 
 
 .. keypoints::
