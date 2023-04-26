@@ -71,17 +71,56 @@ Using GPUs allows one to achieve very high performance per node.
 As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
 The drawback is: usually major rewrites of programs is required.
 
-.. note:: Host vs device
+.. callout:: Host vs device
 
-   GPUs are always mounted next to a CPU, acting as an accelerator that the CPU 
-   can offload computational work to. In GPU programming, CPUs are thus often referred 
-   to as "host" and the GPU as "device".
+   GPU-enabled systems require a heterogeneous programming model that involves both 
+   CPU and GPU, where the CPU and its memory are referred to as the host, 
+   and the GPU and its memory as the device.
+
+.. figure:: img/history/CPU_and_GPU_separated.png
+   :align: center
+
+   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/>`__.
 
 
-Energy efficiency
------------------
+Why GPUs?
+---------
+
+Speed
+^^^^^
+
+GPU computing can significantly accelerate many types of scientific workloads.
+
+Improved energy efficiency
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
+which can result in significant energy savings.
+
+Cost-effectiveness 
+^^^^^^^^^^^^^^^^^^
+
+GPUs can be more cost-effective than traditional CPU-based systems for certain 
+workloads.
 
 
+Limitations and drawbacks
+-------------------------
+
+Only for certain workloads
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Not all workloads can be efficiently parallelized and accelerated on GPUs. 
+Certain types of workloads, such as those with irregular data access patterns or 
+high branching behavior, may not see significant performance improvements on GPUs.
+
+Steeper learning curve
+^^^^^^^^^^^^^^^^^^^^^^
+
+GPU computing requires specialized skills in GPU programming and knowledge of 
+GPU architecture, resulting in a steeper learning curve compared to CPU programming. 
+Fortunately, if you study this training material closely you will become productive 
+with GPU programming quickly!
 
 
 
