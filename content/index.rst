@@ -1,5 +1,5 @@
-The hitchhiker's guide to GPU programming
-=========================================
+GPU Programming: When, Why and How?
+===================================
 
 Graphical processing units (GPUs) are the workhorse of many high performance 
 computing (HPC) systems around the world. The number of GPU-enabled supercomputers 
