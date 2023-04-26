@@ -60,7 +60,7 @@ There are various paradigms and programming approaches how to do this.
 Graphics processing units
 -------------------------
 
-The Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
+Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
 GPUs were initially developed for highly-parallel task of graphic processing.
 Over the years, were used more and more in HPC.
 GPUs are a specialized parallel hardware for floating point operations.
@@ -70,6 +70,12 @@ Based on highly parallel architectures, which allows to take advantage of the in
 Using GPUs allows one to achieve very high performance per node.
 As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
 The drawback is: usually major rewrites of programs is required.
+
+.. note:: Host vs device
+
+   GPUs are always mounted next to a CPU, acting as an accelerator that the CPU 
+   can offload computational work to. In GPU programming, CPUs are thus often referred 
+   to as "host" and the GPU as "device".
 
 
 Energy efficiency
