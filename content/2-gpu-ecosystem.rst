@@ -15,8 +15,8 @@ The GPU hardware and software ecosystem
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 0 min exercises
 
 
 Overview of GPU hardware

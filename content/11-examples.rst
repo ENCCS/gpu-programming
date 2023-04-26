@@ -15,8 +15,8 @@ Problem example: stencil computation
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 15 min teaching
+   - 60 min exercises
 
 
 Problem: heat flow in two-dimensional area

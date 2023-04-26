@@ -11,8 +11,8 @@ Recommendations
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 30 min teaching
+   - 15 min exercises
 
 
 Portability

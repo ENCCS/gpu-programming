@@ -3,6 +3,21 @@
 Directive-based models
 ======================
 
+.. questions::
+
+   - q1
+   - q2
+
+.. objectives::
+
+   - o1
+   - o2
+
+.. instructor-note::
+
+   - 60 min teaching
+   - 30 min exercises
+
 WRITEME begin
 
 - What is OpenMP offloading?

@@ -15,8 +15,8 @@ Why GPUs?
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 0 min exercises
 
 
 Moore's law

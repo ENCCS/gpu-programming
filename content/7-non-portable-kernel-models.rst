@@ -4,6 +4,22 @@
 Non-portable kernel-based models
 ================================
 
+.. questions::
+
+   - q1
+   - q2
+
+.. objectives::
+
+   - o1
+   - o2
+
+.. instructor-note::
+
+   - 55 min teaching
+   - 30 min exercises
+
+
 CUDA
 ^^^^
 
