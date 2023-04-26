@@ -356,10 +356,10 @@ Various data clauses used for data movement is summarised in the following table
    :delim: ;
 
    ``OpenMP`` ; ``OpenACC`` ; 
-   ``map(to:list)`` ; ``copyin(list)`` ; :doc:`On entering the region, variables in the list are initialized on the device using the original values from the host`
-   ``map(from:list)`` ; ``copyout(list)`` ;  :doc:`At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized`       
-   ``map(tofrom:list)`` ; ``copy(list)`` ; :doc:`the effect of both a map-to and a map-from`
-   ``map(alloc:list)`` ;  ``create(list)`` ; :doc:`On entering the region, data is allocated and uninitialized on the device`
+   ``map(to:list)`` ; ``copyin(list)`` ; On entering the region, variables in the list are initialized on the device using the original values from the host
+   ``map(from:list)`` ; ``copyout(list)`` ;  At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized       
+   ``map(tofrom:list)`` ; ``copy(list)`` ; the effect of both a map-to and a map-from
+   ``map(alloc:list)`` ;  ``create(list)`` ; On entering the region, data is allocated and uninitialized on the device
 
 
 .. +----------------------+-------------------+----------------------------------------------+
