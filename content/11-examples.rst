@@ -150,7 +150,3 @@ WRITEME
    - k1
    - k2
 
-Additional information
-----------------------
-         
-* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`_
