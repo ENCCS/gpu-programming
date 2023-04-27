@@ -140,7 +140,7 @@ To summarize this section. In order to take advantage of GPUs the algorithms mus
 
 In order to hide latencies it is recommended to "over-subscribe" the GPU. There should be many more blocks than SMPs presen on the device. Also in order to ensure a good occupancy of the cuda cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the cuda cores, thus ensuring a high occupancy of the GPU.
 
-In addition to this there are some architecture-specific features of which the developers can take advantage. :abbr:`Warp`-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow :abbr:`threads` within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
+In addition to this there are some architecture-specific features of which the developers can take advantage. :abbr:`warp`-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow :abbr:`threads` within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
 
 Below there is an example of how the threads in a grid can be associated with specific elements of an array
 
@@ -190,28 +190,6 @@ Software
 .. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consecutive X (0) index in CUDA, HIP, and OpenCL, but consecutive Z (2) index in SYCL. 
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies for block dimensions and indexing. 
-
-Hardware
-~~~~~~~~
-
-THIS TABLE COULD BE MOVED TO EPISODE 2
-
-.. list-table:: Hardware
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - Nvidia
-     - AMD
-     - Intel
-   * - streaming processor/streaming core
-     - SIMD lane
-     - processing element
-   * - SIMT unit
-     - SIMD unit
-     - 
-   * - streaming multiprocessor (SMP)
-     - computing unit (CU)
-     - execution unit (EU)
 
 
 
