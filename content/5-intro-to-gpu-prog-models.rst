@@ -25,10 +25,10 @@ Standard C++/Fortran
 --------------------
 
 Programs written in standard C++ and Fortran languages can now take advantage of NVIDIA GPUs without
-depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`_
+depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`__
 suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
-can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`_ while
-those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`_.
+can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`__ while
+those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`__.
 The performance of these two approaches is promising as it can be seen in the examples provided in those
 guidelines.
 
@@ -67,7 +67,7 @@ HIP
 
 
 Portable kernel-based models (cross-platform portability ecosystems)
---------------------------------------------------------------
+--------------------------------------------------------------------
 
 Cross-platform portability ecosystems typically provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is achieving performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `OpenCL <https://www.khronos.org/opencl/>`_ (C and C++ APIs), `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
 
@@ -124,6 +124,23 @@ Numba supports GPUs from both Nvidia and AMD.
 Julia
 ~~~~~
 
+Julia has first-class support for GPU programming through the following
+packages that target GPUs from all three major vendors:
+
+- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for NVIDIA GPUs
+- `AMDGPU.jl <https://amdgpu.juliagpu.org/stable/>`_ for AMD GPUs
+- `oneAPI.jl <https://github.com/JuliaGPU/oneAPI.jl>`_ for Intel GPUs
+- `Metal.jl <https://github.com/JuliaGPU/Metal.jl>`_ for Apple M-series GPUs
+
+``CUDA.jl`` is the most mature, ``AMDGPU.jl`` is somewhat behind but still
+ready for general use, while ``oneAPI.jl`` and ``Metal.jl`` are functional but might
+contain bugs, miss some features and provide suboptimal performance.
+Their respective APIs are however completely analogous
+and translation between libraries is straightforward.
+
+All packages offer both high-level abstractions that require
+very little programming effort and a lower level approach for writing kernels
+for fine-grained control.
 
 
 Summary
