@@ -122,6 +122,24 @@ Finally, in order to utilize the GPUs at maximum some performance analysis tools
 
 Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
 
+.. callout:: In short
+
+   - CUDA: Nvidia's parallel computing platform
+      - Components: CUDA Toolkit & CUDA driver
+      - Supports C, C++, and Fortran languages
+   - CUDA API Libraries: cuBLAS, cuFFT, cuRAND, cuSPARSE
+      - Accelerate complex computations on GPUs
+   - Compilers: nvcc, nvc, nvc++, nvfortran
+      - Support GPU and multicore CPU programming
+      - Compatible with OpenACC and OpenMP
+   - Debugging tools: cuda-gdb, compute-sanitizer
+      - Debug GPU and CPU code simultaneously
+      - Identify memory access issues
+   - Performance analysis tools: NVIDIA Nsight Systems, NVIDIA Nsight Compute
+      - Analyze system-wide and kernel-level performance
+      - Optimize CPU and GPU usage, memory bandwidth, instruction throughput
+   - Comprehensive CUDA ecosystem with extensive tools and features
+
 ROCm
 ^^^^
 ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. for debugging provide the command line tool `roc-gdb`, while for perforance analysis `roc-prof` and `roctracer`.  
