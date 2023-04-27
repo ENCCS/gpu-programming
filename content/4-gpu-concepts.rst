@@ -15,8 +15,8 @@ GPU programming concepts
 
 .. instructor-note::
 
-   - 20 min teaching
-   - 10 min exercises
+   - X min teaching
+   - X min exercises
 
 Different types of parallelism
 ------------------------------
@@ -104,6 +104,13 @@ GPU Execution Model
 
 In order to obtain maximum performance it is important to understand how GPUs execute the programs. As mentioned before a CPU is a flexible device oriented towards general purpose usage. It's fast and versatile, designed to run operating systems and various, very different types of applications. It has lots of features, such as better control logic, caches and cache coherence, that are not related to pure computing. CPUs optimize the execution by trying to achieve low latency via heavy caching and branch prediction. 
 
+.. figure:: img/concepts/cpu-gpu-highway.png
+    :align: center
+    :scale: 40 %
+
+    Cars and roads analogy for the CPU and GPU behavior. The compact road is analogous to the CPU
+    (low latency, low throughput) and the broader road is analogous to the GPU (high latency, high throughput).
+
 In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of cuda cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of cuda cores. GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions. 
 
 CUDA Threads, Warps, Blocks
@@ -140,7 +147,7 @@ To summarize this section. In order to take advantage of GPUs the algorithms mus
 
 In order to hide latencies it is recommended to "over-subscribe" the GPU. There should be many more blocks than SMPs presen on the device. Also in order to ensure a good occupancy of the cuda cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the cuda cores, thus ensuring a high occupancy of the GPU.
 
-In addition to this there are some architecture-specific features of which the developers can take advantage. :abbr:`warp`-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow :abbr:`threads` within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
+In addition to this there are some architecture-specific features of which the developers can take advantage. :abbr:`Warp`-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow :abbr:`threads` within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
 
 Below there is an example of how the threads in a grid can be associated with specific elements of an array
 
@@ -191,6 +198,28 @@ Software
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies for block dimensions and indexing. 
 
+Hardware
+~~~~~~~~
+
+THIS TABLE COULD BE MOVED TO EPISODE 2
+
+.. list-table:: Hardware
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Nvidia
+     - AMD
+     - Intel
+   * - streaming processor/streaming core
+     - SIMD lane
+     - processing element
+   * - SIMT unit
+     - SIMD unit
+     - 
+   * - streaming multiprocessor (SMP)
+     - computing unit (CU)
+     - execution unit (EU)
+
 
 
 
@@ -198,3 +227,8 @@ Software
 
    - k1
    - k2
+
+Additional information
+----------------------
+         
+* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`_
