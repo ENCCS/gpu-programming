@@ -15,8 +15,8 @@ Preparing code for GPU porting
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 10 min exercises
 
 Taking advantage of the parallel processing capability of the GPUs requires modifying the original code. However some work is required before writing actual code running on the GPUs:
 

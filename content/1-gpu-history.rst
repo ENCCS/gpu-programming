@@ -15,8 +15,8 @@ Why GPUs?
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 0 min exercises
 
 
 Moore's law
@@ -56,57 +56,11 @@ subtasks. Many subtasks can then be solved *simultaneously* by multiple processi
 How a problem is split into smaller subtasks depends fully on the problem. 
 There are various paradigms and programming approaches how to do this. 
 
-Distributed- vs. Shared-Memory Architecture
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Most of computing problems are not trivially parallelizable, which means that the subtasks 
-need to have access from time to time to some of the results computed by other subtasks. 
-The way subtasks exchange needed information depends on the available hardware.
-
-.. figure:: img/history/distributed_vs_shared.png
-   :align: center
-   
-   Distributed- vs shared-memory parallel computing.
-
-In a distributed memory environment each computing unit operates independently from the 
-others. It has its own memory and it  **cannot** access the memory in other nodes. 
-The communication is done via network and each computing unit runs a separate copy of the 
-operating system. In a shared memory machine all computing units have access to the memory 
-and can read or modify the variables within.
-
-Processes and threads
-~~~~~~~~~~~~~~~~~~~~~
-
-The type of environment (distributed- or shared-memory) determines the programming model. 
-There are two types of parallelism possible, process based and :abbr:`thread` based. 
-
-.. figure:: img/history/processes-threads.png
-   :align: center
-
-For distributed memory machines, a process-based parallel programming model is employed. 
-The processes are independent execution units which have their *own memory* address spaces. 
-They are created when the parallel program is started and they are only terminated at the 
-end. The communication between them is done explicitly via message passing like MPI.
-
-On the shared memory architectures it is possible to use a thread based parallelism.  
-The threads are light execution units and can be created and destroyed at a relatively 
-small cost. The threads have their own state information but they *share* the *same memory* 
-adress space. When needed the communication is done though the shared memory. 
-
-
-Both approaches have their advantages and disadvantages.  Distributed machines are 
-relatively cheap to build and they  have an "infinite " capacity. In principle one could 
-add more and more computing units. In practice the more computing units are used the more 
-time consuming is the communication. The shared memory systems can achive good performance 
-and the programing model is quite simple. However they are limited by the memory capacity 
-and by the access speed. In addition in the shared parallel model it is much easier to 
-create race conditions.
-
 
 Graphics processing units
 -------------------------
 
-The Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
+Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
 GPUs were initially developed for highly-parallel task of graphic processing.
 Over the years, were used more and more in HPC.
 GPUs are a specialized parallel hardware for floating point operations.
@@ -117,11 +71,56 @@ Using GPUs allows one to achieve very high performance per node.
 As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
 The drawback is: usually major rewrites of programs is required.
 
+.. callout:: Host vs device
 
-Energy efficiency
------------------
+   GPU-enabled systems require a heterogeneous programming model that involves both 
+   CPU and GPU, where the CPU and its memory are referred to as the host, 
+   and the GPU and its memory as the device.
+
+.. figure:: img/history/CPU_and_GPU_separated.png
+   :align: center
+
+   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/>`__.
 
 
+Why GPUs?
+---------
+
+Speed
+^^^^^
+
+GPU computing can significantly accelerate many types of scientific workloads.
+
+Improved energy efficiency
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
+which can result in significant energy savings.
+
+Cost-effectiveness 
+^^^^^^^^^^^^^^^^^^
+
+GPUs can be more cost-effective than traditional CPU-based systems for certain 
+workloads.
+
+
+Limitations and drawbacks
+-------------------------
+
+Only for certain workloads
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Not all workloads can be efficiently parallelized and accelerated on GPUs. 
+Certain types of workloads, such as those with irregular data access patterns or 
+high branching behavior, may not see significant performance improvements on GPUs.
+
+Steeper learning curve
+^^^^^^^^^^^^^^^^^^^^^^
+
+GPU computing requires specialized skills in GPU programming and knowledge of 
+GPU architecture, resulting in a steeper learning curve compared to CPU programming. 
+Fortunately, if you study this training material closely you will become productive 
+with GPU programming quickly!
 
 
 

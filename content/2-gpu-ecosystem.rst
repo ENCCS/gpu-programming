@@ -15,8 +15,8 @@ The GPU hardware and software ecosystem
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 0 min exercises
 
 
 Overview of GPU hardware
@@ -30,12 +30,19 @@ Overview of GPU hardware
     GPU cores are very simple in comparison, they also share data and control between each other.
     This allows to pack more cores on a single chip, thus achieving very high compute density.
 
+.. callout:: In short
+
+  - Accelerators offer high performance due to their scalability and high density of compute elements.
+  - They have separate circuit boards connected to CPUs via PCIe bus, with their own memory.
+  - CPUs copy data from their own memory to the GPU memory, execute the program, and copy the results back.
+  - GPUs run thousands of threads simultaneously, quickly switching between them to hide memory operations.
+  - Effective data management and access pattern is critical on the GPU to avoid running out of memory.
+
 One of the most important features that allows the accelerators to reach this high performance is their scalability.
 Computational cores on accelerators are usually grouped into multiprocessors.
 The multiprocessors share the data and logical elements.
 This allows to achieve a very high density of a compute elements on a GPU.
 This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
-
 
 Accelerators are a separate main circuit board with the processor, memory, power management, etc.
 It is connected to the motherboard with CPUs via PCIe bus.
@@ -47,7 +54,6 @@ With many cores trying to access the memory simultaneously and with little cache
 This makes the data management and its access pattern is essential on the GPU.
 Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly.
 This allows to hide the memory operations: while some threads wait, others can compute.
-
 
 
 How do GPUs differ from CPUs?
@@ -116,6 +122,24 @@ Finally, in order to utilize the GPUs at maximum some performance analysis tools
 
 Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
 
+.. callout:: In short
+
+   - CUDA: Nvidia's parallel computing platform
+      - Components: CUDA Toolkit & CUDA driver
+      - Supports C, C++, and Fortran languages
+   - CUDA API Libraries: cuBLAS, cuFFT, cuRAND, cuSPARSE
+      - Accelerate complex computations on GPUs
+   - Compilers: nvcc, nvc, nvc++, nvfortran
+      - Support GPU and multicore CPU programming
+      - Compatible with OpenACC and OpenMP
+   - Debugging tools: cuda-gdb, compute-sanitizer
+      - Debug GPU and CPU code simultaneously
+      - Identify memory access issues
+   - Performance analysis tools: NVIDIA Nsight Systems, NVIDIA Nsight Compute
+      - Analyze system-wide and kernel-level performance
+      - Optimize CPU and GPU usage, memory bandwidth, instruction throughput
+   - Comprehensive CUDA ecosystem with extensive tools and features
+
 ROCm
 ^^^^
 ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. for debugging provide the command line tool `roc-gdb`, while for perforance analysis `roc-prof` and `roctracer`.  
@@ -130,6 +154,30 @@ OneAPI
 
 
 GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling optoin `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code such as `90a` for the MI200 series or `908` for MI100 series).
+
+
+Hardware
+^^^^^^^^
+
+
+.. list-table:: Hardware
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Nvidia
+     - AMD
+     - Intel
+   * - streaming processor/streaming core
+     - SIMD lane
+     - processing element
+   * - SIMT unit
+     - SIMD unit
+     - 
+   * - streaming multiprocessor (SMP)
+     - computing unit (CU)
+     - execution unit (EU)
+
+
 
 Summary
 -------
