@@ -92,12 +92,37 @@ SYCL
 High-level language support
 ---------------------------
 
-WRITEME: General paragraph about modern GPU libraries for high-level languages:
 
-- Python
-- Julia
-- SYCL
+Python
+~~~~~~
 
+Python offers support for GPU programming through several libraries, including:
+
+**CuPy**
+
+CuPy is a GPU-based data array library compatible with NumPy/SciPy. It offers a highly 
+similar interface to NumPy and SciPy, making it easy for developers to transition to GPU computing. 
+To utilize CuPy, simply replace 'numpy' and 'scipy' with 'cupy' and 'cupyx.scipy' in your Python code. 
+
+**cuDF**
+
+RAPIDS is a high level packages collections which implement CUDA functionalities and API with 
+Python bindings. cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU. 
+cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work 
+without knowing too much CUDA programming.
+
+**PyCUDA**
+
+PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA's CUDA API from Python. 
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.
+
+**Numba**
+
+Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. 
+Numba supports GPUs from both Nvidia and AMD.
+
+Julia
+~~~~~
 
 
 
