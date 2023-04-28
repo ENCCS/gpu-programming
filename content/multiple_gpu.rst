@@ -51,12 +51,12 @@ can be assigned to a GPU device within the same node. This can be done by splitt
 
 The size of each sub-communicator corresponds the number of GPUs per node (which is also the number of tasks per node).
 
-`fortran
-call MPI_COMM_SPLIT_TYPE(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,
-                               MPI_INFO_NULL, host_comm,ierr)
-                               
-call MPI_COMM_RANK(host_comm, myDevice,ierr)
-`
+.. tab:: Fortran
+
+         .. literalinclude:: examples/assignDevice_acc.f90
+                        :language: fortran
+                        :emphasize-lines: 27-29
+                        
 Here each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument 
 `MPI_COMM_TYPE_SHARED` (see ref. <xref linkend="ref-mpi"/> for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator 
 labelled *”host_comm”* in which MPI-ranks are ranked from 0 to number processes per node -1. These MPI ranks are in turn assigned to different GPU 
@@ -64,138 +64,66 @@ devices within the same node. This procedure is done according to which directiv
 
 The retrieved MPI ranks are stored in the variable **myDevice**. The variable is passed to an OpenACC or OpenMP functions 
 
-````{group-tab} OpenACC
-```console
-acc_set_device_num(myDevice, acc_get_device_type())
-```
-````
-````{group-tab} OpenMP
+.. challenge:: Example: ``set device``
 
-```console
-omp_set_default_device(myDevice)
-```
-````
+   .. tabs::
+
+      .. tab:: OpenACC
+
+         acc_set_device_num(myDevice, acc_get_device_type())
+
+      .. tab:: OpenMP
+
+         omp_set_default_device(myDevice)
+.. note:: 
+
 
 On the other hand, one can check the total number of devices available on the host by using the functions:
 
-````{group-tab} OpenACC
-```console
-acc_get_num_devices(acc_get_device_type())
-```
-````
-````{group-tab} OpenMP
+.. challenge:: Example: ``number of devices``
 
-```console
-omp_get_num_devices()
-```
-````	 
+   .. tabs::
+
+      .. tab:: OpenACC
+
+         acc_get_num_devices(acc_get_device_type())
+
+      .. tab:: OpenMP
+
+         omp_get_num_devices()
+.. note:: 
 
 Another useful function for retrieving the device number of a specific device, which is useful, e.g., to map data to a specific device
+	
+.. tabs::
 
-````{group-tab} OpenACC
-```console
-acc_get_device_num()
-```
-````
-````{group-tab} OpenMP
+      .. tab:: OpenACC
 
-```console
-omp_get_device_num()
-```
-````	
+         acc_get_device_num()
+
+      .. tab:: OpenMP
+
+        omp_get_device_num()
 
 The syntax of assigning MPI ranks to GPU devices is summarised below
 
-````{group-tab} MPI-OpenACC
-```fortran
-program assignDevice
+.. challenge:: Example: ``kernels``
 
-      use mpi
-      use openacc
+   .. tabs::
 
-      implicit none
-       integer status(MPI_STATUS_SIZE)
-       integer :: myid,ierr,nproc
-       integer :: host_rank,host_comm
-       integer :: myDevice,numDevice
+      .. tab:: MPI-OpenACC
 
-! Initialise MPI communication.
-call MPI_INIT(ierr)
-! Get number of active processes (from 0 to nproc-1).
-call MPI_COMM_SIZE(MPI_COMM_WORLD, nproc, ierr )
-! Identify the ID rank (process).
-call MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr )
+         .. literalinclude:: examples/assignDevice_acc.f90
+                        :language: fortran
+                        :emphasize-lines: 1,54
 
-! Split the world communicator into subgroups of commu, each of which
-! contains processes that run on the same node, and which can create a
-! shared memory region (via the type MPI_COMM_TYPE_SHARED).
-! The call returns a new communicator "host_comm", which is created by
-! each subgroup.
-call MPI_COMM_SPLIT_TYPE(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,&amp;
-                               MPI_INFO_NULL, host_comm,ierr)
-call MPI_COMM_RANK(host_comm,host_rank,ierr)
+      .. tab:: MPI-OpenMP
 
-myDevice = host_rank
+         .. literalinclude:: examples/assignDevice_omp.f90
+                        :language: fortran
+                        :emphasize-lines: 1,54
 
-!Sets the device number and the device type to be used
-call acc_set_device_num(myDevice, acc_get_device_type())
-
-!Returns the number of devices available on the host
-      numDevice = acc_get_num_devices(acc_get_device_type())
-
-write(*,'(A,I3,A,A,A,I3,A,I3)') "MPI-rank ", myid, " - Node ", trim(name), " - GPU_ID ", myDevice, " - GPUs-per-node ", numDevice
-
-call MPI_FINALIZE( ierr )
-
-       end
-```
-````
-````{group-tab} MPI-OpenMP
-
-```console
-program assignDevice
-
-      use mpi
-      use omp_lib
-
-      implicit none
-       integer status(MPI_STATUS_SIZE)
-       integer :: myid,ierr,nproc
-       integer :: host_rank,host_comm
-       integer :: myDevice,numDevice
-
-! Initialise MPI communication.
-call MPI_INIT(ierr)
-! Get number of active processes (from 0 to nproc-1).
-call MPI_COMM_SIZE(MPI_COMM_WORLD, nproc, ierr )
-! Identify the ID rank (process).
-call MPI_COMM_RANK(MPI_COMM_WORLD, myid, ierr )
-
-! Split the world communicator into subgroups of commu, each of which
-! contains processes that run on the same node, and which can create a
-! shared memory region (via the type MPI_COMM_TYPE_SHARED).
-! The call returns a new communicator "host_comm", which is created by
-! each subgroup.
-call MPI_COMM_SPLIT_TYPE(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,&amp;
-                               MPI_INFO_NULL, host_comm,ierr)
-call MPI_COMM_RANK(host_comm,host_rank,ierr)
-
-myDevice = host_rank
-
-!Sets the device number to use in device constructs by setting the
-!initial value of the default-device-var 
-call omp_set_default_device(myDevice)
-
-! Returns the number of devices available for offloading.
-     numDevice = omp_get_num_devices()
-
-write(*,'(A,I3,A,A,A,I3,A,I3)') "MPI-rank ", myid, " - Node ", trim(name), " - GPU_ID ", myDevice, " - GPUs-per-node ", numDevice
-
-call MPI_FINALIZE( ierr )
-
-       end
-```
-````	
+.. note:: 
 
 
 GPU-no-aware MPI
