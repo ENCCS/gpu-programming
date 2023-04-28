@@ -1,4 +1,4 @@
-.. _gpu-concepts:
+.. _multiple-gpus:
 
 Multiple GPU programming
 ========================
@@ -51,11 +51,12 @@ can be assigned to a GPU device within the same node. This can be done by splitt
 
 The size of each sub-communicator corresponds the number of GPUs per node (which is also the number of tasks per node).
 
-```console
-call MPI_COMM_SPLIT_TYPE(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,&amp;
+`fortran
+call MPI_COMM_SPLIT_TYPE(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0,
                                MPI_INFO_NULL, host_comm,ierr)
+                               
 call MPI_COMM_RANK(host_comm, myDevice,ierr)
-```
+`
 Here each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument 
 `MPI_COMM_TYPE_SHARED` (see ref. <xref linkend="ref-mpi"/> for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator 
 labelled *”host_comm”* in which MPI-ranks are ranked from 0 to number processes per node -1. These MPI ranks are in turn assigned to different GPU 
@@ -74,7 +75,6 @@ acc_set_device_num(myDevice, acc_get_device_type())
 omp_set_default_device(myDevice)
 ```
 ````
-
 
 On the other hand, one can check the total number of devices available on the host by using the functions:
 
@@ -107,7 +107,7 @@ omp_get_device_num()
 The syntax of assigning MPI ranks to GPU devices is summarised below
 
 ````{group-tab} MPI-OpenACC
-```console
+```fortran
 program assignDevice
 
       use mpi
