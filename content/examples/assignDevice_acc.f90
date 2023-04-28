@@ -31,9 +31,6 @@ program assignDevice
 ! Gets the node name
         call MPI_GET_PROCESSOR_NAME(name, resulten, ierror)
 
-       ! call getenv("MPICH_GPU_SUPPORT_ENABLED", env_var)
-       ! read(env_var, '(i10)' ) nenv_var
-
         myDevice = host_rank
 
 ! Sets the device number and the device type to be used
