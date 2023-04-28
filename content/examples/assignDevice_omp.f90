@@ -31,13 +31,9 @@ program assignDevice
 ! Gets the node name
         call MPI_GET_PROCESSOR_NAME(name, resulten, ierror)
 
-       ! call getenv("MPICH_GPU_SUPPORT_ENABLED", env_var)
-       ! read(env_var, '(i10)' ) nenv_var
-
         myDevice = host_rank
 
-! Sets the device number to use in device constructs by setting the
-! initial value of the default-device-var 
+! Sets the device number to use in device constructs by setting the initial value of the default-device-var 
        call omp_set_default_device(myDevice)
 
 ! Returns the number of devices available for offloading.
