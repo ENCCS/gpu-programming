@@ -28,7 +28,7 @@ Programs written in standard C++ and Fortran languages can now take advantage of
 depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`_
 suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
 can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`_ while
-those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`_.
+those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`__.
 The performance of these two approaches is promising as it can be seen in the examples provided in those
 guidelines.
 
@@ -67,7 +67,7 @@ HIP
 
 
 Portable kernel-based models (cross-platform portability ecosystems)
---------------------------------------------------------------
+--------------------------------------------------------------------
 
 Cross-platform portability ecosystems typically provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is achieving performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `OpenCL <https://www.khronos.org/opencl/>`_ (C and C++ APIs), `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
 
