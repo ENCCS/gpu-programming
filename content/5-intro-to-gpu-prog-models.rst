@@ -25,9 +25,9 @@ Standard C++/Fortran
 --------------------
 
 Programs written in standard C++ and Fortran languages can now take advantage of NVIDIA GPUs without
-depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`_
+depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`__
 suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
-can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`_ while
+can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`__ while
 those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`__.
 The performance of these two approaches is promising as it can be seen in the examples provided in those
 guidelines.
@@ -94,28 +94,55 @@ While Alaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a 
 High-level language support
 ---------------------------
 
-WRITEME: General paragraph about modern GPU libraries for high-level languages:
 
-- Python
-- Julia
-- SYCL
+Python
+~~~~~~
 
+Python offers support for GPU programming through several libraries, including:
 
-Cost-benefit analysis
----------------------
+**CuPy**
 
-WRITEME begin
+CuPy is a GPU-based data array library compatible with NumPy/SciPy. It offers a highly 
+similar interface to NumPy and SciPy, making it easy for developers to transition to GPU computing. 
+To utilize CuPy, simply replace 'numpy' and 'scipy' with 'cupy' and 'cupyx.scipy' in your Python code. 
 
-- how to choose between frameworks?
-- depends on:
+**cuDF**
 
-  - specifics of the problem at hand
-  - whether starting from scratch or from existing code
-  - background knowledge of programmer
-  - how much time can be invested
-  - performance needs
+RAPIDS is a high level packages collections which implement CUDA functionalities and API with 
+Python bindings. cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU. 
+cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work 
+without knowing too much CUDA programming.
 
-WRITEME end
+**PyCUDA**
+
+PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA's CUDA API from Python. 
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.
+
+**Numba**
+
+Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. 
+Numba supports GPUs from both Nvidia and AMD.
+
+Julia
+~~~~~
+
+Julia has first-class support for GPU programming through the following
+packages that target GPUs from all three major vendors:
+
+- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for NVIDIA GPUs
+- `AMDGPU.jl <https://amdgpu.juliagpu.org/stable/>`_ for AMD GPUs
+- `oneAPI.jl <https://github.com/JuliaGPU/oneAPI.jl>`_ for Intel GPUs
+- `Metal.jl <https://github.com/JuliaGPU/Metal.jl>`_ for Apple M-series GPUs
+
+``CUDA.jl`` is the most mature, ``AMDGPU.jl`` is somewhat behind but still
+ready for general use, while ``oneAPI.jl`` and ``Metal.jl`` are functional but might
+contain bugs, miss some features and provide suboptimal performance.
+Their respective APIs are however completely analogous
+and translation between libraries is straightforward.
+
+All packages offer both high-level abstractions that require
+very little programming effort and a lower level approach for writing kernels
+for fine-grained control.
 
 
 Summary

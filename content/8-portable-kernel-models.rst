@@ -897,6 +897,7 @@ General observations
 
 Lambda-based kernel models (Kokkos, SYCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     - Higher level of abstraction 
     - Less knowledge of the underlying architecture is needed
     - Very nice and readable source code (C++ API)

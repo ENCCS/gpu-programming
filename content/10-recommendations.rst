@@ -24,3 +24,18 @@ Programming effort
 ------------------
 
 
+Cost-benefit analysis
+---------------------
+
+WRITEME begin
+
+- how to choose between frameworks?
+- depends on:
+
+  - specifics of the problem at hand
+  - whether starting from scratch or from existing code
+  - background knowledge of programmer
+  - how much time can be invested
+  - performance needs
+
+WRITEME end
