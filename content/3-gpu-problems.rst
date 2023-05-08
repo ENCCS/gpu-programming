@@ -58,3 +58,28 @@ Examples of GPU accelerated software
 
 FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
 one can get 
+
+Computational Chemistry
+-----------------------
+
+A great deal of computational resources are spent in Quantum Chemical calculations which involve
+the solution of the Hartree-Fock eigenvalue problem, which requires the diagonalization of the
+Fock matrix whose elements are given by:
+   
+.. math::
+    F_{\alpha \beta} = H^{\textrm{core}}_{\alpha \beta} + \sum_{\gamma \delta}D_{\gamma \delta} \left [ (\alpha \beta|\gamma \delta) - \frac{1}{2} (\alpha \delta|\gamma \beta) \right ],
+
+The first term is related to the one electron contributions and the second term is related to the 
+electron repulsion integrals (ERIs), in parenthesis, weighted by the by the density matrix 
+:math:`D_{\gamma \delta}`. One of the most expensive parts in the solution of the HF equations is the 
+processing (digestion) of the ERIs, one algorithm to do this task is as follows:
+
+.. figure:: img/concepts/algorithms.svg
+    :width: 200
+    :align: center
+
+    Algorithm for processing ERIs [JCTC, 17, 7486, (2021)]
+
+This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
+there are symmetries and properties of the integrals that could be used to rearrange the loops in
+an efficient manner that fit GPU architectures. 

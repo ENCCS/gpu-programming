@@ -1,7 +1,7 @@
 .. _portable-kernel-models:
 
 Portable kernel-based models
-====================================================================
+============================
 
 .. questions::
 
