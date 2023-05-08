@@ -131,10 +131,18 @@ abbr_map['thread'] = "In OpenCL and SYCL: work-item."
 abbr_map['grid'] = "In OpenCL and SYCL: NDRange."
 abbr_map['register'] = "In OpenCL and SYCL: private memory."
 abbr_map['shared memory'] = "In OpenCL and SYCL: local memory (not to be confused with CUDA and HIP local memory)."
+abbr_map['Grid'] = abbr_map['grid']
 abbr_map['grids'] = abbr_map['grid']
+abbr_map['Grids'] = abbr_map['grid']
+abbr_map['Block'] = abbr_map['block']
 abbr_map['blocks'] = abbr_map['block']
+abbr_map['Blocks'] = abbr_map['block']
+abbr_map['Warp'] = abbr_map['warp']
 abbr_map['warps'] = abbr_map['warp']
+abbr_map['Warps'] = abbr_map['warp']
+abbr_map['Thread'] = abbr_map['thread']
 abbr_map['threads'] = abbr_map['thread']
+abbr_map['Threads'] = abbr_map['thread']
 
 
 from docutils import nodes
@@ -166,3 +174,9 @@ def setup(app):
         app.add_directive(obj.cssname(), obj)
 
     app.add_role('abbr', AutoAbbreviation(), override=True)
+    
+import os
+if os.environ.get('GITHUB_REF', '') == 'refs/heads/main':
+    html_js_files = [
+        ('https://plausible.io/js/script.js', {"data-domain": "enccs.github.io/gpu-programming", "defer": "defer"}),
+    ]    

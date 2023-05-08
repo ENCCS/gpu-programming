@@ -98,7 +98,7 @@ all distributed under a
 `Creative Commons Attribution license (CC-BY-4.0) <https://creativecommons.org/licenses/by/4.0/>`__:
 
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__--
-- `High Performance Data Analytics in Python <https://enccs.github.io/HPDA-Python/>`__
+- `High Performance Data Analytics in Python <https://enccs.github.io/hpda-python/>`__
 
 
 The lesson file structure and browsing layout is inspired by and derived from

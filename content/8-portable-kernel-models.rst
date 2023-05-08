@@ -18,7 +18,7 @@ Portable kernel-based models
    - 60 min teaching
    - 30 min exercises
 
-The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `Open SYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (formerly hipSYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (ie, the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (also known as Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 Kokkos
 ^^^^^^
@@ -105,7 +105,7 @@ OpenCL compilation
 ~~~~~~~~~~~~~~~~~~
 OpenCL supports two modes for compiling the programs: online and offline. Online compilation occurs at runtime, when the host program calls a function to compile the source code. Online mode allows dynamic generation and loading of kernels, but may incur some overhead due to compilation time and possible errors. Offline compilation occurs before runtime, when the source code of a kernel is compiled into a binary format that can be loaded by the host program. This mode allows faster execution and better optimization of kernels, but may limit the portability of the program, because the binary can only run on the architectures it was compiled for.
 
-OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``dpcpp cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc -arch=sm_80 cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file and ``-arch=sm_80`` in the latter represents the desired CUDA architecture.
+OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``icx cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply ``gcc cl_devices.c -lOpenCL`` (or ``g++`` when using C++ API), as long as the required libraries and headers are installed in a standard locations.
 
 OpenCL programming
 ~~~~~~~~~~~~~~~~~~
@@ -159,11 +159,29 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
 
 SYCL
 ^^^^
-[ADD STUFF]
+
+`SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
 
 SYCL compilation
 ~~~~~~~~~~~~~~~~
-[ADD STUFF]
+
+Intel oneAPI DPC++
+******************
+
+For targeting Intel GPUs, it is enough to install `Intel oneAPI Base Toolkit <https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html>`_. Then, the compilation is as simple as ``icpx -fsycl file.cpp``.
+
+It is also possible to use oneAPI for NVIDIA and AMD GPUs. In addition to oneAPI Base Toolkit, the vendor-provided runtime (CUDA or HIP) and the corresponding `Codeplay oneAPI plugin <https://codeplay.com/solutions/oneapi/>`_ must be installed.
+Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
+
+- ``clang++ -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_86 file.cpp`` for targeting CUDA 8.6 NVIDIA GPU,
+- ``clang++ -fsycl -fsycl-targets=amdgcn-amd-amdhsa -Xsycl-target-backend=amdgcn-amd-amdhsa --offload-arch=gfx90a`` for targeting GFX90a AMD GPU.
+
+hipSYCL
+*******
+
+Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting all the recent AMD Instinct and NVIDIA GPUs:
+
+- ``syclcc --hipsycl-targets='hip:gfx906,gfx908,gfx90a;cuda:sm_70,sm_75,sm_80,sm_86,sm_90' file.cpp``
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
