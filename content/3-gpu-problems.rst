@@ -52,15 +52,46 @@ Specifically, you can expect good performance on GPUs for:
 What are GPUs not good for
 --------------------------
 
+Not all programming problems can efficiently leverage the parallelism offered by GPUs. 
+Some types of problems that do not fit well on a GPU include:
 
-Examples of GPU accelerated software
-------------------------------------
+- **Sequential tasks**: Problems that require a series of dependent steps, 
+  where each step relies on the outcome of the previous step, are not well-suited 
+  for parallel processing. Examples include recursive algorithms, certain dynamic 
+  programming problems, and some graph traversal algorithms.
+
+- **Fine-grained branching**: GPUs perform best when the code being executed across 
+  different threads follows a similar control flow. When there is extensive 
+  branching (i.e., many ``if`` statements) within a kernel or algorithm, performance 
+  may suffer due to the divergence in execution paths among the GPU threads.
+
+- **Low arithmetic intensity**: GPUs excel at performing a large number of mathematical 
+  operations quickly. If a problem has low arithmetic intensity (i.e., a low ratio of 
+  arithmetic operations to memory accesses), the GPU may not be able to efficiently utilize 
+  its computational power, leading to underperformance.
+
+- **Small data sets**: If the problem involves a small data set that does not require significant 
+  parallelism, using a GPU may not result in noticeable performance gains. In such cases, 
+  the overhead of transferring data between the CPU and GPU, and the time spent initializing the GPU, 
+  may outweigh any potential benefits.
+
+- **Limited parallelism**: Some algorithms have inherent limitations on the degree of parallelism that can be 
+  achieved. In these cases, using a GPU may not lead to significant performance improvements.
+
+- **Memory-bound problems**: GPUs generally have less memory available compared to CPUs, and their memory bandwidth 
+  can be a limiting factor. If a problem requires a large amount of memory or involves memory-intensive operations, 
+  it may not be well-suited for a GPU.
+
+Examples of GPU acceleration
+----------------------------
 
 FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
 one can get 
 
+
+
 Computational Chemistry
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 
 A great deal of computational resources are spent in Quantum Chemical calculations which involve
 the solution of the Hartree-Fock eigenvalue problem, which requires the diagonalization of the
