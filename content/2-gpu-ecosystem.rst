@@ -30,13 +30,14 @@ Overview of GPU hardware
     GPU cores are very simple in comparison, they also share data and control between each other.
     This allows to pack more cores on a single chip, thus achieving very high compute density.
 
-.. callout:: In short
+.. admonition:: In short
+   :class: dropdown
 
-  - Accelerators offer high performance due to their scalability and high density of compute elements.
-  - They have separate circuit boards connected to CPUs via PCIe bus, with their own memory.
-  - CPUs copy data from their own memory to the GPU memory, execute the program, and copy the results back.
-  - GPUs run thousands of threads simultaneously, quickly switching between them to hide memory operations.
-  - Effective data management and access pattern is critical on the GPU to avoid running out of memory.
+   - Accelerators offer high performance due to their scalability and high density of compute elements.
+   - They have separate circuit boards connected to CPUs via PCIe bus, with their own memory.
+   - CPUs copy data from their own memory to the GPU memory, execute the program, and copy the results back.
+   - GPUs run thousands of threads simultaneously, quickly switching between them to hide memory operations.
+   - Effective data management and access pattern is critical on the GPU to avoid running out of memory.
 
 One of the most important features that allows the accelerators to reach this high performance is their scalability.
 Computational cores on accelerators are usually grouped into multiprocessors.
@@ -122,7 +123,8 @@ Finally, in order to utilize the GPUs at maximum some performance analysis tools
 
 Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
 
-.. callout:: In short
+.. admonition:: In short
+   :class: dropdown
 
    - CUDA: Nvidia's parallel computing platform
       - Components: CUDA Toolkit & CUDA driver
