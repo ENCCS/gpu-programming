@@ -419,3 +419,82 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
 Python
 ------
+
+There has been a lot of progress in GPU programming using Python and the ecosystem is still evolving.
+There are a couple of options available to work with GPU.
+
+CuPy
+^^^^
+
+CuPy is a NumPy/SciPy-compatible data array library used on GPU. 
+CuPy has a highly compatible interface with NumPy and SciPy, As stated on its official website, 
+"All you need to do is just replace *numpy* and *scipy* with *cupy* and *cupyx.scipy* in your Python code." 
+If you know NumPy, CuPy is a very easy way to get started on the GPU.
+
+
+cuDF
+^^^^
+
+RAPIDS is a high level packages collections which implement CUDA functionalities and API with Python bindings.
+cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU.
+cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work 
+without knowing too much CUDA programming.
+
+
+PyCUDA
+^^^^^^
+
+PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA's CUDA API from Python. 
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.
+
+
+Numba
+^^^^^
+
+Same as for CPU, Numba allows users to JIT compile Python code to work on GPU as well.
+In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.
+
+Numba supports GPU programming by directly compiling a restricted subset of Python code 
+into kernels and device functions following the execution model. 
+Kernels written in Numba appear to have direct access to NumPy arrays. 
+NumPy arrays are transferred between the CPU and the GPU automatically.
+
+ufunc (gufunc) decorator
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Using ufuncs (and generalized ufuncs) is the easist way to run on a GPU with Numba, 
+and it requires minimal understanding of GPU programming. Numba ``@vectorize`` 
+will produce a ufunc-like object. This object is a close analog but not fully compatible 
+with a regular NumPy ufunc. Generating a ufunc for GPU requires the explicit 
+type signature and  target attribute.
+
+
+
+Data transfer
+~~~~~~~~~~~~~
+
+Although Numba could transfer data automatically from/to the device, these data transfers are slow, 
+sometimes even more than the actual on-device computation. 
+Therefore explicitly transfering the data is necessary and should be minimised in real applications.
+
+Using numba.cuda functions, one can transfer data from/to device. To transfer data from cpu to gpu, 
+one could use ``to_device()`` method: 
+
+.. code-block:: python
+
+	d_x = numba.cuda.to_device(x)
+	d_y = numba.cuda.to_device(y)
+
+the resulting d_x is a ``DeviceNDArray``. 
+To transfer data on the device back to the host, one can use the ``copy_to_host()`` method:
+
+.. code-block:: python
+
+	d_x.copy_to_host(h_x)
+	h_y = d_y.copy_to_host()
+
+
+
+
+
+
