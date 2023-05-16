@@ -6,7 +6,9 @@ Use cases: humanities
 .. questions::
 
    - How are GPUs used in practical humanities problems?
+     Now that we have the capability to model human behaviour, we can use technology to improve our understanding of it.
    - Why are they necessary in fields outside the hard sciences?
+     Using techniques developed in mathematics and the hard sciences, we now have the technological capabilities to map that onto humanist problems
 
 .. objectives::
 
@@ -17,6 +19,15 @@ Use cases: humanities
 
    - X min teaching
    - X min exercises
+
+Problem: gambling and addictive behaviour
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Problem gamblers, who tend to favor high-risk, high-reward, short-term gains, exhibited impairments in decision-making and learning from losses, which were linked to overall gambling issues and financial troubles, while a focus on reward frequency corresponded to excessive time spent gambling and social problems, suggesting the potential of these factors in diagnosing and understanding the implications of problem gambling (Kildahl, N., Hansen, S., Brevers, D., & Skewes, J. (2020). Individual differences in learning during decision-making may predict specific harms associated with gambling. Addictive behaviors, 110, 106496.).
+
+
+Technique: Bayesian hierarchical models
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Bayesian hierarchical models, like the one used in the analysis done in the study above, are computationally intensive as they involve numerous iterative steps (like Markov Chain Monte Carlo simulations) to estimate model parameters. GPUs, with their parallel processing capabilities, can handle these computations much more efficiently than traditional CPUs.
 
 
 .. keypoints::
