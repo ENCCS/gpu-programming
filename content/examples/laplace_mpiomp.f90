@@ -29,7 +29,7 @@ program laplace_mpiomp
 
         if(myid.eq.0) then
           print*, ""
-          print*, "--MPI-OpenACC: 2D-Laplace Eq.--"
+          print*, "--MPI-OpenMP offloading: 2D-Laplace Eq.--"
           print*, ""
        endif
 ! Split the world communicator into subgroups of commu, each of which
