@@ -16,8 +16,7 @@ program laplace_mpiomp
             real, parameter    :: error=0.04
             double precision               :: max_err,d2fx,d2fy
             double precision, allocatable :: f(:,:),f_k(:,:)
-            double precision, allocatable :: f_send(:,:),f_full(:,:)
-            character(len=300) :: env_var
+            double precision, allocatable :: f_send(:,:)
             character*(MPI_MAX_PROCESSOR_NAME) :: name
 
 ! Initialise MPI communication      
@@ -52,6 +51,10 @@ program laplace_mpiomp
 ! Sets the device number to use in device constructs by setting the
 ! initial value of the default-device-var 
        call omp_set_default_device(myDevice)
+       
+! Returns the number of devices available for offloading.
+       numDevice = omp_get_num_devices()
+       
        if(myid.eq.0) then
                 print*,''
                 print*, '--nbr of MPI processes: ', nproc
