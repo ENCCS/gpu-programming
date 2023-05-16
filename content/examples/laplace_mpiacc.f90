@@ -16,8 +16,7 @@ program laplace_mpiacc
             real, parameter    :: error=0.04
             double precision               :: max_err,d2fx,d2fy
             double precision, allocatable :: f(:,:),f_k(:,:)
-            double precision, allocatable :: f_send(:,:),f_full(:,:)
-            character(len=300) :: env_var
+            double precision, allocatable :: f_send(:,:)
             character*(MPI_MAX_PROCESSOR_NAME) :: name
 
 ! Initialise MPI communication      
@@ -43,9 +42,6 @@ program laplace_mpiacc
 
 ! Gets the node name
         call MPI_GET_PROCESSOR_NAME(name, resulten, ierror)
-
-       ! call getenv("MPICH_GPU_SUPPORT_ENABLED", env_var)
-       ! read(env_var, '(i10)' ) nenv_var
 
         myDevice = host_rank
 
