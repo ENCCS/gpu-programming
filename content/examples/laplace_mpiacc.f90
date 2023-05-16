@@ -142,6 +142,7 @@ program laplace_mpiacc
 
 !update data from CPU to GPU
 !$acc update device(f) 
+
 !$acc parallel loop present(f,f_k) collapse(2)
         do j=1,nyp
             do i=1,nx
@@ -177,7 +178,7 @@ program laplace_mpiacc
         enddo
 !$acc exit data copyout(f_k) delete(f)        
 
-       deallocate(f)
+       call MPI_Barrier(MPI_COMM_WORLD, ierr)
 
        if(myid.eq.0) then
          print*, '--Job is completed successfully--'
