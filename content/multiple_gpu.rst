@@ -25,7 +25,7 @@ Exploring multiple-GPUs across distributed nodes offers the potential to fully l
 
 In this section we guide readers, who are familiar with MPI, in implementing a hybrid model in which the MPI communication framework is combined with either OpenACC or OpenMP APIs. A special focus will be on performing point-to-point (e.g. `MPI_Send` and `MPI_Recv`) and collective operations (e.g. `MPI_Allreduce`) from OpenACC and OpenMP APIs. Here we address two scenarios: (i) a scenario in which MPI operations are performed in the CPU-host followed by offloading to the GPU-device; and (ii) a scenario in which MPI operations are performed between a pair of GPUs without involving the CPU-host. The latter is referred to as GPU-awareness MPI, and has the advantage of reducing the computing time caused by transferring data via the host-memory during heterogenous communications, thus rendering HPC applications efficient. 
 
-In the following, we first introduce how to assign each MPI rank to a specific GPU device. We consider a situation in which the host and the device have a distinct memory. This is followed by a presentation on the hybrid MPI-OpenACC/OpenMP with and without the GPU-awareness MPI. Exercises to help understanding these concepts are provided at the end.
+This guide is organized as follow: we first introduce how to assign each MPI rank to a GPU device within the same node. We consider a situation in which the host and the device have a distinct memory. This is followed by a presentation on the hybrid MPI-OpenACC/OpenMP offloading with and without the GPU-awareness MPI. Exercises to help understanding these concepts are provided at the end.
 
 Assigning MPI-ranks to GPU-devices
 ----------------------------------
@@ -125,15 +125,15 @@ To illustrate the concept of the hybrid MPI-OpenACC/OpenMP, we show below an exa
 
       .. tab:: MPI-OpenACC
 
-         .. literalinclude:: examples/laplace_mpiacc.f90
+         .. literalinclude:: examples/mpiacc.f90
                         :language: fortran
-                        :emphasize-lines: 112,140
+                        :emphasize-lines: 67,79
 
       .. tab:: MPI-OpenMP
 
-         .. literalinclude:: examples/laplace_mpiomp.f90
+         .. literalinclude:: examples/mpiomp.f90
                         :language: fortran
-                        :emphasize-lines: 116,144
+                        :emphasize-lines: 68,80
 
 .. note:: 
 
@@ -147,35 +147,52 @@ The concept of the GPU-aware MPI enables an MPI library to directly access the G
 To be specific, in the GPU-awareness approach, the device pointers point to the data allocated in the GPU memory space (data should be present in the GPU device). Here, the pointers are passed as arguments to an MPI routine that is supported by the GPU memory. Note that not all the MPI routines are supported by the GPU memory (see here TOBE INCLUDED). As MPI routines can directly access GPU memory, it offers the possibility of communicating between pairs of GPUs without transferring data back to the host. 
 
 In the hybrid MPI-OpenACC model, the concept is defined by combining the directive `host_data` together with the clause
-`use_device(list_array)`. This combination enables the access to the arrays listed in the clause `use_device(list_array)` from the host (see [here](https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf)). The list of arrays, which are already present in the GPU-device memory, are directly passed to an MPI routine without a need of a staging host-memory for copying the data.
+`use_device(list_array)`. This combination enables the access to the arrays listed in the clause `use_device(list_array)` from the host (see [here](#https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf)). The list of arrays, which are already present in the GPU-device memory, are directly passed to an MPI routine without a need of a staging host-memory for copying the data.
 
 
-.. challenge:: Example: ``GPU-awareness``
+.. challenge:: Example: ``GPU-awareness: MPI_Send & MPI_Recv``
 
    .. tabs::
 
       .. tab:: GPU-aware MPI with OpenACC
 
-         .. literalinclude:: examples/laplace_mpiacc_aware.f90
+         .. literalinclude:: examples/mpiacc_gpuaware.f90
                         :language: fortran
-                        :emphasize-lines: 115,144
+                        :emphasize-lines: 67,76
 
       .. tab:: GPU-aware MPI with OpenMP
 
-         .. literalinclude:: examples/laplace_mpiomp_aware.f90
+         .. literalinclude:: examples/mpiomp_gpuaware.f90
                         :language: fortran
-                        :emphasize-lines: 112,142
+                        :emphasize-lines: 68,77
 
 .. note:: 
 
 
-The GPU-aware MPI with OpenACC/OpenMP offloading has the capability of directly communicating between a pair of GPUs within a single node. However, performing the GPU-to-GPU communication across multiple nodes requires the the GPUDirect RDMA (Remote Direct Memory Access) technology. This technology can further improve performance by reducing latency.
+.. challenge:: Example: ``GPU-awareness: MPI_Allreduce``
 
-Exercises
----------
+   .. tabs::
+
+      .. tab:: GPU-aware MPI with OpenACC
+
+         .. literalinclude:: examples/mpiacc_gpuaware.f90
+                        :language: fortran
+                        :emphasize-lines: 92,96
+
+      .. tab:: GPU-aware MPI with OpenMP
+
+         .. literalinclude:: examples/mpiomp_gpuaware.f90
+                        :language: fortran
+                        :emphasize-lines: 95,99
+
+.. note:: 
+The GPU-aware MPI with OpenACC/OpenMP offloading has the capability of directly communicating between a pair of GPUs within a single node. However, performing the GPU-to-GPU communication across multiple nodes requires the the GPUDirect RDMA (Remote Direct Memory Access) technology. This technology can further improve performance by reducing latency.
 
 Compilation process
 -------------------
 
 Conclusion
 ----------
+
+Exercises
+---------
