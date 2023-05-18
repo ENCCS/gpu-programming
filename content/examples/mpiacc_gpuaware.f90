@@ -88,8 +88,8 @@ SumToT=0d0
 !$acc end parallel loop
 
 !SumToT is by default copied back to the CPU
+
 !$acc data copy(SumToT)
-!Performing MPI_Allreduce between GPUs without passing through the host
 !$acc host_data use_device(SumToT)
          call MPI_ALLREDUCE(MPI_IN_PLACE,SumToT,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr )
 !$acc end host_data
