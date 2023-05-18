@@ -165,10 +165,10 @@ On AMD platforms libraries are prefixed by `roc`, which can be called directly f
       - Interfacers: 
             - /opt/rocm/bin/hipcc
             - /opt/rocm/bin/amdclang++
-   - Debugging tools: ROCm Debugger, ROCm Profiler
+   - Debugging tools: ROCm Debugger
       - Debug GPU and CPU code simultaneously
       - Inspect GPU memory and state
-   - Performance analysis tools: ROCm SMI, ROCm Bandwidth Test, ROCm Validation Suite
+   - Performance analysis tools: ROCm Profiler
       - Monitor GPU metrics (temperature, power consumption, clock speeds)
       - Validate and benchmark GPU performance
    - Integration with machine learning frameworks: TensorFlow, PyTorch
