@@ -150,6 +150,34 @@ In order to produce code for the AMD GPUs one can Heterogeneous-Computing Interf
 
 On AMD platforms libraries are prefixed by `roc`, which can be called directly from HIP. In order to make portable call one call the libraries using `hip` prefixed wrappers. These can be used at no perfomrance cost and insure that a HIP code can be use on other platforms with no changes. 
 
+
+.. admonition:: In short
+   :class: dropdown
+
+   - ROCM: AMD's open-source GPU computing platform
+      - Components: ROCm runtime, ROCm compiler
+      - Supports C, C++, and Fortran languages
+   - Optimized Libraries: rocBLAS, rocFFT, rocRAND, rocSPARSE
+      - Accelerate complex computations on GPUs
+   - Compilers: ROCmCC
+      - Support GPU and multicore CPU programming
+      - Supports various heterogenous programming models such as HIP, OpenMP, and OpenCL
+      - Interfacers: 
+            - /opt/rocm/bin/hipcc
+            - /opt/rocm/bin/amdclang++
+   - Debugging tools: ROCm Debugger, ROCm Profiler
+      - Debug GPU and CPU code simultaneously
+      - Inspect GPU memory and state
+   - Performance analysis tools: ROCm SMI, ROCm Bandwidth Test, ROCm Validation Suite
+      - Monitor GPU metrics (temperature, power consumption, clock speeds)
+      - Validate and benchmark GPU performance
+   - Integration with machine learning frameworks: TensorFlow, PyTorch
+      - Accelerate deep learning tasks on AMD GPUs
+   - Open-source nature of ROCM platform
+      - Extensible and customizable
+      - Active community support
+
+
 OneAPI
 ^^^^^^
 
