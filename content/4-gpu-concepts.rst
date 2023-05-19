@@ -5,18 +5,23 @@ GPU programming concepts
 
 .. questions::
 
-   - q1
-   - q2
+   - What types of parallel computing is possible?
+   - How does data parallelism differ from task parallelism, and how are they utilized in parallel computing?
+   - How is the work parallelized and executed on GPUs?
+   - What are general considerations for a en efficient code running on GPUs?
 
 .. objectives::
 
-   - o1
-   - o2
+   - Understand parallel computing principles and architectures.
+   - Differentiate data parallelism from task parallelism. 
+   - Learn the GPU execution model.
+   - Parallelize and execute work on GPUs.
+   - Develop efficient GPU code for high performance.
 
 .. instructor-note::
 
-   - X min teaching
-   - X min exercises
+   - 20 min teaching
+   - 0 min exercises
 
 Different types of parallelism
 ------------------------------
@@ -225,8 +230,11 @@ THIS TABLE COULD BE MOVED TO EPISODE 2
 
 .. keypoints::
 
-   - k1
-   - k2
+   - Parallel computing can be classified into distributed-memory and shared-memory architectures
+   - Two types of parallelism that can be explored are data parallelism and task parallelism.
+   - GPUs are a type of shared memory architecture suitable for data parallelism.
+   - GPUs have high parallelism, with threads organized into blocks and warps.
+   - GPU optimization involves coalesced memory access, shared memory usage, and high thread and warp occupancy. Additionally, architecture-specific features such as warp-level operations and cooperative groups can be leveraged for more efficient processing.
 
 Additional information
 ----------------------
