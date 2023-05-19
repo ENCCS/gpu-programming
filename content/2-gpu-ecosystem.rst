@@ -6,7 +6,7 @@ The GPU hardware and software ecosystem
 .. questions::
 
    - What is the difference between GPUs and CPUs?
-   - What are the major GPU software suits available? Waht do they provide?
+   - What are the GPU software stacks available? Whatt do they provide?
 
 .. objectives::
 
