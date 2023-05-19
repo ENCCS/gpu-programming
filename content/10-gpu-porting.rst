@@ -24,8 +24,9 @@ Taking advantage of the parallel processing capability of the GPUs requires modi
 * if a cpu library is used one should identify the equivalent one on the GPUs. For example BLAS library has cu/hipBLAS, or mkl equivalents. 
 * when porting a loop directly,  works needs to be done to **refactor** it in a way that is suitable for the GPUs.(example missing here). This involves splitting the loop in several steps or changing some operations to reflect the independence of the operations between different iterations or give a better memory access. Each "step" of the original loop is then mapped to a kernel which is executed many gpu threads, each gpu thread correspoding to an iteration. 
 
-Discussion on piece of code. How would this be ported?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Discussion
+^^^^^^^^^^
+ .. challenge:: Example: ``How would this be ported?``
 .. tabs:: 
 
    .. tab:: Fortran
@@ -77,6 +78,7 @@ Discussion on piece of code. How would this be ported?
            end if
          end do
        end do
+
 .. keypoints::
 
    - k1
