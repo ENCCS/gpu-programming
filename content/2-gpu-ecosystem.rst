@@ -153,41 +153,48 @@ On AMD platforms libraries are prefixed by `roc`, which can be called directly f
 
 .. admonition:: In short
    :class: dropdown
-
    - ROCM: AMD's open-source GPU computing platform
-      - Components: ROCm runtime, ROCm compiler
-      - Supports C, C++, and Fortran languages
-   - Optimized Libraries: rocBLAS, rocFFT, rocRAND, rocSPARSE
-      - Accelerate complex computations on GPUs
-   - Compilers: ROCmCC
-      - Support GPU and multicore CPU programming
-      - Supports various heterogenous programming models such as HIP, OpenMP, and OpenCL
-      - Interfacers: 
+   - Components: ROCm runtime, ROCm compiler
             - /opt/rocm/bin/hipcc
             - /opt/rocm/bin/amdclang++
-   - Debugging tools: ROCm Debugger
+      - Supports C, C++, and Fortran languages
+      - Support GPU and multicore CPU programming
+      - Supports various heterogenous programming models such as **HIP**, **OpenMP**, and **OpenCL**
+   - Optimized Libraries: **rocBLAS**, **rocFFT**, **rocRAND**, **rocSPARSE**, ...
+      - Accelerate complex computations on GPUs
+      - Can be called directly from **HIP**
+      - Portable library calls with **hip** prefixed wrappers
+      - Ensures portability and no performance cost
+      - Allows HIP code to be used on other platforms without changes
+   - Debugging tool: **rocgdb**
+      - Command line tool for debugging
       - Debug GPU and CPU code simultaneously
       - Inspect GPU memory and state
-   - Performance analysis tools: ROCm Profiler
+   - Performance analysis tools: **rocprof**, **roctracer**
       - Monitor GPU metrics (temperature, power consumption, clock speeds)
       - Validate and benchmark GPU performance
+      - Traces
    - Integration with machine learning frameworks: TensorFlow, PyTorch
       - Accelerate deep learning tasks on AMD GPUs
-   - Open-source nature of ROCM platform
-      - Extensible and customizable
-      - Active community support
+   - Heterogeneous-Computing Interface for Portability (HIP)
+      - Source portability across Nvidia and AMD platforms
+      - Provides hipcc compiler driver
+      - Supports AMD ROCm platform and Nvidia platform with HIP-CUDA translation
+   
 
 
 OneAPI
 ^^^^^^
 
+Differences and similarities
 
-
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling optoin `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code such as `90a` for the MI200 series or `908` for MI100 series).
 
 
-Hardware
-^^^^^^^^
+
+Terminology
++++++++++++
 
 
 .. list-table:: Hardware
