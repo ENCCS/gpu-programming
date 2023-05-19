@@ -27,6 +27,7 @@ Taking advantage of the parallel processing capability of the GPUs requires modi
 Discussion
 ^^^^^^^^^^
  .. challenge:: Example: ``How would this be ported?``
+ 
 .. tabs:: 
 
    .. tab:: Fortran
@@ -79,7 +80,16 @@ Discussion
          end do
        end do
 
+
+Some steps at first glance:
+- the code could (has to) be splitted in 3 kernels. Why?
+- check for false dependenceies. For example the index `k2`
+- is it efficient for GPUs to split the work over the index `i`?
+- is it possible to collapse some loops?
+- what is the best memory access in a GPU?
 .. keypoints::
 
    - k1
    - k2
+   
+   
