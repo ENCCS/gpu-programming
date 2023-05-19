@@ -199,5 +199,5 @@ Each of these GPU programming environments has its own strengths and weaknesses,
 
 .. keypoints::
 
-   - k1
-   - k2
+   - Different GPU Programming Approaches
+   - Choosing the Right Framework
