@@ -103,7 +103,7 @@ This is when an application consists of more than one task that requiring to per
 An example of task parallelism is cooking: slicing vegetables and grilling are very different tasks and can be done at the same time.
 Note that the tasks can consume totally different resources, which also can be explored.
 
-. admonition:: In short
+.. admonition:: In short
    :class: dropdown
 
    - Computing problems can be parallelized in distributed memory or shared memory architectures.
