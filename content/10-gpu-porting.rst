@@ -23,7 +23,7 @@ When porting code to take advantage of the parallel processing capability of GPU
 
 Identify Targeted Parts
 
-Taking advantage of the parallel processing capability of the GPUs requires modifying the original code. However some work is required before writing actual code running on the GPUs:
+When porting code to take advantage of the parallel processing capability of GPUs , several steps need to be followed and some additional work is required before writing actual parallel code to be executed on the GPUs:
 
 * **Identify Targeted Parts**: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10% of the code accounts for 90% of the execution time.
 
