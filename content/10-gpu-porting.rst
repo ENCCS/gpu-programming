@@ -11,9 +11,8 @@ Preparing code for GPU porting
 
 .. objectives::
 
-   - Familiarizing the audience with the steps involved in porting code to GPUs to take advantage of parallel processing capabilities.
-   - Helping the audience identify the computationally intensive parts of their code that would benefit from GPU acceleration.
-   - Guiding the audience in refactoring loops and modifying operations to suit the GPU architecture and improve memory access patterns.
+   - Getting familiarized the steps involved in porting code to GPUs to take advantage of parallel processing capabilities.
+   - Giving some idea about refactoring loops and modifying operations to suit the GPU architecture and improve memory access patterns.
 
 .. instructor-note::
 
