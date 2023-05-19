@@ -58,7 +58,7 @@ Discussion on piece of code. How would this be ported?
            soap_rad_der(1:n_soap, k2) = soap_rad_der(1:n_soap, k2) / sqrt_dot_p(i) - soap(1:n_soap, i) / sqrt_dot_p(i)**3 * dot_product( soap(1:n_soap, i), soap_rad_der(1:n_soap, k2) )
            soap_azi_der(1:n_soap, k2) = soap_azi_der(1:n_soap, k2) / sqrt_dot_p(i) - soap(1:n_soap, i) / sqrt_dot_p(i)**3 * dot_product( soap(1:n_soap, i), soap_azi_der(1:n_soap, k2) )
            soap_pol_der(1:n_soap, k2) = soap_pol_der(1:n_soap, k2) / sqrt_dot_p(i) - soap(1:n_soap, i) / sqrt_dot_p(i)**3 * dot_product( soap(1:n_soap, i), soap_pol_der(1:n_soap, k2) )
-!       Transform to Cartesian
+          
            if( j == 1 )then
              k3 = k2
            else
@@ -70,7 +70,7 @@ Discussion on piece of code. How would this be ported?
                                            dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
              soap_cart_der(3, 1:n_soap, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + &
                                            dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
-!         MAKE SURE THAT THIS IS CORRECT FOR THE CENTRAL ATOM DERIVATIVES
+
              soap_cart_der(1, 1:n_soap, k3) = soap_cart_der(1, 1:n_soap, k3) - soap_cart_der(1, 1:n_soap, k2)
              soap_cart_der(2, 1:n_soap, k3) = soap_cart_der(2, 1:n_soap, k3) - soap_cart_der(2, 1:n_soap, k2)
              soap_cart_der(3, 1:n_soap, k3) = soap_cart_der(3, 1:n_soap, k3) - soap_cart_der(3, 1:n_soap, k2)
