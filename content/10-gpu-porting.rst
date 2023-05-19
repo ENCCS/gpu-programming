@@ -87,11 +87,12 @@ Discussion
 
 
 Some steps at first glance:
-- the code could (has to) be splitted in 3 kernels. Why? 
-- check for false dependencies. Analyze if there are any variables that could lead to false dependencies between iterations, like the index k2`
-- is it efficient for GPUs to split the work over the index `i`? What about the memory access?
-- is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
-- what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
+
+   * the code could (has to) be splitted in 3 kernels. Why? 
+   * check for false dependencies. Analyze if there are any variables that could lead to false dependencies between iterations, like the index k2`
+   * is it efficient for GPUs to split the work over the index `i`? What about the memory access?
+   * is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
+   * what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
 
 
 
