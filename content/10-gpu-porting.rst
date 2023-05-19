@@ -5,13 +5,14 @@ Preparing code for GPU porting
 
 .. questions::
 
-   - q1
-   - q2
+   - What are the key steps involved in porting code to take advantage of GPU parallel processing capability?
+   - How can I identify the computationally intensive parts of my code that can benefit from GPU acceleration?
+   - What are the considerations for refactoring loops to suit the GPU architecture and improve memory access patterns?
 
 .. objectives::
 
-   - o1
-   - o2
+   - Provide a basic understanding of the steps involved in porting code to GPUs to take advantage of their parallel processing capability.
+   - Provide guidelines for porting code to GPUs
 
 .. instructor-note::
 
@@ -95,7 +96,9 @@ Some steps at first glance:
 
 .. keypoints::
 
-   - k1
-   - k2
+   - identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization
+   - importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time
+   - the need to refactor loops to suit the GPU architecture 
+   - significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns
    
    
