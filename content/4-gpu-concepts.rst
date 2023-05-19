@@ -103,7 +103,19 @@ This is when an application consists of more than one task that requiring to per
 An example of task parallelism is cooking: slicing vegetables and grilling are very different tasks and can be done at the same time.
 Note that the tasks can consume totally different resources, which also can be explored.
 
+. admonition:: In short
+   :class: dropdown
 
+   - Computing problems can be parallelized in distributed memory or shared memory architectures.
+   - In distributed memory, each unit operates independently, with no direct memory access between nodes.
+   - In shared memory, units have access to the same memory and can communicate through shared variables.
+   - Parallel programming can be process-based (distributed memory) or thread-based (shared memory).
+   - Process-based parallelism uses independent processes with separate memory spaces and explicit message passing.
+   - Thread-based parallelism uses lightweight threads that share the same memory space and communicate through shared memory.
+   - Data parallelism distributes data across computational units, processing them with the same or similar operations.
+   - Task parallelism involves multiple independent tasks that perform different operations on the same or different data.
+   - Task parallelism involves executing different tasks concurrently, leveraging different resources.
+   
 GPU Execution Model
 -------------------
 
@@ -165,6 +177,21 @@ Below there is an example of how the threads in a grid can be associated with sp
 The thread marked by orange color is part of a grid of threads size 4096. The threads are grouped in blocks of size 256. The "orange" thread has index 3 in the block 2 and the global calculated index 515.
 
 For a vector addition example this would be used as follow ``c[index]=a[index]+b[index]``.
+
+.. admonition:: In short
+   :class: dropdown
+
+   - GPUs have a different execution model compared to CPUs, with a focus on parallelism and mathematical operations.
+   - GPUs consist of thousands of lightweight threads that can be executed simultaneously on GPU cores.
+   - Threads are organized into warps, and warps are grouped into blocks assigned to streaming multiprocessors (SMPs).
+   - GPUs achieve performance through high degrees of parallelism and efficient memory access.
+   - Shared memory can be used to cache data and improve memory access efficiency within a block.
+   - Synchronization and data sharing are limited to the block level, with some possible sharing at the warp level depending on the architecture.
+   - Over-subscribing the GPU and maximizing warp and block occupancy help hide latencies and improve performance.
+   - Warp-level operations and cooperative groups provide efficient communication and synchronization within a warp or block.
+   - Thread indexing allows associating threads with specific elements in an array for parallel processing.
+
+
 
 Terminology
 -----------
