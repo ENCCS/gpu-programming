@@ -144,7 +144,6 @@ Apart from what was presented above there are many others tools and features pro
 
 ROCm
 ^^^^
-.. code-block:: rst
 
    ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. For debugging, it provides the command line tool `rocgdb`, while for performance analysis `rocprof` and `roctracer`.
 
