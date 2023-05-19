@@ -144,15 +144,16 @@ Apart from what was presented above there are many others tools and features pro
 
 ROCm
 ^^^^
-ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. for debugging provide the command line tool `roc-gdb`, while for perforance analysis `roc-prof` and `roctracer`.  
+ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. The ROCm platform is built on the foundation of open portability, supporting environments across multiple accelerator vendors and architectures. In some way it is very similar to CUDA API. It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. for debugging provide the command line tool `roc-gdb`, while for perforance analysis `rocprof` and `roctracer`.  
 
-In order to produce code for the AMD GPUs one can Heterogeneous-Computing Interface for Portability (HIP). HIP provides source portability to either Nvidia or AMD plaform. It  provides the hipcc compiler driver, which will call the appropriate toolchain depending on the desired platform. On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang compiler. On an Nvidia platform, HIP provides header file which translate from the HIP runtime APIs to CUDA runtime APIs. The header file contains mostly inlined functions and thus has very low overhead. The code is then compiled with nvcc, the standard C++ compiler provided with the CUDA.
+In order to produce code for the AMD GPUs one can Heterogeneous-Computing Interface for Portability (HIP). HIP provides source portability to either Nvidia or AMD plaform. It  provides the hipcc compiler driver, which will call the appropriate toolchain depending on the desired platform. On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang (ROCm compiler). On an Nvidia platform, HIP provides header file which translate from the HIP runtime APIs to CUDA runtime APIs. The header file contains mostly inlined functions and thus has very low overhead. The code is then compiled with nvcc, the standard C++ compiler provided with the CUDA.
 
-On AMD platforms libraries are prefixed by `roc`, which can be called directly from HIP. In order to make portable call one call the libraries using `hip` prefixed wrappers. These can be used at no perfomrance cost and insure that a HIP code can be use on other platforms with no changes. 
+On AMD platforms libraries are prefixed by `roc`, which can be called directly from HIP. In order to make portable call one call the libraries using `hip` prefixed wrappers. These can be used at no performance cost and insure that a HIP code can be use on other platforms with no changes. 
 
 
 .. admonition:: In short
    :class: dropdown
+   
    - ROCM: AMD's open-source GPU computing platform
    - Components: ROCm runtime, ROCm compiler
             - /opt/rocm/bin/hipcc
@@ -177,7 +178,7 @@ On AMD platforms libraries are prefixed by `roc`, which can be called directly f
    - Integration with machine learning frameworks: TensorFlow, PyTorch
       - Accelerate deep learning tasks on AMD GPUs
    - Heterogeneous-Computing Interface for Portability (HIP)
-      - Source portability across Nvidia and AMD platforms
+      - Source portability across Nvidia and AMD platforms (intel in plan)
       - Provides hipcc compiler driver
       - Supports AMD ROCm platform and Nvidia platform with HIP-CUDA translation
    
@@ -187,9 +188,10 @@ OneAPI
 ^^^^^^
 
 Differences and similarities
-
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling optoin `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code such as `90a` for the MI200 series or `908` for MI100 series).
+
+GPUs in general support different features, even among the same producers. In general newer cards come with extra features and sometimes old features are not supported anymore. It is important when compiling to create binaries targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute capability which is targeted is specified by the `-arch=sm_XY`, where `X` specifies the major architecture and it is between 1 and 9, and `Y`the minor. When using HIP on Nvidia platforms one needs to use compiling option `--gpu-architecture=sm_XY`, while on AMD platforms  `--offload-arch=gfxabc`( where `abc` is the architecture code such as `90a` for the MI200 series or `908` for MI100 series). 
+Note that in the case of portable (single source) programs one would specify `openmp` as well as target for compilation. 
 
 
 
