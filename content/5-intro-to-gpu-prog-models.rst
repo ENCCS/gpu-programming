@@ -175,6 +175,7 @@ for fine-grained control.
    :class: dropdown
 
    - Consider the following factors when choosing a framework:
+   
      - Programming Language:
        - Choose a framework that supports the programming language you are comfortable with.
      - Hardware Compatibility:
