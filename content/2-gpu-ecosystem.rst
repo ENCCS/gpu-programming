@@ -249,5 +249,5 @@ Summary
 .. keypoints::
 
    - GPUs vs. CPUs, key differences between them
-   - GPU software suits, spedific features, programming models, compatibility
+   - GPU software suits, support specific GPU features, programming models, compatibility
    - Applications of GPUs
