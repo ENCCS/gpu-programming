@@ -18,11 +18,19 @@ Preparing code for GPU porting
    - 20 min teaching
    - 10 min exercises
 
+When porting code to take advantage of the parallel processing capability of GPUs , several steps need to be followed. These steps help identify the computationally intensive parts of the code, refactor loops for GPU execution, and optimize memory access. Let's go through the steps:
+
+Identify Targeted Parts
+
 Taking advantage of the parallel processing capability of the GPUs requires modifying the original code. However some work is required before writing actual code running on the GPUs:
 
-* identify (or decide)  the parts of the code targeted by the porting. These are computational intensive parts of the code such as loops or matrix operations. An observational rule is that 10% of the code takes 90% of the execution time. 
-* if a cpu library is used one should identify the equivalent one on the GPUs. For example BLAS library has cu/hipBLAS, or mkl equivalents. 
-* when porting a loop directly,  works needs to be done to **refactor** it in a way that is suitable for the GPUs.(example missing here). This involves splitting the loop in several steps or changing some operations to reflect the independence of the operations between different iterations or give a better memory access. Each "step" of the original loop is then mapped to a kernel which is executed many gpu threads, each gpu thread correspoding to an iteration. 
+* **Identify Targeted Parts**: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10% of the code accounts for 90% of the execution time.
+
+* **Equivalent GPU Libraries**: If the original code uses CPU libraries like BLAS, FFT, etc, it's crucial to identify the equivalent GPU libraries. For example, cuBLAS or hipBLAS can replace CPU-based BLAS libraries. Utilizing GPU-specific libraries ensures efficient GPU utilization.
+
+* **Refactor Loops**: When porting loops directly to GPUs, some refactoring is necessary to suit the GPU architecture. This typically involves splitting the loop into multiple steps or modifying operations to exploit the independence between iterations and improve memory access patterns. Each step of the original loop can be mapped to a kernel, executed by multiple GPU threads, with each thread corresponding to an iteration.
+
+* **Memory Access Optimization**: Consider the memory access patterns in the code. GPUs perform best when memory access is coalesced and aligned. Minimizing global memory accesses and maximizing utilization of shared memory or registers can significantly enhance performance. Review the code to ensure optimal memory access for GPU execution.
 
 Discussion
 ^^^^^^^^^^
@@ -64,14 +72,9 @@ Discussion
            if( j == 1 )then
              k3 = k2
            else
-             soap_cart_der(1, 1:n_soap, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - &
-                                           dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - &
-                                           dsin(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-             soap_cart_der(2, 1:n_soap, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - &
-                                           dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + &
-                                           dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-             soap_cart_der(3, 1:n_soap, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + &
-                                           dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
+             soap_cart_der(1, 1:n_soap, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
+             soap_cart_der(2, 1:n_soap, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
+             soap_cart_der(3, 1:n_soap, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
 
              soap_cart_der(1, 1:n_soap, k3) = soap_cart_der(1, 1:n_soap, k3) - soap_cart_der(1, 1:n_soap, k2)
              soap_cart_der(2, 1:n_soap, k3) = soap_cart_der(2, 1:n_soap, k3) - soap_cart_der(2, 1:n_soap, k2)
@@ -82,11 +85,14 @@ Discussion
 
 
 Some steps at first glance:
-- the code could (has to) be splitted in 3 kernels. Why?
-- check for false dependenceies. For example the index `k2`
-- is it efficient for GPUs to split the work over the index `i`?
-- is it possible to collapse some loops?
-- what is the best memory access in a GPU?
+- the code could (has to) be splitted in 3 kernels. Why? 
+- check for false dependencies. Analyze if there are any variables that could lead to false dependencies between iterations, like the index k2`
+- is it efficient for GPUs to split the work over the index `i`? What about the memory access?
+- is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
+- what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
+
+
+
 .. keypoints::
 
    - k1
