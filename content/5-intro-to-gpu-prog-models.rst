@@ -16,7 +16,7 @@ Introduction to GPU programming models
 .. instructor-note::
 
    - 20 min teaching
-   - 10 min exercises
+   - 0 min exercises
 
 There are different ways to use GPUs for computations. In the best case, when someone has already written the code, one only needs to set the parameters and initial configurations in order to get started. Or in some cases the problem is in such a way that it is only needed to use a library to solve the most intensive part of the code. 
 However these are quite limited cases and in general some programming might be needed. There are several GPU programming software environments and APIs available such as, **directive-based models**, **non-portable kernel-based models**, and **portable kernel-based models**, as well as high-level frameworks and libraries.
