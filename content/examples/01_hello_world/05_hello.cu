@@ -1,5 +1,5 @@
 //
-// nvcc 04_hello.cu
+// nvcc 05_hello.cu
 //
 #include <stdio.h>
 

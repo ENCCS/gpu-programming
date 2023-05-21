@@ -1,3 +1,6 @@
+//
+// nvcc 04_hello.cu
+//
 #include <stdio.h>
 
 void __global__ hello_from_gpu()

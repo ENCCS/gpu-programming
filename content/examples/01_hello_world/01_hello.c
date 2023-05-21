@@ -1,5 +1,5 @@
 //
-// cc 01_hello.c 
+// cc  01_hello.c 
 // c++ 01_hello.c
 //
 #include <stdio.h>
