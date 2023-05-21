@@ -3,10 +3,11 @@
 //
 #include <stdio.h>
 
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
 	printf("\n----------------------\n");
     printf("Hello World from CPU!\n");
 	printf("----------------------\n\n");
+
     return 0;
 }

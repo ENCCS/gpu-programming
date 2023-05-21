@@ -9,7 +9,7 @@ void __global__ hello_from_gpu()
 }
 
 
-int main(int argc, char * argv[])
+int main(int argc, const char * argv[])
 {
 	printf("\n----------------------\n");
 	printf("Hello World from CPU! Before calling 'hello_from_gpu' kernel function.\n");
@@ -19,6 +19,7 @@ int main(int argc, char * argv[])
 	printf("Hello World from CPU!  After calling 'hello_from_gpu' kernel function.\n");
 	printf("\n----------------------\n");
 
-    cudaDeviceSynchronize();
+    cudaDeviceSynchronize(); // cudaDeviceReset();
+
     return 0;
 }
