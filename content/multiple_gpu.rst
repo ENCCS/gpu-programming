@@ -270,7 +270,7 @@ We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate th
 
 3. Include the necessary directives to accelerate the loops.
 
-**Exercisie III: Apply traditional MPI-OpenACC/OpenMP**
+**Exercise III: Apply traditional MPI-OpenACC/OpenMP**
 
 4. Implement the directives that enable updating the data in the host before calling an MPI functions (i.e. in OpenAC `update host()` for copying the data from GPU to CPU; and the directive `update device()` for copying the data from the CPU to GPU. In OpenMP, the directives are `update device() from()` and `update device() to()`, respectively, for copying the data from the GPU to CPU and from the CPU to the GPU).
 
@@ -289,9 +289,7 @@ References
 
 `GPU-aware MPI <https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html>`_.
 
-`GPU-aware MPI <https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html>_`.
-
-`MPI documentation <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>_`.
+`MPI documentation <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_.
 
 `OpenACC specification <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`_.
 
