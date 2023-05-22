@@ -186,39 +186,87 @@ The GPU-aware MPI with OpenACC/OpenMP APIs has the capability of directly commun
 Compilation process
 -------------------
 
-todo
+The compilation process of the hybrid MPI-OpenACC and MPI-OpenMP offloading is described below. This description is given for a Cray compiler of the wrapper `ftn`. On LUMI-G, the following modules may be necessary before compiling (see the [LUMI documentation](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/) for further details about the available programming environments): 
 
+```console
+ml CrayEnv
+ml PrgEnv-cray
+ml cray-mpich
+ml rocm
+ml craype-accel-amd-gfx90a
+```
+
+.. challenge:: Example: ``Compilation process``
+
+   .. tabs::
+
+      .. tab:: Compiling MPI-OpenACC
+
+         $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
+
+      .. tab:: Compiling MPI-OpenMP
+
+         $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
+.. note:: 
+
+Here, the flags `hacc` and `homp` enable the OpenACC and OpenMP directives in the hybrid MPI-OpenACC and MPI-OpenMP applications, respectively.
+
+**Enabling GPU-aware support**
+
+To enable the GPU-aware support in MPICH library, one needs to set the following environment variable before running the application.
+
+```console
+$ export MPICH_GPU_SUPPORT_ENABLED=1
+```
 
 Conclusion
 ----------
- In conclusion, we have presented an overview of a GPU-hybrid programming by integrating GPU-directive models, specifically OpenACC and OpenMP APIs, with the MPI library. The approach adopted here allows us to utilise multiple GPU-devices not only within a single node but it extends to distributed nodes. In particular, we have addressed GPU-aware MPI approach, which has the advantage of enabling a direct interaction between an MPI library and a GPU-device memory. In other words, it permits performing MPI operations between a pair of GPUs, thus reducing the computing time caused by the data locality. 
+In conclusion, we have presented an overview of a GPU-hybrid programming by integrating GPU-directive models, specifically OpenACC and OpenMP APIs, with the MPI library. The approach adopted here allows us to utilise multiple GPU-devices not only within a single node but it extends to distributed nodes. In particular, we have addressed GPU-aware MPI approach, which has the advantage of enabling a direct interaction between an MPI library and a GPU-device memory. In other words, it permits performing MPI operations between a pair of GPUs, thus reducing the computing time caused by the data locality. 
  
 Exercises
 ---------
 
 We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate the code with either OpenACC or OpenMP API by following these steps:
 
-**Exercisie 0:**
+**Exercise I: Set a GPU device**
 
-**Exercise I:**
+1- Implement OpenACC/OpenMP functions that enable assigning each MPI rank to a GPU device.
 
-1- Assign each MPI rank to a GPU device.
+**Exercise II: Accelerate loops**
 
-**Exercise II:**
-2- Incorporate unstructured data blocks (i.e. `enter data` and `exit data` directives).
+2- Implement unstructured data blocks (i.e. `enter data` and `exit data` directives).
 
-3- Incorporate directives to accelerate the loops.
+3- Include the necessary directives to accelerate the loops.
 
-**Exercisie III:**
+**Exercisie III: Apply traditional MPI-OpenACC/OpenMP**
 
-3- Incorporate directives that enable updating the data in the host before calling an MPI functions (i.e. in OpenAC `update host()` for copying the data from GPU to CPU; and the directive `update device()` for copying the data from the CPU to GPU. In OpenMP, the directives are `update device() from()` and `update device() to()`, respectively, for copying the data from the GPU to CPU and from the CPU to the GPU).
+3- Implement the directives that enable updating the data in the host before calling an MPI functions (i.e. in OpenAC `update host()` for copying the data from GPU to CPU; and the directive `update device()` for copying the data from the CPU to GPU. In OpenMP, the directives are `update device() from()` and `update device() to()`, respectively, for copying the data from the GPU to CPU and from the CPU to the GPU).
 
 4- Compile and run the code.
 
-**Exercise IV:**
+**Exercise IV: Implement GPU-aware support**
 
-5- Incorporate the directives that enable to pass a device pointer to an MPI function (i.e. In OpenACC it is `host_data use_device()` and in OpenMP it is `data use_device_ptr()`).
+5- Implement the directives that enable to pass a device pointer to an MPI function (i.e. In OpenACC it is `host_data use_device()` and in OpenMP it is `data use_device_ptr()`).
 
 6- Compile and run the code.
 
-7- Evaluate the computing time it takes to run the code in exercise **III** and exercise **IV**.
+7- Evaluate the execution time in of the code in the exercises **III** and **IV**, and compare it with a pure MPI implementation.  
+
+References
+----------
+
+[GPU-aware MPI](https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html)
+
+[MPI documentation](https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf)
+
+[OpenACC specification](https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf)
+
+[OpenMP specification](https://www.openmp.org/wp-content/uploads/OpenMP-API-Specification-5-2.pdf)
+
+[LUMI documentation](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/)
+
+[OpenACC vs OpenMP offloading](https://documentation.sigma2.no/code_development/guides/converting_acc2omp/openacc2openmp.html)
+
+[OpenACC course](https://github.com/HichamAgueny/GPU-course)
+
+
