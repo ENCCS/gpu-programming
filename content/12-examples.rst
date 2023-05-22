@@ -132,9 +132,15 @@ WRITEME
                         
    .. tab:: Python
 
-         WRITEME
+         .. literalinclude:: examples/stencil/python/heat_core.cpp 
+                        :language: python
+                        :lines: 34-48
          
    .. tab:: Julia
+
+         WRITEME  
+
+   .. tab:: CUDA
 
          WRITEME  
 
