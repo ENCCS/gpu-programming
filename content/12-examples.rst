@@ -132,8 +132,8 @@ WRITEME
                         
    .. tab:: Python
 
-         .. literalinclude:: examples/stencil/python/heat_core.cpp 
-                        :language: python
+         .. literalinclude:: examples/stencil/python/heat_core.py 
+                        :language: py
                         :lines: 34-48
          
    .. tab:: Julia
