@@ -373,9 +373,9 @@ Data region
 ^^^^^^^^^^^
 
 The specific data clause combined with the data directive constitutes the start of a data region.
-How the directives create storage, transfer data, and remove storage on the device are clasiffied as two categories: 
+How the directives create storage, transfer data, and remove storage on the device are classified as two categories: 
 structured data region and unstructured data region. 
-A structured data region is convenient for providing persistent data on the device which could be used for subseqent GPU directives.
+A structured data region is convenient for providing persistent data on the device which could be used for subsequent GPU directives.
 However it is inconvenient in real applications using structured data region, therefore the unstructured data region  
 with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
 
@@ -501,7 +501,7 @@ with much more freedom in creating and deleting of data on the device at any app
 Optimize Data Transfers
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-- Explicitely transfer the data as much as possible
+- Explicitly transfer the data as much as possible
 - Reduce the amount of data mapping between host and device, get rid of unnecessary data transfer
 - Try to keep data environment residing on the device as long as possible
 
