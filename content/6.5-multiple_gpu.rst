@@ -47,14 +47,14 @@ Here, the size of each sub-communicator corresponds to the number of GPUs per no
 
    .. tab:: OpenACC
 
-      .. code-block:: fortran
+      .. block-code:: fortran
 
          ! Set a device number in OpenACC
          acc_set_device_num(myDevice, acc_get_device_type())
 
    .. tab:: OpenMP
 
-      .. code-block:: fortran
+      .. block-code:: fortran
 
          ! Set a device number in OpenMP 
          omp_set_default_device(myDevice)
@@ -67,45 +67,35 @@ On the other hand, one can check the total number of devices available on the ho
    .. tabs::
 
       .. tab:: OpenACC
+      
+      	.. block-code:: fortran
 
-         acc_get_num_devices(acc_get_device_type())
+                ! Returns the number of devices available for offloading
+         	acc_get_num_devices(acc_get_device_type())
 
       .. tab:: OpenMP
+      
+      	.. block-code:: fortran
 
-         omp_get_num_devices()
+                ! Returns the number of devices available for offloading
+         	omp_get_num_devices()
 
-
-.. tabs::
-
-   .. tab:: OpenACC
-
-      .. code-block:: fortran
-
-         ! Returns the number of devices available for offloading
-         acc_get_num_devices(acc_get_device_type())
-
-   .. tab:: OpenMP
-
-      .. code-block:: fortran
-
-         ! Returns the number of devices available for offloading 
-         omp_get_num_devices()
 	 
 Another useful function for retrieving the device number of a specific device, which is useful, e.g., to map data to a specific device is
 	
 .. tabs::
 
-      .. tab:: OpenACC
-      
-         .. code-block:: fortran
-	 
+   .. tab:: OpenACC
+     
+      .. code-block:: fortran
+ 	
          acc_get_device_num()
 
-      .. tab:: OpenMP
+   .. tab:: OpenMP
 
-         .. code-block:: fortran
+      .. code-block:: fortran
 	 
-        omp_get_device_num()
+       	 omp_get_device_num()
 
 The syntax of assigning MPI ranks to GPU devices is summarised below
 
@@ -114,20 +104,16 @@ The syntax of assigning MPI ranks to GPU devices is summarised below
    .. tabs::
 
       .. tab:: MPI-OpenACC
-         
-	 .. block-code:: fortran
 	 
-            .. literalinclude:: examples/assignDevice_acc.f90
-                        :language: fortran
-                        :emphasize-lines: 1,54
+         .. literalinclude:: examples/assignDevice_acc.f90
+                     :language: fortran
+                     :emphasize-lines: 1,54
 
       .. tab:: MPI-OpenMP
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/assignDevice_omp.f90
-                        :language: fortran
-                        :emphasize-lines: 1,54
+         .. literalinclude:: examples/assignDevice_omp.f90
+                     :language: fortran
+                     :emphasize-lines: 1,54
 
 
 Hybrid MPI-OpenACC/OpenMP without GPU-awareness approach
