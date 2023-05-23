@@ -47,15 +47,15 @@ Hello World
          int main() {
            Kokkos::initialize();
 
-  int count = Kokkos::Cuda().concurrency();
-  int device = Kokkos::Cuda().impl_internal_space_instance()->impl_internal_space_id();
-
-  std::cout << "Hello! I'm GPU " << device << " out of " << count << " GPUs in total." << std::endl;
-
-  Kokkos::finalize();
-
-  return 0;
-}
+           int count = Kokkos::Cuda().concurrency();
+           int device = Kokkos::Cuda().impl_internal_space_instance()->impl_internal_space_id();
+         
+           std::cout << "Hello! I'm GPU " << device << " out of " << count << " GPUs in total." << std::endl;
+         
+           Kokkos::finalize();
+         
+           return 0;
+         }
 
 
    .. tab:: OpenCL
@@ -79,18 +79,14 @@ Hello World
       .. code-block:: C++
 
          #include <iostream>
-         #include <numeric>
          #include <sycl/sycl.hpp>
-         using namespace sycl;
          
          int main() {
-           auto gpu_devices= sycl::device::get_devices(sycl::info::device_type::gpu);
-           auto count=size( gpu_devices );
-           queue q{gpu_devices[0]};
-           std::cout << "Hello! I'm using the SYCL device: "
-                     << q.get_device().get_info<info::device::name>() << "\n"
-                     <<< "of " <<< count <<< " devices."
-                     << std::endl;
+           auto gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
+           auto count = gpu_devices.size();
+           std::cout << "Hello! I'm using the SYCL device: <"
+                     << gpu_devices[0].get_info<sycl::info::device::name>()
+                     << ">, the first of " << count << " devices." << std::endl;
            return 0;
         }
 
