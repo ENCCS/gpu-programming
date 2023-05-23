@@ -33,12 +33,24 @@ Assigning MPI-ranks to GPU-devices
 Accelerating MPI applications to utilise multiple GPUs on distributed nodes requires as a first step assigning each MPI rank to a GPU device, such that two MPI ranks do not use the same GPU device. This is necessarily in order to prevent the application from a potential crash. This is because GPUs are designed to handle multiple threading tasks, but not multiple MPI ranks. 
 
 One of the way to ensure that two MPI ranks do not use the same GPU, is to determine which MPI processes run on the same node, such that each process can be assigned to a GPU device within the same node. This can be done, for instance, by splitting the world communicator into sub-groups of communicators (or sub-communicators) using the routine `MPI_COMM_SPLIT_TYPE()`. 
-                        
-.. literalinclude:: examples/assignDevice_acc.f90
-   :language: fortran
-   :emphasize-lines: 27-29
 
-   
+.. challenge:: Example: ``Assign device``
+
+   .. tabs::
+
+      .. tab:: MPI-OpenACC
+
+         .. literalinclude:: examples/assignDevice_acc.f90
+                     :language: fortran
+                     :emphasize-lines: 27-29
+		     
+      .. tab:: MPI-OpenMP
+
+         .. literalinclude:: examples/assignDevice_omp.f90
+                     :language: fortran
+                     :emphasize-lines: 27-29		     
+
+
 Here, the size of each sub-communicator corresponds to the number of GPUs per node (which is also the number of tasks per node), and each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument `MPI_COMM_TYPE_SHARED` (see the `MPI report <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_) for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator labelled in the code above *”host_comm”*, and in which MPI-ranks are ranked from 0 to number of processes per node -1. These MPI ranks are in turn assigned to different GPU devices within the same node. This procedure is done according to which directive-based model is implemented. The retrieved MPI ranks are then stored in the variable **myDevice**. The variable is passed to an OpenACC or OpenMP routine as indicated in the code below. 
 
 .. tabs::
@@ -192,13 +204,13 @@ Compilation process
 
 The compilation process of the hybrid MPI-OpenACC and MPI-OpenMP offloading is described below. This description is given for a Cray compiler of the wrapper `ftn`. On LUMI-G, the following modules may be necessary before compiling (see the `LUMI documentation <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_ for further details about the available programming environments): 
 
-```console
+``
 ml CrayEnv
 ml PrgEnv-cray
 ml cray-mpich
 ml rocm
 ml craype-accel-amd-gfx90a
-```
+``
 
 .. challenge:: Example: ``Compilation process``
 
@@ -206,15 +218,15 @@ ml craype-accel-amd-gfx90a
 
       .. tab:: Compiling MPI-OpenACC
 
-         ```console
+         ``
          $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
-         ```
+         ``
 
       .. tab:: Compiling MPI-OpenMP
 
-         ```console
+         ``
          $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
-         ```
+         ``
 
 .. note:: 
 
@@ -224,9 +236,9 @@ Here, the flags `hacc` and `homp` enable the OpenACC and OpenMP directives in th
 
 To enable the GPU-aware support in MPICH library, one needs to set the following environment variable before running the application.
 
-```console
+``
 $ export MPICH_GPU_SUPPORT_ENABLED=1
-```
+``
 
 Conclusion
 ----------
