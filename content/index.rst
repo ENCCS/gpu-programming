@@ -48,12 +48,14 @@ to learn and use for their projects. Specifically, you will:
    4-gpu-concepts
    5-intro-to-gpu-prog-models
    6-directive-based-models
+   6.5-multiple_gpu
    7-non-portable-kernel-models
    8-portable-kernel-models
-   9-gpu-porting
-   10-recommendations
-   11-examples
-   12-humanities-examples
+   9-language-support
+   10-gpu-porting
+   11-recommendations
+   12-examples
+   12.5-humanities
 
 .. toctree::
    :maxdepth: 1
