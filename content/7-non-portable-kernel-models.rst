@@ -35,7 +35,7 @@ Developers utilizing CUDA or HIP can tap into an extensive ecosystem of GPU-acce
 As mentioned before CUDA and HIP are very similar so it makes sense to check them in the same time. 
 Hello World
 ~~~~~~~~~~~
-
+Here is the most basic example of CUDA and HIP. 
 .. tabs:: 
 
    .. tab:: Kokkos
@@ -96,6 +96,7 @@ Hello World
       .. code-block:: C
       
         #include <cuda_runtime.h>
+        #include <cuda.h>
         #include <stdio.h>
           
         int main(void){
@@ -123,8 +124,21 @@ Hello World
         
             printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count);
             return 0;
-          }
 
+
+In both versions, we include the necessary headers: **cuda_runtime.h** and **cuda.h** for CUDA, and **hip_runtime.h** for HIP. These headers provide the required functionality for GPU programming.
+
+To retrieve information about the available devices, we use the functions **<cuda/hip>GetDeviceCount** and **<cuda/hip>GetDevice**. These functions allow us to determine the total number of GPUs and the index of the currently used device. In the code examples, we default to using device 0.
+
+As an exercise, let's modify the "Hello World" code to explicitly use a specific GPU. We can do this by using the **<cuda/hip>SetDevice** function, which allows us to set the desired GPU device. 
+However, it's important to note that setting an invalid device number will result in errors. It's crucial to ensure that the device number provided is within the range of available devices. Otherwise, the program may fail to run or produce unexpected results.
+To experiment with different GPUs, modify the code to include the following line before retrieving device information:
+
+```cpp
+cudaSetDevice(deviceNumber); // For CUDA
+hipSetDevice(deviceNumber); // For HIP
+``` 
+Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output. 
 
 Examples
 ^^^^^^^^
