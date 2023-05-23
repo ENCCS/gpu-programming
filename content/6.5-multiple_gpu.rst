@@ -34,11 +34,9 @@ Accelerating MPI applications to utilise multiple GPUs on distributed nodes requ
 
 One of the way to ensure that two MPI ranks do not use the same GPU, is to determine which MPI processes run on the same node, such that each process can be assigned to a GPU device within the same node. This can be done, for instance, by splitting the world communicator into sub-groups of communicators (or sub-communicators) using the routine `MPI_COMM_SPLIT_TYPE()`. 
                         
-.. code-block:: fortran
-
-   .. literalinclude:: examples/assignDevice_acc.f90
-      :language: fortran
-      :emphasize-lines: 27-29
+.. literalinclude:: examples/assignDevice_acc.f90
+   :language: fortran
+   :emphasize-lines: 27-29
 
    
 Here, the size of each sub-communicator corresponds to the number of GPUs per node (which is also the number of tasks per node), and each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument `MPI_COMM_TYPE_SHARED` (see the `MPI report <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_) for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator labelled in the code above *”host_comm”*, and in which MPI-ranks are ranked from 0 to number of processes per node -1. These MPI ranks are in turn assigned to different GPU devices within the same node. This procedure is done according to which directive-based model is implemented. The retrieved MPI ranks are then stored in the variable **myDevice**. The variable is passed to an OpenACC or OpenMP routine as indicated in the code below. 
@@ -129,20 +127,16 @@ To illustrate the concept of the hybrid MPI-OpenACC/OpenMP, we show below an exa
    .. tabs::
 
       .. tab:: MPI-OpenACC
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/mpiacc.f90
-                        :language: fortran
-                        :emphasize-lines: 67,79
+         .. literalinclude:: examples/mpiacc.f90
+                     :language: fortran
+                     :emphasize-lines: 67,79
 
       .. tab:: MPI-OpenMP
 
-         .. block-code:: fortran
-	 
-            .. literalinclude:: examples/mpiomp.f90
-                        :language: fortran
-                        :emphasize-lines: 68,80
+         .. literalinclude:: examples/mpiomp.f90
+                     :language: fortran
+                     :emphasize-lines: 68,80
 
 Despite the simplicity of implementing the hybrid MPI-OpenACC/OpenMP offloading, it suffers from a low performance caused by an explicit transfer of data between the host and the device before and after calling an MPI routine. This constitutes a bottleneck in GPU-programming. To improve the performance affected by the host staging during the data transfer, one can implement the GPU-awareness MPI approach as described in the following section.
 	  
@@ -163,20 +157,16 @@ To illustarte the concept of the GPU-awareness MPI, we show below two examples t
    .. tabs::
 
       .. tab:: GPU-aware MPI with OpenACC
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/mpiacc_gpuaware.f90
-                        :language: fortran
-                        :emphasize-lines: 67,76
+         .. literalinclude:: examples/mpiacc_gpuaware.f90
+                     :language: fortran
+                     :emphasize-lines: 67,76
 
       .. tab:: GPU-aware MPI with OpenMP
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/mpiomp_gpuaware.f90
-                        :language: fortran
-                        :emphasize-lines: 68,77
+         .. literalinclude:: examples/mpiomp_gpuaware.f90
+                     :language: fortran
+                     :emphasize-lines: 68,77
 
 
 .. challenge:: Example: ``GPU-awareness: MPI_Allreduce``
@@ -184,20 +174,16 @@ To illustarte the concept of the GPU-awareness MPI, we show below two examples t
    .. tabs::
 
       .. tab:: GPU-aware MPI with OpenACC
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/mpiacc_gpuaware.f90
-                        :language: fortran
-                        :emphasize-lines: 92,96
+         .. literalinclude:: examples/mpiacc_gpuaware.f90
+                     :language: fortran
+                     :emphasize-lines: 92,96
 
       .. tab:: GPU-aware MPI with OpenMP
-
-         .. block-code:: fortran
 	 
-            .. literalinclude:: examples/mpiomp_gpuaware.f90
-                        :language: fortran
-                        :emphasize-lines: 95,99 
+         .. literalinclude:: examples/mpiomp_gpuaware.f90
+                     :language: fortran
+                     :emphasize-lines: 95,99 
 
 The GPU-aware MPI with OpenACC/OpenMP APIs has the capability of directly communicating between a pair of GPUs within a single node. However, performing the GPU-to-GPU communication across multiple nodes requires the the GPUDirect RDMA (Remote Direct Memory Access) technology. This technology can further improve performance by reducing latency.
 
@@ -220,11 +206,16 @@ ml craype-accel-amd-gfx90a
 
       .. tab:: Compiling MPI-OpenACC
 
+         ```console
          $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
+         ```
 
       .. tab:: Compiling MPI-OpenMP
 
+         ```console
          $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
+         ```
+
 .. note:: 
 
 Here, the flags `hacc` and `homp` enable the OpenACC and OpenMP directives in the hybrid MPI-OpenACC and MPI-OpenMP applications, respectively.
