@@ -32,6 +32,7 @@ By being closely tied to the GPU hardware, CUDA and HIP provide a level of perfo
 
 Developers utilizing CUDA or HIP can tap into an extensive ecosystem of GPU-accelerated libraries, covering various domains, including linear algebra, signal processing, image processing, machine learning, and more. These libraries are highly optimized to take advantage of the parallelism and computational power offered by GPUs, allowing developers to accelerate their applications without having to implement complex algorithms from scratch.
 
+As mentioned before CUDA and HIP are very similar so it makes sense to check them in the same time. 
 Hello World
 ~~~~~~~~~~~
 
