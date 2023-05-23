@@ -144,19 +144,20 @@ Running ````Clacc````
 $ module load rocm
 $ clang -fopenacc openACC_code.c && ./executable
 ```
-**Step 2.3** Compiling & run an OpenACC code on AMD-GPU:
+**Step 2** Compiling & run an OpenACC code on AMD-GPU:
 ```console
 $ clang -fopenacc -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target=amdgcn-amd-amdhsa -march=gfx90a openACC_code.c && ./executable
 ```
-**Step 2.4**
+**Step 3**
 Source to source conversion of the `openACC_code.c` code to be printed out to the file `openMP_code.c`:
+
 .. code-block:: 
 
          $ clang -fopenacc-print=omp -fopenacc-structured-ref-count-omp=no-ompx-hold openACC_code.c > openMP_code.c
 
 Here the flag ````-fopenacc-structured-ref-count-omp=no-ompx-hold```` is introduced to disable the ````ompx_hold```` map type modifier, which is used by the OpenACC ````copy```` clause translation. The ````ompx_hold```` is an OpenMP extension that might not be supported yet by other compilers.
 
-**Step 2.5** Compiling the code with the `cc compiler wrapper <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_
+**Step 4** Compiling the code with the `cc compiler wrapper <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_
 ```console
 module load CrayEnv
 module load PrgEnv-cray
