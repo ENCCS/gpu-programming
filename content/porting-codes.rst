@@ -158,14 +158,16 @@ Source to source conversion of the `openACC_code.c` code to be printed out to th
 Here the flag ````-fopenacc-structured-ref-count-omp=no-ompx-hold```` is introduced to disable the ````ompx_hold```` map type modifier, which is used by the OpenACC ````copy```` clause translation. The ````ompx_hold```` is an OpenMP extension that might not be supported yet by other compilers.
 
 **Step 4** Compiling the code with the `cc compiler wrapper <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_
-```console
+
+.. code-block::
+
 module load CrayEnv
 module load PrgEnv-cray
 module load craype-accel-amd-gfx90a
 module load rocm
 
-$ cc -fopenmp -o executable openMP_code.c
-```
+cc -fopenmp -o executable openMP_code.c
+
 
 Conclusion
 ----------
