@@ -134,12 +134,13 @@ In both versions, we include the necessary headers: **cuda_runtime.h** and **cud
 To retrieve information about the available devices, we use the functions **<cuda/hip>GetDeviceCount** and **<cuda/hip>GetDevice**. These functions allow us to determine the total number of GPUs and the index of the currently used device. In the code examples, we default to using device 0.
 
 As an exercise, let's modify the "Hello World" code to explicitly use a specific GPU. We can do this by using the **<cuda/hip>SetDevice** function, which allows us to set the desired GPU device. 
-However, it's important to note that setting an invalid device number will result in errors. It's crucial to ensure that the device number provided is within the range of available devices. Otherwise, the program may fail to run or produce unexpected results.
+However, it's important to note that setting an invalid device number will result in errors. Note that the device number provided has to be within the range of available devices, otherwise, the program may fail to run or produce unexpected results.
 To experiment with different GPUs, modify the code to include the following line before retrieving device information:
 
  .. code-block:: C
-    cudaSetDevice(deviceNumber); // For CUDA  
-    hipSetDevice(deviceNumber); // For HIP
+ 
+     cudaSetDevice(deviceNumber); // For CUDA  
+     hipSetDevice(deviceNumber); // For HIP
  
 
 Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output. 
