@@ -10,7 +10,7 @@ Introduction to GPU programming models
 
 .. objectives::
 
-   - Understand basic examples in different GPU programming frameworks
+   - Understand the  basic ideas in different GPU programming frameworks
    - Perform a quick cost-benefit analysis in the context of own code projects
 
 .. instructor-note::
