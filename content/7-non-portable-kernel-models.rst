@@ -39,7 +39,6 @@ Hello World
 
 Below we have the most basic example of CUDA and HIP, the "Hello World" program. 
 
-CUDA "Hello World":
 .. tabs:: 
 
    .. tab:: Kokkos
