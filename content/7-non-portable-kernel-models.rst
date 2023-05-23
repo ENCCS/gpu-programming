@@ -37,7 +37,7 @@ As mentioned before CUDA and HIP are very similar so it makes sense to check the
 Hello World
 ~~~~~~~~~~~
 
-Below we have the most basic example of CUDA and HIP, the "Hello World" program. 
+Below we have the most basic example of CUDA and HIP, the "Hello World" program:
 
 .. tabs:: 
 
@@ -137,10 +137,11 @@ As an exercise, let's modify the "Hello World" code to explicitly use a specific
 However, it's important to note that setting an invalid device number will result in errors. It's crucial to ensure that the device number provided is within the range of available devices. Otherwise, the program may fail to run or produce unexpected results.
 To experiment with different GPUs, modify the code to include the following line before retrieving device information:
 
-```cpp
-cudaSetDevice(deviceNumber); // For CUDA
-hipSetDevice(deviceNumber); // For HIP
-``` 
+.. code-block:: C
+      cudaSetDevice(deviceNumber); // For CUDA  
+      hipSetDevice(deviceNumber); // For HIP
+ 
+
 Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output. 
 
 Examples
