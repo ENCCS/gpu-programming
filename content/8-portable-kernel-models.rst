@@ -105,7 +105,7 @@ OpenCL compilation
 ~~~~~~~~~~~~~~~~~~
 OpenCL supports two modes for compiling the programs: online and offline. Online compilation occurs at runtime, when the host program calls a function to compile the source code. Online mode allows dynamic generation and loading of kernels, but may incur some overhead due to compilation time and possible errors. Offline compilation occurs before runtime, when the source code of a kernel is compiled into a binary format that can be loaded by the host program. This mode allows faster execution and better optimization of kernels, but may limit the portability of the program, because the binary can only run on the architectures it was compiled for.
 
-OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel OneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``icx cl_devices.c -lOpenCL`` (Intel OneAPI) or ``nvcc cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply ``gcc cl_devices.c -lOpenCL`` (or ``g++`` when using C++ API), as long as the required libraries and headers are installed in a standard locations.
+OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel oneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``icx cl_devices.c -lOpenCL`` (Intel oneAPI) or ``nvcc cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply ``gcc cl_devices.c -lOpenCL`` (or ``g++`` when using C++ API), as long as the required libraries and headers are installed in a standard locations.
 
 OpenCL programming
 ~~~~~~~~~~~~~~~~~~
@@ -162,6 +162,8 @@ SYCL
 
 `SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
 
+The most recent version of the SYCL standard is SYCL 2020, and it is the version we will be using in this course. 
+
 SYCL compilation
 ~~~~~~~~~~~~~~~~
 
@@ -185,7 +187,99 @@ Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed 
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
-[ADD STUFF]
+
+SYCL is, in many aspects, similar to OpenCL, but uses, like Kokkos, a single-source model with kernel lambdas.
+
+To submit a task to device, first a ``sycl::queue` must be created, which is used as a way to manage the
+task scheduling and execution. In the simplest case, that's all the initialization one needs:
+
+.. code-block:: C++
+    
+    int main() {
+      // Create an out-of-order queue on the default device:
+      sycl::queue q;
+      // Now we can submit tasks to q!
+    }
+
+If one wants more control, the device can be explicitly specified, or additional properties can be passed to
+a queue:
+
+.. code-block:: C++
+    
+    // Iterate over all available devices
+    for (const auto &device : sycl::device::get_devices()) {
+      // Print the device name
+      std::cout << "Creating a queue on " << device.get_info<sycl::info::device::name>() << "\n";
+      // Create an in-order queue for the current device
+      sycl::queue q(device, {sycl::property::queue::in_order()});
+      // Now we can submit tasks to q!
+    }
+
+
+Memory management can be done in two different ways: *buffer-accessor* model and *unified shared memory* (USM).
+The choice of the memory management models also influences how the GPU tasks are synchronized.
+
+In the *buffer-accessor* model, a ``sycl::buffer`` objects are used to represent arrays of data. A buffer is
+not mapped to any single one memory space, and can be migrated between the GPU and the CPU memory
+transparently. The data in ``sycl::buffer`` cannot be read or written directly, an accessor must be created.
+``sycl::accessor`` objects specify the location of data access (host or a certain GPU kernel) and the access
+mode (read-only, write-only, read-write).
+Such approach allows optimizing task scheduling by building a directed acyclic graph (DAG) of data dependencies:
+if kernel *A* creates a write-only accessor to a buffer, and then kernel *B* is submitted with a read-only
+accessor to the same buffer, and then a host-side read-only accessor is requested, then it can be deduced that
+*A* must complete before *B* is launched and also that the results must be copied to the host
+before the host task can proceed, but the host task can run in parallel with kernel *B*.
+Since the dependencies between tasks can be built automatically, by default SYCL uses *out-of-order queues*:
+when two tasks are submitted to the same ``sycl::queue``, it is not guaranteed that the second one will launch
+only after the first one completes.
+When launching a kernel, accessors must be created:
+
+.. code-block:: C++
+    
+    // Create a buffer of n integers
+    auto buf = sycl::buffer<int>(sycl::range<1>(n));
+    // Submit a kernel into a queue; cgh is a helper object
+    q.submit([&](sycl::handler &cgh) {
+      // Create write-only accessor for buf
+      auto acc = buf.get_access<sycl::access_mode::write>(cgh);;
+      // Define a kernel: n threads execute the following lambda
+      cgh.parallel_for<class KernelName>(sycl::range<1>{n}, [=](sycl::id<1> i) {
+          // The data is written to the buffer via acc
+          acc[i] = /*...*/
+      });
+    });
+    /* If we now submit another kernel with accessor to buf, it will not
+     * start running until the kernel above is done */
+
+Buffer-accessor model simplifies many aspects of heterogeneous programming and prevents many synchronization-related
+bugs, but it only allows very coarse control of data movement and kernel execution.
+
+The *USM* model is similar to how NVIDIA CUDA or AMD HIP manage memory. The programmer has to explicitly allocate
+the memory on the device (``sycl::malloc_device``), on the host (``sycl::malloc_host``), or in the shared memory
+space (``sycl::malloc_shared``). Despite its name, unified shared memory, and the similarity to OpenCL's SVM, not
+all USM allocations are shared: for example, a memory allocated by ``sycl::malloc_device`` cannot be accessed
+from the host. The allocation functions return memory pointers that can be used directly, without accessors.
+This means that the programmer have to ensure the correct synchronization between host and device tasks to avoid
+data races. With USM, it is often convenient to use *in-order queues* with USM, instead of the default *out-of-order* queues.
+More information on USM can be found in the `Section 4.8 of SYCL 2020 specification <https://registry.khronos.org/SYCL/specs/sycl-2020/html/sycl-2020.html#sec:usm>`_.
+
+.. code-block:: C++
+    
+    // Create a shared (migrateable) allocation of n integers
+    // Unlike with buffers, we need to specify a queue (or, explicitly, a device and a context)
+    int* v = sycl::malloc_shared<int>(n, q);
+    // Submit a kernel into a queue; cgh is a helper object
+    q.submit([&](sycl::handler &cgh) {
+      // Define a kernel: n threads execute the following lambda
+      cgh.parallel_for<class KernelName>(sycl::range<1>{n}, [=](sycl::id<1> i) {
+          // The data is directly written to v
+          v[i] = /*...*/
+      });
+    });
+    // If we want to access v, we have to ensure that the kernel has finished
+    q.wait();
+    // After we're done, the memory must be deallocated
+    sycl::free(v, q);
 
 Examples
 ^^^^^^^^
