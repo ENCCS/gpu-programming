@@ -32,11 +32,101 @@ By being closely tied to the GPU hardware, CUDA and HIP provide a level of perfo
 
 Developers utilizing CUDA or HIP can tap into an extensive ecosystem of GPU-accelerated libraries, covering various domains, including linear algebra, signal processing, image processing, machine learning, and more. These libraries are highly optimized to take advantage of the parallelism and computational power offered by GPUs, allowing developers to accelerate their applications without having to implement complex algorithms from scratch.
 
-CUDA
-^^^^
+Hello World
+~~~~~~~~~~~
 
-HIP
-^^^
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+
+         #include <Kokkos_Core.hpp>
+         #include <iostream>
+         
+         int main() {
+           Kokkos::initialize();
+
+  int count = Kokkos::Cuda().concurrency();
+  int device = Kokkos::Cuda().impl_internal_space_instance()->impl_internal_space_id();
+
+  std::cout << "Hello! I'm GPU " << device << " out of " << count << " GPUs in total." << std::endl;
+
+  Kokkos::finalize();
+
+  return 0;
+}
+
+
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+      
+         #include <CL/opencl.hpp>
+         #include <stdio>
+         int main(void) {
+           cl_uint count;
+           cl_device_id device;
+           clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &device, &count);
+           
+           printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count);
+           
+           return 0;
+         }
+
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <numeric>
+         #include <sycl/sycl.hpp>
+         using namespace sycl;
+         
+         int main() {
+           auto gpu_devices= sycl::device::get_devices(sycl::info::device_type::gpu);
+           auto count=size( gpu_devices );
+           queue q{gpu_devices[0]};
+           std::cout << "Hello! I'm using the SYCL device: "
+                     << q.get_device().get_info<info::device::name>() << "\n"
+                     <<< "of " <<< count <<< " devices."
+                     << std::endl;
+           return 0;
+        }
+
+   .. tab:: CUDA
+
+      .. code-block:: C
+      
+        #include <cuda_runtime.h>
+        #include <stdio.h>
+          
+        int main(void){
+          int count, device;
+            
+          cudaGetDeviceCount(&count);
+          cudaGetDevice(&device);
+            
+          printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count); 
+          return 0;
+        }
+
+   .. tab:: HIP
+
+      .. code-block:: C
+      
+          #include <hip/hip_runtime.h>
+          #include <stdio.h>
+      
+          int main(void){
+            int count, device;
+        
+            hipGetDeviceCount(&count);
+            hipGetDevice(&device);
+        
+            printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count);
+            return 0;
+          }
 
 
 Examples
