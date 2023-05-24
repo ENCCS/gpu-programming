@@ -416,7 +416,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
          return 0;
        }
 
-In this case, the CUDA and HIP codes are equivalent one to one so we will only refer to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU and controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
+In this case, the CUDA and HIP codes are equivalent one to one so we will only refer to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU and controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called **vector_add** with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually code which is executed on the GPU by multiple threads in parallel.
 
 Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and Nvidia Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory.  Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
 
@@ -664,8 +664,90 @@ As an exercise modify the skeleton code for vector addition to use Unified Memor
 
 Using Advance Features to Speed-up the Applications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Vector addition is a relatively simple, straight forward case. Each thread reads data from, does an addition and then saves the result. Two  adjacent threads access memory location in memory close to each other. Also the data is used only once. In practice this not the case. Also sometimes the same data is used several times resulting in additional memory accesses. 
+
+Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  GPUa are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing  **__syncthreads()** function has to be used to make the threads in the block  wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
+
+The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data. The shared memory can also be used to improve the memory access patterns. For example when transposing a two dimensional matris. The reads have a nice coalesced access pattern, but the writing is now very inefficient. Below there is an example the memory access can be imnproved.
 
 
+First as a reference we use a simple kernel which copy the data from one array to the other. 
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+      
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+      
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+   .. tab:: CUDA
+
+      .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+      
+   .. tab:: HIP
+
+      .. code-block:: C++ 
+      
+      
+In order to time the progress and compare different verssion we use **cuda events** to measure the execution time.
+
+Now we do the first iteration of the code the simplest code, 
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+      
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+      
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+   .. tab:: CUDA
+
+      .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+      
+   .. tab:: HIP
+
+      .. code-block:: C++ 
+
+        #include <stdio.h>
+        #inclde <hip_runtime.h>
+        #include <math.h>
+      
+      
+      
 Examples
 ^^^^^^^^
 **I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos,opencl, and sycl?**
