@@ -186,7 +186,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 
              // Perform vector addition on device
              Kokkos::parallel_for(N, KOKKOS_LAMBDA(int i) {
-                 Cd(i) += Ad(i) + Bd(i);
+                 Cd(i) = Ad(i) + Bd(i);
              });
 
              // Copy data from device to host
@@ -222,7 +222,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
       __kernel void vector_add(__global const float* Ad, __global const float* Bd, __global float* Cd, int N) {
          int tid = get_global_id(0);
          if (tid < N) {
-            Cd[tid] += Ad[tid] + Bd[tid];
+            Cd[tid] = Ad[tid] + Bd[tid];
          }
      }
      
@@ -353,7 +353,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
          q.submit([&](handler& h) {
              h.parallel_for(vector_add, nd_range<1>(global_size, threads), [=](nd_item<1> item) {
                   int tid = item.get_global_id(0);
-                  Cd[tid] += Ad[tid] + Bd[tid];
+                  Cd[tid] = Ad[tid] + Bd[tid];
              });
          });
          // Copy results back to CPU
@@ -401,7 +401,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
           int tid = threadIdx.x + blockIdx.x * blockDim.x;
           int stride = gridDim.x * blockDim.x;
           if (tid < n) {
-              C[tid] += A[tid] + B[tid];
+              C[tid] = A[tid] + B[tid];
           }
         }
 
@@ -492,7 +492,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
            int tid = threadIdx.x + blockIdx.x * blockDim.x;
            int stride = gridDim.x * blockDim.x;
            if(tid<n){
-             C[tid] += A[tid]+B[tid];
+             C[tid] = A[tid]+B[tid];
            }
         }
         
@@ -569,12 +569,9 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
          return 0;
        }
 
-In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
+In this case, the CUDA and HIP codes are equivalent one to one so we will only refer to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU and controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
 
 Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and Nvidia Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory.  Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
-
-
-**Note! For a while already GPUs upport unified address spaces, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However  the data trasfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers.**
 
 The main function of the code initializes the input arrays `Ah, Bh` on the CPU and computes the reference array `Cref`. It then allocates memory on the GPU for the input and output arrays `Ad, Bd`, and `Cd`  using **cudaMalloc**. The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax.  All kernels launch are asynchrouneous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
 
@@ -585,6 +582,237 @@ The host functions  **cudaSetDevice**, **cudaMalloc**, **cudaMemcpy**, and **cud
 In short, this code demonstrates how to utilize the CUDA and HIP to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using CUDA and HIP.
 
 In order to practice the concepts shown above, edit the skeleton code in the repository and the code corrresponding to  setting the device, memory allocations and transfers, and the kernel execution. 
+
+Vector Addition with Unified Memory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a while already GPUs upport unified memory, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However  the data trasfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers. Below one can see the modified vector addition codes:
+
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+      
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+      
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+         int main(int argc, char *argv[]) { 
+         int N=10000;
+         queue q{default_selector{}}; // the queue will be executed on the best device in the system 
+         
+         // Allocate the arrays
+         float* Ah = malloc_shared<float>(N, q);
+         float* Bh = malloc_shared<float>(N, q);
+         float* Ch = malloc_shared<float>(N, q);
+         float* Cref = malloc_shared<float>(N, q);
+
+         // Initialize data and calculate reference values on CPU
+         for (int i = 0; i < N; i++) {
+          Ah[i] = std::sin(i) * 2.3f;
+          Bh[i] = std::cos(i) * 1.1f;
+          Cref[i] = Ah[i] + Bh[i];
+         }
+         
+         // Define grid dimensions and launch the device kernel
+         auto threads = range<1>(256);
+         
+         range<1> global_size(N);
+         
+         q.submit([&](handler& h) {
+             h.parallel_for(vector_add, nd_range<1>(global_size, threads), [=](nd_item<1> item) {
+                  int tid = item.get_global_id(0);
+                  Cref[tid] = Ah[tid] + Bh[tid];
+             });
+         }).wait(); // wait for all operations in the queue q to finish. 
+
+         // Print reference and result values
+        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
+        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
+        
+
+        // Compare results and calculate the total error
+        float error = 0.0f;
+        float tolerance = 1e-6f;
+        for (int i = 0; i < N; i++) {
+        float diff = std::abs(Cref[i] - Ch[i]);
+           if (diff > tolerance) {
+            error += diff;
+           }
+        }
+
+       std::cout << "Total error: " << error << std::endl;
+       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
+       std::cout << "Result   :   " << Ch[42]   << " at (42)" << std::endl;
+
+       // Free the GPU memory
+       free(Ad, q);
+       free(Bd, q);
+       free(Cd, q);
+       free(Cref, q);
+
+       return 0;
+    }
+      
+   .. tab:: CUDA
+
+      .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+
+        __global__ void vector_add(float *A, float *B, float *C, int n) {
+          int tid = threadIdx.x + blockIdx.x * blockDim.x;
+          if (tid < n) {
+              C[tid] = A[tid] + B[tid];
+          }
+        }
+
+        int main(void) {
+          const int N = 10000;
+          float *Ah, *Bh, *Ch, *Cref;
+          int i;
+
+          // Allocate the arrays using Unified Memory
+          cudaMallocManaged(&Ah, N * sizeof(float));
+          cudaMallocManaged(&Bh, N * sizeof(float));
+          cudaMallocManaged(&Ch, N * sizeof(float));
+          cudaMallocManaged(&Cref, N * sizeof(float));
+
+
+          // initialise data and calculate reference values on CPU
+          for (i = 0; i < N; i++) {
+              Ah[i] = sin(i) * 2.3;
+              Bh[i] = cos(i) * 1.1;
+              Cref[i] = Ah[i] + Bh[i];
+          }
+
+          // define grid dimensions
+          dim3 blocks, threads;
+          threads = dim3(256, 1, 1);
+          blocks = dim3((N + 256 - 1) / 256, 1, 1);
+
+          // Launch Kernel
+          vector_add<<<blocks, threads>>>(Ah, Bh, Ch, N);
+          cudaDeviceSynchronize(); // Wait for the kernel to complete
+          
+          //At this point we want to access the data on CPU
+          printf("reference: %f %f %f %f ... %f %f\n",
+              Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
+          printf("   result: %f %f %f %f ... %f %f\n",
+              Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
+
+          // confirm that results are correct
+          float error = 0.0;
+          float tolerance = 1e-6;
+          float diff;
+          for (i = 0; i < N; i++) {
+              diff = fabs(Cref[i] - Ch[i]);
+              if (diff > tolerance) {
+                  error += diff;
+              }
+          }
+          printf("total error: %f\n", error);
+          printf("  reference: %f at (42)\n", Cref[42]);
+          printf("     result: %f at (42)\n", Ch[42]);
+
+          // Free the GPU arrays
+          cudaFree(Ah);
+          cudaFree(Bh);
+          cudaFree(Ch);
+          cudaFree(Cref);
+          
+          return 0;
+        }
+
+      
+   .. tab:: HIP
+
+      .. code-block:: C++ 
+         
+         #include <hip/hip_runtime.h>
+         #include <stdio.h>
+         #include <math.h>
+
+         __global__ void vector_add(float *A, float *B, float *C, int n) {
+            int tid = threadIdx.x + blockIdx.x * blockDim.x;            if (tid < n) {
+              C[tid] = A[tid] + B[tid];
+           }
+         }
+         
+         int main(void) { 
+           const int N = 10000;
+           float *Ah, *Bh, *Ch, *Cref;
+           // Allocate the arrays using Unified Memory  
+           hipMallocManaged((void **)&Ah, N * sizeof(float));
+           hipMallocManaged((void **)&Bh, N * sizeof(float));
+           hipMallocManaged((void **)&Ch, N * sizeof(float));
+           hipMallocManaged((void **)&Cref, N * sizeof(float));
+
+           // Initialize data and calculate reference values on CPU
+           for (int i = 0; i < N; i++) {
+             Ah[i] = sin(i) * 2.3;
+             Bh[i] = cos(i) * 1.1;
+             Cref[i] = Ah[i] + Bh[i];
+           }
+           // All data at this point is on CPU
+
+           // Define grid dimensions + launch the device kernel
+           dim3 blocks, threads;
+           threads = dim3(256, 1, 1);
+           blocks = dim3((N + 256 - 1) / 256, 1, 1);
+           
+           //Launch Kernel
+           // use
+           //hipLaunchKernelGGL(vector_add, blocks, threads, 0, 0, Ah, Bh, Ch, N); // or
+           vector_add<<<blocks, threads>>>(Ah, Bh, Ch, N);
+           hipDeviceSynchronize(); // Wait for the kernel to complete
+
+           // At this point we want to access the data on the CPU
+           printf("reference: %f %f %f %f ... %f %f\n",
+                 Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
+           printf("   result: %f %f %f %f ... %f %f\n",
+                 Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
+
+           // Confirm that results are correct
+           float error = 0.0;
+           float tolerance = 1e-6;
+           float diff;
+           for (int i = 0; i < N; i++) {
+           diff = fabs(Cref[i] - Ch[i]);
+             if (diff > tolerance) {
+               error += diff;
+             }
+           }
+           printf("total error: %f\n", error);
+           printf("  reference: %f at (42)\n", Cref[42]);
+           printf("     result: %f at (42)\n", Ch[42]);
+
+           // Free the Unified Memory arrays
+           hipFree(Ah);
+           hipFree(Bh);
+           hipFree(Ch);
+           hipFree(Cref);
+
+           return 0;
+         }
+
+Now the arrays Ah, Bh, Ch, and Cref are using cudaMallocManaged to allocate Unified Memory. The **vector_add kernel** is launched by passing these Unified Memory pointers directly. After the kernel launch, **cudaDeviceSynchronize** is used to wait for the kernel to complete execution. Finally, **cudaFree** is used to free the Unified Memory arrays.The Unified Memory allows for transparent data migration between CPU and GPU, eliminating the need for explicit data transfers.
+
+As an exercise modify the skeleton code for vector addition to use Unified Memory. 
 
 Using Advance Features to Speed-UP the Applications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
