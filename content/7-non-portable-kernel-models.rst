@@ -19,8 +19,8 @@ Non-portable kernel-based models
    - 55 min teaching
    - 30 min exercises
 
-"Native" GPU programming
-^^^^^^^^^^^^^^^^^^^^^^^^
+Fundamentals of GPU programming with CUDA and HIP
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Unlike some cross-platform portability ecosystems, such as Alpaka, Kokkos, OpenCL, RAJA, and SYCL, which cater to multiple architectures, CUDA and HIP are solely focused on GPUs. They provide extensive libraries, APIs, and compiler toolchains that optimize code execution on NVIDIA GPUs (in the case of CUDA) and both NVIDIA and AMD GPUs (in the case of HIP). Because they are developed by the device producers, these programming models provide high-performance computing capabilities and offer advanced features like shared memory, thread synchronization, and memory management specific to GPU architectures.
 
@@ -569,14 +569,14 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
          return 0;
        }
 
-In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays (A, B, and C) along with the array size (n). The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
+In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
 
 Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and Nvidia Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory.  Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
 
 
-**Note! For a while already GPUs upport unified spaces, which allows to use the same pointer for both CUP and GPU data. This simplifies developing codes by removing the explicit data transfers. However  the data trasfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers.***
+**Note! For a while already GPUs upport unified address spaces, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However  the data trasfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers.**
 
-The main function of the code initializes the input arrays `(Ah, Bh)` on the CPU and computes the reference array (Cref). It then allocates memory on the GPU for the input and output arrays `Ad, Bd, and Cd`  using **cudaMalloc**. The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax.  All kernels launch are asynchrouneous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
+The main function of the code initializes the input arrays `Ah, Bh` on the CPU and computes the reference array `Cref`. It then allocates memory on the GPU for the input and output arrays `Ad, Bd`, and `Cd`  using **cudaMalloc**. The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax.  All kernels launch are asynchrouneous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
 
 After the kernel execution, the result array `Cd` is copied back to the CPU using **cudaMemcpy**. The code then prints the reference and result arrays, calculates the error by comparing the reference and result arrays. Finally, the GPU and CPU memory are deallocated using **cudaFree** and **free** functions, respectively. 
 
@@ -584,7 +584,11 @@ The host functions  **cudaSetDevice**, **cudaMalloc**, **cudaMemcpy**, and **cud
 
 In short, this code demonstrates how to utilize the CUDA and HIP to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using CUDA and HIP.
 
-In order to practice the concepts shown above, edit the skeleton in the repository code by adding the code corrresponding to  setting the device, memory allocations and transfers, and the kernel execution. 
+In order to practice the concepts shown above, edit the skeleton code in the repository and the code corrresponding to  setting the device, memory allocations and transfers, and the kernel execution. 
+
+Using Advance Features to Speed-UP the Applications
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Examples
 ^^^^^^^^
