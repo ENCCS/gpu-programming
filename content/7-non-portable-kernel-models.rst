@@ -148,7 +148,7 @@ Replace **deviceNumber** with the desired GPU device index. Run the code with di
 
 Vector addition
 ^^^^^^^^^^^^^^^
-
+Vector addition is more appropiate as "Hello World" example. Below we see a code demonstrating how to use CUDA and HIPto perform this operation. 
 
 .. tabs:: 
 
@@ -160,13 +160,172 @@ Vector addition
 
       .. code-block:: C++
       
+   
+
    .. tab:: SYCL
 
       .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+         int main(int argc, char *argv[]) { 
+         int N=10000;
+         queue q{default_selector{}}; // the queue will be executed on the best device in the system 
+         
+         std::vector<float> Ah(N);
+         std::vector<float> Bh(N);
+         std::vector<float> Ch(N);
+         std::vector<float> Cref(N);
+
+         // Initialize data and calculate reference values on CPU
+         for (int i = 0; i < N; i++) {
+          Ah[i] = std::sin(i) * 2.3f;
+          Bh[i] = std::cos(i) * 1.1f;
+          Cref[i] = Ah[i] + Bh[i];
+         }
+         
+         // Allocate the arrays on GPU
+         float* Ad = malloc_device<float>(N, q);
+         float* Bd = malloc_device<float>(N, q);
+         float* Cd = malloc_device<float>(N, q);
+         
+         q.memcpy(matrix_a, matrix_a_host.data(), N * sizeof(double));
+         q.memcpy(matrix_b, matrix_b_host.data(), N * sizeof(double));
+         
+         // Define grid dimensions and launch the device kernel
+         auto threads = range<1>(256);
+         
+         range<1> global_size(N);
+         q.submit([&](handler& h) {
+             h.parallel_for(vector_add, nd_range<1>(global_size, threads), [=](nd_item<1> item) {
+                  int tid = item.get_global_id(0);
+                  Cd[tid] += Ad[tid] + Bd[tid];
+             });
+         });
+         // Copy results back to CPU
+         q.submit([&](handler& h) {
+            h.memcpy(Ch.data(), Cd, sizeof(float) * N);
+         }).wait();
+
+         // Print reference and result values
+        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
+        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
+        
+
+        // Compare results and calculate the total error
+        float error = 0.0f;
+        float tolerance = 1e-6f;
+        for (int i = 0; i < N; i++) {
+        float diff = std::abs(Cref[i] - Ch[i]);
+           if (diff > tolerance) {
+            error += diff;
+           }
+        }
+
+       std::cout << "Total error: " << error << std::endl;
+       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
+       std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
+
+       // Free the GPU memory
+       free(Ad, q);
+       free(Bd, q);
+       free(Cd, q);
+
+       return 0;
+    }
       
    .. tab:: CUDA
 
       .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+
+        __global__ void vector_add(float *A, float *B, float *C, int n) {
+          int tid = threadIdx.x + blockIdx.x * blockDim.x;
+          int stride = gridDim.x * blockDim.x;
+          if (tid < n) {
+              C[tid] += A[tid] + B[tid];
+          }
+        }
+
+        int main(void) {
+          const int N = 10000;
+          float *Ah, *Bh, *Ch, *Cref;
+          float *Ad, *Bd, *Cd;
+          int i;
+
+          // Allocate the arrays on CPU
+          Ah = (float*)malloc(N * sizeof(float));
+          Bh = (float*)malloc(N * sizeof(float));
+          Ch = (float*)malloc(N * sizeof(float));
+          Cref = (float*)malloc(N * sizeof(float));
+
+          // initialise data and calculate reference values on CPU
+          for (i = 0; i < N; i++) {
+              Ah[i] = sin(i) * 2.3;
+              Bh[i] = cos(i) * 1.1;
+              Cref[i] = Ah[i] + Bh[i];
+          }
+
+          // Allocate the arrays on GPU
+          cudaMalloc((void**)&Ad, N * sizeof(float));
+          cudaMalloc((void**)&Bd, N * sizeof(float));
+          cudaMalloc((void**)&Cd, N * sizeof(float));
+
+          // Transfer the data from CPU to GPU
+          cudaMemcpy(Ad, Ah, sizeof(float) * N, cudaMemcpyHostToDevice);
+          cudaMemcpy(Bd, Bh, sizeof(float) * N, cudaMemcpyHostToDevice);
+
+          // define grid dimensions + launch the device kernel
+          dim3 blocks, threads;
+          threads = dim3(256, 1, 1);
+          blocks = dim3((N + 256 - 1) / 256, 1, 1);
+
+          // Launch Kernel
+          vector_add<<<blocks, threads>>>(Ad, Bd, Cd, N);
+
+          // copy results back to CPU
+          cudaMemcpy(Ch, Cd, sizeof(float) * N, cudaMemcpyDeviceToHost);
+
+          printf("reference: %f %f %f %f ... %f %f\n",
+              Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
+          printf("   result: %f %f %f %f ... %f %f\n",
+              Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
+
+          // confirm that results are correct
+          float error = 0.0;
+          float tolerance = 1e-6;
+          float diff;
+          for (i = 0; i < N; i++) {
+              diff = fabs(Cref[i] - Ch[i]);
+              if (diff > tolerance) {
+                  error += diff;
+              }
+          }
+          printf("total error: %f\n", error);
+          printf("  reference: %f at (42)\n", Cref[42]);
+          printf("     result: %f at (42)\n", Ch[42]);
+
+          // Free the GPU arrays
+          cudaFree(Ad);
+          cudaFree(Bd);
+          cudaFree(Cd);
+
+          // Free the CPU arrays
+          free(Ah);
+          free(Bh);
+          free(Ch);
+          free(Cref);
+
+          return 0;
+        }
+
       
    .. tab:: HIP
 
@@ -243,11 +402,29 @@ Vector addition
           }
          printf("total error: %f\n", error);
          printf("  reference: %f at (42)\n", Cref[42]);
-        printf("     result: %f at (42)\n",    Ch[42]);
+         printf("     result: %f at (42)\n",    Ch[42]);
+         
+         // Free the GPU arrays
+         hipFree(Ad);
+         hipFree(Bd);
+         hipFree(Cd);
 
-        return 0;
-      }
-      
+         // Free the CPU arrays
+         free(Ah);
+         free(Bh);
+         free(Ch);
+         free(Cref);
+
+         return 0;
+       }
+
+In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the HIP version. The CUDA and HIP programming model are host centric. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU and launches the kernels to be executed on the GPU.T he code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays (A, B, and C) along with the array size (n). The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
+
+The main function of the code initializes the input arrays `(Ah, Bh)` on the CPU and computes the reference array (Cref). It then allocates memory on the GPU for the input and output arrays (Ad, Bd, and Cd) using hipMalloc. The data is transferred from the CPU to the GPU using hipMemcpy, and the GPU kernel is launched using the <<<>>> syntax.
+
+After the kernel execution, the result array (Cd) is copied back to the CPU using hipMemcpy. The code then prints the reference and result arrays, calculates the error by comparing the reference and result arrays, and prints the total error and specific values at index 42. Finally, the GPU and CPU memory are deallocated using hipFree and free functions, respectively.
+
+Overall, this code demonstrates how to utilize the HIP API to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using HIP for cross-platform GPU programming.
 Examples
 ^^^^^^^^
 **I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos,opencl, and sycl?**
