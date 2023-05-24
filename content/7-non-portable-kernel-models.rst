@@ -155,163 +155,12 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
    .. tab:: Kokkos
 
       .. code-block:: C++
-         #include <iostream>
-         #include <Kokkos_Core.hpp>
-
-         int main(int argc, char *argv[]) {
-             int N = 10000;
-             Kokkos::initialize(argc, argv);
-
-             // Define Kokkos views for the input and output arrays
-             Kokkos::View<float*> Ah("Ah", N);
-             Kokkos::View<float*> Bh("Bh", N);
-             Kokkos::View<float*> Ch("Ch", N);
-             Kokkos::View<float*> Cref("Cref", N);
-
-             // Initialize data and calculate reference values on CPU
-             Kokkos::parallel_for(N, KOKKOS_LAMBDA(int i) {
-                 Ah(i) = std::sin(i) * 2.3f;
-                 Bh(i) = std::cos(i) * 1.1f;
-                 Cref(i) = Ah(i) + Bh(i);
-             });
-
-             // Create device views
-             Kokkos::View<float*> Ad("Ad", N);
-             Kokkos::View<float*> Bd("Bd", N);
-             Kokkos::View<float*> Cd("Cd", N);
-
-             // Copy data from host to device
-             Kokkos::deep_copy(Ad, Ah);
-             Kokkos::deep_copy(Cd, Ch);
-
-             // Perform vector addition on device
-             Kokkos::parallel_for(N, KOKKOS_LAMBDA(int i) {
-                 Cd(i) = Ad(i) + Bd(i);
-             });
-
-             // Copy data from device to host
-             Kokkos::deep_copy(Ch, Cd);
-
-             // Print reference and result values
-            std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
-            std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
-
-             // Compare results and calculate the total error
-             float error = 0.0f;
-             float tolerance = 1e-6f;
-             Kokkos::parallel_reduce(N, KOKKOS_LAMBDA(int i, float& local_error) {
-                 float diff = std::abs(Cref(i) - Ch(i));
-                 if (diff > tolerance) {
-                     local_error += diff;
-                 }
-             }, error);
-
-             std::cout << "Total error: " << error << std::endl;
-             std::cout << "Reference:   " << Cref(42) << " at (42)" << std::endl;
-             std::cout << "Result   :   " << Ch(42) << " at (42)" << std::endl;
-
-             Kokkos::finalize();
-
-             return 0;
-         }
+        
       
    .. tab:: OpenCL
 
       .. code-block:: C++
       
-      __kernel void vector_add(__global const float* Ad, __global const float* Bd, __global float* Cd, int N) {
-         int tid = get_global_id(0);
-         if (tid < N) {
-            Cd[tid] = Ad[tid] + Bd[tid];
-         }
-     }
-     
-     #include <iostream>
-     #include <CL/cl.hpp>
-
-     int main() {
-       cl::Context context;
-       cl::CommandQueue queue;
-    
-        // Create a context and command queue
-       cl::Platform::get(&platforms);
-       cl::Platform platform = platforms[0];
-       std::vector<cl::Device> devices;
-       platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-       cl::Device device = devices[0];
-       context = cl::Context(device);
-       queue = cl::CommandQueue(context, device);
-    
-       int N = 10000;
-    
-       std::vector<float> Ah(N);
-       std::vector<float> Bh(N);
-       std::vector<float> Ch(N);
-       std::vector<float> Cref(N);
-
-       // Initialize data and calculate reference values on CPU
-        for (int i = 0; i < N; i++) {
-          Ah[i] = std::sin(i) * 2.3f;
-          Bh[i] = std::cos(i) * 1.1f;
-          Cref[i] = Ah[i] + Bh[i];
-        }
-    
-       // Create device buffers
-       cl::Buffer Ad(context, CL_MEM_READ_ONLY, sizeof(float) * N);
-       cl::Buffer Bd(context, CL_MEM_READ_ONLY, sizeof(float) * N);
-       cl::Buffer Cd(context, CL_MEM_READ_WRITE, sizeof(float) * N);
-    
-       // Copy data from host to device
-       queue.enqueueWriteBuffer(Ad, CL_TRUE, 0, sizeof(float) * N, Ah.data());
-       queue.enqueueWriteBuffer(Cd, CL_TRUE, 0, sizeof(float) * N, Ch.data());
-    
-       // Read the OpenCL kernel source code from a file
-       std::ifstream sourceFile("vector_add.cl");
-       std::string sourceCode(
-          std::istreambuf_iterator<char>(sourceFile),
-          (std::istreambuf_iterator<char>())
-       );
-    
-       // Build the OpenCL program
-       cl::Program::Sources sources(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
-       cl::Program program(context, sources);
-       program.build(devices);
-    
-       // Create the kernel and set kernel arguments
-       cl::Kernel kernel(program, "vector_add");
-       kernel.setArg(0, Ad);
-       kernel.setArg(1, Bd);
-       kernel.setArg(2, Cd);
-       kernel.setArg(3, N);
-    
-       // Define work dimensions and enqueue the kernel
-       cl::NDRange globalSize(N);
-       cl::NDRange localSize(256);
-       queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize, localSize);
-    
-       // Copy the result back to host
-       queue.enqueueReadBuffer(Cd, CL_TRUE, 0, sizeof(float) * N, Ch.data());
-    
-       // Print reference and result values
-        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
-        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
-    
-       // Compare results and calculate the total error
-       float error = 0.0f;
-       float tolerance = 1e-6f;
-       for (int i = 0; i < N; i++) {
-           float diff = std::abs(Cref[i] - Ch[i]);
-           if (diff > tolerance) {
-              error += diff;
-           }
-       }
-    
-       std::cout << "Total error: " << error << std::endl;
-       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-       std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
-    
-       return 0;
-     }
 
    .. tab:: SYCL
 
@@ -814,8 +663,8 @@ Now the arrays Ah, Bh, Ch, and Cref are using cudaMallocManaged to allocate Unif
 
 As an exercise modify the skeleton code for vector addition to use Unified Memory. 
 
-Using Advance Features to Speed-UP the Applications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using Advance Features to Speed-up the Applications
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 Examples
