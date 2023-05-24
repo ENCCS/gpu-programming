@@ -248,7 +248,6 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 
         __global__ void vector_add(float *A, float *B, float *C, int n) {
           int tid = threadIdx.x + blockIdx.x * blockDim.x;
-          int stride = gridDim.x * blockDim.x;
           if (tid < n) {
               C[tid] = A[tid] + B[tid];
           }
@@ -339,7 +338,6 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
          __global__ void vector_add(float *A, float *B, float *C, int n){
            
            int tid = threadIdx.x + blockIdx.x * blockDim.x;
-           int stride = gridDim.x * blockDim.x;
            if(tid<n){
              C[tid] = A[tid]+B[tid];
            }
@@ -597,7 +595,8 @@ For a while already GPUs upport unified memory, which allows to use the same poi
          #include <math.h>
 
          __global__ void vector_add(float *A, float *B, float *C, int n) {
-            int tid = threadIdx.x + blockIdx.x * blockDim.x;            if (tid < n) {
+            int tid = threadIdx.x + blockIdx.x * blockDim.x;            
+            if (tid < n) {
               C[tid] = A[tid] + B[tid];
            }
          }
