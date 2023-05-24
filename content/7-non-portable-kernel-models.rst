@@ -147,20 +147,171 @@ Replace **deviceNumber** with the desired GPU device index. Run the code with di
 
 
 Vector addition
-^^^^^^^^^^^^^^^
-Vector addition is more appropiate as "Hello World" example. Below we see a code demonstrating how to use CUDA and HIPto perform this operation. 
+~~~~~~~~~~~~~~~
+To demonstrate the fundamental features of CUDA/HIP programming, let's begin with a straightforward task of element-wise vector addition. The code snippet below demonstrates how to utilize CUDA and HIP for efficiently executing this operation.
 
 .. tabs:: 
 
    .. tab:: Kokkos
 
       .. code-block:: C++
+         #include <iostream>
+         #include <Kokkos_Core.hpp>
+
+         int main(int argc, char *argv[]) {
+             int N = 10000;
+             Kokkos::initialize(argc, argv);
+
+             // Define Kokkos views for the input and output arrays
+             Kokkos::View<float*> Ah("Ah", N);
+             Kokkos::View<float*> Bh("Bh", N);
+             Kokkos::View<float*> Ch("Ch", N);
+             Kokkos::View<float*> Cref("Cref", N);
+
+             // Initialize data and calculate reference values on CPU
+             Kokkos::parallel_for(N, KOKKOS_LAMBDA(int i) {
+                 Ah(i) = std::sin(i) * 2.3f;
+                 Bh(i) = std::cos(i) * 1.1f;
+                 Cref(i) = Ah(i) + Bh(i);
+             });
+
+             // Create device views
+             Kokkos::View<float*> Ad("Ad", N);
+             Kokkos::View<float*> Bd("Bd", N);
+             Kokkos::View<float*> Cd("Cd", N);
+
+             // Copy data from host to device
+             Kokkos::deep_copy(Ad, Ah);
+             Kokkos::deep_copy(Cd, Ch);
+
+             // Perform vector addition on device
+             Kokkos::parallel_for(N, KOKKOS_LAMBDA(int i) {
+                 Cd(i) += Ad(i) + Bd(i);
+             });
+
+             // Copy data from device to host
+             Kokkos::deep_copy(Ch, Cd);
+
+             // Print reference and result values
+            std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
+            std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
+
+             // Compare results and calculate the total error
+             float error = 0.0f;
+             float tolerance = 1e-6f;
+             Kokkos::parallel_reduce(N, KOKKOS_LAMBDA(int i, float& local_error) {
+                 float diff = std::abs(Cref(i) - Ch(i));
+                 if (diff > tolerance) {
+                     local_error += diff;
+                 }
+             }, error);
+
+             std::cout << "Total error: " << error << std::endl;
+             std::cout << "Reference:   " << Cref(42) << " at (42)" << std::endl;
+             std::cout << "Result   :   " << Ch(42) << " at (42)" << std::endl;
+
+             Kokkos::finalize();
+
+             return 0;
+         }
       
    .. tab:: OpenCL
 
       .. code-block:: C++
       
-   
+      __kernel void vector_add(__global const float* Ad, __global const float* Bd, __global float* Cd, int N) {
+         int tid = get_global_id(0);
+         if (tid < N) {
+            Cd[tid] += Ad[tid] + Bd[tid];
+         }
+     }
+     
+     #include <iostream>
+     #include <CL/cl.hpp>
+
+     int main() {
+       cl::Context context;
+       cl::CommandQueue queue;
+    
+        // Create a context and command queue
+       cl::Platform::get(&platforms);
+       cl::Platform platform = platforms[0];
+       std::vector<cl::Device> devices;
+       platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
+       cl::Device device = devices[0];
+       context = cl::Context(device);
+       queue = cl::CommandQueue(context, device);
+    
+       int N = 10000;
+    
+       std::vector<float> Ah(N);
+       std::vector<float> Bh(N);
+       std::vector<float> Ch(N);
+       std::vector<float> Cref(N);
+
+       // Initialize data and calculate reference values on CPU
+        for (int i = 0; i < N; i++) {
+          Ah[i] = std::sin(i) * 2.3f;
+          Bh[i] = std::cos(i) * 1.1f;
+          Cref[i] = Ah[i] + Bh[i];
+        }
+    
+       // Create device buffers
+       cl::Buffer Ad(context, CL_MEM_READ_ONLY, sizeof(float) * N);
+       cl::Buffer Bd(context, CL_MEM_READ_ONLY, sizeof(float) * N);
+       cl::Buffer Cd(context, CL_MEM_READ_WRITE, sizeof(float) * N);
+    
+       // Copy data from host to device
+       queue.enqueueWriteBuffer(Ad, CL_TRUE, 0, sizeof(float) * N, Ah.data());
+       queue.enqueueWriteBuffer(Cd, CL_TRUE, 0, sizeof(float) * N, Ch.data());
+    
+       // Read the OpenCL kernel source code from a file
+       std::ifstream sourceFile("vector_add.cl");
+       std::string sourceCode(
+          std::istreambuf_iterator<char>(sourceFile),
+          (std::istreambuf_iterator<char>())
+       );
+    
+       // Build the OpenCL program
+       cl::Program::Sources sources(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+       cl::Program program(context, sources);
+       program.build(devices);
+    
+       // Create the kernel and set kernel arguments
+       cl::Kernel kernel(program, "vector_add");
+       kernel.setArg(0, Ad);
+       kernel.setArg(1, Bd);
+       kernel.setArg(2, Cd);
+       kernel.setArg(3, N);
+    
+       // Define work dimensions and enqueue the kernel
+       cl::NDRange globalSize(N);
+       cl::NDRange localSize(256);
+       queue.enqueueNDRangeKernel(kernel, cl::NullRange, globalSize, localSize);
+    
+       // Copy the result back to host
+       queue.enqueueReadBuffer(Cd, CL_TRUE, 0, sizeof(float) * N, Ch.data());
+    
+       // Print reference and result values
+        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
+        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
+    
+       // Compare results and calculate the total error
+       float error = 0.0f;
+       float tolerance = 1e-6f;
+       for (int i = 0; i < N; i++) {
+           float diff = std::abs(Cref[i] - Ch[i]);
+           if (diff > tolerance) {
+              error += diff;
+           }
+       }
+    
+       std::cout << "Total error: " << error << std::endl;
+       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
+       std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
+    
+       return 0;
+     }
 
    .. tab:: SYCL
 
@@ -192,8 +343,8 @@ Vector addition is more appropiate as "Hello World" example. Below we see a code
          float* Bd = malloc_device<float>(N, q);
          float* Cd = malloc_device<float>(N, q);
          
-         q.memcpy(matrix_a, matrix_a_host.data(), N * sizeof(double));
-         q.memcpy(matrix_b, matrix_b_host.data(), N * sizeof(double));
+         q.memcpy(Ad, Ah.data(), N * sizeof(double));
+         q.memcpy(Cd, Ch.data(), N * sizeof(double));
          
          // Define grid dimensions and launch the device kernel
          auto threads = range<1>(256);
@@ -208,7 +359,7 @@ Vector addition is more appropiate as "Hello World" example. Below we see a code
          // Copy results back to CPU
          q.submit([&](handler& h) {
             h.memcpy(Ch.data(), Cd, sizeof(float) * N);
-         }).wait();
+         }).wait(); // wait for all operations in the queue q to finish. 
 
          // Print reference and result values
         std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
@@ -227,7 +378,7 @@ Vector addition is more appropiate as "Hello World" example. Below we see a code
 
        std::cout << "Total error: " << error << std::endl;
        std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-       std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
+       std::cout << "Result   :   " << Ch[42]   << " at (42)" << std::endl;
 
        // Free the GPU memory
        free(Ad, q);
@@ -418,13 +569,16 @@ Vector addition is more appropiate as "Hello World" example. Below we see a code
          return 0;
        }
 
-In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the HIP version. The CUDA and HIP programming model are host centric. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU and launches the kernels to be executed on the GPU.T he code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays (A, B, and C) along with the array size (n). The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
+In this case, the CUDA and HIP codes are equivalent one to one so we will only refere to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU which controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called `vector_add` with attribute **___global__**. It takes three input arrays (A, B, and C) along with the array size (n). The kernel function contains the actually which is executed on the GPU by multiple threads in parallel, performing the vector addition operation.
 
-The main function of the code initializes the input arrays `(Ah, Bh)` on the CPU and computes the reference array (Cref). It then allocates memory on the GPU for the input and output arrays (Ad, Bd, and Cd) using hipMalloc. The data is transferred from the CPU to the GPU using hipMemcpy, and the GPU kernel is launched using the <<<>>> syntax.
+The main function of the code initializes the input arrays `(Ah, Bh)` on the CPU and computes the reference array (Cref). It then allocates memory on the GPU for the input and output arrays `Ad, Bd, and Cd`  using **cudaMalloc**. The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax.  All kernels launch are asynchrouneous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
 
-After the kernel execution, the result array (Cd) is copied back to the CPU using hipMemcpy. The code then prints the reference and result arrays, calculates the error by comparing the reference and result arrays, and prints the total error and specific values at index 42. Finally, the GPU and CPU memory are deallocated using hipFree and free functions, respectively.
+After the kernel execution, the result array `Cd` is copied back to the CPU using **cudaMemcpy**. The code then prints the reference and result arrays, calculates the error by comparing the reference and result arrays. Finally, the GPU and CPU memory are deallocated using **cudaFree** and **free** functions, respectively. 
 
-Overall, this code demonstrates how to utilize the HIP API to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using HIP for cross-platform GPU programming.
+The host functions  **cudaSetDevice**, **cudaMalloc**, **cudaMemcpy**, and **cudaFree** are blockin, i.e. the code does not conitnues to next instructions until the operations are completed. However for some operations there are equivalents asynchrounous equivalents. This allows the developers to launch idependent operations and overlap them. 
+
+In short, this code demonstrates how to utilize the CUDA and HIP to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using CUDA for cross-platform GPU programming.
+
 Examples
 ^^^^^^^^
 **I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos,opencl, and sycl?**
