@@ -956,7 +956,7 @@ CUDA/HIP streams are independent execution contexts, a sequence of operations th
 
 Consider a case which involves copying data from CPU to GPU, computations and then coying back the result to GPU. Without streams nothing can be overlap. 
 
-.. figure:: img/concepts/StreamsTimelines.png
+.. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
 Modern GPUs can execute in the same copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant perfomance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
