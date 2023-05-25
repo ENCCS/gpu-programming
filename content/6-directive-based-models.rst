@@ -386,7 +386,7 @@ Data region
 ^^^^^^^^^^^
 
 The specific data clause combined with the data directive constitutes the start of a data region.
-How the directives create storage, transfer data, and remove storage on the device are clasiffied as two categories: 
+How the directives create storage, transfer data, and remove storage on the device are classified as two categories: 
 structured data region and unstructured data region. 
 
 
