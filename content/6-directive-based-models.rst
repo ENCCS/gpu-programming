@@ -5,26 +5,20 @@ Directive-based models
 
 .. questions::
 
-   - q1
-   - q2
+   - What is OpenACC and OpenMP offloading
+   - How to write GPU code using directives
 
 .. objectives::
 
-   - o1
-   - o2
+   - Understand the process of offloading
+   - Understand the differences between OpenACC and OpenMP offloading
+   - Understand the various levels of parallelism on a GPU
+   - Understand what is data movement
 
 .. instructor-note::
 
    - 60 min teaching
    - 30 min exercises
-
-WRITEME begin
-
-- What is OpenMP offloading?
-- What is OpenACC?
-- What are the differences between the two?
-
-WRITEME end
 
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
@@ -55,20 +49,9 @@ When a parallel region is encountered, master thread creates a group of threads,
 becomes the master of this group of threads, and is assigned the thread index 0 within 
 the group. There is an implicit barrier at the end of the parallel regions. 
 
-Memory Model
-~~~~~~~~~~~~
 
-WRITEME begin
-
-- shared vs private variables
-- global memory
-- etc
-
-WRITEME end
-
-
-Directives
-~~~~~~~~~~
+Offloading Directives
+~~~~~~~~~~~~~~~~~~~~~
 
 
 OpenACC
@@ -97,17 +80,10 @@ Work sharing is defined automatically for the separate kernels, but tuning prosp
 
 
 
-.. note:: 
-
-    - data was created/destroyed on the device
-    - data was transferred between the host and the device
-    - the loop was parallized and execution was offloaded on the device
-
-
 The other approach of OpenACC to define parallel regions is to use ``parallel`` directive.
 Contrary to the ``kernels`` directive, the ``parallel`` directive is more explicit and requires 
 more analysis by the programmer. Work sharing has to be defined manually using the ``loop`` directive, 
-and refined tuning is possible to achieve. The above example can be re-write as the following:
+and refined tuning is possible to achieve. The above example can be re-written as the following:
 
 
 .. challenge:: Example: ``parallel loop``
@@ -136,19 +112,18 @@ OpenACC has four levels of parallelism for offloading execution:
   - **vector** each worker activtes its threads working in SIMT fashion and the work is shared among the threads
   - **seq** the iterations are executed sequentially
 
-By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
-
 
 
 .. note:: 
 
+    By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
+
+    The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of gangs, workers and vector length. 
+
+    The optimal numbers are highly GPU architecture and compiler implementation dependent though.
+
     There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
-    The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of 
-    gangs, workers and vector length. The optimal numbers are highly architecture-dependent though.
-
-
-
-
+    
 
 OpenMP Offloading
 ^^^^^^^^^^^^^^^^^
@@ -172,11 +147,11 @@ With OpenMP, the ``TARGET`` directive is used for device offloading.
                         :emphasize-lines: 14,18
 
 
-Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop. 
+Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop at all. 
 To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants. 
 OpenMP offloading offers multiple levels of parallelism as well:
 
-  - **teams** coarse grain: the iterations are distributed among the teams
+  - **teams** coarse grain: creates a league of teams and one master thread in each team, but no worksharing among the teams
   - **distribute** distributes the iterations across the master threads in the teams, but no worksharing among the threads within one team
   - **parallel do/for** fine grain: threads are activated within one team and worksharing among them
   - **SIMD** like the ``vector`` directive in OpenACC
@@ -184,162 +159,199 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 .. note:: 
 
+    The programmer could add clauses like ``num_teams`` and ``thread_limit`` to specify the number of teams and threads within a team.
+
+    Threads in a team can synchronize but no synchronization among the teams. 
+
     Since OpenMP 5.0, there is a new ``loop`` directive available, which has the similar functionality as the corresponding one in OpenACC.
 
 
-.. challenge:: Syntax for ``loop`` directive
 
-   .. tabs::
+
+
+.. keypoints::
+
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+      :widths: 25 25 25 25
+      :header-rows: 1
+
+      * - Nvidia
+	- AMD
+	- Fortran OpenACC/OpenMP
+	- C/C++ OpenMP
+      * - Threadblock
+	- Work group
+	- gang/teams
+	- teams
+      * - Wrap
+	- Wavefront
+	- worker/simd
+	- parallel for simd
+      * - Thread
+	- Work item
+	- vector/simd
+	- parallel for simd
+
+
+
+.. exercise:: Exercise: Change the levels of parallelism
+
+   In this exercise we would like to change the levels of parallelism using clauses. 
+   First compile and run one of the example to find out the default number of block and thread set by compiler at runtime. 
+   To make a change, adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
+   and ``num_teams``, ``thread_limit`` for OpenMP offloading.
+
+   Remember to set the envrioment by executing "export CRAY_ACC_DEBUG=2" at runtime.
+   
+   How to compile and run the code:
+
+   .. tabs:: 
 
       .. tab:: C/C++
 
-             .. code-block:: c
-             	:emphasize-lines: 1
+             .. code-block:: bash
 
-                  #pragma omp target teams loop
-                      for (i = 0; i < NX; i++) {
-                          vecC[i] = vecA[i] + vecB[i];
-                      }
+                  ml rocm/5.0.2
+                  ml craype-accel-amd-gfx90a
+                  # OpenMP
+                  cc -O2 -fopenmp -o ex1 ex1.c 
+                  # Only OpenACC Fortran is supported by HPE compiler.
+
+                  export CRAY_ACC_DEBUG=2
+                  srun ./ex1
 		  
 
 
       .. tab:: Fortran
 
-             .. code-block:: fortran
-             	:emphasize-lines: 1,5
+             .. code-block:: bash
 
-		  !$omp target teams loop
-		  do i = 1, nx
-                     vecC(i) = vecA(i) + vecB(i)
-                  end do
-		  !$omp end target teams loop
+		  ml rocm/5.0.2 
+		  ml craype-accel-amd-gfx90a 
+                  # OpenMP
+                  ftn -O2 -homp -o ex1 ex1.f90
+                  # OpenACC
+                  ftn -O2 -hacc -o ex1 ex1.f90
 
-
-
-.. note:: 
-
-    Together with compiler directives, **clauses** that  can used to control  
-    the parallelism of regions of code. The clauses specify additional behaviour the user wants 
-    to occur and they refer to how the variables are visible to the threads (private or shared), 
-    synchronization, scheduling, control, etc. The clauses are appended in the code to the directives.
+                  export CRAY_ACC_DEBUG=2
+                  srun ./ex1
 
 
-Examples
-~~~~~~~~
+   Example of a trivially parallelizable vector addition problem:
 
-Vector addition
-^^^^^^^^^^^^^^^
+   .. tabs::
 
-Example of a trivially parallelizable problem using the *loop* workshare construct:
+      .. tab:: OpenMP 
+
+	 .. tabs::
+
+	    .. tab::  C/C++
+
+	       .. code-block:: C++
+
+		  #include <stdio.h>
+		  #include <math.h>
+		  #define NX 102400
+
+		  int main(void){
+		      double vecA[NX],vecB[NX],vecC[NX];
+
+		      /* Initialize vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }  
+
+		      #pragma omp target teams distribute parallel for simd
+		      {
+			  for (int i = 0; i < NX; i++) {
+			     vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+		  }
+
+	    .. tab::  Fortran
+
+	       .. code-block:: Fortran
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(nx) :: vecA,vecB,vecC
+		      integer :: i
+
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+
+		     !$omp target teams distribute parallel do simd
+			  do i=1,nx
+			      vecC(i) = vecA(i) + vecB(i)
+			  enddo  
+		     !$omp end target teams distribute parallel do simd
+		  end program vecsum
+
+      .. tab:: OpenACC 
+
+	 .. tabs::
+
+	    .. tab:: C/C++
+
+	       .. code-block:: C++
+
+		  #include <stdio.h>
+		  #include <openacc.h>
+		  #define NX 102400
+
+		  int main(void) {
+		      double vecA[NX], vecB[NX], vecC[NX];
+
+		      /* Initialization of the vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }
+		      #pragma acc parallel loop
+		      {
+			  for (int i = 0; i < NX; i++) {
+			      vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+		  }         
+
+	    .. tab:: Fortran
+
+	       .. code-block:: Fortran
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(:), allocatable :: vecA,vecB,vecC
+		      integer :: i
+
+		      allocate (vecA(nx), vecB(nx),vecC(nx))
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+
+		      !$acc parallel loop
+			  do i=1,nx
+			      vecC(i) = vecA(i) + vecB(i)
+			  enddo  
+		      !$acc end parallel loop
+		  end program vecsum
 
 
-.. tabs::
+.. note::
 
-   .. tab:: OpenMP 
-      
-      .. tabs::
-
-         .. tab::  C/C++
-
-            .. code-block:: C++
-            
-               #include <stdio.h>
-               #include <math.h>
-               #define NX 102400
-
-               int main(void){
-                   double vecA[NX],vecB[NX],vecC[NX];
-
-                   /* Initialize vectors */
-                   for (int i = 0; i < NX; i++) {
-                       vecA[i] = 1.0;
-                       vecB[i] = 1.0;
-                   }  
-
-		   #pragma omp target teams distribute parallel for
-		   {
-		       for (int i = 0; i < NX; i++) {
-			  vecC[i] = vecA[i] + vecB[i];
-		       }
-		   }
-               }
-                              
-         .. tab::  Fortran
-      
-            .. code-block:: Fortran
-         
-               program vecsum
-                   implicit none
- 
-                   integer, parameter :: nx = 102400
-                   real, dimension(nx) :: vecA,vecB,vecC
-                   integer :: i
-
-                   ! Initialization of vectors
-                   do i = 1, nx
-                      vecA(i) = 1.0
-                      vecB(i) = 1.0
-                   end do     
-
-                  !$omp target teams distribute parallel do
-                       do i=1,nx
-                           vecC(i) = vecA(i) + vecB(i)
-                       enddo  
-                  !$omp end target teams distribute parallel do
-               end program vecsum
-
-   .. tab:: OpenACC 
-      
-      .. tabs::
-
-         .. tab:: C/C++
-      
-            .. code-block:: C++
-
-               #include <stdio.h>
-               #include <openacc.h>
-               #define NX 102400
-
-	       int main(void) {
-		   double vecA[NX], vecB[NX], vecC[NX];
-
-		   /* Initialization of the vectors */
-		   for (int i = 0; i < NX; i++) {
-		       vecA[i] = 1.0;
-		       vecB[i] = 1.0;
-		   }
-		   #pragma acc parallel loop
-		   {
-		       for (int i = 0; i < NX; i++) {
-			   vecC[i] = vecA[i] + vecB[i];
-		       }
-		   }
-	       }         
-
-	 .. tab:: Fortran
-
-	    .. code-block:: Fortran
-
-	       program vecsum
-		   implicit none
-
-		   integer, parameter :: nx = 102400
-		   real, dimension(:), allocatable :: vecA,vecB,vecC
-		   integer :: i
-
-		   allocate (vecA(nx), vecB(nx),vecC(nx))
-		   ! Initialization of vectors
-		   do i = 1, nx
-		      vecA(i) = 1.0
-		      vecB(i) = 1.0
-		   end do     
-
-		   !$acc parallel loop
-		       do i=1,nx
-			   vecC(i) = vecA(i) + vecB(i)
-		       enddo  
-		   !$acc end parallel loop
-	       end program vecsum
+   - Each compiler supports different levels of parallelism
+   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limitations defined by the implementation.
 
 
 
@@ -360,6 +372,7 @@ Various data clauses used for data movement is summarised in the following table
    ``map(from:list)`` ; ``copyout(list)`` ;  At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized       
    ``map(tofrom:list)`` ; ``copy(list)`` ; the effect of both a map-to and a map-from
    ``map(alloc:list)`` ;  ``create(list)`` ; On entering the region, data is allocated and uninitialized on the device
+   ``map(delete:list)`` ;  ``delete(list)`` ; Delete data on the device
    
 
 .. note::
@@ -373,11 +386,14 @@ Data region
 ^^^^^^^^^^^
 
 The specific data clause combined with the data directive constitutes the start of a data region.
-How the directives create storage, transfer data, and remove storage on the device are classified as two categories: 
+How the directives create storage, transfer data, and remove storage on the device are clasiffied as two categories: 
 structured data region and unstructured data region. 
-A structured data region is convenient for providing persistent data on the device which could be used for subsequent GPU directives.
-However it is inconvenient in real applications using structured data region, therefore the unstructured data region  
-with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
+
+
+Structured Data Region
+++++++++++++++++++++++
+
+A structured data region is convenient for providing persistent data on the device which could be used for subseqent GPU directives.
 
 
 .. challenge:: Syntax for structured data region
@@ -427,6 +443,12 @@ with much more freedom in creating and deleting of data on the device at any app
 		     !$acc end data
 
 
+
+Unstructured Data Region
+++++++++++++++++++++++++
+
+However it is inconvenient in real applications using structured data region, therefore the unstructured data region  
+with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
 
 .. challenge:: Syntax for unstructured data region
 
@@ -496,6 +518,442 @@ with much more freedom in creating and deleting of data on the device at any app
   Unstructured Data Region
     - multiple start and end points across different subroutines
     - Memory exists until explicitly deallocated
+
+
+Update
+++++++
+
+Sometimes, variables need to be synchronized between the host and the device memory, e.g. in order to write out variables on the host for debugging or visualization, and it is often used in conjunction with unstructured data regions. To control data transfer direction, a motion-clause must be present.
+
+
+
+.. challenge:: Syntax for update directive
+
+.. tabs::
+
+   .. tab:: OpenMP 
+
+      .. tabs::
+
+	 .. tab:: C/C++
+
+		.. code-block:: c
+
+		     #pragma omp target update [clauses]
+
+		.. code-block:: c
+
+		     motion-clause:
+                     to (list)
+                     from (list)
+	   
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$omp target update [clauses] 
+
+		.. code-block:: fortran
+
+		     motion-clause:
+                     to (list)
+                     from (list)
+
+
+
+   .. tab:: OpenACC 
+
+      .. tabs::
+
+	 .. tab:: C/C++
+
+		.. code-block:: c
+
+		     #pragma acc update [clauses]
+
+		.. code-block:: c
+
+		     motion-clause:
+                     self (list)
+                     device (list)
+
+
+
+	 .. tab:: Fortran
+
+		.. code-block:: fortran
+
+		     !$acc update [clauses] 
+
+		.. code-block:: fortran
+
+		     motion-clause:
+                     self (list)
+                     device (list)
+
+
+
+.. note::
+
+    - ``UPDATE`` directive can only be used in host code since data movement must be initiated from the host, i.e. it may  not appear inside of a compute region.
+    - in OpenACC, motion-clause "host" has been deprecated and renamed "self"
+
+
+
+.. challenge:: Exercise:  ``UPDATE``
+
+   Trying to figure out the variable values on host and device at each check point.
+
+   .. tabs::
+
+      .. tab:: C/C++
+
+         .. code-block:: c
+
+	      #include <stdio.h>
+	      int main(void)
+	      {
+		int x = 0;
+
+		#pragma omp target data map(tofrom:x)
+		{
+	      /* check point 1 */
+		  x = 10;                        
+	      /* check point 2 */
+		#pragma omp target update to(x)       
+	      /* check point 3 */
+		}
+
+	      return 0;
+	      }
+
+
+      .. tab:: Fortran
+
+	 .. code-block:: fortran
+
+	      program ex_update
+		implicit none
+
+		integer :: x
+
+		x = 0
+		!$acc data copy(x) 
+		! check point 1 
+		x = 10                        
+		! check point 2 
+		!$acc update device(x)       
+		! check point 3 
+		!$acc end data
+
+	      end program ex_update
+
+
+    
+      .. tab:: Solution
+
+		+-------------+---------+-----------+
+		|check point  |x on host|x on device|
+		+=============+=========+===========+
+		|check point1 |   0     |  0        | 
+		+-------------+---------+-----------+
+		|check point2 |  10     |  0        | 
+		+-------------+---------+-----------+
+		|check point3 |  10     | 10        | 
+	        +-------------+---------+-----------+
+
+
+.. challenge:: Exercise: Adding data mapping clauses
+
+   Add proper data mapping clauses explicitly to the directives
+
+   .. tabs::
+
+      .. tab:: OpenMP 
+
+	 .. tabs::
+
+	    .. tab::  C/C++
+
+	       .. code-block:: C++
+
+		  #include <stdio.h>
+		  #include <math.h>
+		  #define NX 102400
+
+		  int main(void){
+		      double vecA[NX],vecB[NX],vecC[NX];
+
+		      /* Initialize vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }  
+		      /* Adding mapping clauses here */
+		      #pragma omp target teams distribute parallel for simd
+		      {
+			  for (int i = 0; i < NX; i++) {
+			     vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+
+                      double sum = 0.0;
+                      for (int i = 0; i < NX; i++) {
+                         sum += vecC[i];
+                      }
+                      printf("The sum is: %8.6f \n", sum);
+		  }
+
+	    .. tab::  Fortran
+
+	       .. code-block:: Fortran
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(nx) :: vecA,vecB,vecC
+                      real    :: sum
+		      integer :: i
+
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+		      ! Adding mapping clauses here
+		      !$omp target teams distribute parallel do simd
+		      	   do i=1,nx
+			       vecC(i) = vecA(i) + vecB(i)
+			   enddo  
+		      !$omp end target teams distribute parallel do simd
+                     
+		      sum = 0.0
+		      ! Calculate the sum
+		      do i = 1, nx
+		 	 sum =  vecC(i) + sum
+		      end do
+		      write(*,'(A,F18.6)') 'The sum is: ', sum
+
+		  end program vecsum
+
+      .. tab:: OpenACC 
+
+	 .. tabs::
+
+	    .. tab:: C/C++
+
+	       .. code-block:: C++
+
+		  #include <stdio.h>
+		  #include <openacc.h>
+		  #define NX 102400
+
+		  int main(void) {
+		      double vecA[NX], vecB[NX], vecC[NX];
+
+		      /* Initialization of the vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }
+		      /* Adding mapping clauses here */
+		      #pragma acc parallel loop
+		      {
+			  for (int i = 0; i < NX; i++) {
+			      vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+
+                      double sum = 0.0;
+                      for (int i = 0; i < NX; i++) {
+                         sum += vecC[i];
+                      }
+                      printf("The sum is: %8.6f \n", sum);
+		  }         
+
+	    .. tab:: Fortran
+
+	       .. code-block:: Fortran
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(:), allocatable :: vecA,vecB,vecC
+                      real    :: sum
+		      integer :: i
+
+		      allocate (vecA(nx), vecB(nx),vecC(nx))
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+		      ! Adding mapping clauses here
+		      !$acc parallel loop
+			  do i=1,nx
+			      vecC(i) = vecA(i) + vecB(i)
+			  enddo  
+		      !$acc end parallel loop
+
+		      sum = 0.0
+		      ! Calculate the sum
+		      do i = 1, nx
+		         sum =  vecC(i) + sum
+                      end do
+		      write(*,'(A,F18.6)') 'The sum is: ', sum
+
+		  end program vecsum
+
+
+
+
+.. solution::
+
+   .. tabs::
+
+      .. tab:: OpenMP 
+
+	 .. tabs::
+
+	    .. tab::  C/C++
+
+	       .. code-block:: C++
+                  :emphasize-lines: 14
+
+		  #include <stdio.h>
+		  #include <math.h>
+		  #define NX 102400
+
+		  int main(void){
+		      double vecA[NX],vecB[NX],vecC[NX];
+
+		      /* Initialize vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }  
+
+		      #pragma omp target teams distribute parallel for simd map(to:vecA[0:NX],vecB[0:NX]) map(from:vecC[0:NX])
+		      {
+			  for (int i = 0; i < NX; i++) {
+			     vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+
+                      double sum = 0.0;
+                      for (int i = 0; i < NX; i++) {
+                         sum += vecC[i];
+                      }
+                      printf("The sum is: %8.6f \n", sum);
+		  }
+
+	    .. tab::  Fortran
+
+	       .. code-block:: Fortran
+                  :emphasize-lines: 15
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(nx) :: vecA,vecB,vecC
+                      real    :: sum
+		      integer :: i
+
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+
+		      !$omp target teams distribute parallel do simd map(to:vecA,vecB) map(from:vecC) 
+		           do i=1,nx
+			       vecC(i) = vecA(i) + vecB(i)
+			   enddo  
+		      !$omp end target teams distribute parallel do simd
+                     
+		      sum = 0.0
+		     ! Calculate the sum
+		      do i = 1, nx
+			 sum =  vecC(i) + sum
+		      end do
+		      write(*,'(A,F18.6)') 'The sum is: ', sum
+
+		  end program vecsum
+
+      .. tab:: OpenACC 
+
+	 .. tabs::
+
+	    .. tab:: C/C++
+
+	       .. code-block:: C++
+                  :emphasize-lines: 14
+
+		  #include <stdio.h>
+		  #include <openacc.h>
+		  #define NX 102400
+
+		  int main(void) {
+		      double vecA[NX], vecB[NX], vecC[NX];
+
+		      /* Initialization of the vectors */
+		      for (int i = 0; i < NX; i++) {
+			  vecA[i] = 1.0;
+			  vecB[i] = 1.0;
+		      }
+
+		      #pragma acc parallel loop copyin(vecA[0:NX],vecB[0:NX]) copyout(vecC[0:NX])
+		      {
+			  for (int i = 0; i < NX; i++) {
+			      vecC[i] = vecA[i] + vecB[i];
+			  }
+		      }
+
+                      double sum = 0.0;
+                      for (int i = 0; i < NX; i++) {
+                         sum += vecC[i];
+                      }
+                      printf("The sum is: %8.6f \n", sum);
+		  }         
+
+	    .. tab:: Fortran
+
+	       .. code-block:: Fortran
+                  :emphasize-lines: 15
+
+		  program vecsum
+		      implicit none
+
+		      integer, parameter :: nx = 102400
+		      real, dimension(nx) :: vecA,vecB,vecC
+                      real    :: sum
+		      integer :: i
+
+		      ! Initialization of vectors
+		      do i = 1, nx
+			 vecA(i) = 1.0
+			 vecB(i) = 1.0
+		      end do     
+
+		      !$acc parallel loop copyin(vecA,vecB) copyout(vecC)
+			  do i=1,nx
+			      vecC(i) = vecA(i) + vecB(i)
+			  enddo  
+		      !$acc end parallel loop
+
+		      sum = 0.0
+		      ! Calculate the sum
+		      do i = 1, nx
+		         sum =  vecC(i) + sum
+                      end do
+		      write(*,'(A,F18.6)') 'The sum is: ', sum
+
+		  end program vecsum
 
 
 Optimize Data Transfers
