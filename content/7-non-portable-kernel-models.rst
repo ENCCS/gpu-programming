@@ -668,7 +668,14 @@ Vector addition is a relatively simple, straight forward case. Each thread reads
 
 Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  GPUa are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing  **__syncthreads()** function has to be used to make the threads in the block  wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
 
-The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data. The shared memory can also be used to improve the memory access patterns. For example when transposing a two dimensional matris. The reads have a nice coalesced access pattern, but the writing is now very inefficient. Below there is an example the memory access can be imnproved.
+The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data. The shared memory can also be used to improve the memory access patterns. For example when transposing a two dimensional matris. The reads have a nice coalesced access pattern, but the writing is now very inefficient. 
+
+
+Matrix Transpose
+^^^^^^^^^^^^^^^^
+
+.. figure:: img/concepts/transpose_img.png
+   :align: center
 
 
 First as a reference we use a simple kernel which copy the data from one array to the other. 
@@ -705,10 +712,83 @@ First as a reference we use a simple kernel which copy the data from one array t
 
       .. code-block:: C++ 
       
-      
-In order to time the progress and compare different verssion we use **cuda events** to measure the execution time.
+         #include <hip/hip_runtime.h>
 
-Now we do the first iteration of the code the simplest code, 
+         #include <cstdlib>
+         #include <vector>
+
+         const static int width = 4096;
+         const static int height = 4096;
+
+         __global__ void copy_kernel(float *in, float *out, int width, int height) {
+            int x_index = blockIdx.x * tile_dim + threadIdx.x;
+            int y_index = blockIdx.y * tile_dim + threadIdx.y;
+
+            int index = y_index * width + x_index;
+
+            out[index] = in[index];
+        }
+        
+        int main() {
+           std::vector<float> matrix_in;
+           std::vector<float> matrix_out;
+
+           matrix_in.resize(width * height);
+           matrix_out.resize(width * height);
+
+           for (int i = 0; i < width * height; i++) {
+             matrix_in[i] = (float)rand() / (float)RAND_MAX;
+           }
+        
+           float *d_in,*d_out;
+        
+           hipMalloc((void **)&d_in, width * height * sizeof(float));
+           hipMalloc((void **)&d_out, width * height * sizeof(float));
+
+           hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
+                  hipMemcpyHostToDevice);
+
+           printf("Setup complete. Launching kernel \n");
+           int block_x = width / tile_dim;
+           int block_y = height / tile_dim;
+  
+           // Create events
+           hipEvent_t start_kernel_event;
+           hipEventCreate(&start_kernel_event);
+           hipEvent_t end_kernel_event;
+           hipEventCreate(&end_kernel_event);
+
+           printf("Warm up the gpu!\n");
+           for(int i=1;i<=10;i++){
+              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
+           }
+
+           hipEventRecord(start_kernel_event, 0);
+        
+           for(int i=1;i<=10;i++){
+              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
+           }
+  
+          hipEventRecord(end_kernel_event, 0);
+          hipEventSynchronize(end_kernel_event);
+
+           hipDeviceSynchronize();
+           float time_kernel;
+           hipEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
+
+           printf("Kernel execution complete \n");
+           printf("Event timings:\n");
+           printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
+ 
+           hipMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
+                     hipMemcpyDeviceToHost);
+
+           return 0;
+        }
+
+We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time b using **rocprof** or **cuda/hip events**. On a Nvidia V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
+
+Now we do the first iteration of the code. A naive transpose: 
 
 .. tabs:: 
 
@@ -741,10 +821,16 @@ Now we do the first iteration of the code the simplest code,
    .. tab:: HIP
 
       .. code-block:: C++ 
+         
+         __global__ void transpose_naive_kernel(float *in, float *out, int width, int height) {
+            int x_index = blockIdx.x * tile_dim + threadIdx.x;
+            int y_index = blockIdx.y * tile_dim + threadIdx.y;
 
-        #include <stdio.h>
-        #inclde <hip_runtime.h>
-        #include <math.h>
+            int in_index = y_index * width + x_index;
+            int out_index = x_index * height + y_index;
+
+           out[out_index] = in[in_index];
+        }
       
       
       
