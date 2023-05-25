@@ -433,7 +433,7 @@ In order to practice the concepts shown above, edit the skeleton code in the rep
 Vector Addition with Unified Memory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For a while already GPUs upport unified memory, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However  the data trasfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers. Below one can see the modified vector addition codes:
+For a while already GPUs upport unified memory, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However  the data transfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers. Below one can see the modified vector addition codes:
 
 
 .. tabs:: 
@@ -662,21 +662,20 @@ Now the arrays Ah, Bh, Ch, and Cref are using cudaMallocManaged to allocate Unif
 
 As an exercise modify the skeleton code for vector addition to use Unified Memory. 
 
-Using Advance Features to Speed-up the Applications
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Memory Optimizations
+^^^^^^^^^^^^^^^^^^^^
 Vector addition is a relatively simple, straight forward case. Each thread reads data from, does an addition and then saves the result. Two  adjacent threads access memory location in memory close to each other. Also the data is used only once. In practice this not the case. Also sometimes the same data is used several times resulting in additional memory accesses. 
 
 Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  GPUa are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing  **__syncthreads()** function has to be used to make the threads in the block  wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
 
-The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data. The shared memory can also be used to improve the memory access patterns. For example when transposing a two dimensional matris. The reads have a nice coalesced access pattern, but the writing is now very inefficient. 
-
+The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data or it can be used to improve the memory access patterns.
 
 Matrix Transpose
 ^^^^^^^^^^^^^^^^
+Matrix transpose is a classic example where shared memory can significantly improve the performance. The use of shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory.
 
 .. figure:: img/concepts/transpose_img.png
    :align: center
-
 
 First as a reference we use a simple kernel which copy the data from one array to the other. 
 
@@ -772,23 +771,23 @@ First as a reference we use a simple kernel which copy the data from one array t
           hipEventRecord(end_kernel_event, 0);
           hipEventSynchronize(end_kernel_event);
 
-           hipDeviceSynchronize();
-           float time_kernel;
-           hipEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
+          hipDeviceSynchronize();
+          float time_kernel;
+          hipEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
 
-           printf("Kernel execution complete \n");
-           printf("Event timings:\n");
-           printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
+          printf("Kernel execution complete \n");
+          printf("Event timings:\n");
+          printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
  
-           hipMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
+          hipMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
                      hipMemcpyDeviceToHost);
 
-           return 0;
+          return 0;
         }
 
 We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time b using **rocprof** or **cuda/hip events**. On a Nvidia V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
 
-Now we do the first iteration of the code. A naive transpose: 
+Now we do the first iteration of the code, a naive transpose. The reads have a nice coalesced access pattern, but the writing is now very inefficient. 
 
 .. tabs:: 
 
@@ -832,8 +831,137 @@ Now we do the first iteration of the code. A naive transpose:
            out[out_index] = in[in_index];
         }
       
+Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near eachother. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimzations the achieved bandwidth is `311 GB/s`.      
+
+We can improve the code by readig the data in a coalesced way, save it in the shared memory row by row and then write in the global memory column by column.
+
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
       
+   .. tab:: OpenCL
+
+      .. code-block:: C++
       
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+   .. tab:: CUDA
+
+      .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+      
+   .. tab:: HIP
+
+      .. code-block:: C++ 
+         
+         const static int tile_dim = 16;
+
+         __global__ void transpose_SM_kernel(float *in, float *out, int width, int height) {
+           __shared__ float tile[tile_dim][tile_dim];
+
+           int x_tile_index = blockIdx.x * tile_dim;
+           int y_tile_index = blockIdx.y * tile_dim;
+           
+           int in_index =(y_tile_index + threadIdx.y) * width + (x_tile_index + threadIdx.x);
+           int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
+
+           tile[threadIdx.y][threadIdx.x] = in[in_index];
+
+           __syncthreads();
+
+          out[out_index] = tile[threadIdx.x][threadIdx.y];
+       }
+       
+We define a *tile_dim* constant to determine the size of the shared memory tile. The matrix transpose kernel uses a 2D grid of thread blocks, where each thread block operates on a `tile_dim x tile_dim` tile of the input matrix.
+
+The kernel first loads data from the global memory into the shared memory tile. Each thread loads a single element from the input matrix into the shared memory tile. Then, a **__syncthreads()** barrier ensures that all threads have finished loading data into shared memory before proceeding.
+
+Next, the kernel writes the transposed data from the shared memory tile back to the output matrix in global memory. Each thread writes a single element from the shared memory tile to the output matrix. 
+By using shared memory, this optimized implementation reduces global memory accesses and exploits memory coalescence, resulting in improved performance compared to a naive transpose implementation.
+
+This kernel achieved on Nvidia V100 `674 GB/s`. 
+
+This is pretty close to the  bandwidth achieved by the simple copy kernel, but there is one more thing to improve. Shared memory is composed of banks. Each banks can service only one request at the time. Bank conflicts happen when more than 1 thread in a specific warp try to access data in bank. The bank conflicts are resolved by serializing the accesses resulting in less performance. In the above example when data is saved to the shared memory, each thread in the warp will save an element of the data in a different one. Assuming that shared memory has 16 banks after writing each bank will contain one column. At the last step when we write from the shared memory to the global memory each warp load data from the same bank. A simple way to avoid this is by just padding the temporary array. 
+
+
+.. tabs:: 
+
+   .. tab:: Kokkos
+
+      .. code-block:: C++
+      
+   .. tab:: OpenCL
+
+      .. code-block:: C++
+      
+   .. tab:: SYCL
+
+      .. code-block:: C++
+
+         #include <iostream>
+         #include <sycl/sycl.hpp>
+         
+         using namespace sycl;
+         
+   .. tab:: CUDA
+
+      .. code-block:: C++
+
+        #include <stdio.h>
+        #include <cuda.h>
+        #inclde <cuda_runtime.h>
+        #include <math.h>
+      
+   .. tab:: HIP
+
+      .. code-block:: C++ 
+         
+         const static int tile_dim = 16;
+
+         __global__ void transpose_SM_nobc_kernel(float *in, float *out, int width, int height) {
+           __shared__ float tile[tile_dim][tile_dim+1];
+
+           int x_tile_index = blockIdx.x * tile_dim;
+           int y_tile_index = blockIdx.y * tile_dim;
+           
+           int in_index =(y_tile_index + threadIdx.y) * width + (x_tile_index + threadIdx.x);
+           int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
+
+           tile[threadIdx.y][threadIdx.x] = in[in_index];
+
+           __syncthreads();
+
+          out[out_index] = tile[threadIdx.x][threadIdx.y];
+       }
+       
+By padding the array the data is slightly shifting it resulting in no bank conflicts. The effective bandwidth for this kernel is `697 GB/s`. 
+
+CUDA/HIP Streams
+^^^^^^^^^^^^^^^^
+CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrentely. 
+
+Consider a case which involves copying data from CPU to GPU, computations and then coying back the result to GPU. Without streams nothing can be overlap. 
+
+.. figure:: img/concepts/StreamsTimelines.png
+   :align: center
+
+Modern GPUs can execute in the same copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant perfomance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
+Note that even when streams are not explcitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
+
 Examples
 ^^^^^^^^
 **I was thinking about having the exact same example cases for each 4 programming models in portable and non-portable kernel chapters (duplicated), so it would be easy to compare cuda,hip,kokkos,opencl, and sycl?**
