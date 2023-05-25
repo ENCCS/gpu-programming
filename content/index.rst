@@ -72,23 +72,31 @@ to learn and use for their projects. Specifically, you will:
 Who is the course for?
 ----------------------
 
-
+Software developers and decision makers in academia, industry and the public sector who need to navigate the 
+GPU programming landscape and make informed decisions on which languages or frameworks 
+to learn and use for their projects.
 
 
 
 About the course
 ----------------
 
-
-
+This training material is the result of a multilateral effort by GPU programming experts from:
+- `Aalto University in Finland `__
+- `Aarhus University in Denmark <https://www.au.dk/>`__
+- `CSC in Finland <https://csc.fi/>`__
+- `ENCCS in Sweden <https://enccs.se/>`__
+- `HPC2N centre in Umeå, Sweden <https://www.hpc2n.umu.se/>`__
+- `KTH Royal Institute for Technology in Sweden <https://www.kth.se/>`__
+- `NRIS in Norway <https://www.sigma2.no/nris>`__
+- `Vilnius University in Lithuania <https://www.vu.lt/en/>`__ and `NCC Lithuania <https://www.eurocc-lithuania.lt/>`__
 
 
 
 See also
 --------
 
-
-
+Links to additional resources and tutorials can be found in the lesson episodes.
 
 
 Credits
@@ -101,6 +109,7 @@ all distributed under a
 
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__--
 - `High Performance Data Analytics in Python <https://enccs.github.io/hpda-python/>`__
+- `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
 
 
 The lesson file structure and browsing layout is inspired by and derived from
