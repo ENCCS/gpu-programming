@@ -664,11 +664,15 @@ As an exercise modify the skeleton code for vector addition to use Unified Memor
 
 Memory Optimizations
 ^^^^^^^^^^^^^^^^^^^^
-Vector addition is a relatively simple, straight forward case. Each thread reads data from, does an addition and then saves the result. Two  adjacent threads access memory location in memory close to each other. Also the data is used only once. In practice this not the case. Also sometimes the same data is used several times resulting in additional memory accesses. 
+Vector addition is a relatively simple, straight forward case. Each thread reads data from memory, does an addition and then saves the result. Two  adjacent threads access memory location in memory close to each other. Also the data is used only once. In practice this not the case. Also sometimes the same data is used several times resulting in additional memory accesses. 
 
-Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  GPUa are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing  **__syncthreads()** function has to be used to make the threads in the block  wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
+Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  
 
-The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data or it can be used to improve the memory access patterns.
+
+GPUs are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing  **__syncthreads()** function has to be used to make the threads in the block  wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
+
+
+The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data (see stencil code) or it can be used to improve the memory access patterns like in the case of matrix transpose.
 
 Matrix Transpose
 ^^^^^^^^^^^^^^^^
@@ -785,7 +789,7 @@ First as a reference we use a simple kernel which copy the data from one array t
           return 0;
         }
 
-We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time b using **rocprof** or **cuda/hip events**. On a Nvidia V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
+We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time using **rocprof** or **cuda/hip events**. On a Nvidia V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
 
 Now we do the first iteration of the code, a naive transpose. The reads have a nice coalesced access pattern, but the writing is now very inefficient. 
 
@@ -831,9 +835,9 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
            out[out_index] = in[in_index];
         }
       
-Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near eachother. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimzations the achieved bandwidth is `311 GB/s`.      
+Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimzations the achieved bandwidth is `311 GB/s`.      
 
-We can improve the code by readig the data in a coalesced way, save it in the shared memory row by row and then write in the global memory column by column.
+We can improve the code by reading the data in a coalesced way, save it in the shared memory row by row and then write in the global memory column by column.
 
 
 .. tabs:: 
@@ -895,7 +899,9 @@ By using shared memory, this optimized implementation reduces global memory acce
 
 This kernel achieved on Nvidia V100 `674 GB/s`. 
 
-This is pretty close to the  bandwidth achieved by the simple copy kernel, but there is one more thing to improve. Shared memory is composed of banks. Each banks can service only one request at the time. Bank conflicts happen when more than 1 thread in a specific warp try to access data in bank. The bank conflicts are resolved by serializing the accesses resulting in less performance. In the above example when data is saved to the shared memory, each thread in the warp will save an element of the data in a different one. Assuming that shared memory has 16 banks after writing each bank will contain one column. At the last step when we write from the shared memory to the global memory each warp load data from the same bank. A simple way to avoid this is by just padding the temporary array. 
+This is pretty close to the  bandwidth achieved by the simple copy kernel, but there is one more thing to improve. 
+
+Shared memory is composed of banks. Each banks can service only one request at the time. Bank conflicts happen when more than 1 thread in a specific warp try to access data in bank. The bank conflicts are resolved by serializing the accesses resulting in less performance. In the above example when data is saved to the shared memory, each thread in the warp will save an element of the data in a different one. Assuming that shared memory has 16 banks after writing each bank will contain one column. At the last step when we write from the shared memory to the global memory each warp load data from the same bank. A simple way to avoid this is by just padding the temporary array. 
 
 
 .. tabs:: 
@@ -959,7 +965,8 @@ Consider a case which involves copying data from CPU to GPU, computations and th
 .. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
-Modern GPUs can execute in the same copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant perfomance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
+
+Modern GPUs can execute in the same time copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant perfomance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
 Note that even when streams are not explcitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
 Examples
