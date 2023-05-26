@@ -6,13 +6,13 @@ Non-portable kernel-based models
 
 .. questions::
 
-   - q1
-   - q2
+   - How to program GPUs with CUDA and HIP?
+   - What optimizations are posible when programming with CUDA and HIP? 
 
 .. objectives::
 
-   - o1
-   - o2
+   - Be able to use CUDA and HIP to right basic codes
+   - Understand how the execution is done and how to do optimizations
 
 .. instructor-note::
 
@@ -966,8 +966,8 @@ Consider a case which involves copying data from CPU to GPU, computations and th
    :align: center
 
 
-Modern GPUs can execute in the same time copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant perfomance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
-Note that even when streams are not explcitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
+Modern GPUs can execute in the same time copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
+Note that even when streams are not explicitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
 Examples
 ^^^^^^^^
@@ -1674,5 +1674,6 @@ Pros and cons of native programming models
 
 .. keypoints::
 
-   - k1
-   - k2
+   - CUDA and HIP are two GPU programming models
+   - Memory optimizations are very important
+   - Asynchronuous launching can be used to overlap operations and avoid idle GPU
