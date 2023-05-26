@@ -114,9 +114,6 @@ the compiler ````Clacc```` is the ````Clang````'s executable in the subdirectory
 
 In the following we present a step-by-step guide for building and using `Clacc`:
 
-Building ````Clacc````
-~~~~~~~~~~~~~~~~~~~~~~
-
 **Step 1**: Building and installing `Clacc <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_.
 
 .. code-block::
