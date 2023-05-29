@@ -117,6 +117,29 @@ This algorithm is suitable for GPUs as it involves many arithmetic operations. I
 there are symmetries and properties of the integrals that could be used to rearrange the loops in
 an efficient manner that fit GPU architectures. 
 
+
+Humanities
+^^^^^^^^^^
+
+**Language models and NLP**
+
+With the recent popularity of ChatGPT, the use of language models has come into the mainstream, 
+however such models have been used in the humanities many years already. One of the biggest goals of humanities 
+researchers is working with textual data which has increased exponentially over recent years due to the rise in 
+social media. Analyzing such textual data to gain insights into questions of sociology, linguistics and various 
+other fields have become increasingly reliant on using language models. Along with language models, 
+the need for GPU access has become essential.
+
+
+**Archeology**
+
+The field of archeology also makes use of GPUs in their 3D modelling 
+and rendering work. The biggest problem with archeological sites is that once they are excavated, 
+they are destroyed, so any researchers who aren't present at the site, would lose valuable insights into how 
+it looked when it was found. However, with recent developments in technology and accessibility to high-performance 
+computing, they are able to generate extremely detailed renderings of the excavation sites which act as a way to 
+preserver the site for future researchers to gain critical insights and contribute to the research. 
+
 Exercises
 ---------
 
