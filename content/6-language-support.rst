@@ -604,10 +604,11 @@ Numba ``@vectorize`` is limited to scalar arguments in the core function, for mu
    - Data was copied back from GPU to CPU
 
 
-Although it is simple to use ufuncs(gfuncs) to run on GPU, the performance is the price we have to pay. 
-In addition, not all functions can be written as ufuncs in practice. To have much more flexibility, 
-one needs to write a kernel on GPU or device function, which requires more understanding of the GPU programming. 
-
+Using ufuncs (or gfuncs) for GPU processing can be straightforward, but this approach may not always yield 
+optimal performance due to automatic handling of data transfer to and from the GPU, as well as kernel launching. 
+Additionally, in practice, not every function can be constructed as a ufunc. To gain greater control and 
+flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the 
+*Python for HPDA* resource linked below for guidance on implementing such techniques using Numba.
 
 
 See also
