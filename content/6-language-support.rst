@@ -495,6 +495,11 @@ To transfer data on the device back to the host, one can use the ``copy_to_host(
 
 
 
+See also
+--------
 
+* `Python for HPDA (ENCCS) <https://enccs.github.io/hpda-python/parallel-computing/>`__
+* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`__
+* `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
 
 
