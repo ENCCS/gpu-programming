@@ -143,6 +143,12 @@ preserver the site for future researchers to gain critical insights and contribu
 Exercises
 ---------
 
+.. challenge:: Discussion
+
+   - What type of problems have you used GPUs for?
+   - How large was the performance boost?
+
+
 .. challenge:: Good and bad use cases for GPU porting
 
    Which of the following computational tasks is likely to gain the least performance benefit from being ported to a GPU?
