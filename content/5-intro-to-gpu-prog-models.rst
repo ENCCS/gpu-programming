@@ -171,28 +171,19 @@ for fine-grained control.
      - These libraries provide high-level abstractions and interfaces for GPU programming in their respective languages.
 
 
-.. admonition:: Choosing a Framework for Your Project
-   :class: dropdown
-
-   - Consider the following factors when choosing a framework:
-   
-     - Programming Language:
-       - Choose a framework that supports the programming language you are comfortable with.
-     - Hardware Compatibility:
-       - Ensure that the framework is compatible with the GPUs you intend to use.
-     - Performance Requirements:
-       - Evaluate the performance characteristics and optimization capabilities of the frameworks.
-     - Portability:
-       - If targeting multiple platforms or GPUs, consider portable kernel-based models or high-level language support frameworks.
-     - Community and Support:
-       - Check the availability of documentation, examples, and community support for the frameworks.
-
-   - Perform a cost-benefit analysis considering the specific requirements of your project to determine the most suitable framework.
 
 Summary
 -------
 
-Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
+Each of these GPU programming environments has its own strengths and weaknesses, 
+and the best choice for a given project will depend on a range of factors, including: 
+- the hardware platforms being targeted 
+- the type of computation being performed, and
+- the developer's experience and preferences. 
+ 
+**High-level and productivity-focused APIs** provide a simplified programming model and  maximize code portability, 
+while **low-level and performance-focused APIs** provide a high level of control over the GPU's hardware but also 
+require more coding effort and expertise.
 
 
 
