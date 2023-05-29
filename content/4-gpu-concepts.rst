@@ -240,29 +240,6 @@ Software
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies for block dimensions and indexing. 
 
-Hardware
-~~~~~~~~
-
-THIS TABLE COULD BE MOVED TO EPISODE 2
-
-.. list-table:: Hardware
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - Nvidia
-     - AMD
-     - Intel
-   * - streaming processor/streaming core
-     - SIMD lane
-     - processing element
-   * - SIMT unit
-     - SIMD unit
-     - 
-   * - streaming multiprocessor (SMP)
-     - computing unit (CU)
-     - execution unit (EU)
-
-
 
 
 .. keypoints::
@@ -272,8 +249,3 @@ THIS TABLE COULD BE MOVED TO EPISODE 2
    - GPUs are a type of shared memory architecture suitable for data parallelism.
    - GPUs have high parallelism, with threads organized into blocks and warps.
    - GPU optimization involves coalesced memory access, shared memory usage, and high thread and warp occupancy. Additionally, architecture-specific features such as warp-level operations and cooperative groups can be leveraged for more efficient processing.
-
-Additional information
-----------------------
-         
-* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`_

@@ -147,52 +147,43 @@ for fine-grained control.
 .. admonition:: In short
    :class: dropdown
    
-   - Directive-based Programming:
+   - **Directive-based Programming:**
      - Existing serial code is annotated with directives to indicate which parts should be executed on the GPU.
      - OpenACC and OpenMP are common directive-based programming models.
      - Productivity and easy usage are prioritized over performance.
      - Minimum programming effort is required to add parallelism to existing code.
 
-   - Non-portable Kernel-based Models:
+   - **Non-portable Kernel-based Models:**
      - Low-level code is written to directly communicate with the GPU.
      - CUDA is NVIDIA's parallel computing platform and API for GPU programming.
      - HIP is an API developed by AMD that provides a similar programming interface to CUDA for both NVIDIA and AMD GPUs.
      - Deeper understanding of GPU architecture and programming methods is needed.
 
-   - Portable Kernel-based Models:
+   - **Portable Kernel-based Models:**
      - Higher-level abstractions for GPU programming that provide portability.
      - Examples include Alpaka, Kokkos, OpenCL, RAJA, and SYCL.
      - Aim to achieve performance portability with a single-source application.
      - Can run on various GPUs and platforms, reducing the effort required to maintain and deploy GPU-accelerated applications.
 
-   - High-level Language Support:
+   - **High-level Language Support:**
      - Python libraries like CuPy, cuDF, PyCUDA, and Numba offer GPU programming capabilities.
      - Julia has packages such as CUDA.jl, AMDGPU.jl, oneAPI.jl, and Metal.jl for GPU programming.
      - These libraries provide high-level abstractions and interfaces for GPU programming in their respective languages.
 
 
-.. admonition:: Choosing a Framework for Your Project
-   :class: dropdown
-
-   - Consider the following factors when choosing a framework:
-   
-     - Programming Language:
-       - Choose a framework that supports the programming language you are comfortable with.
-     - Hardware Compatibility:
-       - Ensure that the framework is compatible with the GPUs you intend to use.
-     - Performance Requirements:
-       - Evaluate the performance characteristics and optimization capabilities of the frameworks.
-     - Portability:
-       - If targeting multiple platforms or GPUs, consider portable kernel-based models or high-level language support frameworks.
-     - Community and Support:
-       - Check the availability of documentation, examples, and community support for the frameworks.
-
-   - Perform a cost-benefit analysis considering the specific requirements of your project to determine the most suitable framework.
 
 Summary
 -------
 
-Each of these GPU programming environments has its own strengths and weaknesses, and the best choice for a given project will depend on a range of factors, including the hardware platforms being targeted, the type of computation being performed, and the developer's experience and preferences. High-level and productivity-focused APIs provide a simplified programming model and  maximize code portability, while low-level and performance-focused APIs provide a high level of control over the GPU's hardware but also require more coding effort and expertise.
+Each of these GPU programming environments has its own strengths and weaknesses, 
+and the best choice for a given project will depend on a range of factors, including: 
+- the hardware platforms being targeted 
+- the type of computation being performed, and
+- the developer's experience and preferences. 
+ 
+**High-level and productivity-focused APIs** provide a simplified programming model and  maximize code portability, 
+while **low-level and performance-focused APIs** provide a high level of control over the GPU's hardware but also 
+require more coding effort and expertise.
 
 
 
