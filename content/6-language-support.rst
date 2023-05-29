@@ -15,10 +15,6 @@ High-level language support
    - 15 min exercises
 
 
-GPU libraries
--------------
-
-
 Julia
 -----
 
@@ -426,8 +422,9 @@ There are a couple of options available to work with GPU.
 CuPy
 ^^^^
 
-CuPy is a NumPy/SciPy-compatible data array library used on GPU. 
-CuPy has a highly compatible interface with NumPy and SciPy, As stated on its official website, 
+CuPy is a NumPy/SciPy-compatible data array library used on GPU. It has been developed for NVIDIA GPUs 
+but as experimental support for AMD GPUs. 
+CuPy has a highly compatible interface with NumPy and SciPy. As stated on its official website, 
 "All you need to do is just replace *numpy* and *scipy* with *cupy* and *cupyx.scipy* in your Python code." 
 If you know NumPy, CuPy is a very easy way to get started on the GPU.
 
@@ -436,6 +433,7 @@ cuDF
 ^^^^
 
 RAPIDS is a high level packages collections which implement CUDA functionalities and API with Python bindings.
+It only supports NVIDIA GPUs.
 cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU.
 cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work 
 without knowing too much CUDA programming.
@@ -451,7 +449,8 @@ PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA progr
 Numba
 ^^^^^
 
-Same as for CPU, Numba allows users to JIT compile Python code to work on GPU as well.
+Numba allows users to just-in-time (JIT) compile Python code to run fast on CPUs, but can also 
+be used for JIT compiling for GPUs.
 In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.
 
 Numba supports GPU programming by directly compiling a restricted subset of Python code 
@@ -468,30 +467,146 @@ will produce a ufunc-like object. This object is a close analog but not fully co
 with a regular NumPy ufunc. Generating a ufunc for GPU requires the explicit 
 type signature and  target attribute.
 
+Examples
+~~~~~~~~
+
+.. demo:: Demo: Numba ufunc 
+   
+   Let's revisit our example during the episode of optimization.
+
+   .. tabs::
+
+      .. tab:: python
+
+         .. literalinclude:: examples/numba/math_cpu.py
+            :language: python
+
+      .. tab:: Numba ufunc cpu
+
+         .. literalinclude:: examples/numba/math_numba_cpu.py
+            :language: python
+
+      .. tab:: Numba ufunc gpu
+
+         .. literalinclude:: examples/numba/math_numba_gpu.py
+            :language: python
 
 
-Data transfer
-~~~~~~~~~~~~~
+   Let's benchmark
 
-Although Numba could transfer data automatically from/to the device, these data transfers are slow, 
-sometimes even more than the actual on-device computation. 
-Therefore explicitly transfering the data is necessary and should be minimised in real applications.
+   .. tabs::
 
-Using numba.cuda functions, one can transfer data from/to device. To transfer data from cpu to gpu, 
-one could use ``to_device()`` method: 
+      .. tab:: python
 
-.. code-block:: python
+	 .. code-block:: python
 
-	d_x = numba.cuda.to_device(x)
-	d_y = numba.cuda.to_device(y)
+            import numpy as np
+	    x = np.random.rand(10000000)
+	    res = np.random.rand(10000000)
 
-the resulting d_x is a ``DeviceNDArray``. 
-To transfer data on the device back to the host, one can use the ``copy_to_host()`` method:
+	 .. code-block:: ipython
 
-.. code-block:: python
+	    %%timeit -r 1
+            for i in range(10000000):
+                res[i]=f(x[i], x[i])
+            # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
 
-	d_x.copy_to_host(h_x)
-	h_y = d_y.copy_to_host()
+      .. tab:: Numba cpu
+
+	 .. code-block:: ipython
+
+            import numpy as np
+	    x = np.random.rand(10000000)
+	    res = np.random.rand(10000000)
+	    %timeit res=f_numba_cpu(x, x)
+            # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
+
+      .. tab:: Numba gpu
+
+	 .. code-block:: ipython
+
+            import numpy as np
+            import numba
+            x = np.random.rand(10000000)
+	    res = np.random.rand(10000000)
+	    %timeit res=f_numba_gpu(x, x)
+            # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+
+
+Numba ``@vectorize`` is limited to scalar arguments in the core function, for multi-dimensional arrays arguments, 
+``@guvectorize`` is used. Consider the following example which does matrix multiplication. 
+
+
+.. warning::
+
+   You should never implement such things like matrix multiplication by yourself, 
+   there are plenty of existing libraries available. 
+
+
+.. demo:: Numba gufunc  
+
+   .. tabs::
+
+      .. tab:: python
+
+         .. literalinclude:: examples/numba/matmul_cpu.py
+            :language: python
+
+      .. tab:: numba gufunc cpu
+
+         .. literalinclude:: examples/numba/matmul_numba_cpu.py
+            :language: python
+
+      .. tab:: numba gufunc gpu
+
+         .. literalinclude:: examples/numba/matmul_numba_gpu.py
+            :language: python
+
+
+   Benchmark:
+
+   .. tabs::
+
+      .. tab:: Numba gufunc cpu
+
+	 .. code-block:: ipython
+
+                import numpy as np
+                import numba
+		N = 50
+		A = np.random.rand(N,N)
+		B = np.random.rand(N,N)
+		C = np.random.rand(N,N)
+		%timeit matmul_numba_cpu(A,B,C)
+		
+
+      .. tab:: Numba gufunc gpu
+
+	 .. code-block:: ipython
+
+                import numpy as np
+                import numba
+		N = 50
+		A = np.random.rand(N,N)
+		B = np.random.rand(N,N)
+		C = np.random.rand(N,N)
+		%timeit matmul_numba_gpu(A,B,C)
+
+
+
+.. note:: 
+
+   Numba automatically did a lot of things for us:
+
+   - Memory was allocated on GPU
+   - Data was copied from CPU and GPU
+   - The kernel was configured and launched
+   - Data was copied back from GPU to CPU
+
+
+Although it is simple to use ufuncs(gfuncs) to run on GPU, the performance is the price we have to pay. 
+In addition, not all functions can be written as ufuncs in practice. To have much more flexibility, 
+one needs to write a kernel on GPU or device function, which requires more understanding of the GPU programming. 
 
 
 
@@ -501,5 +616,5 @@ See also
 * `Python for HPDA (ENCCS) <https://enccs.github.io/hpda-python/parallel-computing/>`__
 * `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`__
 * `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
-
+* `CuPy <https://cupy.dev/>`__
 
