@@ -145,7 +145,17 @@ Apart from being much light weighted there are more differences between GPU thre
 
 All memory accesses to the GPU memory are as a group in blocks of specific sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called *coalesced* memory access.
 
-On some architectures, all members of a :abbr:`warp` have to execute the same instruction, so-called "lock-step" execution. This is done to achieve higher performance, but there are some drawbacks. If a an **if** statement is present inside a warp will cause the warp to be executed more than once, one time for each branch. On architectures without lock-step execution, such as NVIDIA Volta (e.g., GeForce 16xx-series) or newer, warp divergence is less costly.
+
+On some architectures, all members of a :abbr:`warp` have to execute the 
+same instruction, the so-called "lock-step" execution. This is done to achieve 
+higher performance, but there are some drawbacks. If an **if** statement 
+is present inside a warp will cause the warp to be executed more than once, 
+one time for each branch. When different threads within a single :abbr:warp
+take different execution paths based on a conditional statement (if), both
+branches are executed sequentially, with some threads being active while
+others are inactive. On architectures without lock-step execution, such 
+as NVIDIA Volta / Turing (e.g., GeForce 16xx-series) or newer, warp
+divergence is less costly.
 
 There is another level in the GPU :abbr:`threads` hierarchy. The :abbr`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
 
