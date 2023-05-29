@@ -92,6 +92,14 @@ Discussion
       * what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
 
 
+.. keypoints::
+
+   - Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.
+   - Importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time.
+   - The need to refactor loops to suit the GPU architecture.
+   - Significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns.
+
+
 Porting between different GPU frameworks
 ----------------------------------------
 
@@ -274,10 +282,6 @@ See also
 
 .. keypoints::
 
-   - Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.
-   - Importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time.
-   - The need to refactor loops to suit the GPU architecture.
-   - Significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns.
    - Useful tools exist to automatically translate tools from CUDA to HIP and from OpenACC to OpenMP, but they may require manual modifications.
    
    
