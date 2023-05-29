@@ -47,15 +47,14 @@ to learn and use for their projects. Specifically, you will:
    3-gpu-problems
    4-gpu-concepts
    5-intro-to-gpu-prog-models
-   6-directive-based-models
-   6.5-multiple_gpu
-   7-non-portable-kernel-models
-   8-portable-kernel-models
-   9-language-support
-   10-gpu-porting
-   11-recommendations
-   12-examples
-   12.5-humanities
+   6-language-support
+   7-directive-based-models
+   8-multiple_gpu
+   9-non-portable-kernel-models
+   10-portable-kernel-models
+   11-gpu-porting
+   12-recommendations
+   13-examples
 
 .. toctree::
    :maxdepth: 1
