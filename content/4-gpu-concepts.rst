@@ -240,29 +240,6 @@ Software
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies for block dimensions and indexing. 
 
-Hardware
-~~~~~~~~
-
-THIS TABLE COULD BE MOVED TO EPISODE 2
-
-.. list-table:: Hardware
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - Nvidia
-     - AMD
-     - Intel
-   * - streaming processor/streaming core
-     - SIMD lane
-     - processing element
-   * - SIMT unit
-     - SIMD unit
-     - 
-   * - streaming multiprocessor (SMP)
-     - computing unit (CU)
-     - execution unit (EU)
-
-
 
 
 .. keypoints::
