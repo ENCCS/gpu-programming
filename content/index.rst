@@ -47,15 +47,14 @@ to learn and use for their projects. Specifically, you will:
    3-gpu-problems
    4-gpu-concepts
    5-intro-to-gpu-prog-models
-   6-directive-based-models
-   6.5-multiple_gpu
-   7-non-portable-kernel-models
-   8-portable-kernel-models
-   9-language-support
-   10-gpu-porting
-   11-recommendations
-   12-examples
-   12.5-humanities
+   6-language-support
+   7-directive-based-models
+   8-multiple_gpu
+   9-non-portable-kernel-models
+   10-portable-kernel-models
+   11-gpu-porting
+   12-recommendations
+   13-examples
 
 .. toctree::
    :maxdepth: 1
@@ -72,23 +71,31 @@ to learn and use for their projects. Specifically, you will:
 Who is the course for?
 ----------------------
 
-
+Software developers and decision makers in academia, industry and the public sector who need to navigate the 
+GPU programming landscape and make informed decisions on which languages or frameworks 
+to learn and use for their projects.
 
 
 
 About the course
 ----------------
 
-
-
+This training material is the result of a multilateral effort by GPU programming experts from:
+- `Aalto University in Finland `__
+- `Aarhus University in Denmark <https://www.au.dk/>`__
+- `CSC in Finland <https://csc.fi/>`__
+- `ENCCS in Sweden <https://enccs.se/>`__
+- `HPC2N centre in Umeå, Sweden <https://www.hpc2n.umu.se/>`__
+- `KTH Royal Institute for Technology in Sweden <https://www.kth.se/>`__
+- `NRIS in Norway <https://www.sigma2.no/nris>`__
+- `Vilnius University in Lithuania <https://www.vu.lt/en/>`__ and `NCC Lithuania <https://www.eurocc-lithuania.lt/>`__
 
 
 
 See also
 --------
 
-
-
+Links to additional resources and tutorials can be found in the lesson episodes.
 
 
 Credits
@@ -101,6 +108,7 @@ all distributed under a
 
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__--
 - `High Performance Data Analytics in Python <https://enccs.github.io/hpda-python/>`__
+- `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
 
 
 The lesson file structure and browsing layout is inspired by and derived from

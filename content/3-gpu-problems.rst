@@ -11,8 +11,7 @@ What problems fit to GPU?
 
 .. objectives::
 
-   - o1
-   - o2
+   - Get a feeling for the type of use cases that GPUs excel at.
 
 .. instructor-note::
 
@@ -40,14 +39,14 @@ Answer from `Stack Exchange <https://scicomp.stackexchange.com/questions/943/wha
 GPU computing is well-suited to problems that involve large amounts of data parallelism. 
 Specifically, you can expect good performance on GPUs for:
 
-- Large-scale matrix and vector operations, which are common in machine learning, scientific computing, and image processing.
-- Fourier transforms, also common in machine learning, scientific computing, and image processing.
-- Monte Carlo simulations, used across finance, physics, and other fields to simulate complex systems.
-- Molecular dynamics simulations, which are used in chemistry, biochemistry and physics.
-- Computational fluid dynamics, used in engineering, physics, and other fields.
-- Convolutional neural networks and computer vision algorithms.
-- Big data analytics, such as clustering, classification, and regression.
-- Graphics rendering, which GPUs were originally designed for.
+- **Large-scale matrix and vector operations**: Common in machine learning, scientific computing, and image processing.
+- **Fourier transforms**: Also common in machine learning, scientific computing, and image processing.
+- **Monte Carlo simulations**: Used across finance, physics, and other fields to simulate complex systems.
+- **Molecular dynamics simulations**: Used in chemistry, biochemistry and physics.
+- **Computational fluid dynamics**: Used in engineering, physics, and other fields.
+- **Convolutional neural networks** and **computer vision algorithms**.
+- **Big data analytics**: Clustering, classification, regression, etc.
+- **Graphics rendering**: Original use-case for GPUs.
 
 What are GPUs not good for
 --------------------------
@@ -88,6 +87,9 @@ Examples of GPU acceleration
 FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
 one can get 
 
+To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
+(if we're lucky!), let's look at a few simple cases:
+
 
 
 Computational Chemistry
@@ -114,3 +116,43 @@ processing (digestion) of the ERIs, one algorithm to do this task is as follows:
 This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
 there are symmetries and properties of the integrals that could be used to rearrange the loops in
 an efficient manner that fit GPU architectures. 
+
+
+Humanities
+^^^^^^^^^^
+
+**Language models and NLP**
+
+With the recent popularity of ChatGPT, the use of language models has come into the mainstream, 
+however such models have been used in the humanities many years already. One of the biggest goals of humanities 
+researchers is working with textual data which has increased exponentially over recent years due to the rise in 
+social media. Analyzing such textual data to gain insights into questions of sociology, linguistics and various 
+other fields have become increasingly reliant on using language models. Along with language models, 
+the need for GPU access has become essential.
+
+
+**Archeology**
+
+The field of archeology also makes use of GPUs in their 3D modelling 
+and rendering work. The biggest problem with archeological sites is that once they are excavated, 
+they are destroyed, so any researchers who aren't present at the site, would lose valuable insights into how 
+it looked when it was found. However, with recent developments in technology and accessibility to high-performance 
+computing, they are able to generate extremely detailed renderings of the excavation sites which act as a way to 
+preserver the site for future researchers to gain critical insights and contribute to the research. 
+
+Exercises
+---------
+
+.. challenge:: Good and bad use cases for GPU porting
+
+   Which of the following computational tasks is likely to gain the least performance benefit from being ported to a GPU?
+
+   1. Training a large, deep neural network.
+   2. Performing a Monte Carlo simulation with a large number of independent trials.
+   3. Executing an algorithm with heavy use of recursion and frequent branching.
+   4. Processing a large image with a convolutional filter.
+
+   .. solution::
+
+      The right answer is option 3. GPUs do not handle recursion and branching as effectively as more 
+      data-heavy algorithms.
