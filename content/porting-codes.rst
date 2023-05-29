@@ -74,7 +74,7 @@ container. Here we present a step-by-step guide for running ````hipify-clang````
 
 .. code-block::
 
-         $ singularity pull docker://nvcr.io/nvidia/cuda:11.4.0-devel-ubi8
+         $ singularity pull docker://nvcr.io/nvidia/cuda:11.4.3-devel-ubuntu20.04
 
 - **Step 3**: Loading a rocm module and launching the CUDA singularity
 
@@ -114,9 +114,6 @@ the compiler ````Clacc```` is the ````Clang````'s executable in the subdirectory
 
 In the following we present a step-by-step guide for building and using `Clacc`:
 
-Building ````Clacc````
-~~~~~~~~~~~~~~~~~~~~~~
-
 **Step 1**: Building and installing `Clacc <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_.
 
 .. code-block::
@@ -143,22 +140,6 @@ For more advanced usage, which includes for instance modifying ````Clacc````, we
 
          $ export PATH=/project/project_xxxxxx/Clacc/llvm-project/install/bin:$PATH
          $ export LD_LIBRARY_PATH=/project/project_xxxxxx/Clacc/llvm-project/install/lib:$LD_LIBRARY_PATH
-
-Running ````Clacc````
-~~~~~~~~~~~~~~~~~~~~~
-
-**Step 1**: Compiling & running an OpenACC code on a CPU-host:
-
-.. code-block::
-
-         $ module load rocm
-         $ clang -fopenacc openACC_code.c && ./executable
-
-**Step 2**: Compiling & run an OpenACC code on AMD-GPU:
-
-.. code-block::
-
-      $ clang -fopenacc -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target=amdgcn-amd-amdhsa -march=gfx90a openACC_code.c && ./executable
 
 **Step 3**: Source to source conversion of the `openACC_code.c` code to be printed out to the file `openMP_code.c`:
 
