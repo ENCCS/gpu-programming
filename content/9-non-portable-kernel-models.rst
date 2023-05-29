@@ -956,6 +956,9 @@ Shared memory is composed of banks. Each banks can service only one request at t
        
 By padding the array the data is slightly shifting it resulting in no bank conflicts. The effective bandwidth for this kernel is `697 GB/s`. 
 
+Reductions
+^^^^^^^^^^ 
+
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
 CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrentely. 
@@ -966,7 +969,7 @@ Consider a case which involves copying data from CPU to GPU, computations and th
    :align: center
 
 
-Modern GPUs can execute in the same time copying in both directions and calculations. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
+Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernles in the same time.  One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
 Note that even when streams are not explicitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
 Examples

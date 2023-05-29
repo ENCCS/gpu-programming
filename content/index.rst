@@ -4,18 +4,18 @@ GPU Programming: When, Why and How?
 Graphical processing units (GPUs) are the workhorse of many high performance 
 computing (HPC) systems around the world. The number of GPU-enabled supercomputers 
 on the `Top500 <https://www.top500.org/>`__ has been steadily increasing in recent years 
-and this development is expected to continue. In the near future the majority of HPC 
+and this development is expected to continue. In the near future, the majority of HPC 
 computing power available to researchers and engineers is likely to be provided by GPUs 
-or other types of accelerators. Programming GPUs and other accelerators is thus increasingly 
-important to developers who write software which is executed on HPC systems.
+or other types of accelerators. Programming GPUs and other accelerators is thus crucial
+to developers of software run on HPC systems.
 
 However, the landscape of GPU hardware, software and programming environments is complicated. 
-Multiple vendors compete in the high-end GPU market, each vendor provides their own software 
-stack and development toolkits, and even beyond that there is a proliferation of tools, 
+Multiple vendors compete in the high-end GPU market, with each vendor providing its own software 
+stack and development toolkits, and even beyond that, there is a proliferation of tools, 
 languages and frameworks that can be used to write code for GPUs.
 It can thus be difficult for individual developers and project owners to know how to 
-navigate this landscape and select the most appropriate GPU programming framework for their 
-projects based on the requirements of a given project and technical specifics of any 
+navigate across this landscape and select the most appropriate GPU programming framework for their 
+projects based on the requirements of a given project and technical requirements of any 
 existing code.
 
 This material is meant to help both software developers and decision makers navigate the 
@@ -28,11 +28,6 @@ to learn and use for their projects. Specifically, you will:
 - Learn the fundamentals in at least one framework to a level which will enable you to quickly become a productive GPU programmer.
 
 .. prereq::
-
-   This material is most relevant to researchers and engineers who already develop software 
-   which runs on CPUs in workstations or supercomputers, but also to decision makers or 
-   project managers who don't write code but make strategic decisions in software projects, 
-   whether it's in academia, industry or the public sector.
 
    Familiarity with one or more programming languages like C/C++, Fortran, Python or 
    Julia is recommended.
@@ -71,9 +66,10 @@ to learn and use for their projects. Specifically, you will:
 Who is the course for?
 ----------------------
 
-Software developers and decision makers in academia, industry and the public sector who need to navigate the 
-GPU programming landscape and make informed decisions on which languages or frameworks 
-to learn and use for their projects.
+This material is most relevant to researchers and engineers who already develop software 
+which runs on CPUs in workstations or supercomputers, but also to decision makers or 
+project managers who don't write code but make strategic decisions in software projects, 
+whether it's in academia, industry or the public sector.
 
 
 
@@ -81,7 +77,8 @@ About the course
 ----------------
 
 This training material is the result of a multilateral effort by GPU programming experts from:
-- `Aalto University in Finland `__
+
+- `Aalto University in Finland <https://www.aalto.fi/en>`_
 - `Aarhus University in Denmark <https://www.au.dk/>`__
 - `CSC in Finland <https://csc.fi/>`__
 - `ENCCS in Sweden <https://enccs.se/>`__
@@ -106,7 +103,7 @@ Several sections in this lesson have been adapted from the following sources cre
 all distributed under a 
 `Creative Commons Attribution license (CC-BY-4.0) <https://creativecommons.org/licenses/by/4.0/>`__:
 
-- `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__--
+- `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__
 - `High Performance Data Analytics in Python <https://enccs.github.io/hpda-python/>`__
 - `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
 
