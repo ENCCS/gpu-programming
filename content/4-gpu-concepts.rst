@@ -249,8 +249,3 @@ Software
    - GPUs are a type of shared memory architecture suitable for data parallelism.
    - GPUs have high parallelism, with threads organized into blocks and warps.
    - GPU optimization involves coalesced memory access, shared memory usage, and high thread and warp occupancy. Additionally, architecture-specific features such as warp-level operations and cooperative groups can be leveraged for more efficient processing.
-
-Additional information
-----------------------
-         
-* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`_
