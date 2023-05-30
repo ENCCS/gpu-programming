@@ -190,7 +190,7 @@ SYCL programming
 
 SYCL is, in many aspects, similar to OpenCL, but uses, like Kokkos, a single-source model with kernel lambdas.
 
-To submit a task to device, first a ``sycl::queue` must be created, which is used as a way to manage the
+To submit a task to device, first a `sycl::queue` must be created, which is used as a way to manage the
 task scheduling and execution. In the simplest case, that's all the initialization one needs:
 
 .. code-block:: C++
