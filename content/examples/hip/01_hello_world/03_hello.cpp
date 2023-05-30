@@ -1,0 +1,28 @@
+#include "hip/hip_runtime.h"
+//
+// nvcc 03_hello.cu
+// run with the command './a.exe' and './a.exe > out.txt'
+//	   to get results from CPU and GPU with different output orders
+//
+#include <stdio.h>
+
+void __global__ hello_from_gpu()
+{
+    printf("\n\n---Hello World from the GPU!\n\n");
+}
+
+
+int main(int argc, const char * argv[])
+{
+	printf("\n----------------------\n");
+	printf("Hello World from CPU! Before calling 'hello_from_gpu' kernel function.\n");
+	
+    hipLaunchKernelGGL(hello_from_gpu, 1, 1, 0, 0);
+
+	printf("Hello World from CPU!  After calling 'hello_from_gpu' kernel function.\n");
+	printf("\n----------------------\n");
+
+	hipDeviceSynchronize(); // hipDeviceReset();
+
+    return 0;
+}
