@@ -964,9 +964,7 @@ Reductions refer to operations in which the elements of an array are agregated i
 In the serial approach, the reduction is performed sequentially by iterating through the collection of values and accumulating the result step by step. This will be enough for small sizes, but for big problems this results significant time spent in this part of an application. On a GPU this approach is feasable. Using just one thread to do this operation means the rest of the GPU is wasted. Doing reduction in parallel is a little tricky. In order for a thread to do work needs to have some partial result to use. If we launch for example a kernel performing a simple vector summation `sum[0]+=a[tid]` with `N` threads we notice that this would result in undefined behaviour. GPUs have mechanisms to access the memory and lock the access for other theads while 1 thread is doing some operations to a given data via **atomics**, however this means that the memory access gets again to be serialized. There is not much gain. 
 We not that when doing reductions the order of the iterations is not import. Also we can we can have to divide our problem in several subsets and do the reduction operation for each subset separately. On the GPus, since the GPU threads are grouped in blocks, the size of the subset based on that. In side the block  threads can cooperate with each other, they can shared data via the shared memory and can be sunchronized as well. All threads read data to be reduced, but now we have significantly less partial results to deal. In general the size of the block ranges from 256 to 1024 threads. In case of very large problems after this procedure if we are left too many partial results this step can be repeated.
 
-At the block level we still have to perform a reduction in an efficient way. Doing it serially means that we are not using all GPU cores (roughly 97% of the computing capacity is wasted). Doing it naively parallel using **atomics**, but on the shared memory is also not a good option. Going back back to the fact the reduction operations are commutative and associative we can set each thread to "reduce" two elements of the local part of the array. If we have `tpb` GPU threads per block, first we use them to save in the local shared memory `2xtpb` elements. In order to make sure the threads wait until all the data is in the shared memory we use `synchtreads()` function. Now we set each thread to "reduce" the element in the array at `threadIdx.x` with the one at `threadIdx.x+tpb`. Since this saves the result into the shared memory we have again use `synchthreads()`.  Now we have halved the number of elements to be reduced. The same procedure can be applied, but now we use only `tpb/2` threads. Now we set each thread to "reduce" the element in the array at `threadIdx.x` with the one at `threadIdx.x+tpb/2`. After this step we have `tpb/4` numbers to be reduced. This procedure is applied until only one number is left. This can be now "reduced" with some global partial result using **atomic** read and write, or saved into an array. 
-
-An example of a kernel reduction is shown below:
+At the block level we still have to perform a reduction in an efficient way. Doing it serially means that we are not using all GPU cores (roughly 97% of the computing capacity is wasted). Doing it naively parallel using **atomics**, but on the shared memory is also not a good option. Going back back to the fact the reduction operations are commutative and associative we can set each thread to "reduce" two elements of the local part of the array. Shared memroy can be used to store the partial "reductions" as shown below inthe code:
 
 .. tabs:: 
 
@@ -990,16 +988,54 @@ An example of a kernel reduction is shown below:
    .. tab:: CUDA
 
       .. code-block:: C++
+         
+         #define tpb 512 // size in this case has to be known at compile time
+         // this kernel has to be launched with at least N/2 threads
+         __global__ void reduction_one(double x, double *sum, int N){
+           int ibl=blockIdx.y+blockIdx.x*gridDim.y;
+           int ind=threadIdx.x+blockDim.x*ibl;
+           
+           __shared__ double shtmp[2*tpb];  
+           shtmp[threadIdx.x]=0; // for sums we initiate with 0, for other operations should be differe
+           if(ind<N/2)
+           {
+              shtmp[threadIdx.x]=x[ind];
+           }
+           if(ind+N/2<N) 
+           {
+              shtmp[threadIdx.x+tpb]=x[ind+N/2];
+           }
+           __syncthreads();
+           for(int s=tpb;s>0;s>>=1){
+             if(threadIdx.x<s){
+                shtmp[threadIdx.x]+=shtmp[threadIdx.x+s];}
+             __syncthreads(); 
+           }
+           if(threadIdx.x==0)
+           {
+             sum[ibl]=shtmp[0]; // each block saves its partial result to an array 
+             // atomicAdd(&sum[0], shene[0]); // alternatively could agregate everything togheter at index 0. Only use when there not many partial sums left
+           }
+         }
 
-        #include <stdio.h>
-        #include <cuda.h>
-        #inclde <cuda_runtime.h>
-        #include <math.h>
       
    .. tab:: HIP
 
       .. code-block:: C++ 
-         
+
+In the kernel we have each GPU performing  thread a reductionon two elements from the local portion of the array. If we have `tpb` GPU threads per block, we utilize them to store `2xtpb elements` in the local shared memory. To ensure synchronization until all data is available in the shared memory, we employ the `syncthreads()` function.
+
+Next, we instruct each thread to "reduce" the element in the array at `threadIdx.x` with the element at `threadIdx.x+tpb`. As this operation saves the result back into the shared memory, we once again employ `syncthreads()`. By doing this, we effectively halve the number of elements to be reduced.
+
+This procedure can be repeated, but now we only utilize `tpb/2 threads`. Each thread is responsible for "reducing" the element in the array at `threadIdx.x` with the element at `threadIdx.x+tpb/2`. After this step, we are left with `tpb/4` numbers to be reduced. We continue applying this procedure until only one number remains.
+
+At this point, we can either "reduce" the final number with a global partial result using atomic read and write operations, or we can save it into an array for further processing.
+
+.. figure:: img/concepts/Reduction.png
+   :align: center
+   
+   Schematic respresentation on the reduction algorithm with 8 GPU threads.
+   
 For a detail analysis of how to optimize reduction operations in CUDA/HIP check this slide `Optimizing Parallel Reduction in CUDA <https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf>`_  
 
 CUDA/HIP Streams
