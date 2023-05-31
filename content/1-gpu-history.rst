@@ -11,7 +11,7 @@ Why GPUs?
 .. objectives::
 
    - Explain the historical development of microprocessors and how GPUs enable 
-     continued scaling of computational power
+     continued scaling in computational power
 
 .. instructor-note::
 
@@ -22,21 +22,21 @@ Why GPUs?
 Moore's law
 -----------
 
-The number of transistors in a dense integrated circuit doubles about every two years.
+It states that  number of transistors in a dense integrated circuit doubles about every two years.
 More transistors means smaller size of a single element, so higher core frequency can be achieved.
-However, power consumption scales as frequency in third power, so the growth in the core frequency has slowed down significantly.
+However, power consumption scales with frequency to the third power, so the growth in the core frequency has slowed down significantly.
 Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD, branch prediction, etc.
 
 .. figure:: img/history/microprocessor-trend-data.png
    :align: center
 
    The evolution of microprocessors.
-   The number of transistors per chip increase every 2 years or so.
-   However it can no longer be explored by the core frequency due to power consumption limits.
+   The number of transistors per chip increase roughly every 2 years.
+   However, it can no longer be explored by the core frequency due to power consumption limits.
    Before 2000, the increase in the single core clock frequency was the major source of the 
    increase in the performance. Mid 2000 mark a transition towards multi-core processors.
 
-Achieving performance has been based on two main strategies over the years:
+Increasing performance has been sustained with two main strategies over the years:
 
     - Increase the single processor performance: 
     - More recently, increase the number of physical cores.
@@ -53,8 +53,8 @@ subtasks. Many subtasks can then be solved *simultaneously* by multiple processi
    
    Computing in parallel.
 
-How a problem is split into smaller subtasks depends fully on the problem. 
-There are various paradigms and programming approaches how to do this. 
+How a problem is split into smaller subtasks strongly depends on the problem. 
+There are various paradigms and programming approaches to do this. 
 
 
 Graphics processing units
@@ -62,14 +62,18 @@ Graphics processing units
 
 Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
 GPUs were initially developed for highly-parallel task of graphic processing.
-Over the years, were used more and more in HPC.
-GPUs are a specialized parallel hardware for floating point operations.
-GPUs are co-processors for traditional CPUs: CPU still controls the work flow, delegating highly-parallel tasks to the GPU.
-Based on highly parallel architectures, which allows to take advantage of the increasing number of transistors.
+But over the years, they were used more and more in HPC.
 
-Using GPUs allows one to achieve very high performance per node.
-As a result, the single GPU-equipped workstation can outperform small CPU-based cluster for some type of computational tasks.
-The drawback is: usually major rewrites of programs is required.
+GPUs are a specialized parallel hardware for floating point operations.
+They are basically co-processors (helpers) for traditional CPUs: CPU still controls the work flow
+but it delegates highly-parallel tasks to the GPU.
+GPUs are based on highly parallel architectures, which allows taking advantage of the 
+increasing number of transistors.
+
+Using GPUs allows one to achieve extreme performance per node.
+As a result, the single GPU-equipped workstation can outperform small CPU-based clusters 
+for some type of computational tasks. The drawback is: usually major rewrites of programs is required
+with an accompanying change in the programming paradigm.
 
 .. callout:: Host vs device
 
@@ -117,8 +121,9 @@ high branching behavior, may not see significant performance improvements on GPU
 Steeper learning curve
 ^^^^^^^^^^^^^^^^^^^^^^
 
-GPU computing requires specialized skills in GPU programming and knowledge of 
-GPU architecture, resulting in a steeper learning curve compared to CPU programming. 
+Depending on the GPU programming API that you choose, GPU computing could 
+require specialized skills in GPU programming and knowledge of 
+GPU architecture, leading to a steeper learning curve compared to CPU programming. 
 Fortunately, if you study this training material closely you will become productive 
 with GPU programming quickly!
 
@@ -126,5 +131,6 @@ with GPU programming quickly!
 
 .. keypoints::
 
-   - k1
-   - k2
+   - GPUs are accelerators for some types of tasks
+   - Highly parallilizable compute-intensive tasks are suitable for GPUs
+   - New programming skills are needed to use GPUs efficiently
