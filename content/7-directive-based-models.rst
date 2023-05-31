@@ -976,6 +976,12 @@ Pros and cons of directive-based frameworks
 - Good portability
 
 
+See also
+--------
+
+- `ENCCS lesson on OpenACC <https://enccs.github.io/openacc/>`__
+- `ENCCS lesson on OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__
+
 .. keypoints::
 
    - k1
