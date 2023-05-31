@@ -231,7 +231,7 @@ is between 1 and 9, and ``Y``the minor. When using HIP on Nvidia platforms one n
 ``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc``( where ``abc`` is the architecture code 
 such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
 Note that in the case of portable (single source) programs one would specify ``openmp`` as well as target for 
-compilation, enabling to run the same code on multicore cpu. 
+compilation, enabling to run the same code on multicore CPU. 
 
 
 

@@ -461,7 +461,7 @@ NumPy arrays are transferred between the CPU and the GPU automatically.
 ufunc (gufunc) decorator
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Using ufuncs (and generalized ufuncs) is the easist way to run on a GPU with Numba, 
+Using ufuncs (and generalized ufuncs) is the easiest way to run on a GPU with Numba, 
 and it requires minimal understanding of GPU programming. Numba ``@vectorize`` 
 will produce a ufunc-like object. This object is a close analog but not fully compatible 
 with a regular NumPy ufunc. Generating a ufunc for GPU requires the explicit 

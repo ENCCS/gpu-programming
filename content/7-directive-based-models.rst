@@ -201,7 +201,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
    To make a change, adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
    and ``num_teams``, ``thread_limit`` for OpenMP offloading.
 
-   Remember to set the envrioment by executing "export CRAY_ACC_DEBUG=2" at runtime.
+   Remember to set the environment by executing ``export CRAY_ACC_DEBUG=2`` at runtime.
    
    How to compile and run the code:
 
@@ -393,7 +393,7 @@ structured data region and unstructured data region.
 Structured Data Region
 ++++++++++++++++++++++
 
-A structured data region is convenient for providing persistent data on the device which could be used for subseqent GPU directives.
+A structured data region is convenient for providing persistent data on the device which could be used for subsequent GPU directives.
 
 
 .. challenge:: Syntax for structured data region

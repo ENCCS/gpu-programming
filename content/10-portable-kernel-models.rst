@@ -25,7 +25,7 @@ Kokkos
 
 Kokkos is an open-source performance portability ecosystem for parallelization on large heterogeneous hardware architectures of which development has mostly taken place on Sandia National Laboratories. The project started in 2011 as a parallel C++ programming model, but have since expanded into a more broad ecosystem including Kokkos Core (the programming model), Kokkos Kernels (math library), and Kokkos Tools (debugging, profiling and tuning tools). By preparing proposals for the C++ standard committee, the project also aims to influence the ISO/C++ language standard such that, eventually, Kokkos capabilities will become native to the language standard. A more detailed introduction is found `HERE <https://www.sandia.gov/news/publications/hpc-annual-reports/article/kokkos/>`_.
 
-The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a much larger amount of search results and stackoverflow discussions can be found.
+The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a much larger amount of search results and Stack Overflow discussions can be found.
 
 
 Kokkos compilation
@@ -987,7 +987,7 @@ General observations
 ~~~~~~~~~~~~~~~~~~~~
     - The amount of code duplication is minimized
     - The same code can be compiled to multiple architectures from different vendors
-    - Limited learning resources compared to CUDA (stackoverflow, course material, documentation)
+    - Limited learning resources compared to CUDA (Stack Overflow, course material, documentation)
 
 Lambda-based kernel models (Kokkos, SYCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
