@@ -11,7 +11,7 @@ The GPU hardware and software ecosystem
 .. objectives::
 
    - Understand the fundamental differences between GPUs and CPUs
-   - Explore the major GPU software suites available, such as CUDA, ROCm, and OneAPI, and gain a basic understanding of them
+   - Explore the major GPU software suites available, such as CUDA, ROCm, and oneAPI, and gain a basic understanding of them
 
 .. instructor-note::
 
@@ -99,7 +99,7 @@ GPU platforms
 
 GPUs come together with software stacks or APIs that  work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. They  are used by software developers to write code that can take advantage of the parallel processing power of the GPU, and they provide a standard way for software to interact with the GPU hardware. Typically, they provide access to low-level functionality, such as memory management, data transfer between the CPU and the GPU, and the scheduling and execution of parallel processing tasks on the GPU. They may also provide higher level functions and libraries optimized for specific HPC  workloads, like linear algebra or fast Fourier transforms. Finally, in order to facilitate the developers to optimize and write correct codes, debugging  and profiling tools are also included. 
 
-*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **OneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
+*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **oneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
 There are also cross-platform APIs such **DirectCompute** (only for Windows operating system), **OpenCL**, and **SYCL**.
 
 .. admonition:: CUDA - In short
@@ -141,7 +141,7 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
       - Can be called directly from HIP
       - ``hip``-prefixed wrappers ensure portability with no performance cost
 
-.. admonition:: OneAPI - In short
+.. admonition:: oneAPI - In short
    :class: dropdown
 
    - Intel oneAPI: Unified software toolkit for optimizing and deploying applications across various architectures
@@ -152,7 +152,9 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
       - Features Collective Communications Library, Data Analytics Library, Deep Neural Networks Library, and more
    - Additional toolkits: Intel oneAPI HPC Toolkit
       - Contains compilers, debugging tools, MPI library, and performance analysis tool
-   - Multiple programming models and languages supported: OpenMP, Classic Fortran, C++, SYCL
+   - Multiple programming models and languages supported:
+      - OpenMP, Classic Fortran, C++, SYCL
+      - Unless custom Intel libraries are used, the code is portable to other OpenMP and SYCL frameworks
    - DPC++ Compiler: Supports Intel, Nvidia, and AMD GPUs
       - Targets Intel GPUs using oneAPI Level Zero interface
       - Added support for Nvidia GPUs with CUDA and AMD GPUs with ROCm
@@ -206,15 +208,15 @@ HIP code can be used on other platforms with no changes. Libraries included in t
 ROCm also integrates with popular machine learning frameworks such as TensorFlow and PyTorch and provides optimized libraries and drivers to accelerate machine learning workloads on AMD GPUs enabling the researchers to leverage the power of ROCm and AMD accelerators to train and deploy machine learning models efficiently.
 
 
-OneAPI
+oneAPI
 ^^^^^^
 
-**Intel oneAPI** is a unified software toolkit developed by Intel that allows developers to optimize and deploy applications across a variety of architectures, including CPUs, GPUs, and FPGAs. It provides a comprehensive set of tools, libraries, and frameworks, enabling developers to leverage the full potential of heterogeneous computing environments. With oneAPI, the developers can write code once and deploy it across different hardware targets without the need for significant modifications or rewriting. This approach promotes code reusability, productivity, and performance portability, as it abstracts the complexities of heterogeneous computing and provides a consistent programming interface. 
+**Intel oneAPI** is a unified software toolkit developed by Intel that allows developers to optimize and deploy applications across a variety of architectures, including CPUs, GPUs, and FPGAs. It provides a comprehensive set of tools, libraries, and frameworks, enabling developers to leverage the full potential of heterogeneous computing environments. With oneAPI, the developers can write code once and deploy it across different hardware targets without the need for significant modifications or rewriting. This approach promotes code reusability, productivity, and performance portability, as it abstracts the complexities of heterogeneous computing and provides a consistent programming interface based on open standards.
 
 The core of suite is **Intel oneAPI Base Toolkit**, a set of tools and libraries for developing high-performance, data-centric applications across diverse architectures. It features an industry-leading C++ compiler that implements SYCL, an evolution of C++ for heterogeneous computing. It includes the **Collective Communications Library**, the **Data Analytics Library**, the **Deep Neural Networks Library**, the **DPC++/C++ Compiler**, the **DPC++ Library**, the **Math Kernel Library**, the **Threading Building Blocks**, debugging tool **Intel Distribution for GDB**, performance anaylisis tools **Intel Adviser** and **Intel Vtune Profiler**, the **Video Processing Library**, **Intel Distribution for Python**, the **DPC++ Compatibility Tool**, the **FPGA Add-on for oneAPI Base Toolkit**, the **Integrated Performance Primitives**.
-This can be complemented with additional toolkits. The **Intel one API HPC Toolkit** contains **DPC++/C++ Compiler**, **Fortran** and **C++** Compiler Classic, debugging tools **Cluster Checker** and **Inspector**, **Intel MPI Library**, and performance analysis tool **Intel Trace Analyzer and Collector**. 
+This can be complemented with additional toolkits. The **Intel oneAPI HPC Toolkit** contains **DPC++/C++ Compiler**, **Fortran** and **C++** Compiler Classic, debugging tools **Cluster Checker** and **Inspector**, **Intel MPI Library**, and performance analysis tool **Intel Trace Analyzer and Collector**. 
 
-OneAPI supports multiple programming models and programming languages. It enables developers to write **OpenMP** codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well SYCL programs for GPUs using the **DPC++** compiler. Initially, the **DPC++** compiler only targeted Intel GPUs using the **oneAPI Level Zero** low-level programming interface, but now support for Nvidia GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added. 
+oneAPI supports multiple programming models and programming languages. It enables developers to write **OpenMP** codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well **SYCL** programs for GPUs and FPGAs using the **DPC++** compiler. Initially, the **DPC++** compiler only targeted Intel GPUs using the **oneAPI Level Zero** low-level programming interface, but now support for Nvidia GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added. 
 Overall, Intel oneAPI offers a comprehensive and unified approach to heterogeneous computing, empowering developers to optimize and deploy applications across different architectures with ease. By abstracting the complexities and providing a consistent programming interface, oneAPI promotes code reusability, productivity, and performance portability, making it an invaluable toolkit for developers in the era of diverse computing platforms.
 
 
@@ -264,7 +266,7 @@ Summary
 - GPUs are designed to execute thousands of threads simultaneously, making them highly parallel processors. In contrast, CPUs excel at executing a smaller number of threads in parallel.
 
 - GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.
-- GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (Nvidia), ROCm (AMD), and OneAPI (Intel).
+- GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (Nvidia), ROCm (AMD), and oneAPI (Intel).
 - These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
 
 Exercises
