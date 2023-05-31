@@ -108,7 +108,7 @@ processing (digestion) of the ERIs, one algorithm to do this task is as follows:
     :width: 200
     :align: center
 
-    Algorithm for processing ERIs [JCTC, 17, 7486, (2021)]
+    Algorithm for processing ERIs [`JCTC, 17, 7486, (2021) <https://doi.org/10.1021/acs.jctc.1c00720>`__]
 
 This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
 there are symmetries and properties of the integrals that could be used to rearrange the loops in
