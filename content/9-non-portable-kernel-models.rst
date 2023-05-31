@@ -168,74 +168,76 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 
          #include <iostream>
          #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
-         
-         int main(int argc, char *argv[]) { 
-         int N=10000;
-         queue q{default_selector{}}; // the queue will be executed on the best device in the system 
-         
-         std::vector<float> Ah(N);
-         std::vector<float> Bh(N);
-         std::vector<float> Ch(N);
-         std::vector<float> Cref(N);
 
-         // Initialize data and calculate reference values on CPU
-         for (int i = 0; i < N; i++) {
-          Ah[i] = std::sin(i) * 2.3f;
-          Bh[i] = std::cos(i) * 1.1f;
-          Cref[i] = Ah[i] + Bh[i];
-         }
-         
-         // Allocate the arrays on GPU
-         float* Ad = malloc_device<float>(N, q);
-         float* Bd = malloc_device<float>(N, q);
-         float* Cd = malloc_device<float>(N, q);
-         
-         q.memcpy(Ad, Ah.data(), N * sizeof(double));
-         q.memcpy(Cd, Ch.data(), N * sizeof(double));
-         
-         // Define grid dimensions and launch the device kernel
-         auto threads = range<1>(256);
-         
-         range<1> global_size(N);
-         q.submit([&](handler& h) {
-             h.parallel_for(vector_add, nd_range<1>(global_size, threads), [=](nd_item<1> item) {
-                  int tid = item.get_global_id(0);
+         int main(int argc, char *argv[]) {
+            const int N = 10000;
+            // The queue will be executed on the best device in the system
+            // We use in-order queue for simplicity
+            sycl::queue q{{sycl::property::queue::in_order()}};
+
+            std::vector<float> Ah(N);
+            std::vector<float> Bh(N);
+            std::vector<float> Ch(N);
+            std::vector<float> Cref(N);
+
+            // Initialize data and calculate reference values on CPU
+            for (int i = 0; i < N; i++) {
+               Ah[i] = std::sin(i) * 2.3f;
+               Bh[i] = std::cos(i) * 1.1f;
+               Cref[i] = Ah[i] + Bh[i];
+            }
+
+            // Allocate the arrays on GPU
+            float *Ad = sycl::malloc_device<float>(N, q);
+            float *Bd = sycl::malloc_device<float>(N, q);
+            float *Cd = sycl::malloc_device<float>(N, q);
+
+            q.copy<float>(Ah.data(), Ad, N);
+            q.copy<float>(Bh.data(), Bd, N);
+
+            // Define grid dimensions
+            // We can specify the block size explicitly, but we don't have to
+            sycl::range<1> global_size(N);
+            q.submit([&](sycl::handler &h) {
+               h.parallel_for<class VectorAdd>(global_size, [=](sycl::id<1> threadId) {
+                  int tid = threadId.get(0);
                   Cd[tid] = Ad[tid] + Bd[tid];
-             });
-         });
-         // Copy results back to CPU
-         q.submit([&](handler& h) {
-            h.memcpy(Ch.data(), Cd, sizeof(float) * N);
-         }).wait(); // wait for all operations in the queue q to finish. 
+               });
+            });
 
-         // Print reference and result values
-        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
-        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
-        
+            // Copy results back to CPU
+            sycl::event eventCCopy = q.copy<float>(Cd, Ch.data(), N);
+            // Wait for the copy to finish
+            eventCCopy.wait();
 
-        // Compare results and calculate the total error
-        float error = 0.0f;
-        float tolerance = 1e-6f;
-        for (int i = 0; i < N; i++) {
-        float diff = std::abs(Cref[i] - Ch[i]);
-           if (diff > tolerance) {
-            error += diff;
-           }
-        }
+            // Print reference and result values
+            std::cout << "Reference: " << Cref[0] << " " << Cref[1] << " " << Cref[2]
+                        << " " << Cref[3] << " ... " << Cref[N - 2] << " " << Cref[N - 1]
+                        << std::endl;
+            std::cout << "Result   : " << Ch[0] << " " << Ch[1] << " " << Ch[2] << " "
+                        << Ch[3] << " ... " << Ch[N - 2] << " " << Ch[N - 1] << std::endl;
 
-       std::cout << "Total error: " << error << std::endl;
-       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-       std::cout << "Result   :   " << Ch[42]   << " at (42)" << std::endl;
+            // Compare results and calculate the total error
+            float error = 0.0f;
+            float tolerance = 1e-6f;
+            for (int i = 0; i < N; i++) {
+               float diff = std::abs(Cref[i] - Ch[i]);
+               if (diff > tolerance) {
+                  error += diff;
+               }
+            }
 
-       // Free the GPU memory
-       free(Ad, q);
-       free(Bd, q);
-       free(Cd, q);
+            std::cout << "Total error: " << error << std::endl;
+            std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
+            std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
 
-       return 0;
-       }
+            // Free the GPU memory
+            sycl::free(Ad, q);
+            sycl::free(Bd, q);
+            sycl::free(Cd, q);
+
+            return 0;
+         }
       
    .. tab:: CUDA
 
@@ -452,66 +454,66 @@ For a while already GPUs upport unified memory, which allows to use the same poi
 
          #include <iostream>
          #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
-         
-         int main(int argc, char *argv[]) { 
-         int N=10000;
-         queue q{default_selector{}}; // the queue will be executed on the best device in the system 
-         
-         // Allocate the arrays
-         float* Ah = malloc_shared<float>(N, q);
-         float* Bh = malloc_shared<float>(N, q);
-         float* Ch = malloc_shared<float>(N, q);
-         float* Cref = malloc_shared<float>(N, q);
 
-         // Initialize data and calculate reference values on CPU
-         for (int i = 0; i < N; i++) {
-          Ah[i] = std::sin(i) * 2.3f;
-          Bh[i] = std::cos(i) * 1.1f;
-          Cref[i] = Ah[i] + Bh[i];
+         int main(int argc, char *argv[]) {
+            const int N = 10000;
+            // The queue will be executed on the best device in the system
+            // We use in-order queue for simplicity
+            sycl::queue q{{sycl::property::queue::in_order()}};
+
+            std::vector<float> Cref(N);
+
+            // Allocate the shared arrays
+            float *A = sycl::malloc_shared<float>(N, q);
+            float *B = sycl::malloc_shared<float>(N, q);
+            float *C = sycl::malloc_shared<float>(N, q);
+
+            // Initialize data and calculate reference values on CPU
+            for (int i = 0; i < N; i++) {
+               A[i] = std::sin(i) * 2.3f;
+               B[i] = std::cos(i) * 1.1f;
+               Cref[i] = A[i] + B[i];
+            }
+
+            // Define grid dimensions
+            // We can specify the block size explicitly, but we don't have to
+            sycl::range<1> global_size(N);
+            q.submit([&](sycl::handler &h) {
+               h.parallel_for<class VectorAdd>(global_size, [=](sycl::id<1> threadId) {
+                  int tid = threadId.get(0);
+                  C[tid] = A[tid] + B[tid];
+               });
+               }).wait(); // Wait for the kernel to finish
+
+            // Print reference and result values
+            std::cout << "Reference: " << Cref[0] << " " << Cref[1] << " " << Cref[2]
+                        << " " << Cref[3] << " ... " << Cref[N - 2] << " " << Cref[N - 1]
+                        << std::endl;
+            std::cout << "Result   : " << C[0] << " " << C[1] << " " << C[2] << " "
+                        << C[3] << " ... " << C[N - 2] << " " << C[N - 1] << std::endl;
+
+            // Compare results and calculate the total error
+            float error = 0.0f;
+            float tolerance = 1e-6f;
+            for (int i = 0; i < N; i++) {
+               float diff = std::abs(Cref[i] - C[i]);
+               if (diff > tolerance) {
+                  error += diff;
+               }
+            }
+
+            std::cout << "Total error: " << error << std::endl;
+            std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
+            std::cout << "Result   :   " << C[42] << " at (42)" << std::endl;
+
+            // Free the shared memory
+            sycl::free(A, q);
+            sycl::free(B, q);
+            sycl::free(C, q);
+
+            return 0;
          }
-         
-         // Define grid dimensions and launch the device kernel
-         auto threads = range<1>(256);
-         
-         range<1> global_size(N);
-         
-         q.submit([&](handler& h) {
-             h.parallel_for(vector_add, nd_range<1>(global_size, threads), [=](nd_item<1> item) {
-                  int tid = item.get_global_id(0);
-                  Cref[tid] = Ah[tid] + Bh[tid];
-             });
-         }).wait(); // wait for all operations in the queue q to finish. 
 
-         // Print reference and result values
-        std::cout << "Reference: "<< Cref[0] << Cref[1] << Cref[2] << Cref[3] << Cref[N-2] << Cref[N-1] << " " <<<std::endl;
-        std::cout << "Result   : "<< Ch[0]   << Ch[1]     << Ch[2] << Ch[3]    << Ch[N-2]  <<   Ch[N-1] << " " <<<std::endl;
-        
-
-        // Compare results and calculate the total error
-        float error = 0.0f;
-        float tolerance = 1e-6f;
-        for (int i = 0; i < N; i++) {
-        float diff = std::abs(Cref[i] - Ch[i]);
-           if (diff > tolerance) {
-            error += diff;
-           }
-        }
-
-       std::cout << "Total error: " << error << std::endl;
-       std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-       std::cout << "Result   :   " << Ch[42]   << " at (42)" << std::endl;
-
-       // Free the GPU memory
-       free(Ad, q);
-       free(Bd, q);
-       free(Cd, q);
-       free(Cref, q);
-
-       return 0;
-       }
-      
    .. tab:: CUDA
 
       .. code-block:: C++
@@ -697,10 +699,84 @@ First as a reference we use a simple kernel which copy the data from one array t
 
       .. code-block:: C++
 
-         #include <iostream>
          #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
+         #include <vector>
+
+         const static int width = 4096;
+         const static int height = 4096;
+         const static int tile_dim = 16;
+
+         // Instead of defining kernel lambda at the place of submission,
+         // we can define it here:
+         auto copyKernel(const float *in, float *out, int width, int height) {
+            return [=](sycl::nd_item<2> item) {
+               int x_index = item.get_global_id(1);
+               int y_index = item.get_global_id(0);
+               int index = y_index * width + x_index;
+               out[index] = in[index];
+            };
+         }
+
+         int main() {
+            std::vector<float> matrix_in(width * height);
+            std::vector<float> matrix_out(width * height);
+
+            for (int i = 0; i < width * height; i++) {
+               matrix_in[i] = (float)rand() / (float)RAND_MAX;
+            }
+
+            // Create queue on the default device with profiling enabled
+            sycl::queue queue{{sycl::property::queue::in_order(),
+                                 sycl::property::queue::enable_profiling()}};
+
+            float *d_in = sycl::malloc_device<float>(width * height, queue);
+            float *d_out = sycl::malloc_device<float>(width * height, queue);
+
+            queue.copy<float>(matrix_in.data(), d_in, width * height);
+            queue.wait();
+
+            printf("Setup complete. Launching kernel\n");
+            sycl::range<2> global_size{height, width}, local_size{tile_dim, tile_dim};
+            sycl::nd_range<2> kernel_range{global_size, local_size};
+
+            // Create events
+            printf("Warm up the GPU!\n");
+            for (int i = 0; i < 10; i++) {
+               queue.submit([&](sycl::handler &cgh) {
+                  cgh.parallel_for(kernel_range, copyKernel(d_in, d_out, width, height));
+               });
+            }
+
+            // Unlike in CUDA or HIP, for SYCL we have to store all events
+            std::vector<sycl::event> kernel_events;
+            for (int i = 0; i < 10; i++) {
+               sycl::event kernel_event = queue.submit([&](sycl::handler &cgh) {
+                  cgh.parallel_for(kernel_range, copyKernel(d_in, d_out, width, height));
+               });
+               kernel_events.push_back(kernel_event);
+            }
+
+            queue.wait();
+
+            auto first_kernel_started =
+                  kernel_events.front().get_profiling_info<sycl::info::event_profiling::command_start>();
+            auto last_kernel_ended =
+                  kernel_events.back().get_profiling_info<sycl::info::event_profiling::command_end>();
+            double total_kernel_time_ns = static_cast<double>(last_kernel_ended - first_kernel_started);
+            double time_kernels = total_kernel_time_ns / 1e6; // convert ns to ms
+            double bandwidth = 2.0 * 10000 *
+                                 (((double)(width) * (double)height) * sizeof(float)) /
+                                 (time_kernels * 1024 * 1024 * 1024);
+
+            printf("Kernel execution complete\n");
+            printf("Event timings:\n");
+            printf("  %.6lf ms - copy\n  Bandwidth %.6lf GB/s\n", time_kernels / 10, bandwidth);
+
+            sycl::free(d_in, queue);
+            sycl::free(d_out, queue);
+            return 0;
+         }
+
          
    .. tab:: CUDA
 
@@ -807,10 +883,15 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
 
       .. code-block:: C++
 
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
+         auto transposeKernel(const float *in, float *out, int width, int height) {
+            return [=](sycl::nd_item<2> item) {
+               int x_index = item.get_global_id(1);
+               int y_index = item.get_global_id(0);
+               int in_index = y_index * width + x_index;
+               int out_index = x_index * height + y_index;
+               out[out_index] = in[in_index];
+            };
+         }
          
    .. tab:: CUDA
 
@@ -854,10 +935,24 @@ We can improve the code by reading the data in a coalesced way, save it in the s
 
       .. code-block:: C++
 
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
+         auto transposeKernel(sycl::handler &cgh, const float *in, float *out, int width, int height) {
+            sycl::local_accessor<float, 1> tile{{tile_dim * tile_dim}, cgh};
+            return [=](sycl::nd_item<2> item) {
+               int x_tile_index = item.get_group(1) * tile_dim;
+               int y_tile_index = item.get_group(0) * tile_dim;
+               int x_local_index = item.get_local_id(1);
+               int y_local_index = item.get_local_id(0);
+               int in_index = (y_tile_index + y_local_index) * width +
+                              (x_tile_index + x_local_index);
+               int out_index = (x_tile_index + y_local_index) * width +
+                              (y_tile_index + x_local_index);
+
+               tile[y_local_index * tile_dim + x_local_index] = in[in_index];
+               item.barrier();
+               out[out_index] = tile[x_local_index * tile_dim + y_local_index];
+            };
+         }
+
          
    .. tab:: CUDA
 
@@ -918,10 +1013,23 @@ Shared memory is composed of banks. Each banks can service only one request at t
 
       .. code-block:: C++
 
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-         
-         using namespace sycl;
+         auto transposeKernel(sycl::handler &cgh, const float *in, float *out, int width, int height) {
+            sycl::local_accessor<float, 1> tile{{tile_dim * (tile_dim + 1)}, cgh};
+            return [=](sycl::nd_item<2> item) {
+               int x_tile_index = item.get_group(1) * tile_dim;
+               int y_tile_index = item.get_group(0) * tile_dim;
+               int x_local_index = item.get_local_id(1);
+               int y_local_index = item.get_local_id(0);
+               int in_index = (y_tile_index + y_local_index) * width +
+                              (x_tile_index + x_local_index);
+               int out_index = (x_tile_index + y_local_index) * width +
+                              (y_tile_index + x_local_index);
+
+               tile[y_local_index * (tile_dim + 1) + x_local_index] = in[in_index];
+               item.barrier();
+               out[out_index] = tile[x_local_index * (tile_dim + 1) + y_local_index];
+            };
+         }
          
    .. tab:: CUDA
 
