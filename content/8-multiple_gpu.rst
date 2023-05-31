@@ -293,6 +293,7 @@ variable before running the application.
 
 Conclusion
 ----------
+
 In conclusion, we have presented an overview of a GPU-hybrid programming by integrating 
 GPU-directive models, specifically OpenACC and OpenMP APIs, with the MPI library. The approach 
 adopted here allows us to utilise multiple GPU-devices not only within a single node but it 
@@ -331,21 +332,15 @@ OpenACC or OpenMP API by following these steps:
 
 8. Evaluate the execution time in of the code in the exercises **III** and **IV**, and compare it with a pure MPI implementation.  
 
-References
-----------
+See also
+--------
 
-`GPU-aware MPI <https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html>`_.
-
-`MPI documentation <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_.
-
-`OpenACC specification <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`_.
-
-`OpenMP specification <https://www.openmp.org/wp-content/uploads/OpenMP-API-Specification-5-2.pdf>`_.
-
-`LUMI documentation <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_.
-
-`OpenACC vs OpenMP offloading <https://documentation.sigma2.no/code_development/guides/converting_acc2omp/openacc2openmp.html>`_.
-
-`OpenACC course <https://github.com/HichamAgueny/GPU-course>`_.
+- `GPU-aware MPI <https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html>`_.
+- `MPI documentation <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_.
+- `OpenACC specification <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`_.
+- `OpenMP specification <https://www.openmp.org/wp-content/uploads/OpenMP-API-Specification-5-2.pdf>`_.
+- `LUMI documentation <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_.
+- `OpenACC vs OpenMP offloading <https://documentation.sigma2.no/code_development/guides/converting_acc2omp/openacc2openmp.html>`_.
+- `OpenACC course <https://github.com/HichamAgueny/GPU-course>`_.
 
 
