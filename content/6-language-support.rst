@@ -453,6 +453,10 @@ Numba allows users to just-in-time (JIT) compile Python code to run fast on CPUs
 be used for JIT compiling for GPUs.
 In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.
 
+.. callout:: AMD support deprecated
+
+   Numba supported AMD GPUs up until version 0.53 but has since deprecated the support. 
+
 Numba supports GPU programming by directly compiling a restricted subset of Python code 
 into kernels and device functions following the execution model. 
 Kernels written in Numba appear to have direct access to NumPy arrays. 
