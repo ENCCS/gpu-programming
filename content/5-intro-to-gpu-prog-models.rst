@@ -190,5 +190,5 @@ require more coding effort and expertise.
 
 .. keypoints::
 
-   - Different GPU Programming Approaches
-   - Choosing the Right Framework
+   - GPU programming approaches can be split into 1) directive-based, 2) non-portable kernel-based, 3) portable kernel-based, and 4) high-level language support.
+   - There are multiple frameworks available for each approach, each with pros and cons. 
