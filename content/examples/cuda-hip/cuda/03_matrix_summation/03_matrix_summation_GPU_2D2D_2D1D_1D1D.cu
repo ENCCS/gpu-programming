@@ -86,7 +86,7 @@ int main(int argc, const char * argv[])
     int dimx = 32;
     int dimy = 32;
     dim3 block(dimx, dimy); // (32, 32, 1)
-    dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y); (32, 32, 1)
+    dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y); //(32, 32, 1)
 
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
