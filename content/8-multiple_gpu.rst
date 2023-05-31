@@ -40,13 +40,13 @@ One of the way to ensure that two MPI ranks do not use the same GPU, is to deter
 
       .. tab:: MPI-OpenACC
 
-         .. literalinclude:: examples/assignDevice_acc.f90
+         .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
                      :language: fortran
                      :emphasize-lines: 27-29
 		     
       .. tab:: MPI-OpenMP
 
-         .. literalinclude:: examples/assignDevice_omp.f90
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
                      :language: fortran
                      :emphasize-lines: 27-29		     
 
@@ -126,13 +126,13 @@ The syntax of assigning MPI ranks to GPU devices is summarised below
 
       .. tab:: MPI-OpenACC
 	 
-         .. literalinclude:: examples/assignDevice_acc.f90
+         .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
                      :language: fortran
                      :emphasize-lines: 1,54
 
       .. tab:: MPI-OpenMP
 	 
-         .. literalinclude:: examples/assignDevice_omp.f90
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
                      :language: fortran
                      :emphasize-lines: 1,54
 
@@ -161,13 +161,13 @@ implementation that involves the MPI functions `MPI_Send()` and `MPI_Recv()`.
 
       .. tab:: MPI-OpenACC
 	 
-         .. literalinclude:: examples/mpiacc.f90
+         .. literalinclude:: examples/mpi_acc/mpiacc.f90
                      :language: fortran
                      :emphasize-lines: 67,79
 
       .. tab:: MPI-OpenMP
 
-         .. literalinclude:: examples/mpiomp.f90
+         .. literalinclude:: examples/mpi_omp/mpiomp.f90
                      :language: fortran
                      :emphasize-lines: 68,80
 
@@ -182,7 +182,7 @@ Hybrid MPI-OpenACC/OpenMP with GPU-awareness approach
 
 The concept of the GPU-aware MPI enables an MPI library to directly access the GPU-device 
 memory without necessarily using the CPU-host memory as an intermediate buffer (see e.g. 
-`here <https://docs.open-mpi.org/en/v5.0.0rc9/networking/cuda.html>`_). This offers the 
+`here <https://docs.open-mpi.org/en/v5.0.0rc9/networking/cuda.html>`__). This offers the 
 benefit of transferring data from one GPU to another GPU without the involvement of the 
 CPU-host memory.
 	  
@@ -195,7 +195,7 @@ between pairs of GPUs without transferring data back to the host.
 In the hybrid MPI-OpenACC model, the concept is defined by combining the directive `host_data` 
 together with the clause `use_device(list_array)`. This combination enables the access to 
 the arrays listed in the clause `use_device(list_array)` from the host 
-(see `here <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`_). 
+(see `here <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`__). 
 The list of arrays, which are already present in the GPU-device memory, are directly 
 passed to an MPI routine without a need of a staging host-memory for copying the data. 
 Note that for initially copying data to GPU, we use unstructured data blocks characterized 
@@ -215,13 +215,13 @@ between a pair of GPUs without passing through the CPU-host memory.
 
       .. tab:: GPU-aware MPI with OpenACC
 	 
-         .. literalinclude:: examples/mpiacc_gpuaware.f90
+         .. literalinclude:: examples/mpi_acc/mpiacc_gpuaware.f90
                      :language: fortran
                      :emphasize-lines: 67,76
 
       .. tab:: GPU-aware MPI with OpenMP
 	 
-         .. literalinclude:: examples/mpiomp_gpuaware.f90
+         .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
                      :language: fortran
                      :emphasize-lines: 68,77
 
@@ -232,13 +232,13 @@ between a pair of GPUs without passing through the CPU-host memory.
 
       .. tab:: GPU-aware MPI with OpenACC
 	 
-         .. literalinclude:: examples/mpiacc_gpuaware.f90
+         .. literalinclude:: examples/mpi_acc/mpiacc_gpuaware.f90
                      :language: fortran
                      :emphasize-lines: 92,96
 
       .. tab:: GPU-aware MPI with OpenMP
 	 
-         .. literalinclude:: examples/mpiomp_gpuaware.f90
+         .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
                      :language: fortran
                      :emphasize-lines: 95,99 
 
