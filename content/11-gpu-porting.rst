@@ -18,8 +18,8 @@ Preparing code for GPU porting
 
 .. instructor-note::
 
-   - 20 min teaching
-   - 10 min exercises
+   - 30 min teaching
+   - 20 min exercises
 
 Porting from CPU to GPU
 -----------------------

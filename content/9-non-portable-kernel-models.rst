@@ -16,7 +16,7 @@ Non-portable kernel-based models
 
 .. instructor-note::
 
-   - 55 min teaching
+   - 45 min teaching
    - 30 min exercises
 
 Fundamentals of GPU programming with CUDA and HIP

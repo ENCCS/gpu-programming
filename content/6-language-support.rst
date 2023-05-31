@@ -11,7 +11,7 @@ High-level language support
 
 .. instructor-note::
 
-   - 30 min teaching
+   - 25 min teaching
    - 15 min exercises
 
 

@@ -17,8 +17,8 @@ Directive-based models
 
 .. instructor-note::
 
-   - 60 min teaching
-   - 30 min exercises
+   - 30 min teaching
+   - 20 min exercises
 
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
