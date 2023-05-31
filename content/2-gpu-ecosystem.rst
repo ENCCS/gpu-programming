@@ -42,7 +42,7 @@ Overview of GPU hardware
 One of the most important features that allows the accelerators to reach this high performance is their scalability.
 Computational cores on accelerators are usually grouped into multiprocessors.
 The multiprocessors share the data and logical elements.
-This allows to achieve a very high density of a compute elements on a GPU.
+This allows to achieve a very high density of compute elements on a GPU.
 This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
 
 Accelerators are a separate main circuit board with the processor, memory, power management, etc.
@@ -97,7 +97,7 @@ both of which are expensive in terms of transistors.
 GPU platforms
 -------------
 
-GPUs come together with software stacks or APIs that  work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. They  are used by software developers to write code that can take advantage of the parallel processing power of the GPU, and they provide a standard way for software to interact with the GPU hardware. Typically, they provide access to low-level functionality, such as memory management, data transfer between the CPU and the GPU, and the scheduling and execution of parallel processing tasks on the GPU. They may also provide higher level functions and libraries optimized for specific HPC  workloads, like linear algebra or fast Fourier transforms. Finally, in order to facilitate the developers to optimize and write correct codes, debugging  and profiling tools are also included. 
+GPUs come together with software stacks or APIs that work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. They are used by software developers to write code that can take advantage of the parallel processing power of the GPU, and they provide a standard way for software to interact with the GPU hardware. Typically, they provide access to low-level functionality, such as memory management, data transfer between the CPU and the GPU, and the scheduling and execution of parallel processing tasks on the GPU. They may also provide higher level functions and libraries optimized for specific HPC workloads, like linear algebra or fast Fourier transforms. Finally, in order to facilitate the developers to optimize and write correct codes, debugging and profiling tools are also included. 
 
 *Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **oneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
 There are also cross-platform APIs such **DirectCompute** (only for Windows operating system), **OpenCL**, and **SYCL**.

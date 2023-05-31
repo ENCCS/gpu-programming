@@ -22,17 +22,17 @@ Why GPUs?
 Moore's law
 -----------
 
-It states that  number of transistors in a dense integrated circuit doubles about every two years.
+It states that the number of transistors in a dense integrated circuit doubles about every two years.
 More transistors means smaller size of a single element, so higher core frequency can be achieved.
-However, power consumption scales with frequency to the third power, so the growth in the core frequency has slowed down significantly.
-Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD, branch prediction, etc.
+However, power consumption scales with frequency to the third power, therefore the growth in the core frequency has slowed down significantly.
+Higher performance of a single node has to rely on its more complicated structure and still can be achieved with SIMD (single instruction multiple data), branch prediction, etc.
 
 .. figure:: img/history/microprocessor-trend-data.png
    :align: center
 
    The evolution of microprocessors.
    The number of transistors per chip increase roughly every 2 years.
-   However, it can no longer be explored by the core frequency due to power consumption limits.
+   However, it can no longer be explored by the core frequency due to the power consumption limits.
    Before 2000, the increase in the single core clock frequency was the major source of the 
    increase in the performance. Mid 2000 mark a transition towards multi-core processors.
 
@@ -60,7 +60,7 @@ There are various paradigms and programming approaches to do this.
 Graphics processing units
 -------------------------
 
-Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term accelerator.
+Graphics processing units (GPU) have been the most common accelerators during the last few years, the term GPU sometimes is used interchangeably with the term *accelerator*.
 GPUs were initially developed for highly-parallel task of graphic processing.
 But over the years, they were used more and more in HPC.
 
