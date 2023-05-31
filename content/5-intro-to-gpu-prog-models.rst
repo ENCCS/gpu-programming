@@ -177,6 +177,7 @@ Summary
 
 Each of these GPU programming environments has its own strengths and weaknesses, 
 and the best choice for a given project will depend on a range of factors, including: 
+
 - the hardware platforms being targeted 
 - the type of computation being performed, and
 - the developer's experience and preferences. 
