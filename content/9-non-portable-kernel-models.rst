@@ -235,7 +235,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
        free(Cd, q);
 
        return 0;
-    }
+       }
       
    .. tab:: CUDA
 
@@ -510,7 +510,7 @@ For a while already GPUs upport unified memory, which allows to use the same poi
        free(Cref, q);
 
        return 0;
-    }
+       }
       
    .. tab:: CUDA
 

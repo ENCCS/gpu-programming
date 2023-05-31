@@ -22,10 +22,10 @@ Directive-based models
 
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
-OpenACC is known to be more **descriptive**, which means the programmer uses directives to 
-tell the compiler how/where to parallelize the code and to move the data. OpenMP offloading approach, 
-on the other hand, is known to be more **prescriptive**, where the programmer uses directives to 
-tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
+
+- OpenACC is known to be more **descriptive**, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data. 
+- OpenMP offloading approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to 
+  tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
 
 In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
 special comments identified by unique sentinels in Fortran. Compilers can ignore the 
@@ -176,21 +176,21 @@ OpenMP offloading offers multiple levels of parallelism as well:
       :header-rows: 1
 
       * - Nvidia
-	- AMD
-	- Fortran OpenACC/OpenMP
-	- C/C++ OpenMP
+        - AMD
+        - Fortran OpenACC/OpenMP
+        - C/C++ OpenMP
       * - Threadblock
-	- Work group
-	- gang/teams
-	- teams
+        - Work group
+        - gang/teams
+        - teams
       * - Wrap
-	- Wavefront
-	- worker/simd
-	- parallel for simd
+        - Wavefront
+        - worker/simd
+        - parallel for simd
       * - Thread
-	- Work item
-	- vector/simd
-	- parallel for simd
+        - Work item
+        - vector/simd
+        - parallel for simd
 
 
 
@@ -201,7 +201,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
    To make a change, adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
    and ``num_teams``, ``thread_limit`` for OpenMP offloading.
 
-   Remember to set the envrioment by executing "export CRAY_ACC_DEBUG=2" at runtime.
+   Remember to set the enviroment by executing ``export CRAY_ACC_DEBUG=2`` at runtime.
    
    How to compile and run the code:
 
@@ -219,22 +219,22 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
                   export CRAY_ACC_DEBUG=2
                   srun ./ex1
-		  
+        
 
 
       .. tab:: Fortran
 
              .. code-block:: bash
 
-		  ml rocm/5.0.2 
-		  ml craype-accel-amd-gfx90a 
-                  # OpenMP
-                  ftn -O2 -homp -o ex1 ex1.f90
-                  # OpenACC
-                  ftn -O2 -hacc -o ex1 ex1.f90
+                ml rocm/5.0.2 
+                ml craype-accel-amd-gfx90a 
+                # OpenMP
+                ftn -O2 -homp -o ex1 ex1.f90
+                # OpenACC
+                ftn -O2 -hacc -o ex1 ex1.f90
 
-                  export CRAY_ACC_DEBUG=2
-                  srun ./ex1
+                export CRAY_ACC_DEBUG=2
+                srun ./ex1
 
 
    Example of a trivially parallelizable vector addition problem:
@@ -243,109 +243,109 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
       .. tab:: OpenMP 
 
-	 .. tabs::
+         .. tabs::
 
-	    .. tab::  C/C++
+            .. tab::  C/C++
 
-	       .. code-block:: C++
+               .. code-block:: C++
 
-		  #include <stdio.h>
-		  #include <math.h>
-		  #define NX 102400
+                  #include <stdio.h>
+                  #include <math.h>
+                  #define NX 102400
+          
+                  int main(void){
+                      double vecA[NX],vecB[NX],vecC[NX];
+          
+                      /* Initialize vectors */
+                      for (int i = 0; i < NX; i++) {
+                          vecA[i] = 1.0;
+                          vecB[i] = 1.0;
+                      }  
+          
+                      #pragma omp target teams distribute parallel for simd
+                      {
+                      for (int i = 0; i < NX; i++) {
+                         vecC[i] = vecA[i] + vecB[i];
+                      }
+                      }
+                   }
 
-		  int main(void){
-		      double vecA[NX],vecB[NX],vecC[NX];
+            .. tab::  Fortran
 
-		      /* Initialize vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }  
+               .. code-block:: Fortran
 
-		      #pragma omp target teams distribute parallel for simd
-		      {
-			  for (int i = 0; i < NX; i++) {
-			     vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
-		  }
-
-	    .. tab::  Fortran
-
-	       .. code-block:: Fortran
-
-		  program vecsum
-		      implicit none
-
-		      integer, parameter :: nx = 102400
-		      real, dimension(nx) :: vecA,vecB,vecC
-		      integer :: i
-
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
-
-		     !$omp target teams distribute parallel do simd
-			  do i=1,nx
-			      vecC(i) = vecA(i) + vecB(i)
-			  enddo  
-		     !$omp end target teams distribute parallel do simd
-		  end program vecsum
+                  program vecsum
+                      implicit none
+          
+                      integer, parameter :: nx = 102400
+                      real, dimension(nx) :: vecA,vecB,vecC
+                      integer :: i
+                      
+                      ! Initialization of vectors
+                      do i = 1, nx
+                          vecA(i) = 1.0
+                          vecB(i) = 1.0
+                      end do     
+          
+                      !$omp target teams distribute parallel do simd
+                      do i=1,nx
+                         vecC(i) = vecA(i) + vecB(i)
+                      enddo  
+                      !$omp end target teams distribute parallel do simd
+                  end program vecsum
 
       .. tab:: OpenACC 
 
-	 .. tabs::
+         .. tabs::
 
-	    .. tab:: C/C++
+            .. tab:: C/C++
 
-	       .. code-block:: C++
+               .. code-block:: C++
 
-		  #include <stdio.h>
-		  #include <openacc.h>
-		  #define NX 102400
+                  #include <stdio.h>
+                  #include <openacc.h>
+                  #define NX 102400
+          
+                  int main(void) {
+                      double vecA[NX], vecB[NX], vecC[NX];
+          
+                      /* Initialization of the vectors */
+                      for (int i = 0; i < NX; i++) {
+                          vecA[i] = 1.0;
+                          vecB[i] = 1.0;
+                      }
+                      #pragma acc parallel loop
+                      {
+                      for (int i = 0; i < NX; i++) {
+                         vecC[i] = vecA[i] + vecB[i];
+                      }
+                      }
+                  }         
 
-		  int main(void) {
-		      double vecA[NX], vecB[NX], vecC[NX];
+            .. tab:: Fortran
 
-		      /* Initialization of the vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }
-		      #pragma acc parallel loop
-		      {
-			  for (int i = 0; i < NX; i++) {
-			      vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
-		  }         
+               .. code-block:: Fortran
 
-	    .. tab:: Fortran
-
-	       .. code-block:: Fortran
-
-		  program vecsum
-		      implicit none
-
-		      integer, parameter :: nx = 102400
-		      real, dimension(:), allocatable :: vecA,vecB,vecC
-		      integer :: i
-
-		      allocate (vecA(nx), vecB(nx),vecC(nx))
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
-
-		      !$acc parallel loop
-			  do i=1,nx
-			      vecC(i) = vecA(i) + vecB(i)
-			  enddo  
-		      !$acc end parallel loop
-		  end program vecsum
+                  program vecsum
+                      implicit none
+          
+                      integer, parameter :: nx = 102400
+                      real, dimension(:), allocatable :: vecA,vecB,vecC
+                      integer :: i
+                      
+                      allocate (vecA(nx), vecB(nx),vecC(nx))
+                      ! Initialization of vectors
+                      do i = 1, nx
+                          vecA(i) = 1.0
+                          vecB(i) = 1.0
+                      end do     
+          
+                      !$acc parallel loop
+                      do i=1,nx
+                          vecC(i) = vecA(i) + vecB(i)
+                      enddo  
+                      !$acc end parallel loop
+                  end program vecsum
 
 
 .. note::
@@ -377,9 +377,9 @@ Various data clauses used for data movement is summarised in the following table
 
 .. note::
 
-	When mapping data arrays or pointers, be careful about the array section notation:
-	  - In C/C++: array[lower-bound:length]. The notation :N is equivalent to 0:N.
-	  - In Fortran:array[lower-bound:upper-bound]. The notation :N is equivalent to 1:N.
+   When mapping data arrays or pointers, be careful about the array section notation:
+     - In C/C++: array[lower-bound:length]. The notation :N is equivalent to 0:N.
+     - In Fortran:array[lower-bound:upper-bound]. The notation :N is equivalent to 1:N.
 
 
 Data region
@@ -398,114 +398,108 @@ A structured data region is convenient for providing persistent data on the devi
 
 .. challenge:: Syntax for structured data region
 
-.. tabs::
+   .. tabs::
 
-   .. tab:: OpenMP 
+      .. tab:: OpenMP 
 
-      .. tabs::
+         .. tabs::
 
-	 .. tab:: C/C++
+            .. tab:: C/C++
 
-		.. code-block:: c
+               .. code-block:: c
 
-		     #pragma omp target data [clauses]
-			{structured-block}
+                  #pragma omp target data [clauses]
+                  {structured-block}
 
+            .. tab:: Fortran
 
-	 .. tab:: Fortran
-
-		.. code-block:: fortran
-
-		     !$omp target data [clauses]
-		        structured-block
-		     !$omp end target data
-
-
-   .. tab:: OpenACC 
-
-      .. tabs::
-
-	 .. tab:: C/C++
-
-		.. code-block:: c
-
-		     #pragma acc data [clauses]
-	                {structured-block}
+               .. code-block:: fortran
+                
+                  !$omp target data [clauses]
+                   structured-block
+                  !$omp end target data
 
 
+      .. tab:: OpenACC 
 
-	 .. tab:: Fortran
+         .. tabs::
 
-		.. code-block:: fortran
+            .. tab:: C/C++
 
-		     !$acc data [clauses]
-		        structured-block
-		     !$acc end data
+               .. code-block:: c
+
+                  #pragma acc data [clauses]
+                   {structured-block}
+
+            .. tab:: Fortran
+
+               .. code-block:: fortran
+
+                  !$acc data [clauses]
+                    structured-block
+                  !$acc end data
 
 
 
 Unstructured Data Region
 ++++++++++++++++++++++++
 
-However it is inconvenient in real applications using structured data region, therefore the unstructured data region  
+However it is inconvenient in real applications to use structured data region, therefore the unstructured data region  
 with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
 
 .. challenge:: Syntax for unstructured data region
 
-.. tabs::
+   .. tabs::
 
-   .. tab:: OpenMP 
+      .. tab:: OpenMP 
 
-      .. tabs::
+         .. tabs::
 
-	 .. tab:: C/C++
-
-		.. code-block:: c
-
-		     #pragma omp target enter data [clauses]
-
-		.. code-block:: c
-
-		     #pragma omp target exit data
-	   
-
-
-	 .. tab:: Fortran
-
-		.. code-block:: fortran
-
-		     !$omp target enter data [clauses] 
-
-		.. code-block:: fortran
-
-		     !$omp target exit data
+            .. tab:: C/C++
+           
+              .. code-block:: c
+              
+                  #pragma omp target enter data [clauses]
+        
+              .. code-block:: c
+              
+                  #pragma omp target exit data
 
 
-   .. tab:: OpenACC 
+            .. tab:: Fortran
+            
+               .. code-block:: fortran
+               
+                  !$omp target enter data [clauses] 
 
-      .. tabs::
-
-	 .. tab:: C/C++
-
-		.. code-block:: c
-
-		     #pragma acc enter data [clauses]
-
-		.. code-block:: c
-
-		     #pragma acc exit data
+               .. code-block:: fortran
+               
+                  !$omp target exit data
 
 
+      .. tab:: OpenACC 
+      
+         .. tabs::
+         
+            .. tab:: C/C++
+            
+               .. code-block:: c
+               
+                     #pragma acc enter data [clauses]
 
-	 .. tab:: Fortran
+               .. code-block:: c
+               
+                     #pragma acc exit data
 
-		.. code-block:: fortran
+            .. tab:: Fortran
+            
+               .. code-block:: fortran
+               
+                     !$acc enter data [clauses] 
 
-		     !$acc enter data [clauses] 
-
-		.. code-block:: fortran
-
-		     !$acc exit data
+               .. code-block:: fortran
+               
+                     !$acc exit data
 
 
 
@@ -529,69 +523,64 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
 .. challenge:: Syntax for update directive
 
-.. tabs::
+   .. tabs::
 
-   .. tab:: OpenMP 
+      .. tab:: OpenMP 
 
-      .. tabs::
+         .. tabs::
 
-	 .. tab:: C/C++
+            .. tab:: C/C++
 
-		.. code-block:: c
+               .. code-block:: c
 
-		     #pragma omp target update [clauses]
+                 #pragma omp target update [clauses]
 
-		.. code-block:: c
+               .. code-block:: c
 
-		     motion-clause:
-                     to (list)
-                     from (list)
-	   
-
-
-	 .. tab:: Fortran
-
-		.. code-block:: fortran
-
-		     !$omp target update [clauses] 
-
-		.. code-block:: fortran
-
-		     motion-clause:
-                     to (list)
-                     from (list)
+                  motion-clause:
+                            to (list)
+                            from (list)
 
 
+            .. tab:: Fortran
 
-   .. tab:: OpenACC 
+               .. code-block:: fortran
 
-      .. tabs::
+                  !$omp target update [clauses] 
 
-	 .. tab:: C/C++
+               .. code-block:: fortran
 
-		.. code-block:: c
+                  motion-clause:
+                            to (list)
+                            from (list)
 
-		     #pragma acc update [clauses]
+      .. tab:: OpenACC 
 
-		.. code-block:: c
+         .. tabs::
 
-		     motion-clause:
-                     self (list)
-                     device (list)
+            .. tab:: C/C++
 
+               .. code-block:: c
 
+                  #pragma acc update [clauses]
 
-	 .. tab:: Fortran
+               .. code-block:: c
 
-		.. code-block:: fortran
+                  motion-clause:
+                            self (list)
+                            device (list)
 
-		     !$acc update [clauses] 
+            .. tab:: Fortran
 
-		.. code-block:: fortran
+               .. code-block:: fortran
 
-		     motion-clause:
-                     self (list)
-                     device (list)
+                  !$acc update [clauses] 
+
+               .. code-block:: fortran
+
+                  motion-clause:
+                            self (list)
+                            device (list)
 
 
 
@@ -612,57 +601,57 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
          .. code-block:: c
 
-	      #include <stdio.h>
-	      int main(void)
-	      {
-		int x = 0;
+            #include <stdio.h>
+            int main(void)
+            {
+            int x = 0;
 
-		#pragma omp target data map(tofrom:x)
-		{
-	      /* check point 1 */
-		  x = 10;                        
-	      /* check point 2 */
-		#pragma omp target update to(x)       
-	      /* check point 3 */
-		}
+            #pragma omp target data map(tofrom:x)
+            {
+               /* check point 1 */
+              x = 10;                        
+               /* check point 2 */
+            #pragma omp target update to(x)       
+               /* check point 3 */
+            }
 
-	      return 0;
-	      }
+            return 0;
+            }
 
 
       .. tab:: Fortran
 
-	 .. code-block:: fortran
+         .. code-block:: fortran
 
-	      program ex_update
-		implicit none
-
-		integer :: x
-
-		x = 0
-		!$acc data copy(x) 
-		! check point 1 
-		x = 10                        
-		! check point 2 
-		!$acc update device(x)       
-		! check point 3 
-		!$acc end data
-
-	      end program ex_update
+            program ex_update
+            implicit none
+     
+            integer :: x
+           
+            x = 0
+            !$acc data copy(x) 
+            ! check point 1 
+            x = 10                        
+            ! check point 2 
+            !$acc update device(x)       
+            ! check point 3 
+            !$acc end data
+     
+            end program ex_update
 
 
     
-      .. tab:: Solution
+   .. solution:: 
 
-		+-------------+---------+-----------+
-		|check point  |x on host|x on device|
-		+=============+=========+===========+
-		|check point1 |   0     |  0        | 
-		+-------------+---------+-----------+
-		|check point2 |  10     |  0        | 
-		+-------------+---------+-----------+
-		|check point3 |  10     | 10        | 
-	        +-------------+---------+-----------+
+      +-------------+---------+-----------+
+      |check point  |x on host|x on device|
+      +=============+=========+===========+
+      |check point1 |   0     |  0        | 
+      +-------------+---------+-----------+
+      |check point2 |  10     |  0        | 
+      +-------------+---------+-----------+
+      |check point3 |  10     | 10        | 
+      +-------------+---------+-----------+
 
 
 .. challenge:: Exercise: Adding data mapping clauses
@@ -673,287 +662,287 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
       .. tab:: OpenMP 
 
-	 .. tabs::
+         .. tabs::
 
-	    .. tab::  C/C++
+            .. tab::  C/C++
 
-	       .. code-block:: C++
+               .. code-block:: C++
 
-		  #include <stdio.h>
-		  #include <math.h>
-		  #define NX 102400
-
-		  int main(void){
-		      double vecA[NX],vecB[NX],vecC[NX];
-
-		      /* Initialize vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }  
-		      /* Adding mapping clauses here */
-		      #pragma omp target teams distribute parallel for simd
-		      {
-			  for (int i = 0; i < NX; i++) {
-			     vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
-
+                  #include <stdio.h>
+                  #include <math.h>
+                  #define NX 102400
+          
+                  int main(void){
+                      double vecA[NX],vecB[NX],vecC[NX];
+          
+                      /* Initialize vectors */
+                      for (int i = 0; i < NX; i++) {
+                      vecA[i] = 1.0;
+                      vecB[i] = 1.0;
+                      }  
+                      /* Adding mapping clauses here */
+                      #pragma omp target teams distribute parallel for simd
+                      {
+                      for (int i = 0; i < NX; i++) {
+                         vecC[i] = vecA[i] + vecB[i];
+                      }
+                      }
+          
                       double sum = 0.0;
                       for (int i = 0; i < NX; i++) {
                          sum += vecC[i];
                       }
                       printf("The sum is: %8.6f \n", sum);
-		  }
+                  }
 
-	    .. tab::  Fortran
+            .. tab::  Fortran
 
-	       .. code-block:: Fortran
+               .. code-block:: Fortran
 
-		  program vecsum
-		      implicit none
+                  program vecsum
+                  implicit none
 
-		      integer, parameter :: nx = 102400
-		      real, dimension(nx) :: vecA,vecB,vecC
-                      real    :: sum
-		      integer :: i
+                  integer, parameter :: nx = 102400
+                  real, dimension(nx) :: vecA,vecB,vecC
+                            real    :: sum
+                  integer :: i
+                  
+                  ! Initialization of vectors
+                  do i = 1, nx
+                      vecA(i) = 1.0
+                      vecB(i) = 1.0
+                  end do     
+                  ! Adding mapping clauses here
+                  !$omp target teams distribute parallel do simd
+                  do i=1,nx
+                      vecC(i) = vecA(i) + vecB(i)
+                  enddo  
+                  !$omp end target teams distribute parallel do simd
 
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
-		      ! Adding mapping clauses here
-		      !$omp target teams distribute parallel do simd
-		      	   do i=1,nx
-			       vecC(i) = vecA(i) + vecB(i)
-			   enddo  
-		      !$omp end target teams distribute parallel do simd
-                     
-		      sum = 0.0
-		      ! Calculate the sum
-		      do i = 1, nx
-		 	 sum =  vecC(i) + sum
-		      end do
-		      write(*,'(A,F18.6)') 'The sum is: ', sum
+                  sum = 0.0
+                  ! Calculate the sum
+                  do i = 1, nx
+                      sum =  vecC(i) + sum
+                  end do
+                  write(*,'(A,F18.6)') 'The sum is: ', sum
 
-		  end program vecsum
+                  end program vecsum
 
       .. tab:: OpenACC 
 
-	 .. tabs::
+         .. tabs::
 
-	    .. tab:: C/C++
+            .. tab:: C/C++
 
-	       .. code-block:: C++
+               .. code-block:: C++
 
-		  #include <stdio.h>
-		  #include <openacc.h>
-		  #define NX 102400
-
-		  int main(void) {
-		      double vecA[NX], vecB[NX], vecC[NX];
-
-		      /* Initialization of the vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }
-		      /* Adding mapping clauses here */
-		      #pragma acc parallel loop
-		      {
-			  for (int i = 0; i < NX; i++) {
-			      vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
-
+                  #include <stdio.h>
+                  #include <openacc.h>
+                  #define NX 102400
+          
+                  int main(void) {
+                      double vecA[NX], vecB[NX], vecC[NX];
+          
+                      /* Initialization of the vectors */
+                      for (int i = 0; i < NX; i++) {
+                          vecA[i] = 1.0;
+                          vecB[i] = 1.0;
+                      }
+                      /* Adding mapping clauses here */
+                      #pragma acc parallel loop
+                      {
+                      for (int i = 0; i < NX; i++) {
+                          vecC[i] = vecA[i] + vecB[i];
+                      }
+                      }
+          
                       double sum = 0.0;
                       for (int i = 0; i < NX; i++) {
                          sum += vecC[i];
                       }
                       printf("The sum is: %8.6f \n", sum);
-		  }         
+                      }         
 
-	    .. tab:: Fortran
+            .. tab:: Fortran
 
-	       .. code-block:: Fortran
+               .. code-block:: Fortran
 
-		  program vecsum
-		      implicit none
-
-		      integer, parameter :: nx = 102400
-		      real, dimension(:), allocatable :: vecA,vecB,vecC
-                      real    :: sum
-		      integer :: i
-
-		      allocate (vecA(nx), vecB(nx),vecC(nx))
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
-		      ! Adding mapping clauses here
-		      !$acc parallel loop
-			  do i=1,nx
-			      vecC(i) = vecA(i) + vecB(i)
-			  enddo  
-		      !$acc end parallel loop
-
-		      sum = 0.0
-		      ! Calculate the sum
-		      do i = 1, nx
-		         sum =  vecC(i) + sum
+                  program vecsum
+                      implicit none
+          
+                      integer, parameter :: nx = 102400
+                      real, dimension(:), allocatable :: vecA,vecB,vecC
+                                real    :: sum
+                      integer :: i
+                      
+                      allocate (vecA(nx), vecB(nx),vecC(nx))
+                      ! Initialization of vectors
+                      do i = 1, nx
+                          vecA(i) = 1.0
+                          vecB(i) = 1.0
+                      end do     
+                      ! Adding mapping clauses here
+                      !$acc parallel loop
+                      do i=1,nx
+                          vecC(i) = vecA(i) + vecB(i)
+                      enddo  
+                      !$acc end parallel loop
+          
+                      sum = 0.0
+                      ! Calculate the sum
+                      do i = 1, nx
+                         sum =  vecC(i) + sum
                       end do
-		      write(*,'(A,F18.6)') 'The sum is: ', sum
-
-		  end program vecsum
-
-
+                      write(*,'(A,F18.6)') 'The sum is: ', sum
+          
+                      end program vecsum
 
 
-.. solution::
 
-   .. tabs::
 
-      .. tab:: OpenMP 
+   .. solution::
 
-	 .. tabs::
+      .. tabs::
 
-	    .. tab::  C/C++
+         .. tab:: OpenMP 
 
-	       .. code-block:: C++
-                  :emphasize-lines: 14
+            .. tabs::
 
-		  #include <stdio.h>
-		  #include <math.h>
-		  #define NX 102400
+               .. tab::  C/C++
 
-		  int main(void){
-		      double vecA[NX],vecB[NX],vecC[NX];
+                  .. code-block:: C++
+                     :emphasize-lines: 14
 
-		      /* Initialize vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }  
+                     #include <stdio.h>
+                     #include <math.h>
+                     #define NX 102400
 
-		      #pragma omp target teams distribute parallel for simd map(to:vecA[0:NX],vecB[0:NX]) map(from:vecC[0:NX])
-		      {
-			  for (int i = 0; i < NX; i++) {
-			     vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
+                     int main(void){
+                         double vecA[NX],vecB[NX],vecC[NX];
 
-                      double sum = 0.0;
-                      for (int i = 0; i < NX; i++) {
-                         sum += vecC[i];
-                      }
-                      printf("The sum is: %8.6f \n", sum);
-		  }
+                         /* Initialize vectors */
+                         for (int i = 0; i < NX; i++) {
+                             vecA[i] = 1.0;
+                             vecB[i] = 1.0;
+                         }  
 
-	    .. tab::  Fortran
+                         #pragma omp target teams distribute parallel for simd map(to:vecA[0:NX],vecB[0:NX]) map(from:vecC[0:NX])
+                         {
+                         for (int i = 0; i < NX; i++) {
+                              vecC[i] = vecA[i] + vecB[i];
+                         }
+                         }
 
-	       .. code-block:: Fortran
-                  :emphasize-lines: 15
+                         double sum = 0.0;
+                         for (int i = 0; i < NX; i++) {
+                            sum += vecC[i];
+                         }
+                         printf("The sum is: %8.6f \n", sum);
+                         }
 
-		  program vecsum
-		      implicit none
+               .. tab::  Fortran
 
-		      integer, parameter :: nx = 102400
-		      real, dimension(nx) :: vecA,vecB,vecC
-                      real    :: sum
-		      integer :: i
+                  .. code-block:: Fortran
+                     :emphasize-lines: 15
 
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
+                     program vecsum
+                         implicit none
 
-		      !$omp target teams distribute parallel do simd map(to:vecA,vecB) map(from:vecC) 
-		           do i=1,nx
-			       vecC(i) = vecA(i) + vecB(i)
-			   enddo  
-		      !$omp end target teams distribute parallel do simd
-                     
-		      sum = 0.0
-		     ! Calculate the sum
-		      do i = 1, nx
-			 sum =  vecC(i) + sum
-		      end do
-		      write(*,'(A,F18.6)') 'The sum is: ', sum
+                         integer, parameter :: nx = 102400
+                         real, dimension(nx) :: vecA,vecB,vecC
+                                   real    :: sum
+                         integer :: i
+                        
+                         ! Initialization of vectors
+                         do i = 1, nx
+                             vecA(i) = 1.0
+                             vecB(i) = 1.0
+                         end do     
 
-		  end program vecsum
+                         !$omp target teams distribute parallel do simd map(to:vecA,vecB) map(from:vecC) 
+                         do i=1,nx
+                             vecC(i) = vecA(i) + vecB(i)
+                         enddo  
+                         !$omp end target teams distribute parallel do simd
 
-      .. tab:: OpenACC 
+                         sum = 0.0
+                         ! Calculate the sum
+                         do i = 1, nx
+                             sum =  vecC(i) + sum
+                         end do
+                         write(*,'(A,F18.6)') 'The sum is: ', sum
 
-	 .. tabs::
+                         end program vecsum
 
-	    .. tab:: C/C++
+         .. tab:: OpenACC 
 
-	       .. code-block:: C++
-                  :emphasize-lines: 14
+            .. tabs::
 
-		  #include <stdio.h>
-		  #include <openacc.h>
-		  #define NX 102400
+               .. tab:: C/C++
 
-		  int main(void) {
-		      double vecA[NX], vecB[NX], vecC[NX];
+                  .. code-block:: C++
+                     :emphasize-lines: 14
 
-		      /* Initialization of the vectors */
-		      for (int i = 0; i < NX; i++) {
-			  vecA[i] = 1.0;
-			  vecB[i] = 1.0;
-		      }
+                     #include <stdio.h>
+                     #include <openacc.h>
+                     #define NX 102400
+          
+                     int main(void) {
+                         double vecA[NX], vecB[NX], vecC[NX];
+          
+                         /* Initialization of the vectors */
+                         for (int i = 0; i < NX; i++) {
+                             vecA[i] = 1.0;
+                             vecB[i] = 1.0;
+                         }
+          
+                         #pragma acc parallel loop copyin(vecA[0:NX],vecB[0:NX]) copyout(vecC[0:NX])
+                         {
+                         for (int i = 0; i < NX; i++) {
+                            vecC[i] = vecA[i] + vecB[i];
+                         }
+                         }
+          
+                         double sum = 0.0;
+                         for (int i = 0; i < NX; i++) {
+                            sum += vecC[i];
+                         }
+                         printf("The sum is: %8.6f \n", sum);
+                         }         
+          
+               .. tab:: Fortran
+                   
+                  .. code-block:: Fortran
+                     :emphasize-lines: 15
 
-		      #pragma acc parallel loop copyin(vecA[0:NX],vecB[0:NX]) copyout(vecC[0:NX])
-		      {
-			  for (int i = 0; i < NX; i++) {
-			      vecC[i] = vecA[i] + vecB[i];
-			  }
-		      }
-
-                      double sum = 0.0;
-                      for (int i = 0; i < NX; i++) {
-                         sum += vecC[i];
-                      }
-                      printf("The sum is: %8.6f \n", sum);
-		  }         
-
-	    .. tab:: Fortran
-
-	       .. code-block:: Fortran
-                  :emphasize-lines: 15
-
-		  program vecsum
-		      implicit none
-
-		      integer, parameter :: nx = 102400
-		      real, dimension(nx) :: vecA,vecB,vecC
-                      real    :: sum
-		      integer :: i
-
-		      ! Initialization of vectors
-		      do i = 1, nx
-			 vecA(i) = 1.0
-			 vecB(i) = 1.0
-		      end do     
-
-		      !$acc parallel loop copyin(vecA,vecB) copyout(vecC)
-			  do i=1,nx
-			      vecC(i) = vecA(i) + vecB(i)
-			  enddo  
-		      !$acc end parallel loop
-
-		      sum = 0.0
-		      ! Calculate the sum
-		      do i = 1, nx
-		         sum =  vecC(i) + sum
-                      end do
-		      write(*,'(A,F18.6)') 'The sum is: ', sum
-
-		  end program vecsum
+                     program vecsum
+                         implicit none
+          
+                         integer, parameter :: nx = 102400
+                         real, dimension(nx) :: vecA,vecB,vecC
+                                   real    :: sum
+                         integer :: i
+                         
+                         ! Initialization of vectors
+                         do i = 1, nx
+                             vecA(i) = 1.0
+                             vecB(i) = 1.0
+                         end do     
+          
+                         !$acc parallel loop copyin(vecA,vecB) copyout(vecC)
+                         do i=1,nx
+                            vecC(i) = vecA(i) + vecB(i)
+                         enddo  
+                         !$acc end parallel loop
+          
+                         sum = 0.0
+                         ! Calculate the sum
+                         do i = 1, nx
+                            sum =  vecC(i) + sum
+                         end do
+                         write(*,'(A,F18.6)') 'The sum is: ', sum
+          
+                         end program vecsum
 
 
 Optimize Data Transfers
@@ -976,6 +965,7 @@ Pros and cons of directive-based frameworks
 - Good portability
 
 
+
 See also
 --------
 
@@ -984,5 +974,5 @@ See also
 
 .. keypoints::
 
-   - k1
-   - k2
+   - OpenACC and OpenMP-offloading enables you to annotate your code with special directives to identify areas to be executed in parallel on a GPU. 
+   - This saves time compared to lower-level approaches, but you need to be mindful of memory movement.
