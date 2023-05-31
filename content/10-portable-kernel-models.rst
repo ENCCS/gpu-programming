@@ -23,7 +23,7 @@ The goal of the cross-platform portability ecosystems is to allow the same code 
 Kokkos
 ^^^^^^
 
-Kokkos is an open-source performance portability ecosystem for parallelization on large heterogeneous hardware architectures of which development has mostly taken place on Sandia National Laboratories. The project started in 2011 as a parallel C++ programming model, but have since expanded into a more broad ecosystem including Kokkos Core (the programming model), Kokkos Kernels (math library), and Kokkos Tools (debugging, profiling and tuning tools). By preparing proposals for the C++ standard committee, the project also aims to influence the ISO/C++ language standard such that, eventually, Kokkos capabilities will become native to the language standard. A more detailed introduction is found `HERE <https://www.sandia.gov/news/publications/hpc-annual-reports/article/kokkos/>`_.
+Kokkos is an open-source performance portability ecosystem for parallelization on large heterogeneous hardware architectures of which development has mostly taken place on Sandia National Laboratories. The project started in 2011 as a parallel C++ programming model, but have since expanded into a more broad ecosystem including Kokkos Core (the programming model), Kokkos Kernels (math library), and Kokkos Tools (debugging, profiling and tuning tools). By preparing proposals for the C++ standard committee, the project also aims to influence the ISO/C++ language standard such that, eventually, Kokkos capabilities will become native to the language standard. A more detailed introduction is found `HERE <https://www.sandia.gov/news/publications/hpc-annual-reports/article/kokkos/>`__.
 
 The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a much larger amount of search results and stackoverflow discussions can be found.
 
@@ -33,7 +33,7 @@ Kokkos compilation
 
 Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system. 
 
-However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html>`_) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
+However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html>`__) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:
 
 .. tabs:: 
 
@@ -63,11 +63,11 @@ To build a hello.cpp project with the above Makefile, no steps other than clonin
 Kokkos programming
 ~~~~~~~~~~~~~~~~~~
 
-When starting to write a project using Kokkos, the first step is understand Kokkos initialization and finalization. Kokkos must be initialized by calling ``Kokkos::initialize(int& argc, char* argv[])`` and finalized by calling ``Kokkos::finalize()``. More details are given in `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Initialization.html>`_.
+When starting to write a project using Kokkos, the first step is understand Kokkos initialization and finalization. Kokkos must be initialized by calling ``Kokkos::initialize(int& argc, char* argv[])`` and finalized by calling ``Kokkos::finalize()``. More details are given in `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Initialization.html>`__.
 
-Kokkos uses an execution space model to abstract the details of parallel hardware. The execution space instances map to the available backend options such as CUDA, OpenMP, HIP, or SYCL. If the execution space is not explicitly chosen by the programmer in the source code, the default execution space ``Kokkos::DefaultExecutionSpace`` is used. This is chosen when the Kokkos library is compiled. The Kokkos execution space model is described in more detail in `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-spaces>`_.
+Kokkos uses an execution space model to abstract the details of parallel hardware. The execution space instances map to the available backend options such as CUDA, OpenMP, HIP, or SYCL. If the execution space is not explicitly chosen by the programmer in the source code, the default execution space ``Kokkos::DefaultExecutionSpace`` is used. This is chosen when the Kokkos library is compiled. The Kokkos execution space model is described in more detail in `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-spaces>`__.
 
-Similarly, Kokkos uses a memory space model for different types of memory, such as host memory or device memory. If not defined explicitly, Kokkos uses the default memory space specified during Kokkos compilation as described `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-memory-spaces>`_.
+Similarly, Kokkos uses a memory space model for different types of memory, such as host memory or device memory. If not defined explicitly, Kokkos uses the default memory space specified during Kokkos compilation as described `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-memory-spaces>`__.
 
 The following is an example of a Kokkos program that initializes Kokkos and prints the execution space and memory space instances: 
 
@@ -90,9 +90,9 @@ The following is an example of a Kokkos program that initializes Kokkos and prin
            return 0;
          }
 
-With Kokkos, the data can be accessed either through raw pointers or through Kokkos Views. With raw pointers, the memory allocation into the default memory space can be done using ``Kokkos::kokkos_malloc(n * sizeof(int))``. Kokkos Views are a data type that provides a way to access data more efficiently in memory corresponding to a certain Kokkos memory space, such as host memory or device memory. A 1-dimensional view of type int* can be created by ``Kokkos::View<int*> a("a", n)``, where ``"a"`` is a label, and ``n`` is the size of the allocation in the number of integers. Kokkos determines the optimal layout for the data at compile time for best overall performance as a function of the computer architecture. Furthermore, Kokkos handles the deallocation of such memory automatically. More details about Kokkos Views are found `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/View.html>`_.
+With Kokkos, the data can be accessed either through raw pointers or through Kokkos Views. With raw pointers, the memory allocation into the default memory space can be done using ``Kokkos::kokkos_malloc(n * sizeof(int))``. Kokkos Views are a data type that provides a way to access data more efficiently in memory corresponding to a certain Kokkos memory space, such as host memory or device memory. A 1-dimensional view of type int* can be created by ``Kokkos::View<int*> a("a", n)``, where ``"a"`` is a label, and ``n`` is the size of the allocation in the number of integers. Kokkos determines the optimal layout for the data at compile time for best overall performance as a function of the computer architecture. Furthermore, Kokkos handles the deallocation of such memory automatically. More details about Kokkos Views are found `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/View.html>`__.
 
-Finally, Kokkos provides three different parallel operations: ``parallel_for``, ``parallel_reduce``, and ``parallel_scan``. The ``parallel_for`` operation is used to execute a loop in parallel. The ``parallel_reduce`` operation is used to execute a loop in parallel and reduce the results to a single value. The ``parallel_scan`` operation is used to execute a loop in parallel and scan the results. The usage of ``parallel_for`` and ``parallel_reduce`` are demonstrated in the examples later in this chapter. More detail about the parallel operations are found `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/ParallelDispatch.html>`_.
+Finally, Kokkos provides three different parallel operations: ``parallel_for``, ``parallel_reduce``, and ``parallel_scan``. The ``parallel_for`` operation is used to execute a loop in parallel. The ``parallel_reduce`` operation is used to execute a loop in parallel and reduce the results to a single value. The ``parallel_scan`` operation is used to execute a loop in parallel and scan the results. The usage of ``parallel_for`` and ``parallel_reduce`` are demonstrated in the examples later in this chapter. More detail about the parallel operations are found `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/ParallelDispatch.html>`__.
 
 
 
@@ -160,7 +160,7 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
 SYCL
 ^^^^
 
-`SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
+`SYCL <https://www.khronos.org/sycl/>`__ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`__ and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`__ are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`__ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
 
 The most recent version of the SYCL standard is SYCL 2020, and it is the version we will be using in this course. 
 
@@ -170,9 +170,9 @@ SYCL compilation
 Intel oneAPI DPC++
 ******************
 
-For targeting Intel GPUs, it is enough to install `Intel oneAPI Base Toolkit <https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html>`_. Then, the compilation is as simple as ``icpx -fsycl file.cpp``.
+For targeting Intel GPUs, it is enough to install `Intel oneAPI Base Toolkit <https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html>`__. Then, the compilation is as simple as ``icpx -fsycl file.cpp``.
 
-It is also possible to use oneAPI for NVIDIA and AMD GPUs. In addition to oneAPI Base Toolkit, the vendor-provided runtime (CUDA or HIP) and the corresponding `Codeplay oneAPI plugin <https://codeplay.com/solutions/oneapi/>`_ must be installed.
+It is also possible to use oneAPI for NVIDIA and AMD GPUs. In addition to oneAPI Base Toolkit, the vendor-provided runtime (CUDA or HIP) and the corresponding `Codeplay oneAPI plugin <https://codeplay.com/solutions/oneapi/>`__ must be installed.
 Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
 
 - ``clang++ -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_86 file.cpp`` for targeting CUDA 8.6 NVIDIA GPU,
@@ -261,7 +261,7 @@ all USM allocations are shared: for example, a memory allocated by ``sycl::mallo
 from the host. The allocation functions return memory pointers that can be used directly, without accessors.
 This means that the programmer have to ensure the correct synchronization between host and device tasks to avoid
 data races. With USM, it is often convenient to use *in-order queues* with USM, instead of the default *out-of-order* queues.
-More information on USM can be found in the `Section 4.8 of SYCL 2020 specification <https://registry.khronos.org/SYCL/specs/sycl-2020/html/sycl-2020.html#sec:usm>`_.
+More information on USM can be found in the `Section 4.8 of SYCL 2020 specification <https://registry.khronos.org/SYCL/specs/sycl-2020/html/sycl-2020.html#sec:usm>`__.
 
 .. code-block:: C++
     
