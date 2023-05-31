@@ -15,15 +15,12 @@ What problems fit to GPU?
 
 .. instructor-note::
 
-   - 20 min teaching
+   - 10 min teaching
    - 10 min exercises
 
 
-
-.. keypoints::
-
-   - k1
-   - k2
+What are GPUs good for
+----------------------
 
 
 Answer from `Stack Exchange <https://scicomp.stackexchange.com/questions/943/what-kinds-of-problems-lend-themselves-well-to-gpu-computing>`__:
@@ -162,3 +159,10 @@ Exercises
 
       The right answer is option 3. GPUs do not handle recursion and branching as effectively as more 
       data-heavy algorithms.
+
+
+
+.. keypoints::
+
+   - GPUs excel in processing tasks with high data parallelism, such as large-scale matrix operations, Fourier transforms, and big data analytics. 
+   - GPUs struggle with sequential tasks, problems with extensive control flow divergence, low arithmetic intensity tasks, small data sets, and memory-bound problems.

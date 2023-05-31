@@ -18,8 +18,8 @@ Preparing code for GPU porting
 
 .. instructor-note::
 
-   - 20 min teaching
-   - 10 min exercises
+   - 30 min teaching
+   - 20 min exercises
 
 Porting from CPU to GPU
 -----------------------
@@ -120,7 +120,7 @@ Hipify-perl
 ~~~~~~~~~~~
 
 The ``hipify-perl`` tool is a script based on perl that translates CUDA syntax into HIP syntax 
-(see .e.g. `here <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`_ for more details). 
+(see .e.g. `here <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`__ for more details). 
 For instance, in a CUDA code that incorporates the CUDA functions `cudaMalloc` and `cudaDeviceSynchronize`, the tool will 
 substitute ``cudaMalloc`` with the HIP function ``hipMalloc``. Similarly the CUDA function `cudaDeviceSynchronize` will be 
 substituted with the HIP function `hipDeviceSynchronize`. We list below the basic steps to run ``hipify-perl`` on LUMI-G.
@@ -158,7 +158,7 @@ The tool is more robust for translating CUDA codes compared to the ``hipify-perl
 Furthermore, it facilitates the analysis of the code by providing assistance.
 
 In short, ``hipify-clang`` requires ``LLVM+CLANG`` and ``CUDA``. Details about building ``hipify-clang`` can be found 
-`here <https://github.com/ROCm-Developer-Tools/HIPIFY>`_. Note that ``hipify-clang`` is available on LUMI-G. 
+`here <https://github.com/ROCm-Developer-Tools/HIPIFY>`__. Note that ``hipify-clang`` is available on LUMI-G. 
 The issue however might be related to the installation of CUDA-toolkit. 
 To avoid any eventual issues with the installation procedure we opt for CUDA singularity 
 container. Here we present a step-by-step guide for running ``hipify-clang``:

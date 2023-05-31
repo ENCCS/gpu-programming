@@ -177,6 +177,7 @@ Summary
 
 Each of these GPU programming environments has its own strengths and weaknesses, 
 and the best choice for a given project will depend on a range of factors, including: 
+
 - the hardware platforms being targeted 
 - the type of computation being performed, and
 - the developer's experience and preferences. 
@@ -190,5 +191,5 @@ require more coding effort and expertise.
 
 .. keypoints::
 
-   - Different GPU Programming Approaches
-   - Choosing the Right Framework
+   - GPU programming approaches can be split into 1) directive-based, 2) non-portable kernel-based, 3) portable kernel-based, and 4) high-level language support.
+   - There are multiple frameworks available for each approach, each with pros and cons. 
