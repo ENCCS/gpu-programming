@@ -20,7 +20,7 @@ GPU programming concepts
 
 .. instructor-note::
 
-   - 20 min teaching
+   - 25 min teaching
    - 0 min exercises
 
 Different types of parallelism

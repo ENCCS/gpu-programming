@@ -15,7 +15,7 @@ Why GPUs?
 
 .. instructor-note::
 
-   - 20 min teaching
+   - 15 min teaching
    - 0 min exercises
 
 
