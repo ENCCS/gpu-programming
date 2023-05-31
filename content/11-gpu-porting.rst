@@ -107,9 +107,9 @@ You might also find yourself in a situation where you need to port a code from o
 GPU framework to another. This section gives an overview of different tools that enable converting CUDA and 
 OpenACC codes to HIP and OpenMP, respectively. This conversion process enables an application to target various 
 GPU architectures, specifically, NVIDIA and AMD GPUs. Here we focus on
-`hipify <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html>`_ and 
-`clacc <https://csmd.ornl.gov/project/clacc>`_ tools. 
-This guide is adapted from the `NRIS documentation <https://documentation.sigma2.no/code_development/guides/cuda_translating-tools.html>`_.
+`hipify <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html>`__ and 
+`clacc <https://csmd.ornl.gov/project/clacc>`__ tools. 
+This guide is adapted from the `NRIS documentation <https://documentation.sigma2.no/code_development/guides/cuda_translating-tools.html>`__.
 
 Translating CUDA to HIP with Hipify
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
