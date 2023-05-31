@@ -102,11 +102,7 @@ GPUs come together with software stacks or APIs that  work in conjunction with t
 *Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **OneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
 There are also cross-platform APIs such **DirectCompute** (only for Windows operating system), **OpenCL**, and **SYCL**.
 
-
-CUDA
-^^^^
-
-.. admonition:: In short
+.. admonition:: CUDA - In short
    :class: dropdown
 
    - CUDA: Nvidia's parallel computing platform
@@ -124,6 +120,50 @@ CUDA
       - Analyze system-wide and kernel-level performance
       - Optimize CPU and GPU usage, memory bandwidth, instruction throughput
    - Comprehensive CUDA ecosystem with extensive tools and features
+
+.. admonition:: ROCm - In short
+   :class: dropdown
+
+   - ROCm: Open software platform for AMD accelerators
+      - Built for open portability across multiple vendors and architectures
+      - Offers libraries, compilers, and development tools for AMD GPUs
+      - Supports C, C++, and Fortran languages
+      - Support GPU and multicore CPU programming
+   - Debugging: ``roc-gdb`` command line tool
+      - Facilitates debugging of GPU programs
+   - Performance analysis: ``rocprof`` and ``roctracer`` tools
+      - Analyze and optimize program performance  
+   - Supports various heterogenous programming models such as **HIP**, **OpenMP**, and **OpenCL**
+   - Heterogeneous-Computing Interface for Portability (HIP)
+      - Enables source portability for Nvidia and AMD platforms, Intel in plan
+      - Provides ``hipcc`` compiler driver and runtime libraries
+   - Libraries: Prefixed with ``roc`` for AMD platforms
+      - Can be called directly from HIP
+      - ``hip``-prefixed wrappers ensure portability with no performance cost
+
+.. admonition:: OneAPI - In short
+   :class: dropdown
+
+   - Intel oneAPI: Unified software toolkit for optimizing and deploying applications across various architectures
+      - Supports CPUs, GPUs, and FPGAs
+      - Enables code reusability and performance portability
+   - Intel oneAPI Base Toolkit: Core set of tools and libraries for high-performance, data-centric applications
+      - Includes C++ compiler with SYCL support
+      - Features Collective Communications Library, Data Analytics Library, Deep Neural Networks Library, and more
+   - Additional toolkits: Intel oneAPI HPC Toolkit
+      - Contains compilers, debugging tools, MPI library, and performance analysis tool
+   - Multiple programming models and languages supported: OpenMP, Classic Fortran, C++, SYCL
+   - DPC++ Compiler: Supports Intel, Nvidia, and AMD GPUs
+      - Targets Intel GPUs using oneAPI Level Zero interface
+      - Added support for Nvidia GPUs with CUDA and AMD GPUs with ROCm
+   - Debugging and performance analysis tools: Intel Adviser, Intel Vtune Profiler, Cluster Checker, Inspector, Intel Trace Analyzer and Collector, Intel Distribution for GDB
+   - Comprehensive and unified approach to heterogeneous computing
+      - Abstracts complexities and provides consistent programming interface
+      - Promotes code reusability, productivity, and performance portability
+
+
+CUDA
+^^^^
 
 **Compute Unified Device Architecture** is the parallel computing platform from Nvidia. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on NVIDIA GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
 
@@ -146,25 +186,6 @@ Apart from what was presented above there are many others tools and features pro
 ROCm
 ^^^^
 
-.. admonition:: In short
-   :class: dropdown
-
-   - ROCm: Open software platform for AMD accelerators
-      - Built for open portability across multiple vendors and architectures
-      - Offers libraries, compilers, and development tools for AMD GPUs
-      - Supports C, C++, and Fortran languages
-      - Support GPU and multicore CPU programming
-   - Debugging: ``roc-gdb`` command line tool
-      - Facilitates debugging of GPU programs
-   - Performance analysis: ``rocprof`` and ``roctracer`` tools
-      - Analyze and optimize program performance  
-   - Supports various heterogenous programming models such as **HIP**, **OpenMP**, and **OpenCL**
-   - Heterogeneous-Computing Interface for Portability (HIP)
-      - Enables source portability for Nvidia and AMD platforms, Intel in plan
-      - Provides ``hipcc`` compiler driver and runtime libraries
-   - Libraries: Prefixed with ``roc`` for AMD platforms
-      - Can be called directly from HIP
-      - ``hip``-prefixed wrappers ensure portability with no performance cost
 
 ROCm is an open software platform allowing researchers to tap the power of AMD accelerators. 
 The ROCm platform is built on the foundation of open portability, supporting environments across multiple 
@@ -188,26 +209,6 @@ ROCm also integrates with popular machine learning frameworks such as TensorFlow
 OneAPI
 ^^^^^^
 
-.. admonition:: In short
-   :class: dropdown
-
-   - Intel oneAPI: Unified software toolkit for optimizing and deploying applications across various architectures
-      - Supports CPUs, GPUs, and FPGAs
-      - Enables code reusability and performance portability
-   - Intel oneAPI Base Toolkit: Core set of tools and libraries for high-performance, data-centric applications
-      - Includes C++ compiler with SYCL support
-      - Features Collective Communications Library, Data Analytics Library, Deep Neural Networks Library, and more
-   - Additional toolkits: Intel oneAPI HPC Toolkit
-      - Contains compilers, debugging tools, MPI library, and performance analysis tool
-   - Multiple programming models and languages supported: OpenMP, Classic Fortran, C++, SYCL
-   - DPC++ Compiler: Supports Intel, Nvidia, and AMD GPUs
-      - Targets Intel GPUs using oneAPI Level Zero interface
-      - Added support for Nvidia GPUs with CUDA and AMD GPUs with ROCm
-   - Debugging and performance analysis tools: Intel Adviser, Intel Vtune Profiler, Cluster Checker, Inspector, Intel Trace Analyzer and Collector, Intel Distribution for GDB
-   - Comprehensive and unified approach to heterogeneous computing
-      - Abstracts complexities and provides consistent programming interface
-      - Promotes code reusability, productivity, and performance portability
-
 **Intel oneAPI** is a unified software toolkit developed by Intel that allows developers to optimize and deploy applications across a variety of architectures, including CPUs, GPUs, and FPGAs. It provides a comprehensive set of tools, libraries, and frameworks, enabling developers to leverage the full potential of heterogeneous computing environments. With oneAPI, the developers can write code once and deploy it across different hardware targets without the need for significant modifications or rewriting. This approach promotes code reusability, productivity, and performance portability, as it abstracts the complexities of heterogeneous computing and provides a consistent programming interface. 
 
 The core of suite is **Intel oneAPI Base Toolkit**, a set of tools and libraries for developing high-performance, data-centric applications across diverse architectures. It features an industry-leading C++ compiler that implements SYCL, an evolution of C++ for heterogeneous computing. It includes the **Collective Communications Library**, the **Data Analytics Library**, the **Deep Neural Networks Library**, the **DPC++/C++ Compiler**, the **DPC++ Library**, the **Math Kernel Library**, the **Threading Building Blocks**, debugging tool **Intel Distribution for GDB**, performance anaylisis tools **Intel Adviser** and **Intel Vtune Profiler**, the **Video Processing Library**, **Intel Distribution for Python**, the **DPC++ Compatibility Tool**, the **FPGA Add-on for oneAPI Base Toolkit**, the **Integrated Performance Primitives**.
@@ -215,7 +216,6 @@ This can be complemented with additional toolkits. The **Intel one API HPC Toolk
 
 OneAPI supports multiple programming models and programming languages. It enables developers to write **OpenMP** codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well SYCL programs for GPUs using the **DPC++** compiler. Initially, the **DPC++** compiler only targeted Intel GPUs using the **oneAPI Level Zero** low-level programming interface, but now support for Nvidia GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added. 
 Overall, Intel oneAPI offers a comprehensive and unified approach to heterogeneous computing, empowering developers to optimize and deploy applications across different architectures with ease. By abstracting the complexities and providing a consistent programming interface, oneAPI promotes code reusability, productivity, and performance portability, making it an invaluable toolkit for developers in the era of diverse computing platforms.
-
 
 
 
@@ -227,8 +227,8 @@ features and sometimes old features are not supported anymore. It is important w
 targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, 
 while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute 
 capability which is targeted is specified by the ``-arch=sm_XY``, where ``X`` specifies the major architecture and it 
-is between 1 and 9, and ``Y``the minor. When using HIP on Nvidia platforms one needs to use compiling option 
-``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc``( where ``abc`` is the architecture code 
+is between 1 and 9, and ``Y`` the minor. When using HIP on Nvidia platforms one needs to use compiling option 
+``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc`` ( where ``abc`` is the architecture code 
 such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
 Note that in the case of portable (single source) programs one would specify ``openmp`` as well as target for 
 compilation, enabling to run the same code on multicore cpu. 
