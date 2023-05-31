@@ -127,20 +127,20 @@ substituted with the HIP function `hipDeviceSynchronize`. We list below the basi
 
 - **Step 1**: Generating ``hipify-perl`` script
 
-  .. code-block::
+  .. code-block:: console
   
            $ module load rocm
            $ hipify-clang --perl
 
-- **Step 2**: Running the generated ````hipify-perl````
+- **Step 2**: Running the generated ``hipify-perl``
 
-  .. code-block::
+  .. code-block:: console
   
            $ hipify-perl program.cu > program.cu.hip
 
 - **Step 3**: Compiling with ``hipcc`` the generated HIP code
 
-  .. code-block::
+  .. code-block:: console
   
            $ hipcc --offload-arch=gfx90a -o program.hip.exe program.cu.hip
 
@@ -165,13 +165,13 @@ container. Here we present a step-by-step guide for running ``hipify-clang``:
 
 - **Step 1**: Pulling a CUDA singularity container e.g.
 
-  .. code-block::
+  .. code-block:: console
   
            $ singularity pull docker://nvcr.io/nvidia/cuda:11.4.3-devel-ubuntu20.04
 
 - **Step 2**: Loading a rocm module and launching the CUDA singularity
 
-  .. code-block::
+  .. code-block:: console
   
            $ module load rocm
            $ singularity shell -B $PWD,/opt:/opt cuda_11.4.0-devel-ubuntu20.04.sif
@@ -183,7 +183,7 @@ container. Here we present a step-by-step guide for running ``hipify-clang``:
   In order to run ``hipify-clang`` from inside the container, one can set the environment variable ``$PATH`` 
   that defines tha path to look for the binary ``hipify-clang``.
 
-  .. code-block::
+  .. code-block:: console
   
            $ export PATH=/opt/rocm-5.2.3/bin:$PATH
 
@@ -191,7 +191,7 @@ container. Here we present a step-by-step guide for running ``hipify-clang``:
 
 - **Step 4**: Running ````hipify-clang```` from inside the singularity container
 
-  .. code-block::
+  .. code-block:: console
   
            $ hipify-clang program.cu -o hip_program.cu.hip --cuda-path=/usr/local/cuda-11.4 -I /usr/local/cuda-11.4/include
   
@@ -214,7 +214,7 @@ In the following we present a step-by-step guide for building and using `Clacc`:
 
 - **Step 1**: Building and installing `Clacc <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_.
 
-  .. code-block::
+  .. code-block:: console
   
            $ git clone -b clacc/main https://github.com/llvm-doe-org/llvm-project.git
            $ cd llvm-project
@@ -235,14 +235,14 @@ In the following we present a step-by-step guide for building and using `Clacc`:
   For more advanced usage, which includes for instance modifying ``Clacc``, we refer readers to
   `"Usage from Build directory" <https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md>`_
 
-  .. code-block::
+  .. code-block:: console
   
            $ export PATH=/project/project_xxxxxx/Clacc/llvm-project/install/bin:$PATH
            $ export LD_LIBRARY_PATH=/project/project_xxxxxx/Clacc/llvm-project/install/lib:$LD_LIBRARY_PATH
 
 - **Step 3**: Source to source conversion of the `openACC_code.c` code to be printed out to the file `openMP_code.c`:
 
-  .. code-block:: 
+  .. code-block:: console
   
            $ clang -fopenacc-print=omp -fopenacc-structured-ref-count-omp=no-ompx-hold openACC_code.c > openMP_code.c
   

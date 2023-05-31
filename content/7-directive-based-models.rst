@@ -393,7 +393,7 @@ structured data region and unstructured data region.
 Structured Data Region
 ++++++++++++++++++++++
 
-A structured data region is convenient for providing persistent data on the device which could be used for subseqent GPU directives.
+A structured data region is convenient for providing persistent data on the device which could be used for subsequent GPU directives.
 
 
 .. challenge:: Syntax for structured data region
