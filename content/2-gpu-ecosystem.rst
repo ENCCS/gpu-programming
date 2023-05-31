@@ -116,7 +116,7 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
    - Debugging tools: cuda-gdb, compute-sanitizer
       - Debug GPU and CPU code simultaneously
       - Identify memory access issues
-   - Performance analysis tools: NVIDIA Nsight Systems, NVIDIA Nsight Compute
+   - Performance analysis tools: Nvidia Nsight Systems, Nvidia Nsight Compute
       - Analyze system-wide and kernel-level performance
       - Optimize CPU and GPU usage, memory bandwidth, instruction throughput
    - Comprehensive CUDA ecosystem with extensive tools and features
@@ -167,11 +167,11 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
 CUDA
 ^^^^
 
-**Compute Unified Device Architecture** is the parallel computing platform from Nvidia. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on NVIDIA GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
+**Compute Unified Device Architecture** is the parallel computing platform from Nvidia. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on Nvidia GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the device GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
 
-CUDA API provides many highly optimize libraries such as: **cuBLAS** (for linear algebra operations, such a dense matrix multiplication), **cuFFT** (for performing fast Fourier transforms), **cuRAND** (for generating pseudo-random numbers), **cuSPARSE** (for sparse matrices operations). Using these libraries, developers can quickly and easily accelerate complex computations on NVIDIA GPUs without having to write low-level GPU code themselves.
+CUDA API provides many highly optimize libraries such as: **cuBLAS** (for linear algebra operations, such a dense matrix multiplication), **cuFFT** (for performing fast Fourier transforms), **cuRAND** (for generating pseudo-random numbers), **cuSPARSE** (for sparse matrices operations). Using these libraries, developers can quickly and easily accelerate complex computations on Nvidia GPUs without having to write low-level GPU code themselves.
 
-There are several compilers that can be used for developing and executing code on Nvidia GPUs: **nvcc**. The latest versions are based on the widely used LLVM open source compiler infrastructure. nvcc produces optimized code for NVIDIA GPUs and drives a supported host compiler for AMD, Intel, OpenPOWER, and Arm CPUs.
+There are several compilers that can be used for developing and executing code on Nvidia GPUs: **nvcc**. The latest versions are based on the widely used LLVM (low level virtual machine) open source compiler infrastructure. nvcc produces optimized code for Nvidia GPUs and drives a supported host compiler for AMD, Intel, OpenPOWER, and Arm CPUs.
 
 In addition to this are provided **nvc** (C11 compiler), **nvc++** (C++17 compiler), and  **nvfortran** (ISO Fortran 2003 compiler). These compilers can as well create code for execution on the Nvidia GPUs, and also support GPU and multicore CPU programming with parallel language features, OpeanACC and OpenMP.
 
@@ -180,7 +180,7 @@ When programming mistakes are inevitable they have to be fixed as soon as possib
 
 In addition to this the command line tool **compute-sanitizer** can be used to look exclusively for memory access problems: unallocated buffers, out of bounds accesses, race conditions, and uninitialized variables. 
 
-Finally, in order to utilize the GPUs at maximum some performance analysis tools. Nvidia provides NVIDIA Nsight Systems and NVIDIA Nsight Compute tools for helping the developers to optimize their applications. The former, NVIDIA Nsight Systems, is a system-wide performance analysis tool that  provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, NVIDIA Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have graphical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.
+Finally, in order to utilize the GPUs at maximum some performance analysis tools. Nvidia provides Nvidia Nsight Systems and Nvidia Nsight Compute tools for helping the developers to optimize their applications. The former, Nvidia Nsight Systems, is a system-wide performance analysis tool that provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, Nvidia Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have graphical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.
 
 Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
 
@@ -195,7 +195,7 @@ accelerator vendors and architectures. In some way it is very similar to CUDA AP
 It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. 
 For debugging, it provides the command line tool ``rocgdb``, while for performance analysis ``rocprof`` and ``roctracer``.
 In order to produce code for the AMD GPUs, one can use the Heterogeneous-Computing Interface for Portability (HIP). 
-HIP s a C++ runtime API and a set of tools that allows developers to write portable GPU-accelerated code for both Nvidia and AMD platforms. 
+HIP is a C++ runtime API and a set of tools that allows developers to write portable GPU-accelerated code for both Nvidia and AMD platforms. 
 It provides the ``hipcc`` compiler driver, which will call the appropriate toolchain depending on the desired platform. 
 On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang (ROCm compiler). 
 On an Nvidia platform, HIP provides a header file which translates from the HIP runtime APIs to CUDA runtime APIs. 
@@ -270,7 +270,7 @@ Summary
 
 - GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.
 - GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (Nvidia), ROCm (AMD), and oneAPI (Intel).
-- These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
+- These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., Nvidia Nsight Systems, Nvidia Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
 
 Exercises
 ---------
