@@ -1,4 +1,4 @@
-This folder contains several examples in CUDA and HIP that can be used for the hands on based on the episode [Non-portable kernel-based models](Non-portable kernel-based models). 
+This folder contains several examples in CUDA and HIP that can be used for the hands on based on the episode [Non-portable kernel-based models](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/). 
 ## Compiling on LUMI
 First load the modules:
 ```
