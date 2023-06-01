@@ -10,9 +10,11 @@ PROG=stencil
 all: $(PROG) $(PROG_OMP)
 
 $(PROG): $(OBJS) pngwriter.o core.o
+	@echo link $@ ...
 	$(CC) $(CFLAGS) $(OMP) -o $@ $^
 
 $(PROG_OMP): $(OBJS) pngwriter.o core-omp.o
+	@echo link $@ ...
 	$(CC) $(CFLAGS) $(OMP) -o $@ $^
 
 %.o: %.cpp
