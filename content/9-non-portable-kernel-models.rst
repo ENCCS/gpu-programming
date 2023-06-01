@@ -1117,7 +1117,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
                   item.barrier();
                }
                if (tid == 0) {
-                  sum[ibl] = shtmp[ibl]; // each block saves its partial result to an array
+                  sum[ibl] = shtmp[0]; // each block saves its partial result to an array
                   /*
                     sycl::atomic_ref<double, sycl::memory_order::relaxed, 
                                    sycl::memory_scope::device,
