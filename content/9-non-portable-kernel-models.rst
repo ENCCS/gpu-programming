@@ -892,17 +892,8 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
                out[out_index] = in[in_index];
             };
          }
-         
-   .. tab:: CUDA
-
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #inclde <cuda_runtime.h>
-        #include <math.h>
       
-   .. tab:: HIP
+   .. tab:: CUDA/HIP
 
       .. code-block:: C++ 
          
@@ -953,17 +944,7 @@ We can improve the code by reading the data in a coalesced way, save it in the s
             };
          }
 
-         
-   .. tab:: CUDA
-
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #inclde <cuda_runtime.h>
-        #include <math.h>
-      
-   .. tab:: HIP
+   .. tab:: CUDA/HIP
 
       .. code-block:: C++ 
          
@@ -1030,17 +1011,8 @@ Shared memory is composed of banks. Each banks can service only one request at t
                out[out_index] = tile[x_local_index * (tile_dim + 1) + y_local_index];
             };
          }
-         
-   .. tab:: CUDA
-
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #inclde <cuda_runtime.h>
-        #include <math.h>
       
-   .. tab:: HIP
+   .. tab:: CUDA/HIP
 
       .. code-block:: C++ 
          
@@ -1125,7 +1097,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
          }
 
          
-   .. tab:: CUDA
+   .. tab:: CUDA/HIP
 
       .. code-block:: C++
          
@@ -1158,11 +1130,6 @@ At the block level we still have to perform a reduction in an efficient way. Doi
            }
          }
 
-      
-   .. tab:: HIP
-
-      .. code-block:: C++ 
-
 In the kernel we have each GPU performing  thread a reductionon two elements from the local portion of the array. If we have `tpb` GPU threads per block, we utilize them to store `2xtpb elements` in the local shared memory. To ensure synchronization until all data is available in the shared memory, we employ the `syncthreads()` function.
 
 Next, we instruct each thread to "reduce" the element in the array at `threadIdx.x` with the element at `threadIdx.x+tpb`. As this operation saves the result back into the shared memory, we once again employ `syncthreads()`. By doing this, we effectively halve the number of elements to be reduced.
@@ -1191,7 +1158,15 @@ Consider a case which involves copying data from CPU to GPU, computations and th
 Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernles in the same time.  One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle , waiting for data to arrive from the CPU.  This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
 Note that even when streams are not explicitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
-In order to learn more about how to improve perfomrance using streams check the Nvidia blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
+In order to learn more about how to improve performance using streams check the Nvidia blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
+
+.. admonition:: Streams - In short
+   :class: dropdown
+
+   - CUDA/HIP streams are independent execution contexts on the GPU that allow for concurrent execution of operations issued in different streams.
+  - Using streams can improve GPU performance by overlapping operations such as data transfers between CPU and GPU and kernel executions.
+  - By dividing a problem into smaller independent parts and utilizing multiple streams, the GPU can remain and avoid idle time, resulting in significant performance improvements, especially for problems with frequent CPU communication or multi-GPU setups.
+
 
 Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
