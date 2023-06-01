@@ -1205,14 +1205,33 @@ In order to learn more about how to improve performance using streams check the 
 
 .. admonition:: Streams - In short
    :class: dropdown
+   :class: dropdown
 
    - CUDA/HIP streams are independent execution contexts on the GPU that allow for concurrent execution of operations issued in different streams.
-  - Using streams can improve GPU performance by overlapping operations such as data transfers between CPU and GPU and kernel executions.
-  - By dividing a problem into smaller independent parts and utilizing multiple streams, the GPU can remain and avoid idle time, resulting in significant performance improvements, especially for problems with frequent CPU communication or multi-GPU setups.
+   - Using streams can improve GPU performance by overlapping operations such as data transfers between CPU and GPU and kernel executions.
+   - By dividing a problem into smaller independent parts and utilizing multiple streams, the GPU can remain and avoid idle time, resulting in significant performance improvements, especially for problems with frequent CPU communication or multi-GPU setups.
 
 
 Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+There are advatanges and limitations to CUDA and HIP:
+
+CUDA Pros:
+1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.
+2. Wide Adoption: CUDA is popular, with many resources and tools available.
+3. Mature Ecosystem: NVIDIA provides comprehensive libraries and tools for CUDA programming.
+
+HIP Pros:
+1. Portability: HIP is portable across different GPU architectures.
+2. Open Standards: HIP is based on open standards, making it more accessible.
+3. Growing Community: The HIP community is growing, providing more resources and support.
+
+Cons:
+1. Vendor Lock-in: CUDA is exclusive to NVIDIA GPUs, limiting compatibility.
+2. Learning Curve: Both CUDA and HIP require learning GPU programming concepts.
+3. Limited Hardware Support: HIP may face limitations on older or less common GPUs.
+
+
 
 .. keypoints::
 
