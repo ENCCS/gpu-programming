@@ -664,6 +664,20 @@ Now the arrays Ah, Bh, Ch, and Cref are using cudaMallocManaged to allocate Unif
 
 As an exercise modify the skeleton code for vector addition to use Unified Memory. 
 
+.. admonition:: Basics - In short
+   :class: dropdown
+
+   - CUDA and HIP are GPU-focused programming models for optimized code execution on NVIDIA and AMD GPUs.
+   - They provide extensive libraries and tools for high-performance computing on GPUs.
+   - CUDA is developed by NVIDIA, while HIP is an open-source project (from AMD) for multi-platform GPU programming.
+   - CUDA and HIP are programming models focused solely on GPUs
+   - CUDA and HIP offer high-performance computing capabilities and advanced features specific to GPU architectures, such as shared memory and memory management.
+   - They provide highly  GPU-accelerated libraries in various domains like linear algebra, signal processing, image processing, and machine learning.
+   - CUDA and HIP are similar, allowing developers to write GPU code in a syntax similar to CUDA and target multiple platforms.
+   - Programming for GPUs involves managing data movement between host and accelerator memory.
+   - Unified Memory simplifies data transfers by using the same pointer for CPU and GPU data, but code optimization is still necessary.
+
+
 Memory Optimizations
 ^^^^^^^^^^^^^^^^^^^^
 Vector addition is a relatively simple, straight forward case. Each thread reads data from memory, does an addition and then saves the result. Two  adjacent threads access memory location in memory close to each other. Also the data is used only once. In practice this not the case. Also sometimes the same data is used several times resulting in additional memory accesses. 
@@ -676,6 +690,18 @@ GPUs are comprised many ligth cores, the so-called Streaming Processors (SP) in 
 
 The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data (see stencil code) or it can be used to improve the memory access patterns like in the case of matrix transpose.
 
+.. admonition:: Memory, Execution - In short
+   :class: dropdown
+
+   - GPUs consist of streaming processors (SPs) grouped together in units, such as Streaming Multi-Processors (SMPs) in CUDA architecture.
+   - Work on GPUs is done by launching threads, with each thread executing an instance of the same kernel, and the execution order is not defined.
+   - Threads are organized into blocks, assigned to an SMP, and cannot be split, and there is no communication between threads in different blocks.
+   - Each SMP contains shared memory, which acts as a user-controlled cache for threads within a block, allowing efficient data sharing and synchronization.
+   - The shared memory can be used to avoid extra memory reads when multiple threads in the same block need the same data or to improve memory access patterns, such as in matrix transpose operations.
+   - Memory accesses from global GPU memory are performed per warp (groups of threads), and loading data from GPU memory has high latency.
+   - To optimize memory access, threads within a warp should work with adjacent elements in memory to reduce latency.
+   - Proper utilization of shared memory can improve performance by reducing memory reads and enhancing memory access patterns.
+   
 Matrix Transpose
 ^^^^^^^^^^^^^^^^
 Matrix transpose is a classic example where shared memory can significantly improve the performance. The use of shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory.
@@ -1036,6 +1062,16 @@ Shared memory is composed of banks. Each banks can service only one request at t
        
 By padding the array the data is slightly shifting it resulting in no bank conflicts. The effective bandwidth for this kernel is `697 GB/s`. 
 
+.. admonition:: Using sharing memory as a cache - In short
+   :class: dropdown
+
+   - Shared memory can significantly improve performance in operations like matrix transpose.
+   - Shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory
+   - An optimized implementation utilizes shared memory, loads data coalescedly, and performs transpose operations
+   - The optimized implementation uses a 2D grid of thread blocks and a shared memory tile size determined by a constant.
+   - The kernel loads data from global memory into the shared memory tile and uses a synchronization barrier.
+   - To avoid bank conflicts in shared memory, padding the temporary array is a simple solution.
+   
 Reductions
 ^^^^^^^^^^ 
 
@@ -1081,7 +1117,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
                   item.barrier();
                }
                if (tid == 0) {
-                  sum[ibl] = shtmp[0]; // each block saves its partial result to an array
+                  sum[ibl] = shtmp[ibl]; // each block saves its partial result to an array
                   /*
                     sycl::atomic_ref<double, sycl::memory_order::relaxed, 
                                    sycl::memory_scope::device,
@@ -1143,7 +1179,14 @@ At this point, we can either "reduce" the final number with a global partial res
    
    Schematic respresentation on the reduction algorithm with 8 GPU threads.
    
-For a detail analysis of how to optimize reduction operations in CUDA/HIP check this slide `Optimizing Parallel Reduction in CUDA <https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf>`_  
+For a detail analysis of how to optimize reduction operations in CUDA/HIP check this presentation `Optimizing Parallel Reduction in CUDA <https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf>`_  
+
+.. admonition:: Reductions - In short
+   :class: dropdown
+
+   - Reductions refer to aggregating elements of an array into a single value through operations like summing, finding maximum or minimum, or performing logical operations.
+   - Performing reductions sequentially in a serial approach is inefficient for large problems, while parallel reduction on GPUs offers better performance.
+   - Parallel reduction on GPUs involves dividing the problem into subsets, performing reductions within blocks of threads using shared memory, and repeatedly reducing the number of elements (two per GPU thread) until only one remains.
 
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
