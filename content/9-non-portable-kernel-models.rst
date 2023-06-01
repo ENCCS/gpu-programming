@@ -1216,19 +1216,19 @@ Pros and cons of native programming models
 There are advatanges and limitations to CUDA and HIP:
 
 CUDA Pros:
-1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.
-2. Wide Adoption: CUDA is popular, with many resources and tools available.
-3. Mature Ecosystem: NVIDIA provides comprehensive libraries and tools for CUDA programming.
+#. 1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.
+#. 2. Wide Adoption: CUDA is popular, with many resources and tools available.
+#. 3. Mature Ecosystem: NVIDIA provides comprehensive libraries and tools for CUDA programming.
 
 HIP Pros:
-1. Portability: HIP is portable across different GPU architectures.
-2. Open Standards: HIP is based on open standards, making it more accessible.
-3. Growing Community: The HIP community is growing, providing more resources and support.
+#. 1. Portability: HIP is portable across different GPU architectures.
+#. 2. Open Standards: HIP is based on open standards, making it more accessible.
+#. 3. Growing Community: The HIP community is growing, providing more resources and support.
 
 Cons:
-1. Vendor Lock-in: CUDA is exclusive to NVIDIA GPUs, limiting compatibility.
-2. Learning Curve: Both CUDA and HIP require learning GPU programming concepts.
-3. Limited Hardware Support: HIP may face limitations on older or less common GPUs.
+#. 1. Vendor Lock-in: CUDA is exclusive to NVIDIA GPUs, limiting compatibility.
+#. 2. Learning Curve: Both CUDA and HIP require learning GPU programming concepts.
+#. 3. Limited Hardware Support: HIP may face limitations on older or less common GPUs.
 
 
 
