@@ -24,8 +24,7 @@ The most common directive-based models for GPU parallel programming are OpenMP o
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
 
 - OpenACC is known to be more **descriptive**, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data. 
-- OpenMP offloading approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to 
-  tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
+- OpenMP offloading approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
 
 In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
 special comments identified by unique sentinels in Fortran. Compilers can ignore the 
@@ -586,7 +585,7 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
 .. note::
 
-    - ``UPDATE`` directive can only be used in host code since data movement must be initiated from the host, i.e. it may  not appear inside of a compute region.
+    - ``UPDATE`` directive can only be used in host code since data movement must be initiated from the host, i.e. it may not appear inside of a compute region.
     - in OpenACC, motion-clause "host" has been deprecated and renamed "self"
 
 
