@@ -1208,7 +1208,7 @@ In order to learn more about how to improve performance using streams check the 
 
    - CUDA/HIP streams are independent execution contexts on the GPU that allow for concurrent execution of operations issued in different streams.
    - Using streams can improve GPU performance by overlapping operations such as data transfers between CPU and GPU and kernel executions.
-   - By dividing a problem into smaller independent parts and utilizing multiple streams, the GPU can remain and avoid idle time, resulting in significant performance improvements, especially for problems with frequent CPU communication or multi-GPU setups.
+   - By dividing a problem into smaller independent parts and utilizing multiple streams, the GPU can avoid idle time, resulting in significant performance improvements, especially for problems with frequent CPU communication or multi-GPU setups.
 
 
 Pros and cons of native programming models
