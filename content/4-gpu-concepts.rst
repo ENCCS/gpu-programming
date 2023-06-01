@@ -126,7 +126,7 @@ In order to obtain maximum performance it is important to understand how GPUs ex
     Cars and roads analogy for the CPU and GPU behavior. The compact road is analogous to the CPU
     (low latency, low throughput) and the broader road is analogous to the GPU (high latency, high throughput).
 
-In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. <font color=red>GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions.</font>
+In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. **GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions.**(These two sentences are repeated below. possibility to remove?)
 
 CUDA Threads, Warps, Blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -147,15 +147,15 @@ All memory accesses to the GPU memory are as a group in blocks of specific sizes
 On some architectures, all members of a :abbr:`warp` have to execute the 
 same instruction, the so-called "lock-step" execution. This is done to achieve 
 higher performance, but there are some drawbacks. If an **if** statement 
-is present inside a warp will cause the warp to be executed more than once, 
-one time for each branch. When different threads within a single :abbr:warp
+is present inside a :abbr:`warp` will cause the warp to be executed more than once, 
+one time for each branch. When different threads within a single :abbr:`warp`
 take different execution paths based on a conditional statement (if), both
 branches are executed sequentially, with some threads being active while
 others are inactive. On architectures without lock-step execution, such 
-as NVIDIA Volta / Turing (e.g., GeForce 16xx-series) or newer, warp
+as Nvidia Volta / Turing (e.g., GeForce 16xx-series) or newer, :abbr:`warp`
 divergence is less costly.
 
-There is another level in the GPU :abbr:`threads` hierarchy. The :abbr`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
+There is another level in the GPU :abbr:`threads` hierarchy. The :abbr:`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT (single instruction multiple threads) units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in a coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
 
 
 
@@ -168,7 +168,7 @@ There is another level in the GPU :abbr:`threads` hierarchy. The :abbr`threads` 
 Finally, a block of threads can not be splitted among SMPs. For performance blocks should have more than one :abbr:`warp`. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are sufficient, due to fast context switching, an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.
 
 
-To summarize this section. In order to take advantage of GPUs the algorithms must allow the division of work in many small subtasks which can be executed in the same time.  The computations are offloaded to GPUs, by launching tens of thousands of threads all executing the same function, *kernel*, each thread working on different part of the problem. The threads are executed in groups called *blocks*, each block being assigned to a SMP. Furthermore the threads of a block are divided in *warps*, each executed by SIMT unit. All threads in a warp execute the same instructions and all memory accesses are done collectively at warp level. The threads can synchronize and shared data only at block level. Depending on the architecture, some data sharing can be done as well at warp level. 
+To summarize this section. In order to take advantage of GPUs the algorithms must allow the division of work in many small subtasks which can be executed in the same time. The computations are offloaded to GPUs, by launching tens of thousands of threads all executing the same function, *kernel*, each thread working on different part of the problem. The threads are executed in groups called *blocks*, each block being assigned to a SMP. Furthermore the threads of a block are divided in *warps*, each executed by SIMT unit. All threads in a warp execute the same instructions and all memory accesses are done collectively at warp level. The threads can synchronize and share data only at block level. Depending on the architecture, some data sharing can be done as well at warp level. 
 
 In order to hide latencies it is recommended to "over-subscribe" the GPU. There should be many more blocks than SMPs present on the device. Also in order to ensure a good occupancy of the CUDA cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the CUDA cores, thus ensuring a high occupancy of the GPU.
 
@@ -204,7 +204,7 @@ For a vector addition example this would be used as follow ``c[index]=a[index]+b
 Terminology
 -----------
 
-At the moment there are three major GPU producers: Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for programming GPUs, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
+At the moment there are three major GPU producers: Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
 Software
 ~~~~~~~~
@@ -236,7 +236,7 @@ Software
 
 .. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consecutive X (0) index in CUDA, HIP, and OpenCL, but consecutive Z (2) index in SYCL. 
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
-   Same applies for block dimensions and indexing. 
+   Same applies to block dimensions and indexing. 
 
 
 
@@ -245,5 +245,5 @@ Software
    - Parallel computing can be classified into distributed-memory and shared-memory architectures
    - Two types of parallelism that can be explored are data parallelism and task parallelism.
    - GPUs are a type of shared memory architecture suitable for data parallelism.
-   - GPUs have high parallelism, with threads organized into blocks and warps.
+   - GPUs have high parallelism, with threads organized into warps and blocks and.
    - GPU optimization involves coalesced memory access, shared memory usage, and high thread and warp occupancy. Additionally, architecture-specific features such as warp-level operations and cooperative groups can be leveraged for more efficient processing.
