@@ -101,7 +101,7 @@ Fock matrix whose elements are given by:
 
 The first term is related to the one electron contributions and the second term is related to the 
 electron repulsion integrals (ERIs), in parenthesis, weighted by the by the density matrix 
-:math:`D_{\gamma \delta}`. One of the most expensive parts in the solution of the HF equations is the 
+:math:`D_{\gamma \delta}`. One of the most expensive parts in the solution of the Hartree-Fock equations is the 
 processing (digestion) of the ERIs, one algorithm to do this task is as follows:
 
 .. figure:: img/concepts/algorithms.svg
@@ -118,7 +118,7 @@ an efficient manner that fit GPU architectures.
 Humanities
 ^^^^^^^^^^
 
-**Language models and NLP**
+**Language models and NLP (natural language processing)**
 
 With the recent popularity of ChatGPT, the use of language models has come into the mainstream, 
 however such models have been used in the humanities many years already. One of the biggest goals of humanities 
@@ -135,7 +135,7 @@ and rendering work. The biggest problem with archeological sites is that once th
 they are destroyed, so any researchers who aren't present at the site, would lose valuable insights into how 
 it looked when it was found. However, with recent developments in technology and accessibility to high-performance 
 computing, they are able to generate extremely detailed renderings of the excavation sites which act as a way to 
-preserver the site for future researchers to gain critical insights and contribute to the research. 
+preserve the site for future researchers to gain critical insights and contribute to the research. 
 
 Exercises
 ---------

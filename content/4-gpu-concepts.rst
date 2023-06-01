@@ -8,7 +8,7 @@ GPU programming concepts
    - What types of parallel computing is possible?
    - How does data parallelism differ from task parallelism, and how are they utilized in parallel computing?
    - How is the work parallelized and executed on GPUs?
-   - What are general considerations for a en efficient code running on GPUs?
+   - What are general considerations for an efficient code running on GPUs?
 
 .. objectives::
 
@@ -93,9 +93,7 @@ This parallelism is natural for the GPU, where the same instruction set is execu
 
 Data parallelism can usually be explored by the GPUs quite easily.
 The most basic approach would be finding a loop over many data elements and converting it into a GPU kernel.
-If the number of elements in the data set if fairly large (tens or hundred of thousands elements), the GPU should perform quite well.
-Although it would be odd to expect absolute maximum performance from such a naive approach, it is often the one to take.
-Getting absolute maximum out of the data parallelism requires good understanding of how GPU works.
+If the number of elements in the data set is fairly large (tens or hundred of thousands elements), the GPU should perform quite well. Although it would be odd to expect absolute maximum performance from such a naive approach, it is often the one to take. Getting absolute maximum out of the data parallelism requires good understanding of how GPU works.
 
 
 Another type of parallelism is a task parallelism.
@@ -128,12 +126,12 @@ In order to obtain maximum performance it is important to understand how GPUs ex
     Cars and roads analogy for the CPU and GPU behavior. The compact road is analogous to the CPU
     (low latency, low throughput) and the broader road is analogous to the GPU (high latency, high throughput).
 
-In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions. 
+In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. <font color=red>GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions.</font>
 
 CUDA Threads, Warps, Blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to perform some work the program launches a function called *kernel*, which is executed simultaneously by tens of thousands of :abbr:`threads` that can be run on GPU cores parallelly. GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing"  the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
+In order to perform some work the program launches a function called *kernel*, which is executed simultaneously by tens of thousands of :abbr:`threads` that can be run on GPU cores parallelly. GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing" the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
 
 .. figure:: img/concepts/THREAD_CORE.png
     :align: center

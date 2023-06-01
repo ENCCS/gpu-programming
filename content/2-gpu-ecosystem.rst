@@ -228,10 +228,7 @@ GPUs in general support different features, even among the same producer. In gen
 features and sometimes old features are not supported anymore. It is important when compiling to create binaries 
 targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, 
 while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute 
-capability which is targeted is specified by the ``-arch=sm_XY``, where ``X`` specifies the major architecture and it 
-is between 1 and 9, and ``Y`` the minor. When using HIP on Nvidia platforms one needs to use compiling option 
-``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc`` ( where ``abc`` is the architecture code 
-such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
+capability which is targeted is specified by the ``-arch=sm_XY``, where ``X`` specifies the major architecture and it is between 1 and 9, and ``Y`` the minor. When using HIP on Nvidia platforms one needs to use compiling option ``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc`` ( where ``abc`` is the architecture code such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
 Note that in the case of portable (single source) programs one would specify ``openmp`` as well as target for 
 compilation, enabling to run the same code on multicore CPU. 
 
@@ -267,7 +264,6 @@ Summary
 -------
 
 - GPUs are designed to execute thousands of threads simultaneously, making them highly parallel processors. In contrast, CPUs excel at executing a smaller number of threads in parallel.
-
 - GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.
 - GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (Nvidia), ROCm (AMD), and oneAPI (Intel).
 - These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., Nvidia Nsight Systems, Nvidia Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
