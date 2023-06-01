@@ -1205,7 +1205,6 @@ In order to learn more about how to improve performance using streams check the 
 
 .. admonition:: Streams - In short
    :class: dropdown
-   :class: dropdown
 
    - CUDA/HIP streams are independent execution contexts on the GPU that allow for concurrent execution of operations issued in different streams.
    - Using streams can improve GPU performance by overlapping operations such as data transfers between CPU and GPU and kernel executions.
