@@ -1213,7 +1213,7 @@ In order to learn more about how to improve performance using streams check the 
 
 Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-There are advatanges and limitations to CUDA and HIP:
+There are advantanges and limitations to CUDA and HIP:
 
 CUDA Pros:
    1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.
