@@ -253,31 +253,37 @@ In conclusion, we have presented an overview of a GPU-hybrid programming by inte
 Exercises
 ---------
 
-We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate the code with either OpenACC or OpenMP API by following these steps:
+We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate the MPI code with either OpenACC or OpenMP API by following these steps:
 
 **Exercise I: Set a GPU device**
 
 1. Implement OpenACC/OpenMP functions that enable assigning each MPI rank to a GPU device.
 
-**Exercise II: Accelerate loops**
+**Exercise II: Apply traditional MPI-OpenACC/OpenMP**
 
-2. Implement unstructured data blocks (i.e. `enter data` and `exit data` directives).
+2.1 Incoporate the OpenACC directives `*update host()*` and `*update device()*` before and after calling an MPI function, respectively. 
 
-3. Include the necessary directives to accelerate the loops.
+.. note:: 
+   The OpenACC directive `*update host()*` is used to transfer data from GPU to CPU; while the directive `*update device()*` is used to transfer the data from CPU to GPU. 
 
-**Exercise III: Apply traditional MPI-OpenACC/OpenMP**
+2.2 Incorporate the OpenMP directives `*update device() from()*` and `*update device() to()*` before and after calling an MPI function, respectively.
 
-4. Implement the directives that enable updating the data in the host before calling an MPI functions (i.e. in OpenAC `update host()` for copying the data from GPU to CPU; and the directive `update device()` for copying the data from the CPU to GPU. In OpenMP, the directives are `update device() from()` and `update device() to()`, respectively, for copying the data from the GPU to CPU and from the CPU to the GPU).
+.. note:: 
+   The OpenMP directive `*update device() from()*` is used to transfer data from GPU to CPU; while the directive `*update device() to()*` is used to transfer the data from CPU to GPU. 
 
-5. Compile and run the code.
+2.3 Compile and run the code on multiple GPUs.
 
-**Exercise IV: Implement GPU-aware support**
+**Exercise III: Implement GPU-aware support**
 
-6. Implement the directives that enable to pass a device pointer to an MPI function (i.e. In OpenACC it is `host_data use_device()` and in OpenMP it is `data use_device_ptr()`).
+3.1 Incorporate the OpenACC directive `*host_data use_device()*` to pass a device pointer to an MPI function.
 
-7. Compile and run the code.
+3.2 Incorporate the OpenMP directive `*data use_device_ptr()*` to pass a device pointer to an MPI function.
 
-8. Evaluate the execution time of the accelerated code in the exercises **III** and **IV**, and compare it with a pure MPI implementation.  
+3.3 Compile and run the code on multiple GPUs.
+
+**Exercise IV: Evaluate the performance**
+
+4. Evaluate the execution time of the accelerated codes in the exercises **II** and **III**, and compare it with that of a pure MPI implementation.  
 
 See also
 --------
