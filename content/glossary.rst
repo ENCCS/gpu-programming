@@ -2,11 +2,11 @@ Glossary
 ========
 
 
-.. abbreviations::
-   :sorted:
+Abbreviations
+--------------------------
 
     +-------------+--------------------------------------------+
-    | abbreviations | full description                         |
+    | abbreviations | full name                         |
     +=============+============================================+
     | DAG   | directed acyclic graph                           |
     +-------------+--------------------------------------------+
