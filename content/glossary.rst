@@ -22,15 +22,27 @@ Abbreviations
 ^^^^^^^^^^^^^
 
 .. list-table::  
-   :widths: 100 100
+   :widths: 60 120
    :header-rows: 1
 
    * - Abbreviations
      - Full names
+   * - CUDA 
+     - compute unified device architecture
    * - DAG
      - directed acyclic graph
    * - FPGAs
      - field-programmable gate arrays
+   * - GPU
+     - graphics processing units
+   * - HIP
+     - heterogeneous-computing interface for portability
+   * - NLP
+     - natural language processing 
+   * - SIMD
+     - single instruction multiple data
+   * - SIMT
+     - single instruction multiple threads
    * - SP
      - streaming processors
    * - SMP
@@ -39,4 +51,3 @@ Abbreviations
      - shared virtual memory
    * - USM
      - unified shared memory
-
