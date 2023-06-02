@@ -17,6 +17,24 @@ Glossary
       Definition.  otherframework: :term:`thread`
 
 
+.. list-table::  
+   :widths: 100 100
+   :header-rows: 1
+
+   * - CPU
+     - GPU
+   * - General purpose
+     - Highly specialized for parallelism
+   * - Good for serial processing
+     - Good for parallel processing
+   * - Great for task parallelism
+     - Great for data parallelism
+   * - Low latency per thread
+     - High-throughput
+   * - Large area dedicated cache and control
+     - Hundreds of floating-point execution units
+
+
 Abbreviations
 ^^^^^^^^^^^^^
 
