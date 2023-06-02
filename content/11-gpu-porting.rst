@@ -24,11 +24,11 @@ Preparing code for GPU porting
 Porting from CPU to GPU
 -----------------------
 
-When porting code to take advantage of the parallel processing capability of GPUs , several steps need to be followed and some additional work is required before writing actual parallel code to be executed on the GPUs:
+When porting code to take advantage of the parallel processing capability of GPUs, several steps need to be followed and some additional work is required before writing actual parallel code to be executed on the GPUs:
 
 * **Identify Targeted Parts**: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10% of the code accounts for 90% of the execution time.
 
-* **Equivalent GPU Libraries**: If the original code uses CPU libraries like BLAS, FFT, etc, it's crucial to identify the equivalent GPU libraries. For example, cuBLAS or hipBLAS can replace CPU-based BLAS libraries. Utilizing GPU-specific libraries ensures efficient GPU utilization.
+* **Equivalent GPU Libraries**: If the original code uses CPU libraries like BLAS, FFT, etc, it's crucial to identify the equivalent GPU libraries. For example, `cuBLAS` or `hipBLAS` can replace CPU-based BLAS libraries. Utilizing GPU-specific libraries ensures efficient GPU utilization.
 
 * **Refactor Loops**: When porting loops directly to GPUs, some refactoring is necessary to suit the GPU architecture. This typically involves splitting the loop into multiple steps or modifying operations to exploit the independence between iterations and improve memory access patterns. Each step of the original loop can be mapped to a kernel, executed by multiple GPU threads, with each thread corresponding to an iteration.
 
@@ -121,9 +121,7 @@ Hipify-perl
 
 The ``hipify-perl`` tool is a script based on perl that translates CUDA syntax into HIP syntax 
 (see .e.g. `here <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`__ for more details). 
-For instance, in a CUDA code that incorporates the CUDA functions `cudaMalloc` and `cudaDeviceSynchronize`, the tool will 
-substitute ``cudaMalloc`` with the HIP function ``hipMalloc``. Similarly the CUDA function `cudaDeviceSynchronize` will be 
-substituted with the HIP function `hipDeviceSynchronize`. We list below the basic steps to run ``hipify-perl`` on LUMI-G.
+For instance, in a CUDA code that incorporates the CUDA functions ``cudaMalloc``` and ``cudaDeviceSynchronize``, the tool will substitute ``cudaMalloc`` with the HIP function ``hipMalloc``. Similarly the CUDA function ``cudaDeviceSynchronize`` will be substituted with the HIP function ``hipDeviceSynchronize``. We list below the basic steps to run ``hipify-perl`` on LUMI-G.
 
 - **Step 1**: Generating ``hipify-perl`` script
 
@@ -144,8 +142,7 @@ substituted with the HIP function `hipDeviceSynchronize`. We list below the basi
   
            $ hipcc --offload-arch=gfx90a -o program.hip.exe program.cu.hip
 
-Despite the simplicity of the use of ``hipify-perl``, the tool might not be suitable for large applications, as it relies heavily 
-on substituting CUDA strings with HIP strings (e.g. it substitutes ``*cuda*`` with ``*hip*``). 
+Despite the simplicity of the use of ``hipify-perl``, the tool might not be suitable for large applications, as it relies heavily on substituting CUDA strings with HIP strings (e.g. it substitutes ``*cuda*`` with ``*hip*``). 
 In addition, ``hipify-perl`` lacks the ability of `distinguishing device/host function calls <https://docs.amd.com/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`_. 
 The alternative here is to use the ``hipify-clang`` tool as will be described in the next section.
 
@@ -157,11 +154,9 @@ the ``hipify-clang`` tool is based on clang for translating CUDA sources into HI
 The tool is more robust for translating CUDA codes compared to the ``hipify-perl`` tool. 
 Furthermore, it facilitates the analysis of the code by providing assistance.
 
-In short, ``hipify-clang`` requires ``LLVM+CLANG`` and ``CUDA``. Details about building ``hipify-clang`` can be found 
-`here <https://github.com/ROCm-Developer-Tools/HIPIFY>`__. Note that ``hipify-clang`` is available on LUMI-G. 
+In short, ``hipify-clang`` requires ``LLVM+CLANG`` and ``CUDA``. Details about building ``hipify-clang`` can be found `here <https://github.com/ROCm-Developer-Tools/HIPIFY>`__. Note that ``hipify-clang`` is available on LUMI-G. 
 The issue however might be related to the installation of CUDA-toolkit. 
-To avoid any eventual issues with the installation procedure we opt for CUDA singularity 
-container. Here we present a step-by-step guide for running ``hipify-clang``:
+To avoid any eventual issues with the installation procedure we opt for CUDA singularity container. Here we present a step-by-step guide for running ``hipify-clang``:
 
 - **Step 1**: Pulling a CUDA singularity container e.g.
 
@@ -176,12 +171,10 @@ container. Here we present a step-by-step guide for running ``hipify-clang``:
            $ module load rocm
            $ singularity shell -B $PWD,/opt:/opt cuda_11.4.0-devel-ubuntu20.04.sif
          
-  where the current directory ``$PWD`` in the host is mounted to that of the container, 
-  and the directory ``/opt`` in the host is mounted to the that inside the container.
+  where the current directory ``$PWD`` in the host is mounted to that of the container, and the directory ``/opt`` in the host is mounted to the that inside the container.
 
 - **Step 3**: Setting the environment variable ``$PATH``.
-  In order to run ``hipify-clang`` from inside the container, one can set the environment variable ``$PATH`` 
-  that defines tha path to look for the binary ``hipify-clang``.
+  In order to run ``hipify-clang`` from inside the container, one can set the environment variable ``$PATH`` that defines tha path to look for the binary ``hipify-clang``.
 
   .. code-block:: console
   
@@ -197,8 +190,7 @@ container. Here we present a step-by-step guide for running ``hipify-clang``:
   
   Here the cuda path and the path to the ``*includes*`` and ``*defines*`` files should be specified. The CUDA source code and the generated output code are `program.cu` and `hip_program.cu.hip`, respectively.
   
-  The syntax for the compilation process of the generated hip code is similar to the one described in the previous section
-  (see the **Step 3** in the hipify-perl section).
+  The syntax for the compilation process of the generated hip code is similar to the one described in the previous section (see the **Step 3** in the hipify-perl section).
 
 Translating OpenACC to OpenMP with Clacc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -206,9 +198,7 @@ Translating OpenACC to OpenMP with Clacc
 `Clacc <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_ is a tool to translate an OpenACC 
 application to OpenMP offloading with the Clang/LLVM compiler environment. 
 Note that the tool is specific to OpenACC C, while OpenACC fortran is already supported on AMD GPU. 
-As indicated in the `GitHub repository <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_ 
-the compiler ``Clacc`` is the ``Clang``'s executable in the subdirectory ``\bin`` of the ``\install`` 
-directory as described below.
+As indicated in the `GitHub repository <https://github.com/llvm-doe-org/llvm-project/tree/clacc/main>`_ the compiler ``Clacc`` is the ``Clang``'s executable in the subdirectory ``\bin`` of the ``\install`` directory as described below.
 
 In the following we present a step-by-step guide for building and using `Clacc`:
 
@@ -230,10 +220,8 @@ In the following we present a step-by-step guide for building and using `Clacc`:
            $ make
            $ make install
 
-- **Step 2**: Setting up environment variables to be able to work from the ``/install`` directory, 
-  which is the simplest way. We assume that the ``/install`` directory is located in the path ``/project/project_xxxxxx/Clacc/llvm-project``. 
-  For more advanced usage, which includes for instance modifying ``Clacc``, we refer readers to
-  `"Usage from Build directory" <https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md>`_
+- **Step 2**: Setting up environment variables to be able to work from the ``/install`` directory, which is the simplest way. We assume that the ``/install`` directory is located in the path ``/project/project_xxxxxx/Clacc/llvm-project``. 
+For more advanced usage, which includes for instance modifying ``Clacc``, we refer readers to `"Usage from Build directory" <https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md>`_
 
   .. code-block:: console
   
@@ -246,9 +234,7 @@ In the following we present a step-by-step guide for building and using `Clacc`:
   
            $ clang -fopenacc-print=omp -fopenacc-structured-ref-count-omp=no-ompx-hold openACC_code.c > openMP_code.c
   
-  Here the flag ``-fopenacc-structured-ref-count-omp=no-ompx-hold`` is introduced to disable the ``ompx_hold`` 
-  map type modifier, which is used by the OpenACC ``copy`` clause translation. The ``ompx_hold`` is an OpenMP 
-  extension that might not be supported yet by other compilers.
+  Here the flag ``-fopenacc-structured-ref-count-omp=no-ompx-hold`` is introduced to disable the ``ompx_hold`` map type modifier, which is used by the OpenACC ``copy`` clause translation. The ``ompx_hold`` is an OpenMP extension that might not be supported yet by other compilers.
 
 - **Step 4** Compiling the code with the `cc compiler wrapper <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_
 
@@ -265,10 +251,7 @@ In the following we present a step-by-step guide for building and using `Clacc`:
 Conclusion
 ^^^^^^^^^^
 
-This concludes a brief overview of the usage of available tools to convert CUDA codes to HIP, and OpenACC codes to OpenMP 
-offloading. In general the translation process for large applications might be incomplete and thus 
-requires manual modification to complete the porting process. It is however worth noting that the accuracy of the translation process 
-requires that applications are written correctly according to the CUDA and OpenACC syntaxes.
+This concludes a brief overview of the usage of available tools to convert CUDA codes to HIP, and OpenACC codes to OpenMP offloading. In general the translation process for large applications might be incomplete and thus requires manual modification to complete the porting process. It is however worth noting that the accuracy of the translation process requires that applications are written correctly according to the CUDA and OpenACC syntaxes.
 
 See also
 --------
