@@ -60,12 +60,10 @@ program mpiomp
 
       call MPI_Scatter(f_send,np,MPI_DOUBLE_PRECISION,f, np,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD, ierr)
 
-      if(myid.eq.0) deallocate(f_send)
-
 !offload f to GPUs
 !$omp target enter data device(myDevice) map(to:f)
 
-!copy data from GPU to CPU
+!update f: copy f from GPU to CPU
 !$omp target update device(myDevice) from(f)
 
        if(myid.lt.nproc-1) then
@@ -76,7 +74,7 @@ program mpiomp
           call MPI_Recv(f(1),1,MPI_DOUBLE_PRECISION,myid-1,tag,MPI_COMM_WORLD, status,ierr)
         endif
 
-!copy the updated data in CPU to GPU
+!update f: copy f from CPU to GPU
 !$omp target update device(myDevice) to(f)
 
 !do something .e.g.
