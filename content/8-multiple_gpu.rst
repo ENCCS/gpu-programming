@@ -253,7 +253,7 @@ In conclusion, we have presented an overview of a GPU-hybrid programming by inte
 Exercises
 ---------
 
-We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate the MPI code with either OpenACC or OpenMP API by following these steps:
+We consider an MPI fortran code that solves a 2D-Laplace equation, and which is partially accelerated. The focus of the exercises is to complete the acceleration using either OpenACC or OpenMP API by following these steps:
 
 **Exercise I: Set a GPU device**
 
@@ -264,12 +264,12 @@ We consider an MPI fortran code that solves a 2D-Laplace equation. Accelerate th
 2.1 Incoporate the OpenACC directives `*update host()*` and `*update device()*` before and after calling an MPI function, respectively. 
 
 .. note:: 
-   The OpenACC directive `*update host()*` is used to transfer data from GPU to CPU; while the directive `*update device()*` is used to transfer the data from CPU to GPU. 
+   The OpenACC directive `*update host()*` is used to transfer data from GPU to CPU within a data region; while the directive `*update device()*` is used to transfer the data from CPU to GPU. 
 
 2.2 Incorporate the OpenMP directives `*update device() from()*` and `*update device() to()*` before and after calling an MPI function, respectively.
 
 .. note:: 
-   The OpenMP directive `*update device() from()*` is used to transfer data from GPU to CPU; while the directive `*update device() to()*` is used to transfer the data from CPU to GPU. 
+   The OpenMP directive `*update device() from()*` is used to transfer data from GPU to CPU within a data region; while the directive `*update device() to()*` is used to transfer the data from CPU to GPU. 
 
 2.3 Compile and run the code on multiple GPUs.
 
