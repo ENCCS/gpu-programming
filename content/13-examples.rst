@@ -108,6 +108,49 @@ WRITEME
                         :language: cpp
                         :lines: 6-33       
 
+
+.. solution:: Julia version
+
+   A Julia version of the stencil example above can be found below as well as in the repository https://github.com/ENCCS/HeatEquation.jl. The multithreaded version is in the ``threaded`` branch, so you will need to: 
+
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/HeatEquation.jl   
+      $ git checkout threaded
+
+   .. tabs::
+
+      .. tab:: HeatEquation.jl
+
+         .. literalinclude:: examples/stencil/julia/src/HeatEquation.jl
+            :language: julia
+
+      .. tab:: setup.jl
+
+         .. literalinclude:: examples/stencil/julia/src/setup.jl
+            :language: julia
+
+      .. tab:: io.jl
+
+         .. literalinclude:: examples/stencil/julia/src/io.jl
+                     :language: julia
+
+      .. tab:: core.jl
+
+         .. literalinclude:: examples/stencil/julia/src/core.jl
+            :language: julia
+
+      .. tab:: Project.toml
+
+         .. literalinclude:: examples/stencil/julia/Project.toml
+            :language: julia
+
+      .. tab:: example.jl
+      
+         .. literalinclude:: examples/stencil/julia/example.jl
+            :language: julia
+
+
 WRITEME (comments and some benchmarks?)
 
 
@@ -138,7 +181,11 @@ WRITEME
          
    .. tab:: Julia
 
-         WRITEME  
+         .. literalinclude:: examples/stencil/julia/src/core_gpu.jl
+                        :language: julia
+                        :lines: 18-36,55-91
+                        :emphasize-lines: 10-16, 39-45
+
 
    .. tab:: CUDA
 
