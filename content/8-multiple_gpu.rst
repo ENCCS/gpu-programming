@@ -259,6 +259,8 @@ We consider an MPI fortran code that solves a 2D-Laplace equation, and which is 
 
 1. Implement OpenACC/OpenMP functions that enable assigning each MPI rank to a GPU device.
 
+1.1 Compile and run the code on multiple GPUs.
+
 **Exercise II: Apply traditional MPI-OpenACC/OpenMP**
 
 2.1 Incoporate the OpenACC directives `*update host()*` and `*update device()*` before and after calling an MPI function, respectively. 
