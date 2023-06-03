@@ -84,6 +84,14 @@ Examples of GPU acceleration
 FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
 one can get 
 
+VASP is a popular software package used for electronic structure calculations. The figure below show the speedup observed in a recent benchmark study on the Perlmutter and Cori supercomputers.
+
+.. figure:: img/problems/vasp_gpu.png
+   :align: center
+
+   VASP GPU speedup for benchmark Si128 acfdtr. The horizontal axis shows the number of nodes, and the vertical axis shows the GPU speedup of VASP (Time(CPU)/Time(GPU)). (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs unpublished).
+
+
 To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
 (if we're lucky!), let's look at a few simple cases:
 
