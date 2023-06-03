@@ -59,12 +59,10 @@ program mpiacc
 
       call MPI_Scatter(f_send,np,MPI_DOUBLE_PRECISION,f, np,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD, ierr)
 
-      if(myid.eq.0) deallocate(f_send)
-
 !offload f to GPUs
 !$acc enter data copyin(f)
 
-!copy f from GPU to CPU
+!update f: copy f from GPU to CPU
 !$acc update host(f)
 
        if(myid.lt.nproc-1) then
@@ -75,7 +73,7 @@ program mpiacc
           call MPI_Recv(f(1),1,MPI_DOUBLE_PRECISION,myid-1,tag,MPI_COMM_WORLD, status,ierr)
         endif
 
-!update data from CPU to GPU
+!update f: copy f from CPU to GPU
 !$acc update device(f)
 
 !do something .e.g.

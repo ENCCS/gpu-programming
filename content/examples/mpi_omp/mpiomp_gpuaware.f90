@@ -60,8 +60,6 @@ program mpiomp_gpuaware
 
       call MPI_Scatter(f_send,np,MPI_DOUBLE_PRECISION,f, np,MPI_DOUBLE_PRECISION,0,MPI_COMM_WORLD, ierr)
 
-      if(myid.eq.0) deallocate(f_send)
-
 !offload f to GPUs
 !$omp target enter data device(myDevice) map(to:f)
 
