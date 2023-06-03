@@ -1,7 +1,7 @@
 .. _example-heat:
 
-Problem example: stencil computation
-====================================
+GPU programming example: stencil computation
+============================================
 
 .. questions::
 
@@ -11,12 +11,12 @@ Problem example: stencil computation
 .. objectives::
 
    - To show a self-contained example of parallel computation executed on CPU (via OpenMP) and GPU (different models)
-   - To show differences of implementing the same procedure in natural "style" of different models
+   - To show differences of implementing the same procedure in natural "style" of different models/ frameworks
 
 .. instructor-note::
 
-   - 15 min teaching
-   - 60 min exercises
+   - 40 min teaching
+   - 40 min exercises
 
 
 Problem: heat flow in two-dimensional area
@@ -87,7 +87,7 @@ Naturally, stencil expression can't be applied directly to the outermost grid po
 CPU parallelization (with OpenMP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WRITEME
+Intro: WRITEME
 
 .. tabs::
 
@@ -108,13 +108,13 @@ WRITEME
                         :language: cpp
                         :lines: 6-33       
 
-WRITEME (comments and some benchmarks?)
+Comments, exercise and some test numbers: WRITEME
 
 
 GPU parallelization examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-WRITEME
+Intro: WRITEME
 
 .. tabs::
 
@@ -148,10 +148,12 @@ WRITEME
 
          WRITEME 
 
-WRITEME
+Exercises and discussion on comparison/ optimization perspectives: WRITEME
 
+See-also: WRITEME
 
 .. keypoints::
 
    - k1
    - k2
+
