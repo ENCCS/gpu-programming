@@ -241,7 +241,7 @@ When launching a kernel, accessors must be created:
     // Submit a kernel into a queue; cgh is a helper object
     q.submit([&](sycl::handler &cgh) {
       // Create write-only accessor for buf
-      auto acc = buf.get_access<sycl::access_mode::write>(cgh);;
+      auto acc = buf.get_access<sycl::access_mode::write>(cgh);
       // Define a kernel: n threads execute the following lambda
       cgh.parallel_for<class KernelName>(sycl::range<1>{n}, [=](sycl::id<1> i) {
           // The data is written to the buffer via acc
@@ -956,7 +956,9 @@ Reduction
              // Submit a SYCL kernel into a queue
              q.submit([&](sycl::handler &cgh) {
                // Create temporary object describing variables with reduction semantics
-               auto sum_reduction = sycl::reduction(sum_buf, cgh, sycl::plus<>());
+               auto sum_acc = sum_buf.get_access<sycl::access_mode::read_write>(cgh);
+               // We can use built-in reduction primitive
+               auto sum_reduction = sycl::reduction(sum_acc, sycl::plus<int>());
            
                // A reference to the reducer is passed to the lambda
                cgh.parallel_for(sycl::range<1>{n}, sum_reduction,
