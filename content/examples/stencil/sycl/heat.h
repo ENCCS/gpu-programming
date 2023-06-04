@@ -38,7 +38,11 @@ const int COLS = 2000;
 void initialize(int argc, char *argv[], field *heat1,
                 field *heat2, int *nsteps);
 
+// Naive version
 void evolve(sycl::queue &Q, field *curr, field *prev, double a, double dt);
+
+// Advanced version
+void evolve(sycl::queue &Q, sycl::buffer<double, 2> buf_curr, sycl::buffer<double, 2> buf_prev, const field *prev, double a, double dt);
 
 void field_set_size(field *heat, int nx, int ny);
 

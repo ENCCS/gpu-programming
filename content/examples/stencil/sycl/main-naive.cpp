@@ -10,22 +10,6 @@ using wall_clock_t = std::chrono::high_resolution_clock;
 auto start_time () { return wall_clock_t::now(); }
 auto stop_time () { return wall_clock_t::now(); }
 
-void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::write>(h);
-    		h.copy(f->data.data(), acc);
-    	});
-}
-
-void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::read>(h);
-    		h.copy(acc, f->data.data());
-    	}).wait();
-}
-
 
 int main(int argc, char **argv)
 {
@@ -50,26 +34,17 @@ int main(int argc, char **argv)
 
     sycl::queue Q;
 
-    // Create two identical device buffers
-    const sycl::range<2> buffer_size{ size_t(current.nx + 2), size_t(current.ny + 2) };
-    sycl::buffer<double, 2> d_current{buffer_size}, d_previous{buffer_size};
-
-    copy_to_buffer(Q, d_previous, &previous);
-    copy_to_buffer(Q, d_current, &current);
     // Start timer
     auto start_clock = start_time();
     // Time evolution
     for (int iter = 1; iter <= nsteps; iter++) {
-        evolve(Q, d_current, d_previous, &previous, a, dt);
+        evolve(Q, &current, &previous, a, dt);
         if (iter % output_interval == 0) {
-            copy_from_buffer(Q, d_current, &current);
             field_write(&current, iter);
         }
         // Swap current and previous fields for next iteration step
         field_swap(&current, &previous);
-        std::swap(d_current, d_previous);
     }
-    copy_from_buffer(Q, d_previous, &previous);
     // Stop timer
     auto stop_clock = stop_time();
 
