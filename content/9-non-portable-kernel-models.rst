@@ -1084,12 +1084,12 @@ By padding the array the data is slightly shifting it resulting in no bank confl
 Reductions
 ^^^^^^^^^^
 
-`Reductions` refer to operations in which the elements of an array are agregated in a single value through operations such as summing, finding the maximum or minimum, or performing logical operations. 
+`Reductions` refer to operations in which the elements of an array are aggregated in a single value through operations such as summing, finding the maximum or minimum, or performing logical operations. 
 
-In the serial approach, the reduction is performed sequentially by iterating through the collection of values and accumulating the result step by step. This will be enough for small sizes, but for big problems this results significant time spent in this part of an application. On a GPU this approach is feasable. Using just one thread to do this operation means the rest of the GPU is wasted. Doing reduction in parallel is a little tricky. In order for a thread to do work needs to have some partial result to use. If we launch for example a kernel performing a simple vector summation `sum[0]+=a[tid]` with `N` threads we notice that this would result in undefined behaviour. GPUs have mechanisms to access the memory and lock the access for other theads while 1 thread is doing some operations to a given data via **atomics**, however this means that the memory access gets again to be serialized. There is not much gain. 
-We not that when doing reductions the order of the iterations is not import. Also we can we can have to divide our problem in several subsets and do the reduction operation for each subset separately. On the GPus, since the GPU threads are grouped in blocks, the size of the subset based on that. In side the block threads can cooperate with each other, they can shared data via the shared memory and can be sunchronized as well. All threads read data to be reduced, but now we have significantly less partial results to deal. In general the size of the block ranges from 256 to 1024 threads. In case of very large problems after this procedure if we are left too many partial results this step can be repeated.
+In the serial approach, the reduction is performed sequentially by iterating through the collection of values and accumulating the result step by step. This will be enough for small sizes, but for big problems this results in significant time spent in this part of an application. On a GPU, this approach is not feasable. Using just one thread to do this operation means the rest of the GPU is wasted. Doing reduction in parallel is a little tricky. In order for a thread to do work, it needs to have some partial result to use. If we launch, for example, a kernel performing a simple vector summation, ``sum[0]+=a[tid]``, with `N` threads we notice that this would result in undefined behaviour. GPUs have mechanisms to access the memory and lock the access for other threads while 1 thread is doing some operations to a given data via **atomics**, however this means that the memory access gets again to be serialized. There is not much gain. 
+We note that when doing reductions the order of the iterations is not important (barring the typical non-associative behavior of floating-point operations). Also we can we might have to divide our problem in several subsets and do the reduction operation for each subset separately. On the GPUs, since the GPU threads are grouped in blocks, the size of the subset based on that. Inside the block, threads can cooperate with each other, they can share data via the shared memory and can be synchronized as well. All threads read the data to be reduced, but now we have significantly less partial results to deal with. In general, the size of the block ranges from 256 to 1024 threads. In case of very large problems, after this procedure if we are left too many partial results this step can be repeated.
 
-At the block level we still have to perform a reduction in an efficient way. Doing it serially means that we are not using all GPU cores (roughly 97% of the computing capacity is wasted). Doing it naively parallel using **atomics**, but on the shared memory is also not a good option. Going back back to the fact the reduction operations are commutative and associative we can set each thread to "reduce" two elements of the local part of the array. Shared memroy can be used to store the partial "reductions" as shown below inthe code:
+At the block level we still have to perform a reduction in an efficient way. Doing it serially means that we are not using all GPU cores (roughly 97% of the computing capacity is wasted). Doing it naively parallel using **atomics**, but on the shared memory is also not a good option. Going back back to the fact the reduction operations are commutative and associative we can set each thread to "reduce" two elements of the local part of the array. Shared memory can be used to store the partial "reductions" as shown below in the code:
 
 .. tabs:: 
 
@@ -1148,6 +1148,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
             };
          }
 
+
          
    .. tab:: CUDA/HIP
 
@@ -1182,7 +1183,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
            }
          }
 
-In the kernel we have each GPU performing thread a reductionon two elements from the local portion of the array. If we have `tpb` GPU threads per block, we utilize them to store `2xtpb elements` in the local shared memory. To ensure synchronization until all data is available in the shared memory, we employ the `syncthreads()` function.
+In the kernel we have each GPU performing thread a reduction of two elements from the local portion of the array. If we have `tpb` GPU threads per block, we utilize them to store `2xtpb elements` in the local shared memory. To ensure synchronization until all data is available in the shared memory, we employ the `syncthreads()` function.
 
 Next, we instruct each thread to "reduce" the element in the array at `threadIdx.x` with the element at `threadIdx.x+tpb`. As this operation saves the result back into the shared memory, we once again employ `syncthreads()`. By doing this, we effectively halve the number of elements to be reduced.
 
@@ -1193,7 +1194,7 @@ At this point, we can either "reduce" the final number with a global partial res
 .. figure:: img/concepts/Reduction.png
    :align: center
    
-   Schematic respresentation on the reduction algorithm with 8 GPU threads.
+   Schematic representation on the reduction algorithm with 8 GPU threads.
    
 For a detail analysis of how to optimize reduction operations in CUDA/HIP check this presentation `Optimizing Parallel Reduction in CUDA <https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf>`_  
 
@@ -1207,16 +1208,16 @@ For a detail analysis of how to optimize reduction operations in CUDA/HIP check 
 
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
-CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrentely. 
+CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
 
-Consider a case which involves copying data from CPU to GPU, computations and then coying back the result to GPU. Without streams nothing can be overlap. 
+Consider a case which involves copying data from CPU to GPU, computations and then copying back the result to GPU. Without streams nothing can be overlap. 
 
 .. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
 
-Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernles in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
-Note that even when streams are not explicitely used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
+Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi--gpu set up and communication is needed often.  
+Note that even when streams are not explicitly used it si possible to launch all the GPU operations asnynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
 In order to learn more about how to improve performance using streams check the Nvidia blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
 
@@ -1230,7 +1231,7 @@ In order to learn more about how to improve performance using streams check the 
 
 Pros and cons of native programming models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-There are advantanges and limitations to CUDA and HIP:
+There are advantages and limitations to CUDA and HIP:
 
 CUDA Pros:
    1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.

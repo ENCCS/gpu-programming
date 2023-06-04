@@ -270,7 +270,7 @@ More information on USM can be found in the `Section 4.8 of SYCL 2020 specificat
 
 .. code-block:: C++
     
-    // Create a shared (migrateable) allocation of n integers
+    // Create a shared (migratable) allocation of n integers
     // Unlike with buffers, we need to specify a queue (or, explicitly, a device and a context)
     int* v = sycl::malloc_shared<int>(n, q);
     // Submit a kernel into a queue; cgh is a helper object
