@@ -631,7 +631,7 @@ Parallel for with GPU buffers
             }
           
             return 0;
-          }          
+          }
 
 
    .. tab:: SYCL
@@ -777,7 +777,7 @@ Asynchronous parallel for kernels
            cl::CommandQueue queue(context, device);
 
            // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-           cl::CommandQueue::setDefault(queue);           
+           cl::CommandQueue::setDefault(queue);
          
            // Compile OpenCL program for found device.
            cl::Program program(context, kernel_source);

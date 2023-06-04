@@ -1034,7 +1034,7 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
            out[out_index] = in[in_index];
         }
       
-Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimizations the achieved bandwidth is `311 GB/s`.      
+Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimizations the achieved bandwidth is `311 GB/s`.
 
 We can improve the code by reading the data in a `coalesced` way, save it in the shared memory row by row and then write in the global memory column by column.
 

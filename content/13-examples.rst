@@ -106,7 +106,7 @@ WRITEME
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
-                        :lines: 6-33       
+                        :lines: 6-33
 
 WRITEME (comments and some benchmarks?)
 

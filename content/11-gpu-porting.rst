@@ -38,7 +38,7 @@ Discussion
 ^^^^^^^^^^
  .. challenge:: How would this be ported?
      
-    Inspect the following Fortran code (if you don't read Fortran: do-loops == for-loops)     
+    Inspect the following Fortran code (if you don't read Fortran: do-loops == for-loops)
 
     .. code-block:: Fortran
     
