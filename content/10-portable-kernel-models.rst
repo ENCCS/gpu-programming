@@ -115,7 +115,7 @@ The first steps when writing an OpenCL program are to initialize the OpenCL envi
 
 .. tabs:: 
 
-   .. tab:: OpenCL initialization
+   .. tab:: OpenCL initialization (C++ API)
       
       .. code-block:: C++
          
@@ -123,6 +123,21 @@ The first steps when writing an OpenCL program are to initialize the OpenCL envi
          cl::Device device = cl::Device::getDefault();
          cl::Context context(device);
          cl::CommandQueue queue(context, device);
+
+   .. tab:: OpenCL initialization (C API)
+      
+      .. code-block:: C
+         
+         // Initialize OpenCL
+         cl_int err; // Error code returned by API calls
+         cl_platform_id platform;
+         err = clGetPlatformIDs(1, &platform, NULL);
+         assert(err == CL_SUCCESS); // Checking error codes is skipped later for brevity
+         cl_device_id device;
+         err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+         cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, &err);
+         cl_command_queue queue = clCreateCommandQueue(context, device, 0, &err);
+
 
 OpenCL provides two main programming models to manage the memory hierarchy of host and accelerator devices: buffers and shared virtual memory (SVM). Buffers are the traditional memory model of OpenCL, where the host and the devices have separate address spaces and the programmer has to explicitly specify the memory allocations and how and where the memory is accessed. This can be done with class ``cl::Buffer`` and functions such as ``cl::CommandQueue::enqueueReadBuffer()``. Buffers are supported since early versions of OpenCL, and work well across different architectures. Buffers can also take advantage of device-specific memory features, such as constant or local memory.
 
@@ -149,13 +164,23 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
 
 .. tabs:: 
 
-   .. tab:: OpenCL kernel build example
+   .. tab:: OpenCL kernel build example (C++ API)
       
       .. code-block:: C++
          
          cl::Program program(context, kernel_source);
          program.build(device);
          cl::Kernel kernel_dot(program, "dot");
+
+   .. tab:: OpenCL kernel build example (C API)
+      
+      .. code-block:: C
+         
+         cl_int err;
+         cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, &err);
+         err = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+         cl_kernel kernel_dot = clCreateKernel(program, "vector_add", &err);
+
 
 SYCL
 ^^^^
