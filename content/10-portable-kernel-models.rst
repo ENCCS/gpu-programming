@@ -185,6 +185,11 @@ Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed 
 
 - ``syclcc --hipsycl-targets='hip:gfx906,gfx908,gfx90a;cuda:sm_70,sm_75,sm_80,sm_86,sm_90' file.cpp``
 
+
+On LUMI, the default compilation target is already set in the config file, so it is enough to use:
+
+- ``syclcc -O2 file.cpp``
+
 SYCL programming
 ~~~~~~~~~~~~~~~~
 
@@ -421,7 +426,7 @@ Parallel for with Unified Memory
 
          #include <sycl/sycl.hpp>
 
-         int main(int argc, char* argv[]) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -599,7 +604,7 @@ Parallel for with GPU buffers
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char **argv) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -780,7 +785,7 @@ Asynchronous parallel for kernels
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char* argv[]) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -940,10 +945,14 @@ Reduction
    .. tab:: SYCL
 
       .. code-block:: C++
+      
+         // We use built-in sycl::reduction mechanism in this example.
+         // The manual implementation of the reduction kernel can be found in
+         // the "Non-portable kernel models" chapter.
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char *argv[]) {
+         int main() {
            sycl::queue q;
            unsigned n = 10;
          
