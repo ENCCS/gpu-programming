@@ -245,7 +245,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 
         #include <stdio.h>
         #include <cuda.h>
-        #inclde <cuda_runtime.h>
+        #include <cuda_runtime.h>
         #include <math.h>
 
         __global__ void vector_add(float *A, float *B, float *C, int n) {
@@ -522,7 +522,7 @@ For a while already GPUs upport unified memory, which allows to use the same poi
 
         #include <stdio.h>
         #include <cuda.h>
-        #inclde <cuda_runtime.h>
+        #include <cuda_runtime.h>
         #include <math.h>
 
         __global__ void vector_add(float *A, float *B, float *C, int n) {
@@ -687,7 +687,7 @@ Vector addition is a relatively simple, straight forward case. Each thread reads
 Memory optimization is one of the most important type of optimization done to efficiently use the GPUs. Before looking how it is done in practice let's revisit some basic concepts about GPUs and execution model.  
 
 
-GPUs are comprised many ligth cores, the so-called Streaming Processors (SP) in CUDA, which are physically group togheter in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast moemory which in CUDA is refered to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing **__syncthreads()** function has to be used to make the threads in the block wait untill all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed indepentely. The threads in a block are physically grouped in warps of size 32 in CUDA or wavefronts of size 64 in ROCm devices. All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elemetns of the data located close in the memmory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
+GPUs are comprised many light cores, the so-called Streaming Processors (SP) in CUDA, which are physically group together in units, i.e. Streaming Multi-Processors (SMP) in CUDA architecture (note that in AMD the equivalent is called Computing Units, while in Intel GPUs they are Execution Units). The work is done on GPUs by launching many threads each executing an instance of the same kernel. The order of execution is not defined, and the threads can only exchange information in specific conditions. Because of the way the SPs are grouped the threads are also grouped in **blocks**. Each **block** is assigned to an SMP, and can not be splitted. An SMP can have more than block residing at a moment, however there is no communications between the threads in different blocks. In addition to the SPs, each SMP contains very fast memory which in CUDA is referred to as `shared memory`. The threads in a block can read and write to the shared memory and use it as a user controlled cache. One thread can for example write to a location in the shared memory while another thread in the same block can read and use that data. In order to be sure that all threads in the block completed writing **__syncthreads()** function has to be used to make the threads in the block wait until all of them reached the specific place in the kernel. Another important aspect in the GPU programming model is that the threads in the block are not executed independently. The threads in a block are physically grouped in warps of size 32 in NVIDIA devices or wavefronts of size 32 or 64 in AMD devices (depending on device architecture). Intel devices are notable in that the warp size, called SIMD width, is highly configurable, with typical possible values of 8, 16, or 32 (depends on the hardware). All memory accesses of the global GPU memory are done per warp. When data is needed for some calculations a warp loads from the GPU memory blocks of specific size (64 or 128 Bytes). These operation is very expensive, it has a latency of hundreds of cycles. This means that the threads in a warp should work with elements of the data located close in the memory. In the vector addition two threads near each other, of index tid and tid+1, access elements adjacent in the GPU memory.  
 
 
 The shared memory can be used to improve performance in two ways. It is possible to avoid extra reads from the memory when several threads in the same block need the same data (see `stencil <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil>`_ code) or it can be used to improve the memory access patterns like in the case of matrix transpose.
@@ -1086,7 +1086,7 @@ Reductions
 
 `Reductions` refer to operations in which the elements of an array are aggregated in a single value through operations such as summing, finding the maximum or minimum, or performing logical operations. 
 
-In the serial approach, the reduction is performed sequentially by iterating through the collection of values and accumulating the result step by step. This will be enough for small sizes, but for big problems this results in significant time spent in this part of an application. On a GPU, this approach is not feasable. Using just one thread to do this operation means the rest of the GPU is wasted. Doing reduction in parallel is a little tricky. In order for a thread to do work, it needs to have some partial result to use. If we launch, for example, a kernel performing a simple vector summation, ``sum[0]+=a[tid]``, with `N` threads we notice that this would result in undefined behaviour. GPUs have mechanisms to access the memory and lock the access for other threads while 1 thread is doing some operations to a given data via **atomics**, however this means that the memory access gets again to be serialized. There is not much gain. 
+In the serial approach, the reduction is performed sequentially by iterating through the collection of values and accumulating the result step by step. This will be enough for small sizes, but for big problems this results in significant time spent in this part of an application. On a GPU, this approach is not feasible. Using just one thread to do this operation means the rest of the GPU is wasted. Doing reduction in parallel is a little tricky. In order for a thread to do work, it needs to have some partial result to use. If we launch, for example, a kernel performing a simple vector summation, ``sum[0]+=a[tid]``, with `N` threads we notice that this would result in undefined behaviour. GPUs have mechanisms to access the memory and lock the access for other threads while 1 thread is doing some operations to a given data via **atomics**, however this means that the memory access gets again to be serialized. There is not much gain. 
 We note that when doing reductions the order of the iterations is not important (barring the typical non-associative behavior of floating-point operations). Also we can we might have to divide our problem in several subsets and do the reduction operation for each subset separately. On the GPUs, since the GPU threads are grouped in blocks, the size of the subset based on that. Inside the block, threads can cooperate with each other, they can share data via the shared memory and can be synchronized as well. All threads read the data to be reduced, but now we have significantly less partial results to deal with. In general, the size of the block ranges from 256 to 1024 threads. In case of very large problems, after this procedure if we are left too many partial results this step can be repeated.
 
 At the block level we still have to perform a reduction in an efficient way. Doing it serially means that we are not using all GPU cores (roughly 97% of the computing capacity is wasted). Doing it naively parallel using **atomics**, but on the shared memory is also not a good option. Going back back to the fact the reduction operations are commutative and associative we can set each thread to "reduce" two elements of the local part of the array. Shared memory can be used to store the partial "reductions" as shown below in the code:
@@ -1141,7 +1141,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
                        ref(sum[0]);
                     ref.fetch_add(shtmp[0]);
                   */
-                  // Alternatively, we could agregate everything together at index 0.
+                  // Alternatively, we could aggregate everything together at index 0.
                   // Only useful when there not many partial sums left and when the device supports
                   // atomic operations on FP64/double operands.
                }
@@ -1161,7 +1161,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
            int ind=threadIdx.x+blockDim.x*ibl;
            
            __shared__ double shtmp[2*tpb];  
-           shtmp[threadIdx.x]=0; // for sums we initiate with 0, for other operations should be differe
+           shtmp[threadIdx.x]=0; // for sums we initiate with 0, for other operations should be different
            if(ind<N/2)
            {
               shtmp[threadIdx.x]=x[ind];
