@@ -1114,16 +1114,13 @@ At the block level we still have to perform a reduction in an efficient way. Doi
                int ibl = item.get_group(0);
                int ind = item.get_global_id(0);
                int tid = item.get_local_id(0);
-               shtmp[item.get_local_id(0)] = 0;
+               shtmp[tid] = 0;
+               shtmp[tid + tpb] = 0;
                if (ind < N / 2) {
                   shtmp[tid] = x[ind];
-               } else {
-                  shtmp[tid] = 0.0;
                }
                if (ind + N / 2 < N) {
                   shtmp[tid + tpb] = x[ind + N / 2];
-               } else {
-                  shtmp[tid + tpb] = 0.0;
                }
 
                for (int s = tpb; s > 0; s >>= 1) {
