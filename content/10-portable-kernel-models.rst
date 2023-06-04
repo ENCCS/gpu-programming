@@ -181,14 +181,25 @@ Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
 hipSYCL
 *******
 
-Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting all the recent AMD Instinct and NVIDIA GPUs:
+Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
 
-- ``syclcc --hipsycl-targets='hip:gfx906,gfx908,gfx90a;cuda:sm_70,sm_75,sm_80,sm_86,sm_90' file.cpp``
+- ``syclcc --hipsycl-targets='hip:gfx90a;cuda:sm_70' file.cpp``
 
 
-On LUMI, the default compilation target is already set in the config file, so it is enough to use:
+Using SYCL on LUMI
+******************
 
-- ``syclcc -O2 file.cpp``
+LUMI does not have a system-wide installation of any SYCL framework. For this course, an installation
+of hipSYCL 0.9.4 was prepared, which can be loaded as:
+
+.. code-block:: console
+
+    $ module load LUMI/22.08 partition/G
+    $ module load rocm/5.3.3
+    $ module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
+    $ module load hipSYCL
+
+The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enought to call ``syclcc -O2 file.cpp``.
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
