@@ -7,7 +7,7 @@ Non-portable kernel-based models
 .. questions::
 
    - How to program GPUs with CUDA and HIP?
-   - What optimizations are posible when programming with CUDA and HIP? 
+   - What optimizations are possible when programming with CUDA and HIP? 
 
 .. objectives::
 
@@ -127,6 +127,7 @@ Below we have the most basic example of CUDA and HIP, the "Hello World" program:
         
             printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count);
             return 0;
+          }
 
 
 In both versions, we include the necessary headers: **cuda_runtime.h** and **cuda.h** for CUDA, and **hip_runtime.h** for HIP. These headers provide the required functionality for GPU programming.
@@ -422,22 +423,22 @@ In this case, the CUDA and HIP codes are equivalent one to one so we will only r
 
 Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and Nvidia Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory. Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
 
-The main function of the code initializes the input arrays `Ah, Bh` on the CPU and computes the reference array `Cref`. It then allocates memory on the GPU for the input and output arrays `Ad, Bd`, and `Cd` using **cudaMalloc** (herein, `h` is for the `host`(CPU) and `d` for the 'device' (GPU)). The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax. All kernels launch are asynchrouneous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
+The main function of the code initializes the input arrays `Ah, Bh` on the CPU and computes the reference array `Cref`. It then allocates memory on the GPU for the input and output arrays `Ad, Bd`, and `Cd` using **cudaMalloc** (herein, `h` is for the `host`(CPU) and `d` for the 'device' (GPU)). The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax. All kernels launch are asynchronous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
 
 After the kernel execution, the result array `Cd` is copied back to the CPU using **cudaMemcpy**. The code then prints the reference and result arrays, calculates the error by comparing the reference and result arrays. Finally, the GPU and CPU memory are deallocated using **cudaFree** and **free** functions, respectively. 
 
-The host functions  **cudaSetDevice**, **cudaMalloc**, **cudaMemcpy**, and **cudaFree** are blocking, i.e. the code does not continues to next instructions until the operations are completed. However this is not the default behaiviour, for many operations there are asynchrounous equivalents and there are as well many library calls return the control to the `main()` after calling. This allows the developers to launch idependent operations and overlap them. 
+The host functions  **cudaSetDevice**, **cudaMalloc**, **cudaMemcpy**, and **cudaFree** are blocking, i.e. the code does not continues to next instructions until the operations are completed. However this is not the default behaviour, for many operations there are asynchrounous equivalents and there are as well many library calls return the control to the `main()` after calling. This allows the developers to launch independent operations and overlap them. 
 
 In short, this code demonstrates how to utilize the CUDA and HIP to perform vector addition on a GPU, showcasing the steps involved in allocating memory, transferring data between the CPU and GPU, launching a kernel function, and handling the results. It serves as a starting point for GPU-accelerated computations using CUDA and HIP.
 (more examples for the "vector (array) addition" program are available at `https://github.com/ENCCS/gpu-programming/tree/main/content/examples`)
 
-In order to practice the concepts shown above, edit the skeleton code in the repository and the code corrresponding to setting the device, memory allocations and transfers, and the kernel execution. 
+In order to practice the concepts shown above, edit the skeleton code in the repository and the code corresponding to setting the device, memory allocations and transfers, and the kernel execution. 
 
 
 Vector Addition with Unified Memory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For a while already GPUs upport unified memory, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is neeed on GPU or viceversa. However the data transfers still happens "under the hood" and the developer needs to construct the code to avoid unecessary transfers. Below one can see the modified vector addition codes:
+For a while already GPUs support unified memory, which allows to use the same pointer for both CPU and GPU data. This simplifies developing codes by removing the explicit data transfers. The data resides on CPU until it is needed on GPU or vice-versa. However the data transfers still happens "under the hood" and the developer needs to construct the code to avoid unnecessary transfers. Below one can see the modified vector addition codes:
 
 
 .. tabs:: 
@@ -936,7 +937,7 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
            out[out_index] = in[in_index];
         }
       
-Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimzations the achieved bandwidth is `311 GB/s`.      
+Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimizations the achieved bandwidth is `311 GB/s`.      
 
 We can improve the code by reading the data in a `coalesced` way, save it in the shared memory row by row and then write in the global memory column by column.
 
@@ -1108,7 +1109,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
          // SYCL has built-in sycl::reduction primitive, the use of which is demonstrated in 
          // the "Portable kernel models" chapter. Here is how the reduction can be implemented manually:
          
-         auto redutionKernel(sycl::handler &cgh, double *x, double *sum, int N) {
+         auto reductionKernel(sycl::handler &cgh, double *x, double *sum, int N) {
             sycl::local_accessor<double, 1> shtmp{{2*tpb}, cgh};
             return [=](sycl::nd_item<1> item) {
                int ibl = item.get_group(0);
