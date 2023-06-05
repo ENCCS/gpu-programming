@@ -11,7 +11,7 @@ Non-portable kernel-based models
 
 .. objectives::
 
-   - Be able to use CUDA and HIP to right basic codes
+   - Be able to use CUDA and HIP to write basic codes
    - Understand how the execution is done and how to do optimizations
 
 .. instructor-note::
@@ -28,11 +28,11 @@ CUDA, developed by NVIDIA, has gained significant popularity and is widely used 
 
 HIP, on the other hand, is an open-source project that aims to provide a more "portable" GPU programming interface. It allows developers to write GPU code in a syntax similar to CUDA and provides a translation layer that enables the same code to run on both NVIDIA and AMD GPUs. This approach minimizes the effort required to port CUDA code to different GPU architectures and provides flexibility for developers to target multiple platforms.
 
-By being closely tied to the GPU hardware, CUDA and HIP provide a level of performance optimization that may not be achievable with cross-platform portability ecosystems. The libraries and toolchains offered by these programming models are specifically designed to exploit the capabilities of the underlying GPU architectures, enabling developers to achieve high-performance computing.
+By being closely tied to the GPU hardware, CUDA and HIP provide a level of performance optimization that may not be achievable with cross-platform portability ecosystems. The libraries and toolchains offered by these programming models are specifically designed to exploit the capabilities of the underlying GPU architectures, enabling developers to achieve high performance.
 
 Developers utilizing CUDA or HIP can tap into an extensive ecosystem of GPU-accelerated libraries, covering various domains, including linear algebra, signal processing, image processing, machine learning, and more. These libraries are highly optimized to take advantage of the parallelism and computational power offered by GPUs, allowing developers to accelerate their applications without having to implement complex algorithms from scratch.
 
-As mentioned before CUDA and HIP are very similar so it makes sense to check them in the same time. 
+As mentioned before, CUDA and HIP are very similar so it makes sense to cover both at the same time. In code examples below, we will also show examples in the portable kernel-based frameworks Kokkos, SYCL and OpenCL which will be covered in the next episode.
 
 Hello World
 ~~~~~~~~~~~
@@ -151,7 +151,7 @@ To experiment with different GPUs, modify the code to include the following line
      hipSetDevice(deviceNumber); // For HIP
  
 
-Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output. (more examples for the "Hello World" program are available at `https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip`)
+Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output (more examples for the "Hello World" program are available in the `content/examples/cuda-hip <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip>`__ subdirectory of this lesson repository).
 
 
 Vector addition
