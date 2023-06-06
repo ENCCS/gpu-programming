@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include "heat.h"
 #include <sycl/sycl.hpp>
 
@@ -8,7 +9,8 @@
 //   prev: temperature values from previous time step
 //   a: diffusivity
 //   dt: time step
-void evolve(sycl::queue &Q, field *curr, field *prev, double a, double dt)
+void evolve(sycl::queue &Q, 
+            field *curr, field *prev, double a, double dt)
 {
   // Help the compiler avoid being confused by the structs
   double *currdata = curr->data.data();
