@@ -107,7 +107,7 @@ Intro: WRITEME
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
-                        :lines: 7-34       
+                        :lines: 7-34
 
 Comments, exercise and some test numbers: WRITEME
 
@@ -144,6 +144,30 @@ Intro: WRITEME
    .. tab:: CUDA
 
          WRITEME  
+
+
+For kernel-based models, the approach above is grossly inefficient.
+On each step, we re-allocate GPU memory, copy the data from CPU to GPU, perform the computation, and then copy the data back.
+It will make such GPU version much slower than the original CPU version, but is a helpful first step in the porting process.
+But overhead can be reduced with some modifications to the structure of the program:
+
+- allocate GPU memory once at the start of the program,
+- only copy the data from GPU to CPU when we need it,
+- swap the GPU buffers between timesteps, like we do with CPU buffers.
+
+.. tabs::
+
+   .. tab:: SYCL: Stencil update
+
+         .. literalinclude:: examples/stencil/sycl/core.cpp
+                        :language: cpp
+                        :emphasize-lines: 13-14,28-29
+
+   .. tab:: SYCL: Main function
+
+         .. literalinclude:: examples/stencil/sycl/main.cpp 
+                        :language: cpp
+                        :emphasize-lines: 13-27,53-55,65,70,72
 
 
 Exercises and discussion on comparison/ optimization perspectives: WRITEME

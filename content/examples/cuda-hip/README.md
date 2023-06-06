@@ -17,12 +17,12 @@ srun -p standard-g --gpus 2 -N 1 -n 2 -c 4 --time=00:10 --account=project_465000
 Modify this according to the neeeds of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 
 ## Exercises instructions
-The best way to learn programming is to get our hands dirty. Use the example codes in this folder to repoduce the problems presented in the Non-portable kernel-based models](Non-portable kernel-based models) episode.
+The best way to learn programming is to get our hands dirty. Use the example codes in this folder to repoduce the problems presented in the [Non-portable kernel-based models](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/) episode.
 
 Here are some suggestions for playing around:
 * check the GPU assignment in the "Hello World" example. 
     - try  1 MPI taks with multiple GPUs and set the code to use something different from the default `device 0`
-    - try P nodes with N(<8)  MPI tasks per node with each MPI task being assigned a different GPU.
+    - try P nodes with N(<=8)  MPI tasks per node with each MPI task being assigned a different GPU.
 * check the vector addition with device memory and with unified memory
 * implement the matrix transpose and compute the effective bandwidths achieved on LUMI GPUs
 * implement a code using 1 GPU and do a reduction on a vector

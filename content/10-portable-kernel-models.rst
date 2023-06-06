@@ -115,7 +115,7 @@ The first steps when writing an OpenCL program are to initialize the OpenCL envi
 
 .. tabs:: 
 
-   .. tab:: OpenCL initialization
+   .. tab:: OpenCL initialization (C++ API)
       
       .. code-block:: C++
          
@@ -123,6 +123,21 @@ The first steps when writing an OpenCL program are to initialize the OpenCL envi
          cl::Device device = cl::Device::getDefault();
          cl::Context context(device);
          cl::CommandQueue queue(context, device);
+
+   .. tab:: OpenCL initialization (C API)
+      
+      .. code-block:: C
+         
+         // Initialize OpenCL
+         cl_int err; // Error code returned by API calls
+         cl_platform_id platform;
+         err = clGetPlatformIDs(1, &platform, NULL);
+         assert(err == CL_SUCCESS); // Checking error codes is skipped later for brevity
+         cl_device_id device;
+         err = clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+         cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, &err);
+         cl_command_queue queue = clCreateCommandQueue(context, device, 0, &err);
+
 
 OpenCL provides two main programming models to manage the memory hierarchy of host and accelerator devices: buffers and shared virtual memory (SVM). Buffers are the traditional memory model of OpenCL, where the host and the devices have separate address spaces and the programmer has to explicitly specify the memory allocations and how and where the memory is accessed. This can be done with class ``cl::Buffer`` and functions such as ``cl::CommandQueue::enqueueReadBuffer()``. Buffers are supported since early versions of OpenCL, and work well across different architectures. Buffers can also take advantage of device-specific memory features, such as constant or local memory.
 
@@ -149,13 +164,23 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
 
 .. tabs:: 
 
-   .. tab:: OpenCL kernel build example
+   .. tab:: OpenCL kernel build example (C++ API)
       
       .. code-block:: C++
          
          cl::Program program(context, kernel_source);
          program.build(device);
          cl::Kernel kernel_dot(program, "dot");
+
+   .. tab:: OpenCL kernel build example (C API)
+      
+      .. code-block:: C
+         
+         cl_int err;
+         cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, &err);
+         err = clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+         cl_kernel kernel_dot = clCreateKernel(program, "vector_add", &err);
+
 
 SYCL
 ^^^^
@@ -181,9 +206,25 @@ Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
 hipSYCL
 *******
 
-Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting all the recent AMD Instinct and NVIDIA GPUs:
+Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
 
-- ``syclcc --hipsycl-targets='hip:gfx906,gfx908,gfx90a;cuda:sm_70,sm_75,sm_80,sm_86,sm_90' file.cpp``
+- ``syclcc --hipsycl-targets='hip:gfx90a;cuda:sm_70' file.cpp``
+
+
+Using SYCL on LUMI
+******************
+
+LUMI does not have a system-wide installation of any SYCL framework. For this course, an installation
+of hipSYCL 0.9.4 was prepared, which can be loaded as:
+
+.. code-block:: console
+
+    $ module load LUMI/22.08 partition/G
+    $ module load rocm/5.3.3
+    $ module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
+    $ module load hipSYCL
+
+The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enought to call ``syclcc -O2 file.cpp``.
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
@@ -241,7 +282,7 @@ When launching a kernel, accessors must be created:
     // Submit a kernel into a queue; cgh is a helper object
     q.submit([&](sycl::handler &cgh) {
       // Create write-only accessor for buf
-      auto acc = buf.get_access<sycl::access_mode::write>(cgh);;
+      auto acc = buf.get_access<sycl::access_mode::write>(cgh);
       // Define a kernel: n threads execute the following lambda
       cgh.parallel_for<class KernelName>(sycl::range<1>{n}, [=](sycl::id<1> i) {
           // The data is written to the buffer via acc
@@ -265,7 +306,7 @@ More information on USM can be found in the `Section 4.8 of SYCL 2020 specificat
 
 .. code-block:: C++
     
-    // Create a shared (migrateable) allocation of n integers
+    // Create a shared (migratable) allocation of n integers
     // Unlike with buffers, we need to specify a queue (or, explicitly, a device and a context)
     int* v = sycl::malloc_shared<int>(n, q);
     // Submit a kernel into a queue; cgh is a helper object
@@ -421,7 +462,7 @@ Parallel for with Unified Memory
 
          #include <sycl/sycl.hpp>
 
-         int main(int argc, char* argv[]) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -590,7 +631,7 @@ Parallel for with GPU buffers
             }
           
             return 0;
-          }          
+          }
 
 
    .. tab:: SYCL
@@ -599,7 +640,7 @@ Parallel for with GPU buffers
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char **argv) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -736,7 +777,7 @@ Asynchronous parallel for kernels
            cl::CommandQueue queue(context, device);
 
            // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-           cl::CommandQueue::setDefault(queue);           
+           cl::CommandQueue::setDefault(queue);
          
            // Compile OpenCL program for found device.
            cl::Program program(context, kernel_source);
@@ -780,7 +821,7 @@ Asynchronous parallel for kernels
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char* argv[]) {
+         int main() {
 
            sycl::queue q;
            unsigned n = 5;
@@ -940,10 +981,14 @@ Reduction
    .. tab:: SYCL
 
       .. code-block:: C++
+      
+         // We use built-in sycl::reduction mechanism in this example.
+         // The manual implementation of the reduction kernel can be found in
+         // the "Non-portable kernel models" chapter.
 
          #include <sycl/sycl.hpp>
          
-         int main(int argc, char *argv[]) {
+         int main() {
            sycl::queue q;
            unsigned n = 10;
          
@@ -956,7 +1001,9 @@ Reduction
              // Submit a SYCL kernel into a queue
              q.submit([&](sycl::handler &cgh) {
                // Create temporary object describing variables with reduction semantics
-               auto sum_reduction = sycl::reduction(sum_buf, cgh, sycl::plus<>());
+               auto sum_acc = sum_buf.get_access<sycl::access_mode::read_write>(cgh);
+               // We can use built-in reduction primitive
+               auto sum_reduction = sycl::reduction(sum_acc, sycl::plus<int>());
            
                // A reference to the reducer is passed to the lambda
                cgh.parallel_for(sycl::range<1>{n}, sum_reduction,

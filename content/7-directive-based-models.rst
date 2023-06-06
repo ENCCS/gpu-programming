@@ -115,7 +115,7 @@ OpenACC has four levels of parallelism for offloading execution:
 
 .. note:: 
 
-    By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
+    By default, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
 
     The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of gangs, workers and vector length. 
 
@@ -127,9 +127,9 @@ OpenACC has four levels of parallelism for offloading execution:
 OpenMP Offloading
 ^^^^^^^^^^^^^^^^^
 
-With OpenMP, the ``TARGET`` directive is used for device offloading. 
+With OpenMP, the ``target`` directive is used for device offloading. 
 
-.. challenge:: Example: ``TARGET`` construct 
+.. challenge:: Example: ``target`` construct 
 
    .. tabs::
 
@@ -166,33 +166,6 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 
 
-
-
-.. keypoints::
-
-   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
-      :widths: 25 25 25 25
-      :header-rows: 1
-
-      * - Nvidia
-        - AMD
-        - Fortran OpenACC/OpenMP
-        - C/C++ OpenMP
-      * - Threadblock
-        - Work group
-        - gang/teams
-        - teams
-      * - Wrap
-        - Wavefront
-        - worker/simd
-        - parallel for simd
-      * - Thread
-        - Work item
-        - vector/simd
-        - parallel for simd
-
-
-
 .. exercise:: Exercise: Change the levels of parallelism
 
    In this exercise we would like to change the levels of parallelism using clauses. 
@@ -200,9 +173,9 @@ OpenMP offloading offers multiple levels of parallelism as well:
    To make a change, adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
    and ``num_teams``, ``thread_limit`` for OpenMP offloading.
 
-   Remember to set the enviroment by executing ``export CRAY_ACC_DEBUG=2`` at runtime.
+   Remember to set the environment by executing ``export CRAY_ACC_DEBUG=2`` at runtime.
    
-   How to compile and run the code:
+   How to compile and run the code interactively:
 
    .. tabs:: 
 
@@ -210,14 +183,19 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                  ml rocm/5.0.2
-                  ml craype-accel-amd-gfx90a
-                  # OpenMP
-                  cc -O2 -fopenmp -o ex1 ex1.c 
-                  # Only OpenACC Fortran is supported by HPE compiler.
+                module load LUMI/23.03
+                module load partition/G
+                module load rocm/5.2.3
 
-                  export CRAY_ACC_DEBUG=2
-                  srun ./ex1
+                # OpenMP
+                cc -O2 -fopenmp -o ex1 ex1.c 
+                # Only OpenACC Fortran is supported by HPE compiler.
+
+                salloc --nodes=1 --account=project_465000485 --partition=standard-g -t 2:00:00
+                srun --interactive --pty --jobid=<jobid> $SHELL
+
+                export CRAY_ACC_DEBUG=2
+                ./ex1
         
 
 
@@ -225,15 +203,20 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                ml rocm/5.0.2 
-                ml craype-accel-amd-gfx90a 
+                module load LUMI/23.03
+                module load partition/G
+                module load rocm/5.2.3
+
                 # OpenMP
                 ftn -O2 -homp -o ex1 ex1.f90
                 # OpenACC
                 ftn -O2 -hacc -o ex1 ex1.f90
 
+                salloc --nodes=1 --account=project_465000485 --partition=standard-g -t 2:00:00
+                srun --interactive --pty --jobid=<jobid> $SHELL
+
                 export CRAY_ACC_DEBUG=2
-                srun ./ex1
+                ./ex1
 
 
    Example of a trivially parallelizable vector addition problem:
@@ -347,10 +330,33 @@ OpenMP offloading offers multiple levels of parallelism as well:
                   end program vecsum
 
 
-.. note::
+.. keypoints::
+
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (**HPE implementation**)
+      :widths: 25 25 25 25
+      :header-rows: 1
+
+      * - Nvidia
+        - AMD
+        - Fortran OpenACC/OpenMP
+        - C/C++ OpenMP
+      * - Threadblock
+        - Work group
+        - gang/teams
+        - teams
+      * - Wrap
+        - Wavefront
+        - worker/simd
+        - parallel for simd
+      * - Thread
+        - Work item
+        - vector/simd
+        - parallel for simd
+
 
    - Each compiler supports different levels of parallelism
-   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limitations defined by the implementation.
+   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limits defined by the implementation.
+   - The maximum thread/grid/block size can be found via ``rocminfo``/``nvaccelinfo``
 
 
 
@@ -369,7 +375,7 @@ Various data clauses used for data movement is summarised in the following table
    ``OpenMP`` ; ``OpenACC`` ; 
    ``map(to:list)`` ; ``copyin(list)`` ; On entering the region, variables in the list are initialized on the device using the original values from the host
    ``map(from:list)`` ; ``copyout(list)`` ;  At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized       
-   ``map(tofrom:list)`` ; ``copy(list)`` ; the effect of both a map-to and a map-from
+   ``map(tofrom:list)`` ; ``copy(list)`` ; The effect of both a map-to and a map-from
    ``map(alloc:list)`` ;  ``create(list)`` ; On entering the region, data is allocated and uninitialized on the device
    ``map(delete:list)`` ;  ``delete(list)`` ; Delete data on the device
    
