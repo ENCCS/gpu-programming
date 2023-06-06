@@ -120,8 +120,7 @@ PyCUDA is powerful library but only runs on Nvidia GPUs. Knowledge of CUDA progr
 
 **Numba**
 
-Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. 
-Numba supports GPUs from both Nvidia and AMD.
+Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. Numba supports GPUs from Nvidia and will likely support AMD GPUs in the future.
 
 Julia
 ~~~~~
