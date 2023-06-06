@@ -115,7 +115,7 @@ OpenACC has four levels of parallelism for offloading execution:
 
 .. note:: 
 
-    By default, when using ``parallel loop`` only, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
+    By default, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
 
     The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of gangs, workers and vector length. 
 
@@ -163,8 +163,6 @@ OpenMP offloading offers multiple levels of parallelism as well:
     Threads in a team can synchronize but no synchronization among the teams. 
 
     Since OpenMP 5.0, there is a new ``loop`` directive available, which has the similar functionality as the corresponding one in OpenACC.
-
-
 
 
 
@@ -334,7 +332,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 .. keypoints::
 
-   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (**HPE implementation**)
       :widths: 25 25 25 25
       :header-rows: 1
 
@@ -357,8 +355,9 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 
    - Each compiler supports different levels of parallelism
-   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limitations defined by the implementation.
+   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limits defined by the implementation.
    - The maximum thread/grid/block size can be found via ``rocminfo``/``nvaccelinfo``
+
 
 
 Data Movement
@@ -376,7 +375,7 @@ Various data clauses used for data movement is summarised in the following table
    ``OpenMP`` ; ``OpenACC`` ; 
    ``map(to:list)`` ; ``copyin(list)`` ; On entering the region, variables in the list are initialized on the device using the original values from the host
    ``map(from:list)`` ; ``copyout(list)`` ;  At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized       
-   ``map(tofrom:list)`` ; ``copy(list)`` ; the effect of both a map-to and a map-from
+   ``map(tofrom:list)`` ; ``copy(list)`` ; The effect of both a map-to and a map-from
    ``map(alloc:list)`` ;  ``create(list)`` ; On entering the region, data is allocated and uninitialized on the device
    ``map(delete:list)`` ;  ``delete(list)`` ; Delete data on the device
    
