@@ -34,29 +34,17 @@ int main(int argc, char **argv)
 
     sycl::queue Q;
 
-    // Create two identical device buffers
-    const sycl::range<2> buffer_size{ size_t(current.nx + 2), size_t(current.ny + 2) };
-    sycl::buffer<double, 2> d_current{buffer_size}, d_previous{buffer_size};
-
     // Start timer
     auto start_clock = start_time();
-    // Copy fields to device
-    copy_to_buffer(Q, d_previous, &previous);
-    copy_to_buffer(Q, d_current, &current);
     // Time evolution
     for (int iter = 1; iter <= nsteps; iter++) {
-        evolve(Q, d_current, d_previous, &previous, a, dt);
+        evolve(Q, &current, &previous, a, dt);
         if (iter % output_interval == 0) {
-            // Update data on host for output
-            copy_from_buffer(Q, d_current, &current);
             field_write(&current, iter);
         }
         // Swap current and previous fields for next iteration step
         field_swap(&current, &previous);
-        std::swap(d_current, d_previous);
     }
-    // Copy data back to host
-    copy_from_buffer(Q, d_previous, &previous);
     // Stop timer
     auto stop_clock = stop_time();
 
