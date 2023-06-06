@@ -38,8 +38,8 @@ One of the way to ensure that two MPI ranks do not use the same GPU, is to deter
     .. tab:: Splitting communicator in MPI
 
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
-                     :language: fortran
-                     :lines: 22-29
+            :language: fortran
+            :lines: 22-29
 
 
 Here, the size of each sub-communicator corresponds to the number of GPUs per node (which is also the number of tasks per node), and each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument `MPI_COMM_TYPE_SHARED` (see the `MPI report <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_) for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator labelled in the code above *”host_comm”*, and in which MPI-ranks are ranked from 0 to number of processes per node -1. These MPI ranks are in turn assigned to different GPU devices within the same node. This procedure is done according to which directive-based model is implemented. The retrieved MPI ranks are then stored in the variable **myDevice**. The variable is passed to an OpenACC or OpenMP routine as indicated in the code below. 
@@ -51,14 +51,14 @@ Here, the size of each sub-communicator corresponds to the number of GPUs per no
       .. tab:: OpenACC
 
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
-                     :language: fortran
-                     :lines: 34-40
+            :language: fortran
+            :lines: 34-40
 
       .. tab:: OpenMP
 
          .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
-                     :language: fortran
-                     :lines: 34-40
+            :language: fortran
+            :lines: 34-40
 
 
 Another useful function for retrieving the device number of a specific device, which is useful, e.g., to map data to a specific device is
@@ -86,8 +86,8 @@ The syntax of assigning MPI ranks to GPU devices is summarised below
       .. tab:: MPI-OpenACC
 	 
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
-                     :language: fortran
-                     :lines: 15-40
+            :language: fortran
+            :lines: 15-40
 
       .. tab:: MPI-OpenMP
 	 
