@@ -168,31 +168,6 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 
 
-.. keypoints::
-
-   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
-      :widths: 25 25 25 25
-      :header-rows: 1
-
-      * - Nvidia
-        - AMD
-        - Fortran OpenACC/OpenMP
-        - C/C++ OpenMP
-      * - Threadblock
-        - Work group
-        - gang/teams
-        - teams
-      * - Wrap
-        - Wavefront
-        - worker/simd
-        - parallel for simd
-      * - Thread
-        - Work item
-        - vector/simd
-        - parallel for simd
-
-
-
 .. exercise:: Exercise: Change the levels of parallelism
 
    In this exercise we would like to change the levels of parallelism using clauses. 
@@ -357,11 +332,33 @@ OpenMP offloading offers multiple levels of parallelism as well:
                   end program vecsum
 
 
-.. note::
+.. keypoints::
+
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+      :widths: 25 25 25 25
+      :header-rows: 1
+
+      * - Nvidia
+        - AMD
+        - Fortran OpenACC/OpenMP
+        - C/C++ OpenMP
+      * - Threadblock
+        - Work group
+        - gang/teams
+        - teams
+      * - Wrap
+        - Wavefront
+        - worker/simd
+        - parallel for simd
+      * - Thread
+        - Work item
+        - vector/simd
+        - parallel for simd
+
 
    - Each compiler supports different levels of parallelism
    - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limitations defined by the implementation.
-
+   - The maximum thread/grid/block size can be found via ``rocminfo``/``nvaccelinfo``
 
 
 Data Movement
