@@ -146,6 +146,9 @@ Intro: WRITEME
          WRITEME  
 
 
+GPU parallelization: data movement
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 For kernel-based models, the approach above is grossly inefficient.
 On each step, we re-allocate GPU memory, copy the data from CPU to GPU, perform the computation, and then copy the data back.
 It will make such GPU version much slower than the original CPU version, but is a helpful first step in the porting process.
@@ -157,11 +160,18 @@ But overhead can be reduced with some modifications to the structure of the prog
 
 .. tabs::
 
+
+   .. tab:: OpenMP: Stencil update
+
+         .. literalinclude:: examples/stencil/base/core-data.cpp
+                        :language: cpp
+                        :emphasize-lines: 25,40-75
+   
    .. tab:: SYCL: Stencil update
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
-                        :emphasize-lines: 13-14,28-29
+                        :emphasize-lines: 13-14,27-28,41-55
 
    .. tab:: SYCL: Main function
 
