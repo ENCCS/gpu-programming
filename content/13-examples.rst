@@ -91,28 +91,29 @@ Intro: WRITEME
 
 .. tabs::
 
+   .. tab:: Stencil update
+
+         .. literalinclude:: examples/stencil/base/core.cpp 
+                        :language: cpp
+                        :emphasize-lines: 25
+
    .. tab:: Main function
 
          .. literalinclude:: examples/stencil/base/main.cpp 
                         :language: cpp
                         :emphasize-lines: 37
-   .. tab:: Stencil update
-
-         .. literalinclude:: examples/stencil/base/core.cpp 
-                        :language: cpp
-                        :emphasize-lines: 23
-                        
+ 
    .. tab:: Default params
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
-                        :lines: 6-33       
+                        :lines: 7-34       
 
 Comments, exercise and some test numbers: WRITEME
 
 
-GPU parallelization examples
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GPU parallelization: first steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Intro: WRITEME
 
@@ -122,13 +123,13 @@ Intro: WRITEME
 
          .. literalinclude:: examples/stencil/base/core-omp.cpp 
                         :language: cpp
-                        :emphasize-lines: 23-25
+                        :emphasize-lines: 24-26
          
    .. tab:: SYCL
 
-         .. literalinclude:: examples/stencil/sycl/core.cpp 
+         .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
-                        :emphasize-lines: 30,34
+                        :emphasize-lines: 31,35
                         
    .. tab:: Python
 
@@ -144,9 +145,6 @@ Intro: WRITEME
 
          WRITEME  
 
-   .. tab:: (more?)
-
-         WRITEME 
 
 Exercises and discussion on comparison/ optimization perspectives: WRITEME
 
