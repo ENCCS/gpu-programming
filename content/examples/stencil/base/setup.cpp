@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

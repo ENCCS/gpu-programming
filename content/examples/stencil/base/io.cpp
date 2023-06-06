@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -5,11 +6,10 @@
 #include "heat.h"
 #include "pngwriter.h"
 
-// Output routine that prints out a picture of the temperature
-// distribution.
+// Print out a picture of the temperature distribution
 void field_write(field *heat, int iter)
 {
-#if HAVE_OUTPUT
+#if HAVE_PNG
     char filename[64];
 
     // The actual write routine takes only the actual data
@@ -27,5 +27,5 @@ void field_write(field *heat, int iter)
     // Write out the data to a png file
     sprintf(filename, "%s_%04d.png", "heat", iter);
     save_png(inner_data.data(), heat->nx, heat->ny, filename, 'c');
-#endif //HAVE_OUTPUT
+#endif //HAVE_PNG
 }

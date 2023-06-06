@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #ifndef __HEAT_H__
 #define __HEAT_H__
 
@@ -28,9 +29,9 @@ const double T_LOWER = 5.0;
 const double T_LEFT = 20.0;
 const double T_RIGHT = 70.0;
 // Default problem size
-const int NSTEPS = 500;
 const int ROWS = 2000;
 const int COLS = 2000;
+const int NSTEPS = 500;
 
 
 // Function prototypes
@@ -54,5 +55,12 @@ void field_copy(field *heat1, field *heat2);
 void field_swap(field *heat1, field *heat2);
 
 void field_allocate(field *heat);
+
+// Data-mapping function prototypes
+void enter_data(field *curr, field *prev);
+
+void exit_data(field *curr, field *prev);
+
+void update_host(field *heat);
 
 #endif  // __HEAT_H__
