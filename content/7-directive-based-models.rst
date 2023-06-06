@@ -127,9 +127,9 @@ OpenACC has four levels of parallelism for offloading execution:
 OpenMP Offloading
 ^^^^^^^^^^^^^^^^^
 
-With OpenMP, the ``TARGET`` directive is used for device offloading. 
+With OpenMP, the ``target`` directive is used for device offloading. 
 
-.. challenge:: Example: ``TARGET`` construct 
+.. challenge:: Example: ``target`` construct 
 
    .. tabs::
 
