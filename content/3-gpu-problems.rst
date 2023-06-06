@@ -129,6 +129,7 @@ an efficient manner that fit GPU architectures.
 
 Humanities
 ^^^^^^^^^^
+A brief introduction into some of the work that is being done in the humanities that can benefit from utilizing GPUs. 
 
 **Language models and NLP (natural language processing)**
 
@@ -148,6 +149,12 @@ they are destroyed, so any researchers who aren't present at the site, would los
 it looked when it was found. However, with recent developments in technology and accessibility to high-performance 
 computing, they are able to generate extremely detailed renderings of the excavation sites which act as a way to 
 preserve the site for future researchers to gain critical insights and contribute to the research. 
+
+**Cognitive Science**
+
+Techniques such as Markov Chain Monte Carlo (MCMC) sampling have proven to be invaluable in studies that delve into human behavior or population dynamics. MCMC sampling allows researchers to simulate and analyze complex systems by iteratively sampling from a Markov chain, enabling the exploration of high-dimensional parameter spaces. This method is particularly useful when studying human behavior, as it can capture the inherent randomness and interdependencies that characterize social systems. By leveraging MCMC sampling, researchers can gain insights into various aspects of human behavior, such as decision-making, social interactions, and the spread of information or diseases within populations. 
+
+By offloading the computational workload to GPUs, researchers can experience substantial speedup in the execution of MCMC algorithms. This speedup allows for more extensive exploration of parameter spaces and facilitates the analysis of larger datasets, leading to more accurate and detailed insights into human behavior or population dynamics. Examples of studies done using these methods can be found at the `Center for Humanities Computing Aarhus <https://chc.au.dk/>`__ (CHCAA) and `Interacting Minds Centre <https://interactingminds.au.dk/>`__ (IMC) at Aarhus University.
 
 Exercises
 ---------
