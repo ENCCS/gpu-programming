@@ -24,8 +24,8 @@ However these are quite limited cases and in general some programming might be n
 Standard C++/Fortran
 --------------------
 
-Programs written in standard C++ and Fortran languages can now take advantage of Nvidia GPUs without
-depending of any external library. This is possible thanks to the `Nvidia SDK <https://developer.nvidia.com/hpc-sdk>`__
+Programs written in standard C++ and Fortran languages can now take advantage of NVIDIA GPUs without
+depending of any external library. This is possible thanks to the `NVIDIA SDK <https://developer.nvidia.com/hpc-sdk>`__
 suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
 can be found `here <https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/>`__ while
 those for Fortran code can be found `here <https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/>`__.
@@ -41,7 +41,7 @@ A fast and cheap way is to use **directive based** approaches. In this case the 
 OpenACC
 ~~~~~~~~
 
-`OpenACC <https://www.openacc.org/>`_ is developed by a consortium formed in 2010 with the goal of developing a standard, portable, and scalable programming model for accelerators, including GPUs. Members of the OpenACC consortium include GPU vendors, such as Nvidia and AMD, as well as leading supercomputing centers, universities, and software companies. Until recently it was supporting only Nvidia GPUs, but now there is effort to support more and more devices and architectures.
+`OpenACC <https://www.openacc.org/>`_ is developed by a consortium formed in 2010 with the goal of developing a standard, portable, and scalable programming model for accelerators, including GPUs. Members of the OpenACC consortium include GPU vendors, such as NVIDIA and AMD, as well as leading supercomputing centers, universities, and software companies. Until recently it was supporting only NVIDIA GPUs, but now there is effort to support more and more devices and architectures.
 
 OpenMP
 ~~~~~~~
@@ -58,12 +58,12 @@ When doing direct GPU programming the developer has a large level of control by 
 CUDA
 ~~~~
 
-`CUDA <https://developer.nvidia.com/cuda-toolkit>`_ is a parallel computing platform and API developed by Nvidia. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is restricted to Nvidia hardware. 
+`CUDA <https://developer.nvidia.com/cuda-toolkit>`_ is a parallel computing platform and API developed by NVIDIA. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is restricted to NVIDIA hardware. 
 
 HIP
 ~~~
 
-`HIP <https://github.com/ROCm-Developer-Tools/HIP>`_ (Heterogeneous Interface for Portability) is an API developed by AMD that provides a low-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both Nvidia and AMD GPUs. It is based on the CUDA programming model and provides an almost identical programming interface to CUDA.
+`HIP <https://github.com/ROCm-Developer-Tools/HIP>`_ (Heterogeneous Interface for Portability) is an API developed by AMD that provides a low-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides an almost identical programming interface to CUDA.
 
 
 Portable kernel-based models (cross-platform portability ecosystems)
@@ -81,14 +81,14 @@ OpenCL
 ~~~~~~
 
 `OpenCL <https://www.khronos.org/opencl/>`_ (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on CPUs, GPUs and FPGAs. It supports a wide range of hardware from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike programming models such as CUDA, HIP, Kokkos, and SYCL, OpenCL uses a separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is still more widely used. 
-The OpenCL Working Group doesn’t provide any frameworks of its own. Instead, vendors who produce OpenCL-compliant devices release frameworks as part of their software development kits (SDKs). The two most popular OpenCL SDKs are released by Nvidia and AMD. In both cases, the development kits are free and contain the libraries and tools that make it possible to build OpenCL applications
+The OpenCL Working Group doesn’t provide any frameworks of its own. Instead, vendors who produce OpenCL-compliant devices release frameworks as part of their software development kits (SDKs). The two most popular OpenCL SDKs are released by NVIDIA and AMD. In both cases, the development kits are free and contain the libraries and tools that make it possible to build OpenCL applications
 
 SYCL
 ~~~~
 
 `SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
 
-While Alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a standard, for which several implementations exist. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ (supporting Intel GPUs natively, and NVIDIA and AMD GPUs with `Codeplay oneAPI plugins <https://codeplay.com/solutions/oneapi/>`_) and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (also known as Open SYCL, supporting Nvidia and AMD GPUs, with experimental Intel GPU support available in combination with Intel oneAPI DPC++) are the most widely used. Other implementations of note are `triSYCL <https://github.com/triSYCL/triSYCL>`_ and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+While Alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a standard, for which several implementations exist. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ (supporting Intel GPUs natively, and NVIDIA and AMD GPUs with `Codeplay oneAPI plugins <https://codeplay.com/solutions/oneapi/>`_) and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (also known as Open SYCL, supporting NVIDIA and AMD GPUs, with experimental Intel GPU support available in combination with Intel oneAPI DPC++) are the most widely used. Other implementations of note are `triSYCL <https://github.com/triSYCL/triSYCL>`_ and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 
 High-level language support
@@ -115,12 +115,12 @@ without knowing too much CUDA programming.
 
 **PyCUDA**
 
-PyCUDA is a Python programming environment for CUDA. It allows users to access to Nvidia's CUDA API from Python. 
-PyCUDA is powerful library but only runs on Nvidia GPUs. Knowledge of CUDA programming is needed.
+PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA's CUDA API from Python. 
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.
 
 **Numba**
 
-Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. Numba supports GPUs from Nvidia and will likely support AMD GPUs in the future.
+Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. Numba supports GPUs from NVIDIA and will likely support AMD GPUs in the future.
 
 Julia
 ~~~~~
@@ -128,7 +128,7 @@ Julia
 Julia has first-class support for GPU programming through the following
 packages that target GPUs from all three major vendors:
 
-- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for Nvidia GPUs
+- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for NVIDIA GPUs
 - `AMDGPU.jl <https://amdgpu.juliagpu.org/stable/>`_ for AMD GPUs
 - `oneAPI.jl <https://github.com/JuliaGPU/oneAPI.jl>`_ for Intel GPUs
 - `Metal.jl <https://github.com/JuliaGPU/Metal.jl>`_ for Apple M-series GPUs
@@ -154,8 +154,8 @@ for fine-grained control.
 
    - **Non-portable Kernel-based Models:**
      - Low-level code is written to directly communicate with the GPU.
-     - CUDA is Nvidia's parallel computing platform and API for GPU programming.
-     - HIP is an API developed by AMD that provides a similar programming interface to CUDA for both Nvidia and AMD GPUs.
+     - CUDA is NVIDIA's parallel computing platform and API for GPU programming.
+     - HIP is an API developed by AMD that provides a similar programming interface to CUDA for both NVIDIA and AMD GPUs.
      - Deeper understanding of GPU architecture and programming methods is needed.
 
    - **Portable Kernel-based Models:**

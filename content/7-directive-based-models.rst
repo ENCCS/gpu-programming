@@ -174,7 +174,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
       :widths: 25 25 25 25
       :header-rows: 1
 
-      * - Nvidia
+      * - NVIDIA
         - AMD
         - Fortran OpenACC/OpenMP
         - C/C++ OpenMP
