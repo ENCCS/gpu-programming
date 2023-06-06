@@ -53,12 +53,12 @@ In theory the directive based approaches should work with both C/C++ and FORTRAN
 Non-portable kernel-based models (native programming models)
 ------------------------------------------------------------
 
-When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used.
+When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used. Multiple examples of CUDA/HIP code are available in the `content/examples/cuda-hip <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip>`__ directory of this repository.
 
 CUDA
 ~~~~
 
-`CUDA <https://developer.nvidia.com/cuda-toolkit>`_ is a parallel computing platform and API developed by Nvidia. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is limited to the Nvidia hardware (multiple examples are available at `https://github.com/ENCCS/gpu-programming/tree/main/content/examples`).
+`CUDA <https://developer.nvidia.com/cuda-toolkit>`_ is a parallel computing platform and API developed by Nvidia. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is restricted to Nvidia hardware. 
 
 HIP
 ~~~
