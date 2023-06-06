@@ -22,7 +22,7 @@ The best way to learn programming is to get our hands dirty. Use the example cod
 Here are some suggestions for playing around:
 * check the GPU assignment in the "Hello World" example. 
     - try  1 MPI taks with multiple GPUs and set the code to use something different from the default `device 0`
-    - try P nodes with N(<8)  MPI tasks per node with each MPI task being assigned a different GPU.
+    - try P nodes with N(<=8)  MPI tasks per node with each MPI task being assigned a different GPU.
 * check the vector addition with device memory and with unified memory
 * implement the matrix transpose and compute the effective bandwidths achieved on LUMI GPUs
 * implement a code using 1 GPU and do a reduction on a vector
