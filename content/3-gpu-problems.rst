@@ -81,8 +81,8 @@ Some types of problems that do not fit well on a GPU include:
 Examples of GPU acceleration
 ----------------------------
 
-FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
-one can get 
+Electronic structure calculations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 VASP is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the Perlmutter and Cori supercomputers, along with an analysis of total energy usage.
 
@@ -120,7 +120,7 @@ processing (digestion) of the ERIs, one algorithm to do this task is as follows:
     :width: 200
     :align: center
 
-    Algorithm for processing ERIs [`JCTC, 17, 7486, (2021) <https://doi.org/10.1021/acs.jctc.1c00720>`__]
+    Algorithm for processing ERIs [see `JCTC, 17, 7486, (2021) <https://doi.org/10.1021/acs.jctc.1c00720>`__ for details]
 
 This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
 there are symmetries and properties of the integrals that could be used to rearrange the loops in
