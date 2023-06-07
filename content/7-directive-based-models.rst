@@ -166,6 +166,33 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 
 
+
+
+.. keypoints::
+
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+      :widths: 25 25 25 25
+      :header-rows: 1
+
+      * - NVIDIA
+        - AMD
+        - Fortran OpenACC/OpenMP
+        - C/C++ OpenMP
+      * - Threadblock
+        - Work group
+        - gang/teams
+        - teams
+      * - Wrap
+        - Wavefront
+        - worker/simd
+        - parallel for simd
+      * - Thread
+        - Work item
+        - vector/simd
+        - parallel for simd
+
+
+
 .. exercise:: Exercise: Change the levels of parallelism
 
    In this exercise we would like to change the levels of parallelism using clauses. 

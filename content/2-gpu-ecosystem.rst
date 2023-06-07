@@ -99,13 +99,13 @@ GPU platforms
 
 GPUs come together with software stacks or APIs that work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. They are used by software developers to write code that can take advantage of the parallel processing power of the GPU, and they provide a standard way for software to interact with the GPU hardware. Typically, they provide access to low-level functionality, such as memory management, data transfer between the CPU and the GPU, and the scheduling and execution of parallel processing tasks on the GPU. They may also provide higher level functions and libraries optimized for specific HPC workloads, like linear algebra or fast Fourier transforms. Finally, in order to facilitate the developers to optimize and write correct codes, debugging and profiling tools are also included. 
 
-*Nvidia*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **oneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
+*NVIDIA*, *AMD*, and *Intel* are the major companies which design and produces GPUs for HPC providing each its own suite **CUDA**, **ROCm**, and respectively **oneAPI**. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty. 
 There are also cross-platform APIs such **DirectCompute** (only for Windows operating system), **OpenCL**, and **SYCL**.
 
 .. admonition:: CUDA - In short
    :class: dropdown
 
-   - CUDA: Nvidia's parallel computing platform
+   - CUDA: NVIDIA's parallel computing platform
       - Components: CUDA Toolkit & CUDA driver
       - Supports C, C++, and Fortran languages
    - CUDA API Libraries: cuBLAS, cuFFT, cuRAND, cuSPARSE
@@ -116,7 +116,7 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
    - Debugging tools: cuda-gdb, compute-sanitizer
       - Debug GPU and CPU code simultaneously
       - Identify memory access issues
-   - Performance analysis tools: Nvidia Nsight Systems, Nvidia Nsight Compute
+   - Performance analysis tools: NVIDIA Nsight Systems, NVIDIA Nsight Compute
       - Analyze system-wide and kernel-level performance
       - Optimize CPU and GPU usage, memory bandwidth, instruction throughput
    - Comprehensive CUDA ecosystem with extensive tools and features
@@ -135,7 +135,7 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
       - Analyze and optimize program performance  
    - Supports various heterogenous programming models such as **HIP**, **OpenMP**, and **OpenCL**
    - Heterogeneous-Computing Interface for Portability (HIP)
-      - Enables source portability for Nvidia and AMD platforms, Intel in plan
+      - Enables source portability for NVIDIA and AMD platforms, Intel in plan
       - Provides ``hipcc`` compiler driver and runtime libraries
    - Libraries: Prefixed with ``roc`` for AMD platforms
       - Can be called directly from HIP
@@ -155,9 +155,9 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
    - Multiple programming models and languages supported:
       - OpenMP, Classic Fortran, C++, SYCL
       - Unless custom Intel libraries are used, the code is portable to other OpenMP and SYCL frameworks
-   - DPC++ Compiler: Supports Intel, Nvidia, and AMD GPUs
+   - DPC++ Compiler: Supports Intel, NVIDIA, and AMD GPUs
       - Targets Intel GPUs using oneAPI Level Zero interface
-      - Added support for Nvidia GPUs with CUDA and AMD GPUs with ROCm
+      - Added support for NVIDIA GPUs with CUDA and AMD GPUs with ROCm
    - Debugging and performance analysis tools: Intel Adviser, Intel Vtune Profiler, Cluster Checker, Inspector, Intel Trace Analyzer and Collector, Intel Distribution for GDB
    - Comprehensive and unified approach to heterogeneous computing
       - Abstracts complexities and provides consistent programming interface
@@ -167,22 +167,22 @@ There are also cross-platform APIs such **DirectCompute** (only for Windows oper
 CUDA
 ^^^^
 
-**Compute Unified Device Architecture** is the parallel computing platform from Nvidia. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on Nvidia GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the device GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
+**Compute Unified Device Architecture** is the parallel computing platform from NVIDIA. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on NVIDIA GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the device GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.
 
-CUDA API provides many highly optimize libraries such as: **cuBLAS** (for linear algebra operations, such a dense matrix multiplication), **cuFFT** (for performing fast Fourier transforms), **cuRAND** (for generating pseudo-random numbers), **cuSPARSE** (for sparse matrices operations). Using these libraries, developers can quickly and easily accelerate complex computations on Nvidia GPUs without having to write low-level GPU code themselves.
+CUDA API provides many highly optimize libraries such as: **cuBLAS** (for linear algebra operations, such a dense matrix multiplication), **cuFFT** (for performing fast Fourier transforms), **cuRAND** (for generating pseudo-random numbers), **cuSPARSE** (for sparse matrices operations). Using these libraries, developers can quickly and easily accelerate complex computations on NVIDIA GPUs without having to write low-level GPU code themselves.
 
-There are several compilers that can be used for developing and executing code on Nvidia GPUs: **nvcc**. The latest versions are based on the widely used LLVM (low level virtual machine) open source compiler infrastructure. nvcc produces optimized code for Nvidia GPUs and drives a supported host compiler for AMD, Intel, OpenPOWER, and Arm CPUs.
+There are several compilers that can be used for developing and executing code on NVIDIA GPUs: **nvcc**. The latest versions are based on the widely used LLVM (low level virtual machine) open source compiler infrastructure. nvcc produces optimized code for NVIDIA GPUs and drives a supported host compiler for AMD, Intel, OpenPOWER, and Arm CPUs.
 
-In addition to this are provided **nvc** (C11 compiler), **nvc++** (C++17 compiler), and  **nvfortran** (ISO Fortran 2003 compiler). These compilers can as well create code for execution on the Nvidia GPUs, and also support GPU and multicore CPU programming with parallel language features, OpeanACC and OpenMP.
+In addition to this are provided **nvc** (C11 compiler), **nvc++** (C++17 compiler), and  **nvfortran** (ISO Fortran 2003 compiler). These compilers can as well create code for execution on the NVIDIA GPUs, and also support GPU and multicore CPU programming with parallel language features, OpeanACC and OpenMP.
 
 
 When programming mistakes are inevitable they have to be fixed as soon as possible. The CUDA toolkit includes the command line tool **cuda-gdb** which can be used to find errors in the code. It is an extension to GDB, the GNU Project debugger.  The existing GDB debugging features are inherently present for debugging the host code, and additional features have been provided to support debugging CUDA device code, allowing simultaneous debugging of both GPU and CPU code within the same application. The tool provides developers with a mechanism for debugging CUDA applications running on actual hardware. This enables developers to debug applications without the potential variations introduced by simulation and emulation environments.
 
 In addition to this the command line tool **compute-sanitizer** can be used to look exclusively for memory access problems: unallocated buffers, out of bounds accesses, race conditions, and uninitialized variables. 
 
-Finally, in order to utilize the GPUs at maximum some performance analysis tools. Nvidia provides Nvidia Nsight Systems and Nvidia Nsight Compute tools for helping the developers to optimize their applications. The former, Nvidia Nsight Systems, is a system-wide performance analysis tool that provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, Nvidia Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have graphical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.
+Finally, in order to utilize the GPUs at maximum some performance analysis tools. NVIDIA provides NVIDIA Nsight Systems and NVIDIA Nsight Compute tools for helping the developers to optimize their applications. The former, NVIDIA Nsight Systems, is a system-wide performance analysis tool that provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, NVIDIA Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have graphical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.
 
-Apart from what was presented above there are many others tools and features provided by Nvidia. The CUDA eco-system is very well developed. 
+Apart from what was presented above there are many others tools and features provided by NVIDIA. The CUDA eco-system is very well developed. 
 
 
 ROCm
@@ -195,10 +195,10 @@ accelerator vendors and architectures. In some way it is very similar to CUDA AP
 It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs. 
 For debugging, it provides the command line tool ``rocgdb``, while for performance analysis ``rocprof`` and ``roctracer``.
 In order to produce code for the AMD GPUs, one can use the Heterogeneous-Computing Interface for Portability (HIP). 
-HIP is a C++ runtime API and a set of tools that allows developers to write portable GPU-accelerated code for both Nvidia and AMD platforms. 
+HIP is a C++ runtime API and a set of tools that allows developers to write portable GPU-accelerated code for both NVIDIA and AMD platforms. 
 It provides the ``hipcc`` compiler driver, which will call the appropriate toolchain depending on the desired platform. 
 On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang (ROCm compiler). 
-On an Nvidia platform, HIP provides a header file which translates from the HIP runtime APIs to CUDA runtime APIs. 
+On an NVIDIA platform, HIP provides a header file which translates from the HIP runtime APIs to CUDA runtime APIs. 
 The header file contains mostly inlined functions and thus has very low overhead. 
 The code is then compiled with ``nvcc``, the standard C++ compiler provided with CUDA.
 On AMD platforms, libraries are prefixed by ``roc``, which can be called directly from HIP. In order to make portable calls, 
@@ -216,7 +216,7 @@ oneAPI
 The core of suite is **Intel oneAPI Base Toolkit**, a set of tools and libraries for developing high-performance, data-centric applications across diverse architectures. It features an industry-leading C++ compiler that implements SYCL, an evolution of C++ for heterogeneous computing. It includes the **Collective Communications Library**, the **Data Analytics Library**, the **Deep Neural Networks Library**, the **DPC++/C++ Compiler**, the **DPC++ Library**, the **Math Kernel Library**, the **Threading Building Blocks**, debugging tool **Intel Distribution for GDB**, performance analisis tools **Intel Adviser** and **Intel Vtune Profiler**, the **Video Processing Library**, **Intel Distribution for Python**, the **DPC++ Compatibility Tool**, the **FPGA Add-on for oneAPI Base Toolkit**, the **Integrated Performance Primitives**.
 This can be complemented with additional toolkits. The **Intel oneAPI HPC Toolkit** contains **DPC++/C++ Compiler**, **Fortran** and **C++** Compiler Classic, debugging tools **Cluster Checker** and **Inspector**, **Intel MPI Library**, and performance analysis tool **Intel Trace Analyzer and Collector**. 
 
-oneAPI supports multiple programming models and programming languages. It enables developers to write **OpenMP** codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well **SYCL** programs for GPUs and FPGAs using the **DPC++** compiler. Initially, the **DPC++** compiler only targeted Intel GPUs using the **oneAPI Level Zero** low-level programming interface, but now support for Nvidia GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added. 
+oneAPI supports multiple programming models and programming languages. It enables developers to write **OpenMP** codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well **SYCL** programs for GPUs and FPGAs using the **DPC++** compiler. Initially, the **DPC++** compiler only targeted Intel GPUs using the **oneAPI Level Zero** low-level programming interface, but now support for NVIDIA GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added. 
 Overall, Intel oneAPI offers a comprehensive and unified approach to heterogeneous computing, empowering developers to optimize and deploy applications across different architectures with ease. By abstracting the complexities and providing a consistent programming interface, oneAPI promotes code reusability, productivity, and performance portability, making it an invaluable toolkit for developers in the era of diverse computing platforms.
 
 
@@ -228,7 +228,7 @@ GPUs in general support different features, even among the same producer. In gen
 features and sometimes old features are not supported anymore. It is important when compiling to create binaries 
 targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices, 
 while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute 
-capability which is targeted is specified by the ``-arch=sm_XY``, where ``X`` specifies the major architecture and it is between 1 and 9, and ``Y`` the minor. When using HIP on Nvidia platforms one needs to use compiling option ``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc`` ( where ``abc`` is the architecture code such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
+capability which is targeted is specified by the ``-arch=sm_XY``, where ``X`` specifies the major architecture and it is between 1 and 9, and ``Y`` the minor. When using HIP on NVIDIA platforms one needs to use compiling option ``--gpu-architecture=sm_XY``, while on AMD platforms  ``--offload-arch=gfxabc`` ( where ``abc`` is the architecture code such as ``90a`` for the MI200 series or ``908`` for MI100 series). 
 Note that in the case of portable (single source) programs one would specify ``openmp`` as well as target for 
 compilation, enabling to run the same code on multicore CPU. 
 
@@ -241,7 +241,7 @@ Terminology
    :widths: 25 25 50
    :header-rows: 1
 
-   * - Nvidia
+   * - NVIDIA
      - AMD
      - Intel
    * - streaming processor/streaming core
@@ -265,8 +265,8 @@ Summary
 
 - GPUs are designed to execute thousands of threads simultaneously, making them highly parallel processors. In contrast, CPUs excel at executing a smaller number of threads in parallel.
 - GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.
-- GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (Nvidia), ROCm (AMD), and oneAPI (Intel).
-- These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., Nvidia Nsight Systems, Nvidia Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
+- GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (NVIDIA), ROCm (AMD), and oneAPI (Intel).
+- These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
 
 Exercises
 ---------

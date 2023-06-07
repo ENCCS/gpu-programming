@@ -523,7 +523,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
       
 In this case, the CUDA and HIP codes are equivalent one to one so we will only refer to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU and controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called **vector_add** with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually code which is executed on the GPU by multiple threads in parallel.
 
-Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and Nvidia Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory. Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
+Accelerators in general and GPUs in particular have their own dedicated memory separate from the system memory (**this could change soon! see AMD MI300 and NVIDIA Hopper!**). When programming for GPUs, there are two sets of pointers involved and it's necessary to manage data movement between the host memory and the accelerator memory. Data needs to be explicitly copied from the host memory to the accelerator memory before it can be processed by the accelerator. Similarly, results or modified data may need to be copied back from the accelerator memory to the host memory to make them accessible to the CPU. 
 
 The main function of the code initializes the input arrays `Ah, Bh` on the CPU and computes the reference array `Cref`. It then allocates memory on the GPU for the input and output arrays `Ad, Bd`, and `Cd` using **cudaMalloc** (herein, `h` is for the `host`(CPU) and `d` for the 'device' (GPU)). The data is transferred from the CPU to the GPU using hipMemcpy, and then the GPU kernel is launched using the `<<<.>>>` syntax. All kernels launch are asynchronous. After launch the control returns to the `main()` and the code proceeds to the next instructions. 
 
@@ -997,7 +997,7 @@ First as a reference we use a simple kernel which copy the data from one array t
             return 0;
          }
 
-We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time using **rocprof** or **cuda/hip events**. On a Nvidia V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
+We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time using **rocprof** or **cuda/hip events**. On a NVIDIA V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
 
 Now we do the first iteration of the code, a naive transpose. The reads have a nice `coalesced` access pattern, but the writing is now very inefficient. 
 
@@ -1113,7 +1113,7 @@ The kernel first loads data from the global memory into the shared memory tile. 
 Next, the kernel writes the transposed data from the shared memory tile back to the output matrix in global memory. Each thread writes a single element from the shared memory tile to the output matrix. 
 By using shared memory, this optimized implementation reduces global memory accesses and exploits memory coalescence, resulting in improved performance compared to a naive transpose implementation.
 
-This kernel achieved on Nvidia V100 `674 GB/s`. 
+This kernel achieved on NVIDIA V100 `674 GB/s`. 
 
 This is pretty close to the bandwidth achieved by the simple copy kernel, but there is one more thing to improve. 
 
@@ -1321,7 +1321,7 @@ Consider a case which involves copying data from CPU to GPU, computations and th
 Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
 Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
 
-In order to learn more about how to improve performance using streams check the Nvidia blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
+In order to learn more about how to improve performance using streams check the NVIDIA blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
 
 .. admonition:: Streams - In short
    :class: dropdown

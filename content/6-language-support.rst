@@ -21,7 +21,7 @@ Julia
 Julia has first-class support for GPU programming through the following 
 packages that target GPUs from all three major vendors:
 
-- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for Nvidia GPUs
+- `CUDA.jl <https://cuda.juliagpu.org/stable/>`_ for NVIDIA GPUs
 - `AMDGPU.jl <https://amdgpu.juliagpu.org/stable/>`_ for AMD GPUs
 - `oneAPI.jl <https://github.com/JuliaGPU/oneAPI.jl>`_ for Intel GPUs
 - `Metal.jl <https://github.com/JuliaGPU/Metal.jl>`_ for Apple M-series GPUs
@@ -94,7 +94,7 @@ The array interface
 GPU programming with Julia can be as simple as using a different array type 
 instead of regular ``Base.Array`` arrays:
 
-- ``CuArray`` from CUDA.jl for Nvidia GPUs
+- ``CuArray`` from CUDA.jl for NVIDIA GPUs
 - ``ROCArray`` from AMDGPU.jl for AMD GPUs
 - ``oneArray`` from oneAPI.jl for Intel GPUs
 - ``MtlArray`` from Metal.jl for Apple GPUs
