@@ -253,7 +253,17 @@ In conclusion, we have presented an overview of a GPU-hybrid programming by inte
 Exercises
 ---------
 
-We consider an MPI fortran code that solves a 2D-Laplace equation, and which is partially accelerated. The focus of the exercises is to complete the acceleration using either OpenACC or OpenMP API by following these steps. The exercises can be accessed `here <examples/exercise_multipleGPU>`_.
+We consider an MPI fortran code that solves a 2D-Laplace equation, and which is partially accelerated. The focus of the exercises is to complete the acceleration using either OpenACC or OpenMP API by following these steps. 
+
+.. callout:: Access exercise material
+
+   Code examples for the exercises below can be accessed in the `content/examples/exercise_multipleGPU` subdirectory of this repository. To access them, you need to clone the repository:
+
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ cd gpu-programming/content/examples/exercise_multipleGPU
+      $ ls
 
 .. challenge:: Exercise I: Set a GPU device
 
