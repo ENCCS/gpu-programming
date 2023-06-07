@@ -1,0 +1,1 @@
+hipify-perl vec_add_cuda.cu > vec_add_cuda.cu.hip
