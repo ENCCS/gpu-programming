@@ -38,18 +38,3 @@ void evolve(sycl::queue &Q, sycl::buffer<double, 2> d_curr, sycl::buffer<double,
   }
 }
 
-void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::write>(h);
-    		h.copy(f->data.data(), acc);
-    	});
-}
-
-void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::read>(h);
-    		h.copy(acc, f->data.data());
-    	}).wait();
-}
