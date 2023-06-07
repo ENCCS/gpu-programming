@@ -22,8 +22,7 @@ void evolve(field *curr, field *prev, double a, double dt)
   double dy2 = prev->dy * prev->dy;
   
   // Offload value update to GPU target (fallback to CPU is possible)
-  #pragma omp target teams distribute parallel for \
-  map(currdata[0:(nx+2)*(ny+2)],prevdata[0:(nx+2)*(ny+2)])
+  #pragma omp target teams distribute parallel for
   for (int i = 1; i < nx + 1; i++) {
     for (int j = 1; j < ny + 1; j++) {
       int ind = i * (ny + 2) + j;
@@ -36,4 +35,41 @@ void evolve(field *curr, field *prev, double a, double dt)
 	     (prevdata[jp] - 2.0*prevdata[ind] + prevdata[jm]) / dy2);
     }
   }
+}
+
+// Start a data region and copy temperature fields to the device
+void enter_data(field *curr, field *prev)
+{
+  double *currdata = curr->data.data();
+  double *prevdata = prev->data.data();
+  int nx = prev->nx;
+  int ny = prev->ny;
+
+  // adding data mapping here
+  #pragma omp target enter data \
+  map(to: currdata[0:(nx+2)*(ny+2)], prevdata[0:(nx+2)*(ny+2)])
+}
+
+// End a data region and copy temperature fields back to the host
+void exit_data(field *curr, field *prev)
+{
+  double *currdata = curr->data.data();
+  double *prevdata = prev->data.data();
+  int nx = prev->nx;
+  int ny = prev->ny;
+
+  // adding data mapping here
+  #pragma omp target exit data \
+  map(from: currdata[0:(nx+2)*(ny+2)], prevdata[0:(nx+2)*(ny+2)])
+}
+
+// Copy a temperature field from the device to the host
+void update_host(field *heat)
+{
+  double *data = heat->data.data();
+  int nx = heat->nx;
+  int ny = heat->ny;
+
+  // adding data mapping here
+  #pragma omp target update from(data[0:(nx+2)*(ny+2)])
 }

@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include "heat.h"
 
 // Update the temperature values using five-point stencil
@@ -20,7 +21,8 @@ void evolve(field *curr, field *prev, double a, double dt)
   double dx2 = prev->dx * prev->dx;
   double dy2 = prev->dy * prev->dy;
 
-  //#pragma omp parallel for
+  // Use OpenMP threads for parallel update of grid values
+  #pragma omp parallel for
   for (int i = 1; i < nx + 1; i++) {
     for (int j = 1; j < ny + 1; j++) {
       int ind = i * (ny + 2) + j;

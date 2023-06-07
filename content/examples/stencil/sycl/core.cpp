@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include "heat.h"
 #include <sycl/sycl.hpp>
 
@@ -9,14 +10,12 @@
 //   prev: description of the grid parameters
 //   a: diffusivity
 //   dt: time step
-void evolve(sycl::queue &Q,
-            sycl::buffer<double, 2> d_curr,
-            sycl::buffer<double, 2> d_prev,
-            const field *prev,
-            double a, double dt)
+void evolve(sycl::queue &Q, sycl::buffer<double, 2> d_curr, sycl::buffer<double, 2> d_prev,
+            const field *prev, double a, double dt)
 {
   int nx = prev->nx;
   int ny = prev->ny;
+  
   // Determine the temperature field at next time step
   // As we have fixed boundary conditions, the outermost gridpoints
   // are not updated.
@@ -37,4 +36,20 @@ void evolve(sycl::queue &Q,
       });
     });
   }
+}
+
+void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f)
+{
+    Q.submit([&](sycl::handler& h) {
+    		auto acc = buffer.get_access<sycl::access::mode::write>(h);
+    		h.copy(f->data.data(), acc);
+    	});
+}
+
+void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f)
+{
+    Q.submit([&](sycl::handler& h) {
+    		auto acc = buffer.get_access<sycl::access::mode::read>(h);
+    		h.copy(acc, f->data.data());
+    	}).wait();
 }

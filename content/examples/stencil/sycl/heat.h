@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #ifndef __HEAT_H__
 #define __HEAT_H__
 
@@ -29,20 +30,19 @@ const double T_LOWER = 5.0;
 const double T_LEFT = 20.0;
 const double T_RIGHT = 70.0;
 // Default problem size
-const int NSTEPS = 500;
 const int ROWS = 2000;
 const int COLS = 2000;
+const int NSTEPS = 500;
 
 
 // Function prototypes
 void initialize(int argc, char *argv[], field *heat1,
                 field *heat2, int *nsteps);
 
-// Naive version
 void evolve(sycl::queue &Q, field *curr, field *prev, double a, double dt);
 
-// Advanced version
-void evolve(sycl::queue &Q, sycl::buffer<double, 2> buf_curr, sycl::buffer<double, 2> buf_prev, const field *prev, double a, double dt);
+void evolve(sycl::queue &Q, sycl::buffer<double, 2> buf_curr, sycl::buffer<double, 2> buf_prev, 
+            const field *prev, double a, double dt);
 
 void field_set_size(field *heat, int nx, int ny);
 
@@ -59,5 +59,10 @@ void field_copy(field *heat1, field *heat2);
 void field_swap(field *heat1, field *heat2);
 
 void field_allocate(field *heat);
+
+// Data movement function prototypes
+void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f);
+
+void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f);
 
 #endif  // __HEAT_H__

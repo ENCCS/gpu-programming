@@ -32,15 +32,21 @@ int main(int argc, char **argv)
 
     // Start timer
     double start_clock = start_time();
+    // Copy fields to device
+    enter_data(&current, &previous);
     // Time evolution
     for (int iter = 1; iter <= nsteps; iter++) {
         evolve(&current, &previous, a, dt);
         if (iter % output_interval == 0) {
+            // Update data on host for output
+            update_host(&current);
             field_write(&current, iter);
         }
         // Swap current and previous fields for next iteration step
         field_swap(&current, &previous);
     }
+    // Copy data back to host
+    exit_data(&current, &previous);
     // Stop timer
     double stop_clock = stop_time();
 
