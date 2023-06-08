@@ -614,6 +614,16 @@ Additionally, in practice, not every function can be constructed as a ufunc. To 
 flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the 
 *Python for HPDA* resource linked below for guidance on implementing such techniques using Numba.
 
+Exercises
+---------
+
+.. challenge:: Play around yourself
+
+   Are you a Julian or a Pythonista? Maybe neither, but take a pick between Python and Julia and play around with the code examples provided above. 
+
+   You can find instructions for running Julia on LUMI and Python on Google Colab in the :doc:`0-setup` episode.
+
+
 
 See also
 --------
