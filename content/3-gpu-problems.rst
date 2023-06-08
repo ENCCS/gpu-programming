@@ -92,7 +92,7 @@ Examples of GPU acceleration
 
       N = [9, 10, 11, 12]
 
-      for n in N:
+      for n in N
          A = rand(2^n, 2^n); A_d = ROCArray(A);
 
          @btime $A * $A;
@@ -110,81 +110,37 @@ Examples of GPU acceleration
 
    .. solution::
 
-      For example, on an Mi250X AMD GPU:
+      Example results from running on LUMI (MI250X AMD GPU, 64-core AMD Trento CPUs):
 
-      .. code-block:: julia
-
-         using AMDGPU
-         using BenchmarkTools
-
-         A = rand(2^9, 2^9); A_d = ROCArray(A);
-
-         # 1 CPU core:
-         @btime $A * $A
-         # 5.472 ms (2 allocations: 2.00 MiB)
-         # 64 CPU cores:
-         @btime $A * $A
-         # 517.722 μs (2 allocations: 2.00 MiB)
-         # GPU
-         @btime begin
-            $A_d * $A_d
-            AMDGPU.synchronize()
-         end
-         # 115.805 μs (21 allocations: 1.06 KiB)
-
-         # ~47 times faster than 1 CPU core, ~5 times faster than 64 cores
-
-         A = rand(2^10, 2^10); A_d = ROCArray(A);
-
-         # 1 CPU core
-         @btime $A * $A
-         # 43.364 ms (2 allocations: 8.00 MiB)
-         # 64 CPU cores
-         @btime $A*$A;
-         # 2.929 ms (2 allocations: 8.00 MiB)
-         # GPU
-         @btime begin
-            $A_d * $A_d
-            AMDGPU.synchronize()
-         end
-         # 173.316 μs (21 allocations: 1.06 KiB)
-   
-         # ~250 times faster than one CPU core, ~17 times faster than 64 cores
-
-         A = rand(2^11, 2^11); A_d = ROCArray(A);
-
-         # 1 CPU core
-         @btime $A * $A
-         # 344.364 ms (2 allocations: 32.00 MiB)
-         # 64 CPU cores
-         @btime $A * $A
-         # 30.081 ms (2 allocations: 32.00 MiB)
-         # GPU
-         @btime begin
-            $A_d * $A_d
-            AMDGPU.synchronize()
-         end         
-         # 866.348 μs (21 allocations: 1.06 KiB)
-
-         # ~400 times faster than 1 core, 35 times faster than 64 cores
-
-         A = rand(2^12, 2^12); A_d = ROCArray(A);
-
-         # 1 CPU core
-         @btime $A*$A;
-         # 3.221 s (2 allocations: 128.00 MiB)
-         # 64 CPU cores
-         @btime $A*$A;
-         # 159.563 ms (2 allocations: 128.00 MiB)
-         # GPU
-         @btime begin
-            $A_d * $A_d
-            AMDGPU.synchronize()
-         end
-         # 5.910 ms (21 allocations: 1.06 KiB)
-
-         # ~550 times faster than 1 CPU core, 27 times faster than 64 CPU cores
-
+      .. list-table:: GPU acceleration for matrix multiply in Julia
+         :widths: 25 25 25 25 25
+         :header-rows: 1
+      
+         * - Matrix size
+           - 1 CPU core
+           - 64 CPU cores
+           - 1 GPU
+           - GPU speedup
+         * - (512, 512)
+           - 5.472 ms
+           - 517.722 μs
+           - 115.805 μs
+           - ~47x / ~5x
+         * - (1024, 1024)
+           - 43.364 ms
+           - 2.929 ms
+           - 173.316 μs
+           - ~250x / ~17x
+         * - (2048, 2048)
+           - 344.364 ms
+           - 30.081 ms
+           - 866.348 μs
+           - ~400x / ~35x
+         * - (4096, 4096)
+           - 3.221 s 
+           - 159.563 ms
+           - 5.910 ms
+           - ~550x / ~27x
 
 Electronic structure calculations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
