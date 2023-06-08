@@ -121,7 +121,7 @@ Intro: WRITEME
 
    .. tab:: OpenMP
 
-         .. literalinclude:: examples/stencil/base/core-omp.cpp 
+         .. literalinclude:: examples/stencil/base/core-off.cpp 
                         :language: cpp
                         :emphasize-lines: 24-26
          
