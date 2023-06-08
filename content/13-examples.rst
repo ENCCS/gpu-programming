@@ -143,7 +143,9 @@ Intro: WRITEME
 
    .. tab:: CUDA
 
-         WRITEME  
+         .. literalinclude:: examples/stencil/cuda/core_cuda.cu 
+                        :language: cpp
+                        :lines: 22-25, 51-60
 
 
 For kernel-based models, the approach above is grossly inefficient.
