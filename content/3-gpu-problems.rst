@@ -5,7 +5,7 @@ What problems fit to GPU?
 
 .. questions::
 
-   - What are the strenghts and weaknesses of GPUs?
+   - What are the strengths and weaknesses of GPUs?
    - What makes a particular problem suitable for GPU-porting?
    - Why are GPUs so ubiquitous in machine learning applications?
 

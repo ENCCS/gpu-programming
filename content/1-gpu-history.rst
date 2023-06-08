@@ -117,7 +117,7 @@ Improved energy efficiency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
-which can result in significant energy savings.
+which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2023/06/>`__.
 
 Cost-effectiveness 
 ^^^^^^^^^^^^^^^^^^

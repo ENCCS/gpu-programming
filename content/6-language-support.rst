@@ -166,7 +166,7 @@ performance using the `BenchmarkTools package <https://github.com/JuliaCI/Benchm
          A_d = CuArray(A);
 
          @btime $A * $A;
-         @btime $A_d * $A_d;
+         @btime CUDA.@sync $A_d * $A_d;
 
    .. group-tab:: AMD
 
@@ -179,7 +179,10 @@ performance using the `BenchmarkTools package <https://github.com/JuliaCI/Benchm
          A_d = ROCArray(A);
       
          @btime $A * $A;
-         @btime $A_d * $A_d;
+         @btime begin
+            $A_d * $A_d;
+            AMDGPU.synchronize()
+         end
 
    .. group-tab:: Intel
 
