@@ -1310,17 +1310,72 @@ For a detail analysis of how to optimize reduction operations in CUDA/HIP check 
 
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
-CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
+CUDA/HIP streams are independent execution units, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
 
 Consider a case which involves copying data from CPU to GPU, computations and then copying back the result to GPU. Without streams nothing can be overlap. 
+
+Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. 
 
 .. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
 
-Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
-Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
+After the first and second stream copy data to the GPU, the GPU is practically occupied all time. 
 
+Take for example the vector addition code above. Instead of performing the addition in one call one can split the ork in several parts and try to execute them concurently.
+
+.. tabs:: 
+
+         
+   ..  group-tab:: CUDA
+
+      .. code-block:: C++
+         
+         // Distribute kernel for 'n_streams' streams, and record each stream's timing
+         for (int i = 0; i < n_streams; ++i) {
+           int offset = i * stream_size;
+           cudaEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
+           cudaMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
+           cudaMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
+           vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
+           cudaMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), cudaMemcpyDeviceToHost, stream[i]);
+           cudaEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
+         }
+      
+   ..  group-tab:: HIP
+
+      .. code-block:: C++    
+         
+         // Distribute kernel for 'n_streams' streams, and record each stream's timing
+         for (int i = 0; i < n_streams; ++i) {
+           int offset = i * stream_size;
+           hipEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
+           hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
+                  hipMemcpyHostToDevice);
+           hipMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
+           hipMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
+           vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
+           hipMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), hipMemcpyDeviceToHost, stream[i]);
+           hipEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
+         }
+         ...
+
+   ..  group-tab:: Kokkos
+
+      .. code-block:: C++
+      
+   ..  group-tab:: OpenCL
+
+      .. code-block:: C++
+      
+   ..  group-tab:: SYCL
+
+      .. code-block:: C++
+
+
+
+We can see that significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
+Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
 In order to learn more about how to improve performance using streams check the NVIDIA blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
 
 .. admonition:: Streams - In short
