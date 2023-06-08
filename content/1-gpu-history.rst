@@ -84,7 +84,7 @@ with an accompanying change in the programming paradigm.
 .. figure:: img/history/CPU_and_GPU_separated.png
    :align: center
 
-   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/>`__.
+   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/lesson-gpu-programming/>`__.
 
 
 A look at the Top-500 list
@@ -97,13 +97,12 @@ The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most 
 - **Rpeak** - Theoretical peak performance
 - **Power** - Power consumption
 
-All systems in the top-5 positions contain GPUs from AMD or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
-
 .. figure:: img/history/top-5.png
    :align: center
 
    Snapshot from the `Top500 list from June, 2023 <https://www.top500.org/lists/top500/2023/06/>`__.
 
+All systems in the top-5 positions contain GPUs from AMD or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
 
 
 Why GPUs?
@@ -118,7 +117,7 @@ Improved energy efficiency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
-which can result in significant energy savings.
+which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2023/06/>`__.
 
 Cost-effectiveness 
 ^^^^^^^^^^^^^^^^^^
