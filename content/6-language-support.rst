@@ -313,6 +313,8 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
       .. code-block:: julia
       
+         using CUDA
+
          function vadd!(C, A, B)
              i = threadIdx().x + (blockIdx().x - 1) * blockDim().x        
              if i <= length(A)
@@ -337,10 +339,11 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
       .. code-block:: julia
       
-         # WARNING: this is still untested on AMD GPUs
+         using AMDGPU
+
          function vadd!(C, A, B)
              i = workitemIdx().x + (workgroupIdx().x - 1) * workgroupDim().x 
-             if i <= length(a)
+             if i <= length(A)
                  @inbounds C[i] = A[i] + B[i]
              end
              return
@@ -351,7 +354,7 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
          nthreads = 256
          # smallest integer larger than or equal to length(A)/threads
-         numblocks = cld(length(A_d), nthreads)
+         numblocks = cld(length(A), nthreads)
       
          # run using 256 threads
          @roc groupsize=nthreads blocks=numblocks vadd!(C, A, B)
@@ -362,6 +365,7 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
       .. code-block:: julia
 
+         using oneAPI
          # WARNING: this is still untested on Intel GPUs
          function vadd!(C, A, B)
              i = get_global_id()
@@ -386,6 +390,8 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
 
       .. code-block:: julia
       
+         using Metal
+
          function vadd!(C, A, B)
              i = thread_position_in_grid_1d()
              if i <= length(A)
