@@ -79,8 +79,8 @@ Exposing parallelism
 
 The are two types of parallelism that can be explored.
 The data parallelism is when the data can be distributed across computational units that can run in parallel.
-They than process the data applying the same or very similar operation to different data elements.
-A common example is applying a blur filter to an image --- the same function is applied to all the pixels on the image.
+The units process the data by applying the same or very similar operation to different data elements.
+A common example is applying a blur filter to an image --- the same function is applied to all the pixels on an image.
 This parallelism is natural for the GPU, where the same instruction set is executed in multiple :abbr:`threads`.
 
 .. figure:: img/concepts/ENCCS-OpenACC-CUDA_TaskParallelism_Explanation.png
