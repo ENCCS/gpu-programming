@@ -123,7 +123,7 @@ Intro: WRITEME
 
          .. literalinclude:: examples/stencil/base/core-off.cpp 
                         :language: cpp
-                        :emphasize-lines: 24-26
+                        :emphasize-lines: 25-26
          
    .. tab:: SYCL
 
@@ -161,13 +161,13 @@ But overhead can be reduced with some modifications to the structure of the prog
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
-                        :emphasize-lines: 13-14,28-29
+                        :emphasize-lines: 13-14,27-28,41-55
 
    .. tab:: SYCL: Main function
 
          .. literalinclude:: examples/stencil/sycl/main.cpp 
                         :language: cpp
-                        :emphasize-lines: 13-27,53-55,65,70,72
+                        :emphasize-lines: 38-39,44-45,51,56,59,75
 
 
 Exercises and discussion on comparison/ optimization perspectives: WRITEME
