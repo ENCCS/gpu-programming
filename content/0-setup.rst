@@ -51,6 +51,30 @@ Monitor your job: ``squeue --me``
 
 Kill job: ``scancel <JOB_ID>``
 
+Running Julia on LUMI
+^^^^^^^^^^^^^^^^^^^^^
+
+To run Julia with AMDGPU.jl on LUMI:
+
+.. code-block:: console
+
+   $ srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+   
+   $ module purge
+   $ module use /appl/local/csc/modulefiles
+   $ module load julia/1.9.0
+
+Then in Julia session:
+
+.. code-block:: julia
+
+   # only needed in your first Julia session:
+   using Pkg
+   Pkg.resolve()
+
+   # load AMDGPU
+   using AMDGPU
+
 Access to code examples
 -----------------------
 
