@@ -1310,19 +1310,19 @@ For a detail analysis of how to optimize reduction operations in CUDA/HIP check 
 
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
-CUDA/HIP streams are independent execution units, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
+Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. CUDA/HIP streams are independent execution units, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
 
-Consider a case which involves copying data from CPU to GPU, computations and then copying back the result to GPU. Without streams nothing can be overlap. 
+Consider the previous case of vector addition, which involves copying data from CPU to GPU, computations and then copying back the result to GPU. In this way nothing can be overlap. 
 
-Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. 
+We can improve the performance by dividin the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. 
 
 .. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
 
-After the first and second stream copy data to the GPU, the GPU is practically occupied all time. 
+After the first and second stream copy data to the GPU, the GPU is practically occupied all time. We can see that significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
 
-Take for example the vector addition code above. Instead of performing the addition in one call one can split the ork in several parts and try to execute them concurently.
+We can apply this to the vector addition problem above. Instead of performing the addition in one call w can split the work in several parts and execute them concurently.
 
 .. tabs:: 
 
@@ -1373,8 +1373,6 @@ Take for example the vector addition code above. Instead of performing the addit
       .. code-block:: C++
 
 
-
-We can see that significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
 Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
 In order to learn more about how to improve performance using streams check the NVIDIA blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
 
