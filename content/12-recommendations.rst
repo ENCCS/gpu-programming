@@ -76,3 +76,9 @@ The decision of choosing between different GPU programming frameworks often depe
 
 By keeping these considerations in mind, you can make a more informed decision and choose a GPU programming 
 framework that best suits your needs.
+
+.. discussion:: Question and discussion time
+
+   - Has your mental model of how GPUs work and how they are programmed changed?
+   - Do you have a better idea about what framework is right for your code?
+   - What questions do you have? Ask us anything!
