@@ -141,6 +141,11 @@ Every :abbr:`thread` is associated with a particular intrinsic index which can b
 
 Apart from being much light weighted there are more differences between GPU threads and CPU threads. GPU :abbr:`threads` are grouped together in groups called :abbr:`warps`. This done at hardware level. 
 
+.. figure:: img/concepts/WARP_SMTU.png
+    :align: center
+    :scale: 40 %
+    
+    
 All memory accesses to the GPU memory are as a group in blocks of specific sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called *coalesced* memory access.
 
 
