@@ -60,6 +60,6 @@ int main(int argc, char **argv)
     // Determine the computation time used for all the iterations
     std::chrono::duration<double> elapsed = stop_clock - start_clock;
     printf("Iterations took %.3f seconds.\n", elapsed.count());
-
+    Q.wait_and_throw();
     return 0;
 }
