@@ -214,7 +214,7 @@ performance using the `BenchmarkTools package <https://github.com/JuliaCI/Benchm
 Vendor libraries
 ^^^^^^^^^^^^^^^^
 
-Support for using GPU vendor libraries from Julia is currently only supported on 
+Support for using GPU vendor libraries from Julia is currently most mature on 
 NVIDIA GPUs. NVIDIA libraries contain precompiled kernels for common 
 operations like matrix multiplication (`cuBLAS`), fast Fourier transforms 
 (`cuFFT`), linear solvers (`cuSOLVER`), etc. These kernels are wrapped
@@ -243,6 +243,12 @@ in ``CUDA.jl`` and can be used directly with ``CuArrays``:
    using CUDA.CUFFT
    fft(A)
 
+``AMDGPU.jl`` currently supports some of the ROCm libraries:
+
+- `rocBLAS` for BLAS support 
+- `rocFFT` for FFT support 
+- `rocRAND` for RNG support 
+- `MIOpen` for DNN support 
 
 Higher-order abstractions
 ^^^^^^^^^^^^^^^^^^^^^^^^^
