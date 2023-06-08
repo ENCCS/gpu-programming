@@ -190,6 +190,13 @@ while **low-level and performance-focused APIs** provide a high level of control
 require more coding effort and expertise.
 
 
+Exercises
+---------
+
+.. challenge:: Discussion
+
+   - Which GPU programming frameworks have you used previously, if any?
+   - What did you find most challenging? What was most useful?
 
 
 .. keypoints::
