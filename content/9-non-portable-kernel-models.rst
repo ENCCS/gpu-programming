@@ -1349,7 +1349,7 @@ We can apply this to the vector addition problem above.
          
          // Distribute kernel for 'n_streams' streams, and record each stream's timing
          for (int i = 0; i < n_streams; ++i) {
-           int offset = i * stream_size;
+           int offset = i * (N/stream_size);
            hipEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
            hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
                   hipMemcpyHostToDevice);
