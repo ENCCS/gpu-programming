@@ -491,7 +491,7 @@ Examples
 
 .. demo:: Demo: Numba ufunc 
    
-   Let's revisit our example during the episode of optimization.
+   Let's look at a simple mathematical problem:
 
    .. tabs::
 
@@ -511,7 +511,7 @@ Examples
             :language: python
 
 
-   Let's benchmark
+   Let's benchmark:
 
    .. tabs::
 
@@ -519,37 +519,42 @@ Examples
 
 	 .. code-block:: python
 
-            import numpy as np
+       import numpy as np
 	    x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
 
 	 .. code-block:: ipython
 
 	    %%timeit -r 1
-            for i in range(10000000):
-                res[i]=f(x[i], x[i])
-            # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
+       for i in range(10000000):
+           res[i]=f(x[i], x[i])
+       # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
 
       .. tab:: Numba cpu
 
 	 .. code-block:: ipython
 
-            import numpy as np
+       import numpy as np
+       import numba
+
 	    x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
+
 	    %timeit res=f_numba_cpu(x, x)
-            # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
+       # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
       .. tab:: Numba gpu
 
 	 .. code-block:: ipython
 
-            import numpy as np
-            import numba
-            x = np.random.rand(10000000)
+       import numpy as np
+       import numba
+
+       x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
+
 	    %timeit res=f_numba_gpu(x, x)
-            # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+       # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
 
 Numba ``@vectorize`` is limited to scalar arguments in the core function, for multi-dimensional arrays arguments, 
@@ -558,8 +563,8 @@ Numba ``@vectorize`` is limited to scalar arguments in the core function, for mu
 
 .. warning::
 
-   You should never implement such things like matrix multiplication by yourself, 
-   there are plenty of existing libraries available. 
+   One should never implement things like matrix multiplication by oneself 
+   since there are plenty of highly optimized libraries available! 
 
 
 .. demo:: Numba gufunc  
@@ -623,11 +628,9 @@ Numba ``@vectorize`` is limited to scalar arguments in the core function, for mu
    - Data was copied back from GPU to CPU
 
 
-Using ufuncs (or gfuncs) for GPU processing can be straightforward, but this approach may not always yield 
-optimal performance due to automatic handling of data transfer to and from the GPU, as well as kernel launching. 
-Additionally, in practice, not every function can be constructed as a ufunc. To gain greater control and 
-flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the 
-*Python for HPDA* resource linked below for guidance on implementing such techniques using Numba.
+Using ufuncs (or gfuncs) for GPU processing can be straightforward, but this approach may not always yield optimal performance due to automatic handling of data transfer to and from the GPU, as well as kernel launching. Additionally, in practice, not every function can be constructed as a ufunc. 
+
+To gain greater control and flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the *Python for HPDA* resource linked below for guidance on implementing such techniques using Numba.
 
 Exercises
 ---------
@@ -646,5 +649,4 @@ See also
 * `Python for HPDA (ENCCS) <https://enccs.github.io/hpda-python/parallel-computing/>`__
 * `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`__
 * `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
-* `CuPy <https://cupy.dev/>`__
 
