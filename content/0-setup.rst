@@ -75,6 +75,22 @@ Then in Julia session:
    # load AMDGPU
    using AMDGPU
 
+Running on Google Colab
+-----------------------
+
+Google Colaboratory, commonly referred to as "Colab", is a cloud-based Jupyter notebook environment which runs in your web browser. Using it requires login with a Google account.
+
+This is how you can get access to NVIDIA GPUs on Colab:
+
+- Visit https://colab.research.google.com/ and sign in to your Google account
+- In the menu in front of you, click "New notebook" in the bottom right corner
+- After the notebook loads, go to the "Runtime" menu at the top and select "Change runtime type"
+- Select "GPU" under "Hardware accelerator" and choose an available type of NVIDIA GPU (e.g. T4)
+- Click "Save". The runtime takes a few seconds to load - you can see the status in the top right corner
+- After the runtime has loaded, you can type ``!nvidia-smi`` to see information about the GPU.
+- You can now write Python code that runs on GPUs through e.g. the numba library.
+
+
 Access to code examples
 -----------------------
 
