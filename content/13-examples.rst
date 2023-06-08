@@ -145,7 +145,8 @@ Intro: WRITEME
 
          .. literalinclude:: examples/stencil/cuda/core_cuda.cu 
                         :language: cpp
-                        :lines: 22-25, 51-60
+                        :lines: 1-61
+                        :emphasize-lines: 22-25, 51-60
 
 
 For kernel-based models, the approach above is grossly inefficient.
