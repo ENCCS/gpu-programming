@@ -97,13 +97,12 @@ The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most 
 - **Rpeak** - Theoretical peak performance
 - **Power** - Power consumption
 
-All systems in the top-5 positions contain GPUs from AMD or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
-
 .. figure:: img/history/top-5.png
    :align: center
 
    Snapshot from the `Top500 list from June, 2023 <https://www.top500.org/lists/top500/2023/06/>`__.
 
+All systems in the top-5 positions contain GPUs from AMD or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
 
 
 Why GPUs?
