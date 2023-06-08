@@ -81,6 +81,9 @@ Some types of problems that do not fit well on a GPU include:
 Examples of GPU acceleration
 ----------------------------
 
+To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
+(if we're lucky!), let's look at a few case examples.
+
 .. discussion:: Effect of array size
    
    Consider the case of matrix multiplication in the Julia language:
@@ -157,8 +160,6 @@ VASP is a popular software package used for electronic structure calculations. T
 
    Total energy usage comparison when running VASP on Perlmutter and Cori. The vertical axis shows the energy used by VASP benchmark jobs on Perlmutter GPUs (blue bars), CPUs (red bars), Cori KNL (yellow bars), and Cori Haswell (green bars) in ratio to the Cori Haswell usage.  (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs)
 
-To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
-(if we're lucky!), let's look at a few simple cases:
 
 
 
