@@ -1,3 +1,4 @@
+// (c) 2023 ENCCS, CSC and the contributors
 #include "heat.h"
 
 // Update the temperature values using five-point stencil

@@ -1,5 +1,5 @@
 // Main routine for heat equation solver in 2D.
-
+// (c) 2023 ENCCS, CSC and the contributors
 #include <cstdio>
 #include <omp.h>
 

@@ -152,7 +152,7 @@ one time for each branch. When different threads within a single :abbr:`warp`
 take different execution paths based on a conditional statement (if), both
 branches are executed sequentially, with some threads being active while
 others are inactive. On architectures without lock-step execution, such 
-as Nvidia Volta / Turing (e.g., GeForce 16xx-series) or newer, :abbr:`warp`
+as NVIDIA Volta / Turing (e.g., GeForce 16xx-series) or newer, :abbr:`warp`
 divergence is less costly.
 
 There is another level in the GPU :abbr:`threads` hierarchy. The :abbr:`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT (single instruction multiple threads) units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in a coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
@@ -204,7 +204,7 @@ For a vector addition example this would be used as follow ``c[index]=a[index]+b
 Terminology
 -----------
 
-At the moment there are three major GPU producers: Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
+At the moment there are three major GPU producers: NVIDIA, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
 Software
 ~~~~~~~~
