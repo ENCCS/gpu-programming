@@ -84,7 +84,7 @@ with an accompanying change in the programming paradigm.
 .. figure:: img/history/CPU_and_GPU_separated.png
    :align: center
 
-   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/>`__.
+   Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/lesson-gpu-programming/>`__.
 
 
 A look at the Top-500 list
