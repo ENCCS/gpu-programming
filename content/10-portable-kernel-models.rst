@@ -496,18 +496,6 @@ Parallel for with Unified Memory
            return 0;
          }
 
-   .. tab:: CUDA
-
-      .. code-block:: C
-
-         WRITEME
-
-   .. tab:: HIP
-
-      .. code-block:: C
-
-         WRITEME
-
 Parallel for with GPU buffers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -686,18 +674,6 @@ Parallel for with GPU buffers
            return 0;
          }
 
-   .. tab:: CUDA
-
-      .. code-block:: C
-
-         WRITEME
-
-   .. tab:: HIP
-
-      .. code-block:: C
-
-         WRITEME
-
 Asynchronous parallel for kernels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -851,18 +827,6 @@ Asynchronous parallel for kernels
            return 0;
          }
 
-   .. tab:: CUDA
-
-      .. code-block:: C++
-
-         WRITEME
-
-   .. tab:: HIP
-
-      .. code-block:: C++
-
-         WRITEME
-
 Reduction
 ~~~~~~~~~
 .. tabs:: 
@@ -1014,18 +978,6 @@ Reduction
            // Print results
            printf("sum = %d\n", sum);
          }
-
-   .. tab:: CUDA
-
-      .. code-block:: C
-
-         WRITEME
-
-   .. tab:: HIP
-
-      .. code-block:: C
-
-         WRITEME
 
 Pros and cons of cross-platform portability ecosystems
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
