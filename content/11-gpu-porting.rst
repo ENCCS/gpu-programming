@@ -191,6 +191,8 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
   Here the cuda path and the path to the ``*includes*`` and ``*defines*`` files should be specified. The CUDA source code and the generated output code are `program.cu` and `hip_program.cu.hip`, respectively.
   
   The syntax for the compilation process of the generated hip code is similar to the one described in the previous section (see the **Step 3** in the hipify-perl section).
+  
+Exercises for how to use ``Hipify-perl`` and ``Hipify-clang`` tools can be accessed `here <examples/exercise_hipify>`_.  
 
 Translating OpenACC to OpenMP with Clacc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -247,7 +249,7 @@ For more advanced usage, which includes for instance modifying ``Clacc``, we ref
   
            cc -fopenmp -o executable openMP_code.c
 
-
+Exercises for how to use ``Clacc`` tool can be accessed `here <examples/exercise_clacc>`_.
 
 Translating CUDA to SYCL/DPC++ with SYCLomatic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

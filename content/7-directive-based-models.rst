@@ -166,6 +166,33 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 
 
+
+
+.. keypoints::
+
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+      :widths: 25 25 25 25
+      :header-rows: 1
+
+      * - NVIDIA
+        - AMD
+        - Fortran OpenACC/OpenMP
+        - C/C++ OpenMP
+      * - Threadblock
+        - Work group
+        - gang/teams
+        - teams
+      * - Wrap
+        - Wavefront
+        - worker/simd
+        - parallel for simd
+      * - Thread
+        - Work item
+        - vector/simd
+        - parallel for simd
+
+
+
 .. exercise:: Exercise: Change the levels of parallelism
 
    In this exercise we would like to change the levels of parallelism using clauses. 
@@ -511,11 +538,11 @@ with much more freedom in creating and deleting of data on the device at any app
 .. keypoints::
 
   Structured Data Region
-    - start and end points within a single subroutine
+    - Start and end points within a single subroutine
     - Memory exists within the data region
 
   Unstructured Data Region
-    - multiple start and end points across different subroutines
+    - Multiple start and end points across different subroutines
     - Memory exists until explicitly deallocated
 
 
@@ -591,12 +618,12 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
 .. note::
 
-    - ``UPDATE`` directive can only be used in host code since data movement must be initiated from the host, i.e. it may not appear inside of a compute region.
+    - ``update`` directive can only be used in host code since data movement must be initiated from the host, i.e. it may not appear inside of a compute region.
     - in OpenACC, motion-clause "host" has been deprecated and renamed "self"
 
 
 
-.. challenge:: Exercise:  ``UPDATE``
+.. challenge:: Exercise:  ``update``
 
    Trying to figure out the variable values on host and device at each check point.
 
@@ -960,8 +987,8 @@ Optimize Data Transfers
 
 
 
-Pros and cons of directive-based frameworks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Pros of directive-based frameworks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Incremental programming
 - Porting of existing software requires less work
@@ -972,7 +999,7 @@ Pros and cons of directive-based frameworks
 
 
 See also
---------
+~~~~~~~~
 
 - `ENCCS lesson on OpenACC <https://enccs.github.io/openacc/>`__
 - `ENCCS lesson on OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__

@@ -5,7 +5,7 @@ What problems fit to GPU?
 
 .. questions::
 
-   - What are the strenghts and weaknesses of GPUs?
+   - What are the strengths and weaknesses of GPUs?
    - What makes a particular problem suitable for GPU-porting?
    - Why are GPUs so ubiquitous in machine learning applications?
 
@@ -81,8 +81,72 @@ Some types of problems that do not fit well on a GPU include:
 Examples of GPU acceleration
 ----------------------------
 
-FIXME: show a few simple examples of CPU vs GPU versions of algorithms and roughly what speedup 
-one can get 
+To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
+(if we're lucky!), let's look at a few case examples.
+
+.. discussion:: Effect of array size
+   
+   Consider the case of matrix multiplication in the Julia language:
+
+   .. code-block:: julia
+
+      using AMDGPU
+      using BenchmarkTools
+
+      N = [9, 10, 11, 12]
+
+      for n in N
+         A = rand(2^n, 2^n); A_d = ROCArray(A);
+
+         @btime $A * $A;
+
+         @btime begin
+            $A_d * $A_d;
+            AMDGPU.synchronize()
+         end         
+      end
+
+
+   - How much faster do you think the GPU version is compared to running on a single CPU core? 
+   - Julia automatically parallelises matrix multiplication over available CPU cores. Will the GPU version be faster than running on 64 cores?
+   - Does the size of the array affect how much the performance improves?
+
+   .. solution::
+
+      Example results from running on LUMI (MI250X AMD GPU, 64-core AMD Trento CPUs):
+
+      .. list-table:: GPU acceleration for matrix multiply in Julia
+         :widths: 25 25 25 25 25
+         :header-rows: 1
+      
+         * - Matrix size
+           - 1 CPU core
+           - 64 CPU cores
+           - 1 GPU
+           - GPU speedup
+         * - (512, 512)
+           - 5.472 ms
+           - 517.722 μs
+           - 115.805 μs
+           - ~47x / ~5x
+         * - (1024, 1024)
+           - 43.364 ms
+           - 2.929 ms
+           - 173.316 μs
+           - ~250x / ~17x
+         * - (2048, 2048)
+           - 344.364 ms
+           - 30.081 ms
+           - 866.348 μs
+           - ~400x / ~35x
+         * - (4096, 4096)
+           - 3.221 s 
+           - 159.563 ms
+           - 5.910 ms
+           - ~550x / ~27x
+
+Electronic structure calculations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 VASP is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the Perlmutter and Cori supercomputers, along with an analysis of total energy usage.
 
@@ -96,8 +160,6 @@ VASP is a popular software package used for electronic structure calculations. T
 
    Total energy usage comparison when running VASP on Perlmutter and Cori. The vertical axis shows the energy used by VASP benchmark jobs on Perlmutter GPUs (blue bars), CPUs (red bars), Cori KNL (yellow bars), and Cori Haswell (green bars) in ratio to the Cori Haswell usage.  (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs)
 
-To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU 
-(if we're lucky!), let's look at a few simple cases:
 
 
 
@@ -120,7 +182,7 @@ processing (digestion) of the ERIs, one algorithm to do this task is as follows:
     :width: 200
     :align: center
 
-    Algorithm for processing ERIs [`JCTC, 17, 7486, (2021) <https://doi.org/10.1021/acs.jctc.1c00720>`__]
+    Algorithm for processing ERIs [see `JCTC, 17, 7486, (2021) <https://doi.org/10.1021/acs.jctc.1c00720>`__ for details]
 
 This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
 there are symmetries and properties of the integrals that could be used to rearrange the loops in

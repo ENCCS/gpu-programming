@@ -32,6 +32,11 @@ to learn and use for their projects. Specifically, you will:
    Familiarity with one or more programming languages like C/C++, Fortran, Python or 
    Julia is recommended.
    
+.. toctree::
+   :maxdepth: 1
+   :caption: Prerequisites
+
+   0-setup
 
 .. toctree::
    :maxdepth: 1

@@ -79,8 +79,8 @@ Exposing parallelism
 
 The are two types of parallelism that can be explored.
 The data parallelism is when the data can be distributed across computational units that can run in parallel.
-They than process the data applying the same or very similar operation to different data elements.
-A common example is applying a blur filter to an image --- the same function is applied to all the pixels on the image.
+The units process the data by applying the same or very similar operation to different data elements.
+A common example is applying a blur filter to an image --- the same function is applied to all the pixels on an image.
 This parallelism is natural for the GPU, where the same instruction set is executed in multiple :abbr:`threads`.
 
 .. figure:: img/concepts/ENCCS-OpenACC-CUDA_TaskParallelism_Explanation.png
@@ -141,6 +141,11 @@ Every :abbr:`thread` is associated with a particular intrinsic index which can b
 
 Apart from being much light weighted there are more differences between GPU threads and CPU threads. GPU :abbr:`threads` are grouped together in groups called :abbr:`warps`. This done at hardware level. 
 
+.. figure:: img/concepts/WARP_SMTU.png
+    :align: center
+    :scale: 40 %
+    
+    
 All memory accesses to the GPU memory are as a group in blocks of specific sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called *coalesced* memory access.
 
 
@@ -152,7 +157,7 @@ one time for each branch. When different threads within a single :abbr:`warp`
 take different execution paths based on a conditional statement (if), both
 branches are executed sequentially, with some threads being active while
 others are inactive. On architectures without lock-step execution, such 
-as Nvidia Volta / Turing (e.g., GeForce 16xx-series) or newer, :abbr:`warp`
+as NVIDIA Volta / Turing (e.g., GeForce 16xx-series) or newer, :abbr:`warp`
 divergence is less costly.
 
 There is another level in the GPU :abbr:`threads` hierarchy. The :abbr:`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT (single instruction multiple threads) units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in a coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
@@ -204,7 +209,7 @@ For a vector addition example this would be used as follow ``c[index]=a[index]+b
 Terminology
 -----------
 
-At the moment there are three major GPU producers: Nvidia, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
+At the moment there are three major GPU producers: NVIDIA, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
 Software
 ~~~~~~~~
@@ -239,6 +244,85 @@ Software
    Same applies to block dimensions and indexing. 
 
 
+Exercises
+---------
+
+.. challenge:: What are threads in the context of shared memory architectures?
+
+   a) Independent execution units with their own memory address spaces
+   b) Light execution units with shared memory address spaces
+   c) Communication devices between separate memory units
+   d) Programming models for distributed memory machines
+
+   .. solution::
+
+      Correct answer:  *b) Light execution units with shared memory address spaces*
+
+.. challenge:: What is data parallelism?
+
+   a) Distributing data across computational units that run in parallel, applying the same or similar operations to different data elements.
+   b) Distributing tasks across computational units that run in parallel, applying different operations to the same data elements.
+   c) Distributing data across computational units that run sequentially, applying the same operation to all data elements.
+   d) Distributing tasks across computational units that run sequentially, applying different operations to different data elements.
+
+   .. solution::
+
+      Correct answer: *a) Distributing data across computational units that run in parallel, applying the same or similar operations to different data elements.*
+
+.. challenge:: What type of parallelism is natural for GPU?
+
+   a) Task Parallelism
+   b) Data Parallelism
+   c) Both data and task parallelism
+   d) Neither data nor task parallelism
+
+   .. solution::
+      
+      Correct answer: *b) Data Parallelism*
+
+.. challenge:: What is a kernel in the context of GPU execution?
+
+   a) A specific section of the CPU used for memory operations.
+   b) A specific section of the GPU used for memory operations.
+   c) A type of thread that operates on the GPU.
+   d) A function that is executed simultaneously by tens of thousands of threads on GPU cores.   
+
+   .. solution:: 
+
+      Correct answer: *d) A function that is executed simultaneously by tens of thousands of threads on GPU cores.*
+
+.. challenge:: What is coalesced memory access?
+
+   a) It's when CUDA threads in the same warp access elements of the data which are adjacent in the memory.
+   b) It's when CUDA threads in different warps access elements of the data which are far in the memory.
+   c) It's when all threads have access to the global GPU memory.
+   d) It's when threads in a warp perform different operations.
+
+   .. solution::
+
+      Correct answer: *a) It's when CUDA threads in the same warp access elements of the data which are adjacent in the memory.*
+
+.. challenge:: What is the function of shared memory in the context of GPU execution?
+
+   a) It's used to store global memory.
+   b) It's used to store all the threads in a block.
+   c) It can be used to "cache" data that is used by more than one thread, avoiding multiple reads from the global memory.
+   d) It's used to store all the CUDA cores.
+
+   .. solution::
+
+      Correct answer: *c) It can be used to "cache" data that is used by more than one thread, avoiding multiple reads from the global memory.*
+
+.. challenge:: What is the significance of over-subscribing the GPU?
+
+   a) It reduces the overall performance of the GPU.
+   b) It ensures that there are more blocks than SMPs present on the device, helping to hide latencies and ensure high occupancy of the GPU.
+   c) It leads to a memory overflow in the GPU.
+   d) It ensures that there are more SMPs than blocks present on the device.
+
+   .. solution::
+
+      Correct answer: *b) It ensures that there are more blocks than SMPs present on the device, helping to hide latencies and ensure high occupancy of the GPU.*
 
 .. keypoints::
 
