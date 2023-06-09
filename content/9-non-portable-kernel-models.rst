@@ -1093,7 +1093,9 @@ Checking the index `in_index` we see that two adjacent threads (`threadIx.x, thr
 We can improve the code by reading the data in a `coalesced` way, save it in the shared memory row by row and then write in the global memory column by column.
 
 
-.. tabs:: 
+
+
+ .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
 
