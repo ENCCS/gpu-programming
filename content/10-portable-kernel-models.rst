@@ -5,13 +5,13 @@ Portable kernel-based models
 
 .. questions::
 
-   - q1
-   - q2
+   - How to program GPUs with Kokkos, OpenCL, and SYCL?
+   - What are the differences between these programming models.
 
 .. objectives::
 
-   - o1
-   - o2
+   - Be able to use portable kernel-based models to write simple codes
+   - Understand how different approaches to memory and syncronization in Kokkos and SYCL work
 
 .. instructor-note::
 
@@ -1006,5 +1006,5 @@ Separate-source kernel models (OpenCL)
 
 .. keypoints::
 
-   - k1
-   - k2
+   - General code organization is similar to non-portable kernel-based models.
+   - As long as no vendor-specific functionality is used, the same code can run on any GPU.
