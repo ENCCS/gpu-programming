@@ -138,7 +138,7 @@ Below we have the most basic example of CUDA and HIP, the "Hello World" program:
                      << gpu_devices[0].get_info<sycl::info::device::vendor>()
                      << ">, the first of " << count << " devices." << std::endl;
            return 0;
-        }
+         }
 
 
 
@@ -691,14 +691,6 @@ For a while already GPUs support unified memory, which allows to use the same po
            return 0;
          }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -826,7 +818,7 @@ First as a reference we use a simple kernel which copy the data from one array t
 
         #include <stdio.h>
         #include <cuda.h>
-        #inclde <cuda_runtime.h>
+        #include <cuda_runtime.h>
         #include <math.h>
         #include <cstdlib>
         #include <vector>
@@ -978,14 +970,6 @@ First as a reference we use a simple kernel which copy the data from one array t
           return 0;
         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1089,14 +1073,6 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
            out[out_index] = in[in_index];
         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1141,14 +1117,6 @@ We can improve the code by reading the data in a `coalesced` way, save it in the
           out[out_index] = tile[threadIdx.x][threadIdx.y];
        }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1212,17 +1180,9 @@ Shared memory is composed of `banks`. Each banks can service only one request at
 
            __syncthreads();
 
-          out[out_index] = tile[threadIdx.x][threadIdx.y];
-       }
+           out[out_index] = tile[threadIdx.x][threadIdx.y];
+         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1304,14 +1264,6 @@ At the block level we still have to perform a reduction in an efficient way. Doi
            }
          }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1396,6 +1348,7 @@ We can improve the performance by dividin the problem in smaller independent par
 After the first and second stream copy data to the GPU, the GPU is practically occupied all time. We can see that significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
 
 We can apply this to the vector addition problem above. 
+
 .. tabs:: 
 
          
@@ -1431,18 +1384,6 @@ We can apply this to the vector addition problem above.
            hipEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
          }
          ...
-
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
-   ..  group-tab:: SYCL
-
-      .. code-block:: C++
 
 Instead of having one copy to gpu, one execution of the kernel and one copy back, we now have several of these calls independent of each other. 
 
