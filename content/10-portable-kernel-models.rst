@@ -107,6 +107,18 @@ OpenCL supports two modes for compiling the programs: online and offline. Online
 
 OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel oneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``icx cl_devices.c -lOpenCL`` (Intel oneAPI) or ``nvcc cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply ``gcc cl_devices.c -lOpenCL`` (or ``g++`` when using C++ API), as long as the required libraries and headers are installed in a standard locations.
 
+The AMD compiler installed on LUMI has no support for OpenCL C++ API, so you would have to use C API.
+To compile a program, you can use the AMD compilers on a GPU partition:
+
+.. code-block:: console
+
+    $ module load LUMI/23.03 partition/G
+    $ module load rocm/5.2.3
+    $ module load PrgEnv-cray-amd
+    $ CC program.cpp -lOpenCL -o program
+    $ ./file
+
+
 OpenCL programming
 ~~~~~~~~~~~~~~~~~~
 OpenCL programs consist of two parts: a host program that runs on the host device (usually a CPU) and one or more kernels that run on compute devices (such as GPUs). The host program is responsible for the tasks such as managing the devices for the selected platform, allocating memory objects, building and enqueueing kernels, and managing memory objects. 
@@ -169,7 +181,7 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
       .. code-block:: C++
          
          cl::Program program(context, kernel_source);
-         program.build(device);
+         program.build({device});
          cl::Kernel kernel_dot(program, "dot");
 
    .. tab:: OpenCL kernel build example (C API)
@@ -381,77 +393,72 @@ Parallel for with Unified Memory
 
    .. tab:: OpenCL
 
-      .. code-block:: C++
+      .. code-block:: C
 
-         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
-         #define CL_HPP_TARGET_OPENCL_VERSION 200
-         #include <CL/opencl.hpp>
+         // We're using OpenCL C API here, since SVM support in C++ API is unstable on ROCm
+         #define CL_TARGET_OPENCL_VERSION 220
+         #include <CL/cl.h>
+         #include <stdio.h>
          
          // For larger kernels, we can store source in a separate file
-         static const std::string kernel_source = R"(
-           __kernel void dot(__global const int *a, __global const int *b, __global int *c) {
-             int i = get_global_id(0);
-             c[i] = a[i] * b[i];
-           }
-         )";
+         static const char* kernel_source = "                                                 \
+           __kernel void dot(__global const int *a, __global const int *b, __global int *c) { \
+             int i = get_global_id(0);                                                        \
+             c[i] = a[i] * b[i];                                                              \
+           }                                                                                  \
+         ";
          
          int main(int argc, char *argv[]) {
          
            // Initialize OpenCL
-           cl::Device device = cl::Device::getDefault();
-           cl::Context context(device);
-           cl::CommandQueue queue(context, device);
-
-           // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-           cl::CommandQueue::setDefault(queue);
+           cl_platform_id platform;
+           clGetPlatformIDs(1, &platform, NULL);
+           cl_device_id device;
+           clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+           cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
+           cl_command_queue queue = clCreateCommandQueue(context, device, 0, NULL);
          
            // Compile OpenCL program for found device.
-           cl::Program program(context, kernel_source);
-           program.build(device);
-           cl::Kernel kernel_dot(program, "dot");
+           cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, NULL);
+           clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+           cl_kernel kernel = clCreateKernel(program, "dot", NULL);
          
-           {
-             // Set problem dimensions
-             unsigned n = 5;
-           
-             // Create SVM buffer objects on host side 
-             cl::SVMAllocator<int, cl::SVMTraitReadOnly<>> svmAllocRead(context);
-             int *a = svmAllocRead.allocate(n);
-             int *b = svmAllocRead.allocate(n);
+           // Set problem dimensions
+           unsigned n = 5;
          
-             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAllocWrite(context);
-             int *c = svmAllocWrite.allocate(n);
-           
-             // Pass arguments to device kernel
-             kernel_dot.setArg(0, a);
-             kernel_dot.setArg(1, b);
-             kernel_dot.setArg(2, c);
-           
-             // Create mappings for host and initialize values
-             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
-             queue.enqueueMapSVM(b, CL_TRUE, CL_MAP_WRITE, n * sizeof(int));
-             for (unsigned i = 0; i < n; i++) {
-               a[i] = i;
-               b[i] = 1;
-             }
-             queue.enqueueUnmapSVM(a);
-             queue.enqueueUnmapSVM(b);
-           
-             // We don't need to apply any offset to thread IDs
-             queue.enqueueNDRangeKernel(kernel_dot, cl::NullRange, cl::NDRange(n), cl::NullRange);
-           
-             // Create mapping for host and print results
-             queue.enqueueMapSVM(c, CL_TRUE, CL_MAP_READ, n * sizeof(int));
-             for (unsigned i = 0; i < n; i++)
-               printf("c[%d] = %d\n", i, c[i]);
-             queue.enqueueUnmapSVM(c);
-           
-             // Free SVM buffers
-             svmAllocRead.deallocate(a, n);
-             svmAllocRead.deallocate(b, n);
-             svmAllocWrite.deallocate(c, n);
+           // Create SVM buffer objects on host side
+           int *a = clSVMAlloc(context, CL_MEM_READ_ONLY, n * sizeof(int), 0);
+           int *b = clSVMAlloc(context, CL_MEM_READ_ONLY, n * sizeof(int), 0);
+           int *c = clSVMAlloc(context, CL_MEM_WRITE_ONLY, n * sizeof(int), 0);
+         
+           // Pass arguments to device kernel
+           clSetKernelArgSVMPointer(kernel, 0, a);
+           clSetKernelArgSVMPointer(kernel, 1, b);
+           clSetKernelArgSVMPointer(kernel, 2, c);
+         
+           // Create mappings for host and initialize values
+           clEnqueueSVMMap(queue, CL_TRUE, CL_MAP_WRITE, a, n * sizeof(int), 0, NULL, NULL);
+           clEnqueueSVMMap(queue, CL_TRUE, CL_MAP_WRITE, b, n * sizeof(int), 0, NULL, NULL);
+           for (unsigned i = 0; i < n; i++) {
+             a[i] = i;
+             b[i] = 1;
            }
+           clEnqueueSVMUnmap(queue, a, 0, NULL, NULL);
+           clEnqueueSVMUnmap(queue, b, 0, NULL, NULL);
+         
+           size_t globalSize = n;
+           clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &globalSize, NULL, 0, NULL, NULL);
+         
+           // Create mapping for host and print results
+           clEnqueueSVMMap(queue, CL_TRUE, CL_MAP_READ, c, n * sizeof(int), 0, NULL, NULL);
+           for (unsigned i = 0; i < n; i++)
+             printf("c[%d] = %d\n", i, c[i]);
+           clEnqueueSVMUnmap(queue, c, 0, NULL, NULL);
+         
+           // Free SVM buffers
+           clSVMFree(context, a);
+           clSVMFree(context, b);
+           clSVMFree(context, c);
          
            return 0;
          }
@@ -559,9 +566,9 @@ Parallel for with GPU buffers
       .. code-block:: C++
 
           // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-          #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+          #define CL_TARGET_OPENCL_VERSION 110
           #define CL_HPP_TARGET_OPENCL_VERSION 110
-          #include <CL/opencl.hpp>
+          #include <CL/cl.hpp>
           
           // For larger kernels, we can store source in a separate file
           static const std::string kernel_source = R"(
@@ -580,7 +587,7 @@ Parallel for with GPU buffers
           
             // Compile OpenCL program for found device.
             cl::Program program(context, kernel_source);
-            program.build(device);
+            program.build({device});
             cl::Kernel kernel_dot(program, "dot");
           
             {
@@ -729,64 +736,61 @@ Asynchronous parallel for kernels
 
    .. tab:: OpenCL
 
-      .. code-block:: C++
+      .. code-block:: C
 
-         // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-         #define CL_HPP_MINIMUM_OPENCL_VERSION 200
-         #define CL_HPP_TARGET_OPENCL_VERSION 200
-         #include <CL/opencl.hpp>
+         // We're using OpenCL C API here, since SVM support in C++ API is unstable on ROCm
+         #define CL_TARGET_OPENCL_VERSION 200
+         #include <CL/cl.h>
+         #include <stdio.h>
          
          // For larger kernels, we can store source in a separate file
-         static const std::string kernel_source = R"(
-           __kernel void async(__global int *a) {
-             int i = get_global_id(0);
-             int region = i / get_global_size(0);
-             a[i] = region + i;
-           }
-         )";
+         static const char* kernel_source = "              \
+                    __kernel void async(__global int *a) { \
+                      int i = get_global_id(0);            \
+                      int region = i / get_global_size(0); \
+                      a[i] = region + i;                   \
+                    }                                      \
+         ";
          
          int main(int argc, char *argv[]) {
-         
            // Initialize OpenCL
-           cl::Device device = cl::Device::getDefault();
-           cl::Context context(device);
-           cl::CommandQueue queue(context, device);
-
-           // This is needed to avoid bug in coarse grain SVMAllocator::allocate()
-           cl::CommandQueue::setDefault(queue);
+           cl_platform_id platform;
+           clGetPlatformIDs(1, &platform, NULL);
+           cl_device_id device;
+           clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+           cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
+           cl_command_queue queue = clCreateCommandQueue(context, device, 0, NULL);
          
            // Compile OpenCL program for found device.
-           cl::Program program(context, kernel_source);
-           program.build(device);
-           cl::Kernel kernel_async(program, "async");
+           cl_program program = clCreateProgramWithSource(context, 1, &kernel_source, NULL, NULL);
+           clBuildProgram(program, 1, &device, NULL, NULL, NULL);
+           cl_kernel kernel = clCreateKernel(program, "async", NULL);
          
-           {
-             // Set problem dimensions
-             unsigned n = 5;
-             unsigned nx = 20;
-           
-             // Create SVM buffer object on host side 
-             cl::SVMAllocator<int, cl::SVMTraitWriteOnly<>> svmAlloc(context);
-             int *a = svmAlloc.allocate(nx);
-           
-             // Pass arguments to device kernel
-             kernel_async.setArg(0, a);
-           
-             // Launch multiple potentially asynchronous kernels on different parts of the array
-             for(unsigned region = 0; region < n; region++) {
-               queue.enqueueNDRangeKernel(kernel_async, cl::NDRange(nx / n * region), 
-                 cl::NDRange(nx / n), cl::NullRange);
-             }
-           
-             // Create mapping for host and print results
-             queue.enqueueMapSVM(a, CL_TRUE, CL_MAP_READ, nx * sizeof(int));
-             for (unsigned i = 0; i < nx; i++)
-               printf("a[%d] = %d\n", i, a[i]);
-             queue.enqueueUnmapSVM(a);
-           
-             // Free SVM buffer
-             svmAlloc.deallocate(a, nx);
+           // Set problem dimensions
+           unsigned n = 5;
+           unsigned nx = 20;
+         
+           // Create SVM buffer objects on host side
+           int *a = clSVMAlloc(context, CL_MEM_WRITE_ONLY, nx * sizeof(int), 0);
+         
+           // Pass arguments to device kernel
+           clSetKernelArgSVMPointer(kernel, 0, a);
+         
+           // Launch multiple potentially asynchronous kernels on different parts of the array
+           for(unsigned region = 0; region < n; region++) {
+             size_t offset = (nx / n) * region;
+             size_t size = nx / n;
+             clEnqueueNDRangeKernel(queue, kernel, 1, &offset, &size, NULL, 0, NULL, NULL);
            }
+         
+           // Create mapping for host and print results
+           clEnqueueSVMMap(queue, CL_TRUE, CL_MAP_READ, a, nx * sizeof(int), 0, NULL, NULL);
+           for (unsigned i = 0; i < nx; i++)
+             printf("a[%d] = %d\n", i, a[i]);
+           clEnqueueSVMUnmap(queue, a, 0, NULL, NULL);
+         
+           // Free SVM buffers
+           clSVMFree(context, a);
          
            return 0;
          }
@@ -870,9 +874,9 @@ Reduction
       .. code-block:: C++
 
          // We're using OpenCL C++ API here; there is also C API in <CL/cl.h>
-         #define CL_HPP_MINIMUM_OPENCL_VERSION 110
+         #define CL_TARGET_OPENCL_VERSION 110
          #define CL_HPP_TARGET_OPENCL_VERSION 110
-         #include <CL/opencl.hpp>
+         #include <CL/cl.hpp>
          
          // For larger kernels, we can store source in a separate file
          static const std::string kernel_source = R"(
@@ -911,7 +915,7 @@ Reduction
          
            // Compile OpenCL program for found device
            cl::Program program(context, kernel_source);
-           program.build(device);
+           program.build({device});
            cl::Kernel kernel_reduce(program, "reduce");
          
            {
@@ -984,6 +988,7 @@ Pros and cons of cross-platform portability ecosystems
 
 General observations
 ~~~~~~~~~~~~~~~~~~~~
+
     - The amount of code duplication is minimized
     - The same code can be compiled to multiple architectures from different vendors
     - Limited learning resources compared to CUDA (Stack Overflow, course material, documentation)
@@ -992,7 +997,7 @@ Lambda-based kernel models (Kokkos, SYCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     - Higher level of abstraction 
-    - Less knowledge of the underlying architecture is needed
+    - Less knowledge of the underlying architecture is needed for initial porting
     - Very nice and readable source code (C++ API)
     - The models are relatively new and not very popular yet
     
@@ -1001,7 +1006,7 @@ Separate-source kernel models (OpenCL)
     - Very good portability
     - Matured ecosystem 
     - Low-level API gives more control and allows fine tuning
-    - Both C, and C++ APIs available (C++ API is less mature)
+    - Both C and C++ APIs available (C++ API is less well supported)
     - The low-level API and separate-source kernel model are less user friendly
 
 .. keypoints::
