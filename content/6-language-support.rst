@@ -519,42 +519,42 @@ Examples
 
 	 .. code-block:: python
 
-       import numpy as np
+            import numpy as np
 	    x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
 
 	 .. code-block:: ipython
 
 	    %%timeit -r 1
-       for i in range(10000000):
-           res[i]=f(x[i], x[i])
-       # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
+            for i in range(10000000):
+                res[i]=f(x[i], x[i])
+                # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
 
       .. tab:: Numba cpu
 
 	 .. code-block:: ipython
 
-       import numpy as np
-       import numba
+            import numpy as np
+            import numba
 
 	    x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
 
 	    %timeit res=f_numba_cpu(x, x)
-       # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
+            # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
       .. tab:: Numba gpu
 
 	 .. code-block:: ipython
 
-       import numpy as np
-       import numba
+            import numpy as np
+            import numba
 
-       x = np.random.rand(10000000)
+            x = np.random.rand(10000000)
 	    res = np.random.rand(10000000)
 
 	    %timeit res=f_numba_gpu(x, x)
-       # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+            # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
 
 Numba ``@vectorize`` is limited to scalar arguments in the core function, for multi-dimensional arrays arguments, 
