@@ -9,7 +9,7 @@ module load rocm/5.3.3
 This will load the newest ROCm on LUMI.
 Now compile the code can be compiled:
 ```
-hipcc -O2 --offload-arch=gfx90a daxpy.cpp
+hipcc -O2 --offload-arch=gfx90a <code>.cpp
 ``` 
 Alternatively one could use `Makefile` in the folder which are set to use the [cray compilers](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/#using-hipcc). 
 ## Running
