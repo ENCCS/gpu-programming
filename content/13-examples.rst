@@ -187,7 +187,7 @@ If we assume the grid point values to be truly independent *for a single time st
    Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script
    (make sure there is no running interactive allocation at the time):
    
-     .. code-block:: console
+   .. code-block:: console
 
       $ sbatch test-omp.slurm
       (to see the job status, enter command below)
@@ -240,14 +240,18 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
 .. figure:: img/stencil/heat-omp-S.png
    :align: center
 
+(SPAN)
+
 .. challenge:: Exercise: heat flow computation scaling
 
    1. How is heat flow computation expected to scale with respect to the number of time steps?
+   
       a. Linearly
       b. Quadratically
       c. Exponentially
    
    2. How is stencil application (grid update) expected to scale with respect to the size of the grid side?
+   
       a. Linearly
       b. Quadratically
       c. Exponentially
@@ -259,10 +263,7 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
    
       1. The answer is a: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
       2. The answer is b: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
-      3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. 
-      However, the effect above arises because multiple active CPU threads start competing for access to RAM. 
-      In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies;
-      increasing grid size might actually help to achieve this.
+      3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. However, the effect above arises because multiple active CPU threads start competing for access to RAM. In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies; increasing grid size might actually help to achieve this.
       
 
 GPU parallelization: first steps
@@ -328,35 +329,37 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       srun ./stencil_naive
       srun ./stencil
 
+
 .. challenge:: Exercise: naive GPU ports
 
    In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. 
-   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`. 
+   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`.
+   
    - How computation times change? 
    - Do the results align to your expectations?
    
    .. solution::
    
-   If you ran the program (or looked up output of earlier sections), you might already know that the GPU-"ported" versions actually run slower than the single-CPU-core version!
-   In fact, the scaling behavior of all three variants is similar and expected, which is a good sign; only the "computation unit cost" is different. 
-   You can compare benchmark summaries in the tabs below:
-   
-   .. tabs::
-   
-      .. tab:: Sequential
-      
-         .. figure:: img/stencil/heat-seq.png
-            :align: center
-   
-      .. tab:: OpenMP (naive)
-      
-         .. figure:: img/stencil/heat-off.png
-            :align: center
-      
-      .. tab:: SYCL (naive)
-      
-         .. figure:: img/stencil/heat-sycl0.png
-            :align: center
+      If you ran the program (or looked up output of earlier sections), you might already know that the GPU-"ported" versions actually run slower than the single-CPU-core version!
+      In fact, the scaling behavior of all three variants is similar and expected, which is a good sign; only the "computation unit cost" is different. 
+      You can compare benchmark summaries in the tabs below:
+
+      .. tabs::
+
+         .. tab:: Sequential
+
+            .. figure:: img/stencil/heat-seq.png
+               :align: center
+
+         .. tab:: OpenMP (naive)
+
+            .. figure:: img/stencil/heat-off.png
+               :align: center
+
+         .. tab:: SYCL (naive)
+
+            .. figure:: img/stencil/heat-sycl0.png
+               :align: center
 
 
 GPU parallelization: data movement
@@ -365,12 +368,14 @@ GPU parallelization: data movement
 Why the porting approach above seems to be grossly inefficient?
 
 On each step, we:
+
 - re-allocate GPU memory, 
 - copy the data from CPU to GPU, 
 - perform the computation, 
 - then copy the data back.
 
 But overhead can be reduced by taking care to minimize data transfers between *host* and *device* memory:
+
 - allocate GPU memory once at the start of the program,
 - only copy the data from GPU to CPU when we need it,
 - swap the GPU buffers between timesteps, like we do with CPU buffers. (OpenMP does this automatically.)
@@ -401,6 +406,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
    In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil_data` and `sycl/stencil`. 
    Try changing problem size parameters, e. g. `srun stencil 2000 2000 5000`. 
+   
    - How computation times change this time around?
    - What largest grid and/or longest propagation time can you get in 10 s on your machine?
    
@@ -434,6 +440,7 @@ See also
 This section leans heavily on source code and material created for several other computing workshops 
 by `ENCCS <https://enccs.se/>`_ and `CSC <https://csc.fi/>`_ and adapted for the purposes of this lesson.
 If you want to know more about specific programming models / framework, definitely check these out!
+
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`_
 - `Heterogeneous programming with SYCL <https://enccs.github.io/sycl-workshop/>`_
 - (CSC CUDA?)
