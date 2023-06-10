@@ -242,41 +242,47 @@ A closer look reveals that the computation time scales very nicely with increasi
 .. challenge:: Exercise: heat flow computation scaling
 
    1. How is heat flow computation expected to scale with respect to the number of time steps?
-   a. Linearly
-   b. Quadratically
-   c. Exponentially
+      a. Linearly
+      b. Quadratically
+      c. Exponentially
    
    2. How is stencil application (grid update) expected to scale with respect to the size of the grid side?
-   a. Linearly
-   b. Quadratically
-   c. Exponentially
+      a. Linearly
+      b. Quadratically
+      c. Exponentially
    
    3. (Optional) Do you expect GPU-accelerated computations to suffer from the memory effects observed above? Why/ why not?
    
+   
    .. solution::
    
-      1. The answer is a.: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
-      2. The answer is b.: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
+      1. The answer is a: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
+      2. The answer is b: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
       3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. 
       However, the effect above arises because multiple active CPU threads start competing for access to RAM. 
       In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies;
       increasing grid size might actually help to achieve this.
-
+      
 
 GPU parallelization: first steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Intro: WRITEME
+Let's apply several techniques presented in previous episodes to make stencil update GPU-parallel.
+
+OpenMP (or OpenACC) offloading requires to define a region to be executed in parallel as well as data that shall be copied over/ used in GPU memory. 
+Similarly, SYCL programming model offers convenient ways to define execution kernels, context to run them in (called queue) and simplified CPU-GPU transfer of needed data.
+
+Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
 .. tabs::
 
-   .. tab:: OpenMP
+   .. tab:: OpenMP (naive)
 
          .. literalinclude:: examples/stencil/base/core-off.cpp 
                         :language: cpp
                         :emphasize-lines: 25-26
          
-   .. tab:: SYCL
+   .. tab:: SYCL (naive)
 
          .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
@@ -298,6 +304,56 @@ Intro: WRITEME
                         :language: cpp
                         :lines: 1-61
                         :emphasize-lines: 22-25, 51-60
+
+
+.. solution:: Optional: compiling the SYCL executables
+
+   As previously, you are welcome to generate your own executables. This time we will be using the interactive allocation:
+   
+   .. code-block:: console
+
+      salloc -A project_465000485 -N 1 -t 1:00:0 -p standard-g --gpus-per-node=1
+      
+      module load LUMI/22.08
+      module load partition/G
+      module load rocm/5.3.3
+      module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
+      module load hipSYCL
+      
+      cd ../sycl/
+      syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
+      syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
+      
+      srun ./stencil_naive
+      srun ./stencil
+
+.. challenge:: Exercise: naive GPU ports
+
+   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. 
+   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`. How computations times change? Do the results align to your expectations?
+   
+   .. solution::
+   
+   If you ran the program (or looked up output of earlier sections), you might already know that the GPU-"ported" versions actually run slower than the single-CPU-core version!
+   In fact, the scaling behavior of all three variants is similar and expected, which is a good sign; only the "computation unit cost" is different. 
+   You can compare benchmark summaries in the tabs below:
+   
+   .. tabs::
+   
+      .. tab:: Sequential
+      
+         .. figure:: img/stencil/heat-seq.png
+            :align: center
+   
+      .. tab:: OpenMP (naive)
+      
+         .. figure:: img/stencil/heat-off.png
+            :align: center
+      
+      .. tab:: SYCL (naive)
+      
+         .. figure:: img/stencil/heat-sycl0.png
+            :align: center
 
 
 GPU parallelization: data movement
