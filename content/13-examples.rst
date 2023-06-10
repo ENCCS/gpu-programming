@@ -48,7 +48,14 @@ The standard way to numerically solve differential equations is to *discretize* 
    indicated 5-point stencil in yellow to move to the next time point
    :math:`m+1`.
 
-Stencil computation is a common occurrence in solving numerical equations, image processing (for 2D convolution) and other areas.
+.. challenge:: Discussion: stencil applications
+
+   Stencil computation is a common occurrence in solving numerical problems. Have you already encountered it? Can you think of a problem that could be formulated this way in your field / area of expertise?
+   
+   .. solution::
+      
+      One obvious choice is *convolution* operation, used in image processing to apply various filter kernels; in some contexts, "convolution" and "stencil" are used almost interchangeably.
+
 
 .. solution:: Stencil expression and time-step limit
    
@@ -83,11 +90,33 @@ Moreover, in many cases the chosen time step cannot be arbitrarily large, otherw
 
 Naturally, stencil expression can't be applied directly to the outermost grid points that have no outer neighbors. This can be solved by either changing the expression for those points or by adding an additional layer of grid that is used in computing update, but not updated itself -- points of fixed temperature for the sides are being used in this example.
 
+**3. How could the algorithm be optimized further?**
 
-CPU parallelization (with OpenMP)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In [previous episode](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/#memory-optimizations), importance of efficient memory access was already stressed. In the following examples, each grid point (and its neighbors) will be treated mostly independently; however, this also means that for 5-point stencil each value of the grid point may be read up to 5 times from memory (even if it's the fast GPU memory). By rearranging the order of mathematical operations, it may be possible to reuse these values in a more efficient way.
 
-Intro: WRITEME
+Another point to note is that even if the solution is propagated in small time steps, not every step might actually be needed for output. Once some *local* region of the field is updated, mathematically nothing prevents it from being updated for the second time step -- even if the rest of the field is still being recalculated -- as long as :math:`t = m-1` values for the region boundary are there when needed. (Of course, this is more complicated to implement and would only give benefits in certain cases.)
+
+
+Sequential and thread-parallel program in C++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. callout:: Trying out code examples
+
+   Source files of the examples presented for the rest of this episode are available in the [content/examples/stencil/](https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/) directory.
+   To download them to your home directory on the cluster, you can use Git:
+   
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ cd gpu-programming/content/examples/stencil/
+      $ ls
+
+   .. warning::
+
+      Don't forget to `git pull` for the latest updates if you already have the content from the first day of the workshop!
+
+
+If we assume the grid point values to be truly independent *for a single time step*, then stencil application procedure can be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided here for reference.)
 
 .. tabs::
 
