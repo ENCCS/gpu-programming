@@ -5,13 +5,14 @@ GPU programming example: stencil computation
 
 .. questions::
 
-   - q1
-   - q2
+   - How do I compile and run code developed using different programming models and frameworks?
+   - What can I expect from the GPU-ported programs in terms of performance gains / trends and how do I estimate this?
 
 .. objectives::
 
-   - To show a self-contained example of parallel computation executed on CPU (via OpenMP) and GPU (different models)
-   - To show differences of implementing the same procedure in natural "style" of different models/ frameworks
+   - To show a self-contained example of parallel computation executed on CPU and GPU using different programming models
+   - To show differences and consequences of implementing the same algorithm in natural "style" of different models/ frameworks
+   - To discuss how to assess theoretical and practical performance scaling of GPU codes
 
 .. instructor-note::
 
@@ -234,7 +235,7 @@ A closer look reveals that the computation time scales very nicely with increasi
 .. figure:: img/stencil/heat-omp-T.png
    :align: center
    
-..., however, for larger grid sizes the parallelization becomes inefficient -- as the individual chunks of the grid get too large to fit into CPU cache, threads become bound by the speed of RAM reads/writes:
+However, for larger grid sizes the parallelization becomes inefficient -- as the individual chunks of the grid get too large to fit into CPU cache, threads become bound by the speed of RAM reads/writes:
 
 .. figure:: img/stencil/heat-omp-S.png
    :align: center
@@ -330,7 +331,9 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 .. challenge:: Exercise: naive GPU ports
 
    In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. 
-   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`. How computations times change? Do the results align to your expectations?
+   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`. 
+   - How computation times change? 
+   - Do the results align to your expectations?
    
    .. solution::
    
@@ -359,40 +362,81 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 GPU parallelization: data movement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For kernel-based models, the approach above is grossly inefficient.
-On each step, we re-allocate GPU memory, copy the data from CPU to GPU, perform the computation, and then copy the data back.
-It will make such GPU version much slower than the original CPU version, but is a helpful first step in the porting process.
-But overhead can be reduced with some modifications to the structure of the program:
+Why the porting approach above seems to be grossly inefficient?
 
+On each step, we:
+- re-allocate GPU memory, 
+- copy the data from CPU to GPU, 
+- perform the computation, 
+- then copy the data back.
+
+But overhead can be reduced by taking care to minimize data transfers between *host* and *device* memory:
 - allocate GPU memory once at the start of the program,
 - only copy the data from GPU to CPU when we need it,
-- swap the GPU buffers between timesteps, like we do with CPU buffers.
+- swap the GPU buffers between timesteps, like we do with CPU buffers. (OpenMP does this automatically.)
+
+Changes of stencil update code as well as the main program are shown in tabs below. 
 
 .. tabs::
 
-
-   .. tab:: OpenMP: Stencil update
+   .. tab:: OpenMP (on device)
 
          .. literalinclude:: examples/stencil/base/core-data.cpp
                         :language: cpp
                         :emphasize-lines: 25,40-75
    
-   .. tab:: SYCL: Stencil update
+   .. tab:: SYCL (on device)
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
                         :emphasize-lines: 13-14,27-28,41-55
 
-   .. tab:: SYCL: Main function
+   .. tab:: SYCL: main function
 
          .. literalinclude:: examples/stencil/sycl/main.cpp 
                         :language: cpp
                         :emphasize-lines: 38-39,44-45,51,56,59,75
 
+.. challenge:: Exercise: updated GPU ports
 
-Exercises and discussion on comparison/ optimization perspectives: WRITEME
+   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil_data` and `sycl/stencil`. 
+   Try changing problem size parameters, e. g. `srun stencil 2000 2000 5000`. 
+   - How computation times change this time around?
+   - What largest grid and/or longest propagation time can you get in 10 s on your machine?
+   
+   .. solution::
+   
+      .. tabs::
+      
+         .. tab:: OpenMP data mapping
+         
+            Using GPU offloading with mapped device data, it is possible to achieve performance gains compared to thread-parallel version for larger grid sizes, 
+            due to the fact that the latter version becomes essentially RAM-bound, but the former does not.
+            
+            .. figure:: img/stencil/heat-map.png
+               :align: center
+               
+         .. tab:: SYCL device buffers
+         
+            Because of the more explicit programming approach, SYCL GPU port is still 10 times faster than OpenMP offloaded version, 
+            comparable with thread-parallel CPU version running on all cores of a single node.
+            Moreover, the performance scales perfectly with respect to both grid size and number of time steps (grid updates) computed.
+            
+            .. figure:: img/stencil/heat-sycl2.png
+               :align: center            
 
-See-also: WRITEME
+
+Python, Julia, CUDA: WRITEME (in progress)
+
+See also
+--------
+
+This section leans heavily on source code and material created for several other computing workshops 
+by `ENCCS <https://enccs.se/>`_ and `CSC <https://csc.fi/>`_ and adapted for the purposes of this lesson.
+If you want to know more about specific programming models / framework, definitely check these out!
+- `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`_
+- `Heterogeneous programming with SYCL <https://enccs.github.io/sycl-workshop/>`_
+- (CSC CUDA?)
 
 .. keypoints::
 
