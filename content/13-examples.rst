@@ -77,6 +77,7 @@ The standard way to numerically solve differential equations is to *discretize* 
    .. math::
       \Delta t_{max} = \frac{(\Delta x)^2 (\Delta y)^2}{2 \alpha ((\Delta x)^2 + (\Delta y)^2)}
 
+
 Technical considerations
 ------------------------
 
@@ -92,7 +93,7 @@ Naturally, stencil expression can't be applied directly to the outermost grid po
 
 **3. How could the algorithm be optimized further?**
 
-In [previous episode](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/#memory-optimizations), importance of efficient memory access was already stressed. In the following examples, each grid point (and its neighbors) will be treated mostly independently; however, this also means that for 5-point stencil each value of the grid point may be read up to 5 times from memory (even if it's the fast GPU memory). By rearranging the order of mathematical operations, it may be possible to reuse these values in a more efficient way.
+In `an earlier episode <https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/#memory-optimizations>`_, importance of efficient memory access was already stressed. In the following examples, each grid point (and its neighbors) will be treated mostly independently; however, this also means that for 5-point stencil each value of the grid point may be read up to 5 times from memory (even if it's the fast GPU memory). By rearranging the order of mathematical operations, it may be possible to reuse these values in a more efficient way.
 
 Another point to note is that even if the solution is propagated in small time steps, not every step might actually be needed for output. Once some *local* region of the field is updated, mathematically nothing prevents it from being updated for the second time step -- even if the rest of the field is still being recalculated -- as long as :math:`t = m-1` values for the region boundary are there when needed. (Of course, this is more complicated to implement and would only give benefits in certain cases.)
 
@@ -102,7 +103,7 @@ Sequential and thread-parallel program in C++
 
 .. callout:: Trying out code examples
 
-   Source files of the examples presented for the rest of this episode are available in the [content/examples/stencil/](https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/) directory.
+   Source files of the examples presented for the rest of this episode are available in the `content/examples/stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/>`_ directory.
    To download them to your home directory on the cluster, you can use Git:
    
    .. code-block:: console
@@ -116,7 +117,7 @@ Sequential and thread-parallel program in C++
       Don't forget to `git pull` for the latest updates if you already have the content from the first day of the workshop!
 
 
-If we assume the grid point values to be truly independent *for a single time step*, then stencil application procedure can be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided here for reference.)
+If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP `#pragma`:
 
 .. tabs::
 
@@ -138,7 +139,79 @@ If we assume the grid point values to be truly independent *for a single time st
                         :language: cpp
                         :lines: 7-34
 
-Comments, exercise and some test numbers: WRITEME
+.. solution:: Optional: compiling the executables and running OpenMP-CPU tests
+
+   Executable files for the OpenMP-enabled variants are provided together with the source code. However, if you'd like to compile them yourself, follow the instructions below:
+   
+   .. code-block:: console
+
+      module load LUMI/22.08
+      module load partition/G
+      module load rocm/5.3.3
+      
+      cd base/
+      make all
+   
+   Afterwards login into an interactive node and test the executables:
+   
+   .. code-block:: console
+
+      srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+      ./stencil
+      ./stencil_off
+      ./stencil_data
+      exit
+      
+   If everything works well, the output should look similar to this:
+   
+   .. code-block:: console
+
+      $ ./stencil
+      Average temperature, start: 59.763305
+      Average temperature at end: 59.281239
+      Control temperature at end: 59.281239
+      Iterations took 1.395 seconds.
+      $ ./stencil_off
+      Average temperature, start: 59.763305
+      Average temperature at end: 59.281239
+      Control temperature at end: 59.281239
+      Iterations took 4.269 seconds.
+      $ ./stencil_data   
+      Average temperature, start: 59.763305
+      Average temperature at end: 59.281239
+      Control temperature at end: 59.281239
+      Iterations took 1.197 seconds.
+      $ 
+
+   Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script
+   (make sure there is no running interactive allocation at the time):
+   
+     .. code-block:: console
+
+      $ sbatch test-omp.slurm
+      (to see the job status, enter command below)
+      $ squeue --me
+      (job should finish in a couple of minutes; let's also minimize extraneous output)
+      $ more job.o<job ID> | grep Iterations
+    
+   The expected output is:
+   
+   .. code-block:: console
+   
+      Iterations took 1.390 seconds.
+      Iterations took 13.900 seconds.
+      Iterations took 0.194 seconds.
+      Iterations took 1.728 seconds.
+      Iterations took 0.069 seconds.
+      Iterations took 0.547 seconds.
+      (... 18 lines in total ...)
+
+
+CPU parallelization: timings
+----------------------------
+
+
+
 
 
 GPU parallelization: first steps
