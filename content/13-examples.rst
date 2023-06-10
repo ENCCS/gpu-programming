@@ -210,8 +210,57 @@ If we assume the grid point values to be truly independent *for a single time st
 CPU parallelization: timings
 ----------------------------
 
+For later comparison, some benchmarks of the thread-parallel executable are provided below:
 
+.. list-table:: Run times of OpenMP-enabled executable, s
+   :widths: 25 25 25
+   :header-rows: 1
+   
+   * - Job size
+     - 1 CPU core
+     - 32 CPU cores
+   * - S:2000 T:500
+     - 1.390
+     - 0.061
+   * - S:2000 T:5000
+     - 13.900
+     - 0.550
+   * - S:20000 T:50
+     - 15.200
+     - 12.340
 
+A closer look reveals that the computation time scales very nicely with increasing time steps:
+
+.. figure:: img/stencil/heat-omp-T.png
+   :align: center
+   
+..., however, for larger grid sizes the parallelization becomes inefficient -- as the individual chunks of the grid get too large to fit into CPU cache, threads become bound by the speed of RAM reads/writes:
+
+.. figure:: img/stencil/heat-omp-S.png
+   :align: center
+
+.. challenge:: Exercise: heat flow computation scaling
+
+   1. How is heat flow computation expected to scale with respect to the number of time steps?
+   a. Linearly
+   b. Quadratically
+   c. Exponentially
+   
+   2. How is stencil application (grid update) expected to scale with respect to the size of the grid side?
+   a. Linearly
+   b. Quadratically
+   c. Exponentially
+   
+   3. (Optional) Do you expect GPU-accelerated computations to suffer from the memory effects observed above? Why/ why not?
+   
+   .. solution::
+   
+      1. The answer is a.: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
+      2. The answer is b.: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
+      3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. 
+      However, the effect above arises because multiple active CPU threads start competing for access to RAM. 
+      In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies;
+      increasing grid size might actually help to achieve this.
 
 
 GPU parallelization: first steps
