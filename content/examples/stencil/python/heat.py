@@ -1,10 +1,35 @@
-from heat_params import *
+# (c) 2023 ENCCS, CSC and the contributors
 
-# setup.py
+# heat.py
+
+# Fixed grid spacing
+DX = 0.01
+DY = 0.01
+# Default temperatures
+T_DISC = 5.0
+T_AREA = 65.0
+T_UPPER = 85.0
+T_LOWER = 5.0
+T_LEFT = 20.0
+T_RIGHT = 70.0
+# Default problem size
+ROWS = 2000
+COLS = 2000
+NSTEPS = 500
+
 
 import copy
+import numpy as np
 from numba import jit
 
+class Field:
+    def __init__(self, rows, cols):
+        self.data = np.zeros((rows+2, cols+2), dtype=float)
+        self.nx, self.ny = rows, cols
+        self.dx, self.dy = DX, DY
+
+
+# setup.py
 
 def initialize(args):
     rows, cols, nsteps = args.rows, args.cols, args.nsteps
@@ -29,36 +54,6 @@ def field_average(heat):
     return np.mean(heat.data[1:-1, 1:-1])
 
 
-# core.py
-
-def evolve(current, previous, a, dt):
-    dx2, dy2 = previous.dx**2, previous.dy**2
-    curr, prev = current.data, previous.data
-    _evolve(curr, prev, a, dt, dx2, dy2)
-
-
-@jit(nopython=True)
-def _evolve(curr, prev, a, dt, dx2, dy2):
-    ### Loops
-    nx, ny = prev.shape # These are the FULL dims, rows+2 / cols+2
-    for i in range(1, nx-1):
-        for j in range(1, ny-1):
-            curr[i, j] = prev[i, j] + a * dt * ( \
-              (prev[i+1, j] - 2*prev[i, j] + prev[i-1, j]) / dx2 + \
-              (prev[i, j+1] - 2*prev[i, j] + prev[i, j-1]) / dy2 )
-    
-    ### numpy slices
-    # curr[1:-1, 1:-1] = prev[1:-1, 1:-1] + a * dt * ( \
-    #             (prev[2:, 1:-1] - 2*prev[1:-1, 1:-1] + prev[:-2, 1:-1]) / dx2 + \
-    #             (prev[1:-1, 2:] - 2*prev[1:-1, 1:-1] + prev[1:-1, :-2]) / dy2 )
-
-    # Comparison (2000x2000x50):
-    #   Loops, no jit   --  376 s
-    #   Loops, jit      --  0.4 s
-    #   Slices, no jit  --  6.3 s
-    #   Slices, jit     --  2.6 s
-
-
 @jit(nopython=True)
 def _generate(data, nx, ny):
     # Radius of the source disc
@@ -76,9 +71,9 @@ def _generate(data, nx, ny):
     # Boundary conditions
     for i in range(nx+2):
         data[i,0] = T_LEFT
-        data[i,ny + 1] = T_RIGHT
+        data[i, ny+1] = T_RIGHT
 
     for j in range(ny+2):
         data[0,j] = T_UPPER
-        data[(nx + 1),j] = T_LOWER
+        data[nx+1, j] = T_LOWER
 
