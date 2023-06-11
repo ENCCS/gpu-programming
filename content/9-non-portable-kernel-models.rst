@@ -138,7 +138,7 @@ Below we have the most basic example of CUDA and HIP, the "Hello World" program:
                      << gpu_devices[0].get_info<sycl::info::device::vendor>()
                      << ">, the first of " << count << " devices." << std::endl;
            return 0;
-        }
+         }
 
 
 
@@ -691,14 +691,6 @@ For a while already GPUs support unified memory, which allows to use the same po
            return 0;
          }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -772,13 +764,13 @@ As an exercise modify the skeleton code for vector addition to use Unified Memor
 .. admonition:: Basics - In short
    :class: dropdown
 
-   - CUDA and HIP are GPU-focused programming models for optimized code execution on NVIDIA and AMD GPUs.
-   - They provide extensive libraries and tools for high-performance computing on GPUs.
+   
    - CUDA is developed by NVIDIA, while HIP is an open-source project (from AMD) for multi-platform GPU programming.
+   - CUDA and HIP are GPU-focused programming models for optimized code execution on NVIDIA and AMD GPUs.
+   - CUDA and HIP are similar, allowing developers to write GPU code in a syntax similar to CUDA and target multiple platforms.
    - CUDA and HIP are programming models focused solely on GPUs
    - CUDA and HIP offer high-performance computing capabilities and advanced features specific to GPU architectures, such as shared memory and memory management.
    - They provide highly GPU-accelerated libraries in various domains like linear algebra, signal processing, image processing, and machine learning.
-   - CUDA and HIP are similar, allowing developers to write GPU code in a syntax similar to CUDA and target multiple platforms.
    - Programming for GPUs involves managing data movement between host and accelerator memory.
    - Unified Memory simplifies data transfers by using the same pointer for CPU and GPU data, but code optimization is still necessary.
 
@@ -826,22 +818,93 @@ First as a reference we use a simple kernel which copy the data from one array t
 
         #include <stdio.h>
         #include <cuda.h>
-        #inclde <cuda_runtime.h>
+        #include <cuda_runtime.h>
         #include <math.h>
+        #include <cstdlib>
+        #include <vector>
+
+        const static int width = 4096;
+        const static int height = 4096;
+
+        __global__ void copy_kernel(float *in, float *out, int width, int height) {
+            int x_index = blockIdx.x * tile_dim + threadIdx.x;
+            int y_index = blockIdx.y * tile_dim + threadIdx.y;
+
+            int index = y_index * width + x_index;
+
+            out[index] = in[index];
+        }
+        
+        int main() {
+           std::vector<float> matrix_in;
+           std::vector<float> matrix_out;
+
+           matrix_in.resize(width * height);
+           matrix_out.resize(width * height);
+
+           for (int i = 0; i < width * height; i++) {
+             matrix_in[i] = (float)rand() / (float)RAND_MAX;
+           }
+        
+           float *d_in,*d_out;
+        
+           cudaMalloc((void **)&d_in, width * height * sizeof(float));
+           cudaMalloc((void **)&d_out, width * height * sizeof(float));
+
+           cudaMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
+                  hipMemcpyHostToDevice);
+
+           printf("Setup complete. Launching kernel \n");
+           int block_x = width / tile_dim;
+           int block_y = height / tile_dim;
+  
+           // Create events
+           cudaEvent_t start_kernel_event;
+           cudaEventCreate(&start_kernel_event);
+           cudaEvent_t end_kernel_event;
+           cudaEventCreate(&end_kernel_event);
+
+           printf("Warm up the gpu!\n");
+           for(int i=1;i<=10;i++){
+              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
+           }
+
+           cudaEventRecord(start_kernel_event, 0);
+        
+           for(int i=1;i<=10;i++){
+              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
+           }
+  
+          cudaEventRecord(end_kernel_event, 0);
+          cudaEventSynchronize(end_kernel_event);
+
+          cudaDeviceSynchronize();
+          float time_kernel;
+          cudaEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
+
+          printf("Kernel execution complete \n");
+          printf("Event timings:\n");
+          printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
+ 
+          cudaMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
+                     hipMemcpyDeviceToHost);
+
+          return 0;
+        }
       
    ..  group-tab:: HIP
 
       .. code-block:: C++ 
       
-         #include <hip/hip_runtime.h>
+        #include <hip/hip_runtime.h>
 
-         #include <cstdlib>
-         #include <vector>
+        #include <cstdlib>
+        #include <vector>
 
-         const static int width = 4096;
-         const static int height = 4096;
+        const static int width = 4096;
+        const static int height = 4096;
 
-         __global__ void copy_kernel(float *in, float *out, int width, int height) {
+        __global__ void copy_kernel(float *in, float *out, int width, int height) {
             int x_index = blockIdx.x * tile_dim + threadIdx.x;
             int y_index = blockIdx.y * tile_dim + threadIdx.y;
 
@@ -907,14 +970,6 @@ First as a reference we use a simple kernel which copy the data from one array t
           return 0;
         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1018,14 +1073,6 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
            out[out_index] = in[in_index];
         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1046,7 +1093,9 @@ Checking the index `in_index` we see that two adjacent threads (`threadIx.x, thr
 We can improve the code by reading the data in a `coalesced` way, save it in the shared memory row by row and then write in the global memory column by column.
 
 
-.. tabs:: 
+
+
+ .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
 
@@ -1070,14 +1119,6 @@ We can improve the code by reading the data in a `coalesced` way, save it in the
           out[out_index] = tile[threadIdx.x][threadIdx.y];
        }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1141,17 +1182,9 @@ Shared memory is composed of `banks`. Each banks can service only one request at
 
            __syncthreads();
 
-          out[out_index] = tile[threadIdx.x][threadIdx.y];
-       }
+           out[out_index] = tile[threadIdx.x][threadIdx.y];
+         }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1233,14 +1266,6 @@ At the block level we still have to perform a reduction in an efficient way. Doi
            }
          }
 
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-      
-   ..  group-tab:: OpenCL
-
-      .. code-block:: C++
-      
    ..  group-tab:: SYCL
 
       .. code-block:: C++
@@ -1310,17 +1335,61 @@ For a detail analysis of how to optimize reduction operations in CUDA/HIP check 
 
 CUDA/HIP Streams
 ^^^^^^^^^^^^^^^^
-CUDA/HIP streams are independent execution contexts, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
+Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time, or they can execute kernels concurrently. CUDA/HIP streams are independent execution units, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
 
-Consider a case which involves copying data from CPU to GPU, computations and then copying back the result to GPU. Without streams nothing can be overlap. 
+Consider the previous case of vector addition, which involves copying data from CPU to GPU, computations and then copying back the result to GPU. In this way nothing can be overlap. 
+
+
+
+We can improve the performance by dividin the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. 
 
 .. figure:: img/concepts/StreamsTimeline.png
    :align: center
 
 
-Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time. One way to improve the performance  is to divide the problem in smaller independent parts. Let's consider 5 streams and consider the case where copy in one direction and computation take the same amount of time. After the first and second stream copy data to the GPU, the GPU is practically occupied all time. Significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
-Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
+After the first and second stream copy data to the GPU, the GPU is practically occupied all time. We can see that significant performance  improvements can be obtained by eliminating the time in which the GPU is idle, waiting for data to arrive from the CPU. This very useful for problems where there is often communication to the CPU because the GPU memory can not fit all the problem or the application runs in a multi-GPU set up and communication is needed often.  
 
+We can apply this to the vector addition problem above. 
+
+.. tabs:: 
+
+         
+   ..  group-tab:: CUDA
+
+      .. code-block:: C++
+         
+         // Distribute kernel for 'n_streams' streams, and record each stream's timing
+         for (int i = 0; i < n_streams; ++i) {
+           int offset = i * stream_size;
+           cudaEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
+           cudaMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
+           cudaMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
+           vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
+           cudaMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), cudaMemcpyDeviceToHost, stream[i]);
+           cudaEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
+         }
+      
+   ..  group-tab:: HIP
+
+      .. code-block:: C++    
+         
+         // Distribute kernel for 'n_streams' streams, and record each stream's timing
+         for (int i = 0; i < n_streams; ++i) {
+           int offset = i * (N/stream_size);
+           hipEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
+           hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
+                  hipMemcpyHostToDevice);
+           hipMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
+           hipMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
+           vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
+           hipMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), hipMemcpyDeviceToHost, stream[i]);
+           hipEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
+         }
+         ...
+
+Instead of having one copy to gpu, one execution of the kernel and one copy back, we now have several of these calls independent of each other. 
+
+Note that even when streams are not explicitly used it si possible to launch all the GPU operations asynchronous and overlap CPU operations (such I/O) and GPU operations. 
 In order to learn more about how to improve performance using streams check the NVIDIA blog `How to Overlap Data Transfers in CUDA C/C++ <https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/>`_.
 
 .. admonition:: Streams - In short

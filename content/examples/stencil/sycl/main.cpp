@@ -10,22 +10,6 @@ using wall_clock_t = std::chrono::high_resolution_clock;
 auto start_time () { return wall_clock_t::now(); }
 auto stop_time () { return wall_clock_t::now(); }
 
-void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::write>(h);
-    		h.copy(f->data.data(), acc);
-    	});
-}
-
-void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f)
-{
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::read>(h);
-    		h.copy(acc, f->data.data());
-    	}).wait();
-}
-
 
 int main(int argc, char **argv)
 {
@@ -88,6 +72,6 @@ int main(int argc, char **argv)
     // Determine the computation time used for all the iterations
     std::chrono::duration<double> elapsed = stop_clock - start_clock;
     printf("Iterations took %.3f seconds.\n", elapsed.count());
-
+    Q.wait_and_throw();
     return 0;
 }
