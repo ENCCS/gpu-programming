@@ -47,8 +47,8 @@ def main(args):
     # Start timer
     start_clock = start_time()
     # Allocate and transfer device buffers, add them to the field object
-    current.dev = numba.cuda.to_device(current.data)
-    previous.dev = numba.cuda.to_device(previous.data)
+    current.dev = cuda.to_device(current.data)
+    previous.dev = cuda.to_device(previous.data)
     # Time evolution
     for iter in range(1,nsteps+1):
         evolve(current, previous, a, dt)
