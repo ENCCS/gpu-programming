@@ -441,21 +441,26 @@ The alternative approach would be to rewrite stencil update code in NumPy style,
 You can run provided code examples on `Google Colab <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`_ or your local computer. Short summary of a typical Colab run is provided below:
 
 .. list-table:: Run times of Numba JIT-enabled Python program, s
-   :widths: 25 25 25 25
+   :widths: 25 25 25 25 25
    :header-rows: 1
    
    * - Job size
-     - JIT
-     - no JIT
+     - JIT (LUMI)
+     - JIT (Colab)
+     - Job size
+     - no JIT (Colab)
    * - S:2000 T:500
+     - 1.648
      - 8.780
      - S:200 T:50
      - 5.318
    * - S:2000 T:200
+     - 0.787
      - 3.524
      - S:200 T:20
      - 1.859
    * - S:1000 T:500
+     - 0.547
      - 2.230
      - S:100 T:50
      - 1.156
@@ -471,6 +476,31 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
    - How computation times change?
    - Do you get better performance than from JIT-compiled CPU version? How far can you push the problem size?
    - Are you able to monitor the GPU usage?
+   
+   .. solution::
+   
+      Some numbers from Colab:
+      
+      .. list-table:: Run times of Numba CUDA Python program, s
+         :widths: 25 25 25 25
+         :header-rows: 1
+
+         * - Job size
+           - JIT (LUMI)
+           - JIT (Colab, *proj.)
+           - CUDA (Colab)
+         * - S:2000 T:500
+           - 1.648
+           - 8.780
+           - 1.079
+         * - S:2000 T:2000
+           - 6.133
+           - 35.2*
+           - 3.931
+         * - S:5000 T:500
+           - 9.478
+           - 55.0*
+           - 6.448
 
 WRITEME: Julia (in progress)
 
