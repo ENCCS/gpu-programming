@@ -382,7 +382,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
          .. literalinclude:: examples/stencil/python/core_cuda.py
                         :language: py
                         :lines: 6-34
-                        :emphasize-lines: 19-21,23
+                        :emphasize-lines: 14-16,18
 
    .. tab:: main() (SYCL)
 
@@ -427,7 +427,7 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/6-language-sup
          .. literalinclude:: examples/stencil/python/core.py
                         :language: py
                         :lines: 6-29
-                        :emphasize-lines: 16
+                        :emphasize-lines: 17
    
    .. tab:: Data generation
 
