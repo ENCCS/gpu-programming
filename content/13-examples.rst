@@ -315,7 +315,6 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       srun ./stencil_naive
       srun ./stencil
 
-
 .. challenge:: Exercise: naive GPU ports
 
    In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`.
@@ -410,7 +409,9 @@ Changes of stencil update code as well as the main program are shown in tabs bel
                :align: center            
 
 
+
 WRITEME Python, Julia: (in progress)
+
 
 
 See also
