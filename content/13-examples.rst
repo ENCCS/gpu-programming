@@ -98,7 +98,7 @@ Another point to note is that even if the solution is propagated in small time s
 
    - OpenMP offloading (C++)
    - SYCL
-   - _Python_ (`numba`/CUDA)
+   - *Python* (``numba``/CUDA)
    - Julia
 
 The following table will aid you in navigating the rest of this section:
@@ -127,9 +127,9 @@ Sequential and thread-parallel program in C++
 
    .. warning::
 
-      Don't forget to `git pull` for the latest updates if you already have the content from the first day of the workshop!
+      Don't forget to ``git pull`` for the latest updates if you already have the content from the first day of the workshop!
 
-If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP `#pragma`:
+If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP ``#pragma``:
 
 .. tabs::
 
@@ -195,7 +195,7 @@ If we assume the grid point values to be truly independent *for a single time st
       Iterations took 1.197 seconds.
       $ 
 
-   Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script (make sure (f. e.f, using `squeue --me`) that there is no currently running interactive allocation):
+   Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script (make sure (f. e.f, using ``squeue --me``) that there is no currently running interactive allocation):
    
    .. code-block:: console
 
@@ -317,7 +317,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
 .. challenge:: Exercise: naive GPU ports
 
-   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`.
+   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil``, ``base/stencil_off`` and ``sycl/stencil_naive``. Try changing problem size parameters, e. g. ``srun stencil_naive 2000 2000 5000``.
    
    - How computation times change? 
    - Do the results align to your expectations?
@@ -365,19 +365,26 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
 .. tabs::
 
-   .. tab:: OpenMP (on device)
+   .. tab:: OpenMP
 
          .. literalinclude:: examples/stencil/base/core-data.cpp
                         :language: cpp
                         :emphasize-lines: 25,40-75
    
-   .. tab:: SYCL (on device)
+   .. tab:: SYCL
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
                         :emphasize-lines: 13-14,27-28,41-55
 
-   .. tab:: SYCL: main function
+   .. tab:: Python
+
+         .. literalinclude:: examples/stencil/python/core_cuda.cpp
+                        :language: py
+                        :lines: 6-34
+                        :emphasize-lines: 19-21,23
+
+   .. tab:: main() (SYCL)
 
          .. literalinclude:: examples/stencil/sycl/main.cpp 
                         :language: cpp
@@ -385,7 +392,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
 .. challenge:: Exercise: updated GPU ports
 
-   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil_data` and `sycl/stencil`. Try changing problem size parameters, e. g. `srun stencil 2000 2000 5000`. 
+   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil_data`` and ``sycl/stencil``. Try changing problem size parameters, e. g. ``srun stencil 2000 2000 5000``. 
    
    - How computation times change this time around?
    - What largest grid and/or longest propagation time can you get in 10 s on your machine?
@@ -408,11 +415,64 @@ Changes of stencil update code as well as the main program are shown in tabs bel
             .. figure:: img/stencil/heat-sycl2.png
                :align: center            
 
+Python: JIT and GPU acceleration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+As mentioned `previously <https://enccs.github.io/gpu-programming/6-language-support/#numba>`_, Numba package allows developers to just-in-time (JIT) compile Python code to run fast on CPUs, but can also be used for JIT compiling for GPUs (although AMD GPU support is at the moment deprecated for Numba versions > 0.53). JIT seems to work well on loop-based, computationally heavy functions, so trying it out is a nice choice for initial source version:
 
-WRITEME Python, Julia: (in progress)
+.. tabs::
 
+   .. tab:: Stencil update
 
+         .. literalinclude:: examples/stencil/python/core.py
+                        :language: py
+                        :lines: 6-29
+                        :emphasize-lines: 22
+   
+   .. tab:: Data generation
+
+         .. literalinclude:: examples/stencil/python/heat.py
+                        :language: py
+                        :lines: 57-78
+                        :emphasize-lines: 57
+
+The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
+
+You can run provided code examples on `Google Colab <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`_ or your local computer. Short summary of a typical Colab run is provided below:
+
+.. list-table:: Run times of Numba JIT-enabled Python program, s
+   :widths: 25 25 25 25
+   :header-rows: 1
+   
+   * - Job size
+     - JIT
+     - no JIT
+   * - S:2000 T:500
+     - 8.780
+     - S:200 T:50
+     - 5.318
+   * - S:2000 T:200
+     - 3.524
+     - S:200 T:20
+     - 1.859
+   * - S:1000 T:500
+     - 2.230
+     - S:100 T:50
+     - 1.156
+
+Numba's ``@vectorize`` and ``@guvectorize`` decorators offer an interface to create CPU- (or GPU-) accelerated *Python* functions without explicit implementation details. However, such functions become increasingly complicated to write (and optimize by the compiler) with increasing complexity of the computations within.
+
+However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming, which can be the best choice for those already familiar with CUDA. Example for stencil update written in Numba CUDA is shown in the `data movement section <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_, tab "Python". In this case, data transfer functions ``devdata = cuda.to_device(data)`` and ``devdata.copy_to_host(data)`` (see ``main_cuda.py``) are already provided by Numba package.
+
+.. challenge:: Exercise: CUDA acceleration in Python
+
+   Using Google Colab (or your own machine), run provided Numba-CUDA Python program. Try changing problem size parameters, e. g. ``args.rows, args.cols, args.nsteps = 2000, 2000, 5000``. 
+   
+   - How computation times change?
+   - Do you get better performance than from JIT-compiled CPU version? How far can you push the problem size?
+   - Are you able to monitor the GPU usage?
+
+WRITEME: Julia (in progress)
 
 See also
 ~~~~~~~~
@@ -424,9 +484,4 @@ If you want to know more about specific programming models / framework, definite
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`_
 - `Heterogeneous programming with SYCL <https://enccs.github.io/sycl-workshop/>`_
 - `Educational implementation of heat flow example (incl. MPI-aware CUDA) <https://github.com/cschpc/heat-equation/>`_
-
-.. keypoints::
-
-   - k1
-   - k2
 
