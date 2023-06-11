@@ -1,3 +1,5 @@
+# CUDA and HIP examples
+
 This folder contains several examples in CUDA and HIP that can be used for the hands on based on the episode [Non-portable kernel-based models](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/). 
 ## Compiling on LUMI
 First load the modules:
@@ -20,7 +22,7 @@ srun -p standard-g --gpus 2 -N 1 -n 2 -c 4 --time=00:10 --account=project_465000
 ``` 
 Modify this according to the neeeds of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 
-## Exercises instructions
+## Exercise instructions
 The best way to learn programming is to get our hands dirty. Use the example codes in this folder to repoduce the problems presented in the [Non-portable kernel-based models](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/) episode.
 
 Here are some suggestions for playing around:

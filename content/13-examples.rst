@@ -439,7 +439,7 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/6-language-sup
 
 The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
 
-You can run provided code examples on `Google Colab <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`_ or your local computer. Short summary of a typical Colab run is provided below:
+You can run provided code examples on `Google Colab <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`__ or your local computer. Short summary of a typical Colab run is provided below:
 
 .. list-table:: Run times of Numba JIT-enabled Python program, s
    :widths: 25 25 25 25 25
@@ -452,7 +452,7 @@ You can run provided code examples on `Google Colab <https://enccs.github.io/gpu
      - no JIT (Colab)
    * - S:2000 T:500
      - 1.648
-     - 8.780
+     - 8.495
      - S:200 T:50
      - 5.318
    * - S:2000 T:200
@@ -488,19 +488,19 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
 
          * - Job size
            - JIT (LUMI)
-           - JIT (Colab, *proj.*)
+           - JIT (Colab)
            - CUDA (Colab)
          * - S:2000 T:500
            - 1.648
-           - 8.780
+           - 8.495
            - 1.079
          * - S:2000 T:2000
            - 6.133
-           - 35.2*
+           - 36.61
            - 3.931
          * - S:5000 T:500
            - 9.478
-           - 55.0*
+           - 57.19
            - 6.448
 
 
@@ -545,7 +545,6 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
 
       .. literalinclude:: examples/stencil/julia/Project.toml
          :language: julia
-
 
 
 See also

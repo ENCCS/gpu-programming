@@ -120,7 +120,7 @@ Hipify-perl
 ~~~~~~~~~~~
 
 The ``hipify-perl`` tool is a script based on perl that translates CUDA syntax into HIP syntax 
-(see .e.g. `here <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`__ for more details). 
+(see .e.g. `here <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl>`_ for more details). 
 For instance, in a CUDA code that incorporates the CUDA functions ``cudaMalloc``` and ``cudaDeviceSynchronize``, the tool will substitute ``cudaMalloc`` with the HIP function ``hipMalloc``. Similarly the CUDA function ``cudaDeviceSynchronize`` will be substituted with the HIP function ``hipDeviceSynchronize``. We list below the basic steps to run ``hipify-perl`` on LUMI-G.
 
 - **Step 1**: Generating ``hipify-perl`` script
@@ -191,7 +191,7 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
   Here the cuda path and the path to the ``*includes*`` and ``*defines*`` files should be specified. The CUDA source code and the generated output code are `program.cu` and `hip_program.cu.hip`, respectively.
   
   The syntax for the compilation process of the generated hip code is similar to the one described in the previous section (see the **Step 3** in the hipify-perl section).
-  
+
 Code examples for the ``Hipify`` exercises can be accessed in the `content/examples/exercise_hipify` subdirectory by cloning this repository:
 
    .. code-block:: console
@@ -243,7 +243,8 @@ In the following we present a step-by-step guide for building and using `Clacc`:
            $ make
            $ make install
 
-- **Step 2**: Setting up environment variables to be able to work from the ``/install`` directory, which is the simplest way. We assume that the ``/install`` directory is located in the path ``/project/project_xxxxxx/Clacc/llvm-project``. 
+- **Step 2**: Setting up environment variables to be able to work from the ``/install`` directory, which is the simplest way. We assume that the ``/install`` directory is located in the path ``/project/project_xxxxxx/Clacc/llvm-project``.
+
 For more advanced usage, which includes for instance modifying ``Clacc``, we refer readers to `"Usage from Build directory" <https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md>`_
 
   .. code-block:: console
