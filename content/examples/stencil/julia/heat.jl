@@ -1,3 +1,18 @@
+# Fixed grid spacing
+const DX = 0.01
+const DY = 0.01
+# Default temperatures
+const T_DISC = 5.0
+const T_AREA = 65.0
+const T_UPPER = 85.0
+const T_LOWER = 5.0
+const T_LEFT = 20.0
+const T_RIGHT = 70.0
+# Default problem size
+const ROWS = 2000
+const COLS = 2000
+const NSTEPS = 500
+
 
 """
     Field(nx::Int64, ny::Int64, dx::Float64, dy::Float64, data::Matrix{Float64})
@@ -55,16 +70,16 @@ function generate_field!(field::Field)
         for i = 1:field.nx+2
             ds2 = (i - field.nx / 2)^2 + (j - field.ny / 2)^2
             if ds2 < radius2 
-                field.data[i,j] = 5.0
+                field.data[i,j] = T_DISC
             else
-                field.data[i,j] = 65.0
+                field.data[i,j] = T_AREA
             end
         end 
     end 
 
     # Boundary conditions
-    field.data[:,1] .= 20.0
-    field.data[:,field.ny+2] .= 70.0
-    field.data[1,:] .= 85.0
-    field.data[field.nx+2,:] .= 5.0
+    field.data[:,1] .= T_LEFT
+    field.data[:,field.ny+2] .= T_RIGHT
+    field.data[1,:] .= T_UPPER
+    field.data[field.nx+2,:] .= T_LOWER
 end
