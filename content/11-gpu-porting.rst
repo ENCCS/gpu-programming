@@ -127,7 +127,7 @@ For instance, in a CUDA code that incorporates the CUDA functions ``cudaMalloc``
 
   .. code-block:: console
   
-           $ module load rocm
+           $ module load rocm/5.2.3
            $ hipify-clang --perl
 
 - **Step 2**: Running the generated ``hipify-perl``
@@ -168,7 +168,7 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
 
   .. code-block:: console
   
-           $ module load rocm
+           $ module load rocm/5.2.3
            $ singularity shell -B $PWD,/opt:/opt cuda_11.4.0-devel-ubuntu20.04.sif
          
   where the current directory ``$PWD`` in the host is mounted to that of the container, and the directory ``/opt`` in the host is mounted to the that inside the container.
@@ -192,7 +192,28 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
   
   The syntax for the compilation process of the generated hip code is similar to the one described in the previous section (see the **Step 3** in the hipify-perl section).
   
-Exercises for how to use ``Hipify-perl`` and ``Hipify-clang`` tools can be accessed `here <examples/exercise_hipify>`_.  
+Code examples for the ``Hipify`` exercises can be accessed in the `content/examples/exercise_hipify` subdirectory by cloning this repository:
+
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ cd gpu-programming/content/examples/exercise_hipify
+      $ ls
+
+.. challenge:: Exercise I : Translate an CUDA code to HIP with ``hipify-perl``
+
+   1.1 Generate the ``hipify-perl`` tool.
+
+   1.2 Convert the CUCA code ``vec_add_cuda.cu`` located in ``/exercise_hipify/Hipify_perl`` with the ``Hipify-perl`` tool to HIP.
+
+   1.3 Compile the generated HIP code with the ``hipcc`` compiler wrapper and run it.
+
+.. challenge:: Exercise II : Translate an CUDA code to HIP with ``hipify-clang``
+
+   2.1 Convert the CUCA code ``vec_add_cuda.cu`` located in ``/exercise_hipify/Hipify_clang`` with the ``Hipify-clang`` tool to HIP.
+
+   2.2 Compile the generated HIP code with the ``hipcc`` compiler wrapper and run it.
+
 
 Translating OpenACC to OpenMP with Clacc
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -245,11 +266,25 @@ For more advanced usage, which includes for instance modifying ``Clacc``, we ref
            module load CrayEnv
            module load PrgEnv-cray
            module load craype-accel-amd-gfx90a
-           module load rocm
+           module load rocm/5.2.3
   
            cc -fopenmp -o executable openMP_code.c
 
-Exercises for how to use ``Clacc`` tool can be accessed `here <examples/exercise_clacc>`_.
+.. callout:: Access exercise material
+
+   Code examples for the ``Clacc`` exercise can be accessed in the `content/examples/exercise_clacc` subdirectory by cloning this repository:
+
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ cd gpu-programming/content/examples/exercise_clacc
+      $ ls
+
+.. challenge:: Exercise : Translate an OpenACC code to OpenMP
+
+   1. Convert the OpenACC code ``openACC_code.c`` located in ``/exercise_clacc`` with the ``Clacc`` compiler.
+
+   2. Compile the generated OpenMP code with the ``cc`` compiler wrapper and run it.
 
 Translating CUDA to SYCL/DPC++ with SYCLomatic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
