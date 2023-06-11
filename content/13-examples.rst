@@ -108,7 +108,7 @@ The following table will aid you in navigating the rest of this section:
    - `Sequential and OpenMP-threaded code <https://enccs.github.io/gpu-programming/13-examples/#sequential-and-thread-parallel-program-in-c>`_ in C++, including compilation/ running instructions
    - `Naive GPU parallelization <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-first-steps>`_, including SYCL compilation instructions
    - `GPU code with device data management <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_ (OpenMP, SYCL)
-   - `Python implementation <>`_, including running instructions on `Google Colab <https://colab.research.google.com/>`_
+   - `Python implementation <https://enccs.github.io/gpu-programming/13-examples/#python-jit-and-gpu-acceleration>`_, including running instructions on `Google Colab <https://colab.research.google.com/>`_
    - `Julia implementation <>`_, including running instructions
 
 Sequential and thread-parallel program in C++
@@ -379,7 +379,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
    .. tab:: Python
 
-         .. literalinclude:: examples/stencil/python/core_cuda.cpp
+         .. literalinclude:: examples/stencil/python/core_cuda.py
                         :language: py
                         :lines: 6-34
                         :emphasize-lines: 19-21,23
@@ -427,14 +427,14 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/6-language-sup
          .. literalinclude:: examples/stencil/python/core.py
                         :language: py
                         :lines: 6-29
-                        :emphasize-lines: 22
+                        :emphasize-lines: 16
    
    .. tab:: Data generation
 
          .. literalinclude:: examples/stencil/python/heat.py
                         :language: py
                         :lines: 57-78
-                        :emphasize-lines: 57
+                        :emphasize-lines: 1
 
 The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
 
