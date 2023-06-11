@@ -105,11 +105,11 @@ The following table will aid you in navigating the rest of this section:
 
 .. admonition:: Episode guide
 
-   - `Sequential and OpenMP-threaded code <https://enccs.github.io/gpu-programming/13-examples/#sequential-and-thread-parallel-program-in-c>`_ in C++, including compilation/ running instructions
-   - `Naive GPU parallelization <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-first-steps>`_, including SYCL compilation instructions
-   - `GPU code with device data management <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_ (OpenMP, SYCL)
-   - `Python implementation <https://enccs.github.io/gpu-programming/13-examples/#python-jit-and-gpu-acceleration>`_, including running instructions on `Google Colab <https://colab.research.google.com/>`_
-   - `Julia implementation <>`_, including running instructions
+   - `Sequential and OpenMP-threaded code <https://enccs.github.io/gpu-programming/13-examples/#sequential-and-thread-parallel-program-in-c>`__ in C++, including compilation/ running instructions
+   - `Naive GPU parallelization <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-first-steps>`__, including SYCL compilation instructions
+   - `GPU code with device data management <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`__ (OpenMP, SYCL)
+   - `Python implementation <https://enccs.github.io/gpu-programming/13-examples/#python-jit-and-gpu-acceleration>`__, including running instructions on `Google Colab <https://colab.research.google.com/>`__
+   - `Julia implementation <https://enccs.github.io/gpu-programming/13-examples/#julia-gpu-acceleration>`__, including running instructions
 
 Sequential and thread-parallel program in C++
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -270,6 +270,7 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
       1. The answer is a: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
       2. The answer is b: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
       3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. However, the effect above arises because multiple active CPU threads start competing for access to RAM. In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies; increasing grid size might actually help to achieve this.
+
 
 GPU parallelization: first steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -451,7 +452,7 @@ You can run provided code examples on `Google Colab <https://enccs.github.io/gpu
      - no JIT (Colab)
    * - S:2000 T:500
      - 1.648
-     - 8.780
+     - 8.495
      - S:200 T:50
      - 5.318
    * - S:2000 T:200
@@ -487,22 +488,64 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
 
          * - Job size
            - JIT (LUMI)
-           - JIT (Colab, *proj.)
+           - JIT (Colab)
            - CUDA (Colab)
          * - S:2000 T:500
            - 1.648
-           - 8.780
+           - 8.495
            - 1.079
          * - S:2000 T:2000
            - 6.133
-           - 35.2*
+           - 36.61
            - 3.931
          * - S:5000 T:500
            - 9.478
-           - 55.0*
+           - 57.19
            - 6.448
 
-WRITEME: Julia (in progress)
+
+Julia GPU acceleration
+~~~~~~~~~~~~~~~~~~~~~~
+
+A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl. To run it on LUMI CPU partition, type:
+
+.. code-block:: console
+
+   $ # interactive CPU node
+   $ srun --account=project_465000485 --partition=small --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
+   $ # load Julia env
+   $ module purge
+   $ module use /appl/local/csc/modulefiles
+   $ module load julia/1.9.0
+   $ # copy all the files below to a directory, and then instantiate an environment to install packages
+   $ julia --project -e "using Pkg ; Pkg.instantiate()"
+   $ # finally run
+   $ julia --project main.jl
+
+Note that the Plots.jl dependency is commented out to save precompilation time.
+
+.. tabs::
+
+   .. tab:: main.jl
+
+      .. literalinclude:: examples/stencil/julia/main.jl
+         :language: julia
+
+   .. tab:: core.jl
+
+      .. literalinclude:: examples/stencil/julia/core.jl
+         :language: julia
+
+   .. tab:: heat.jl
+
+      .. literalinclude:: examples/stencil/julia/heat.jl
+         :language: julia
+
+   .. tab:: Project.toml
+
+      .. literalinclude:: examples/stencil/julia/Project.toml
+         :language: julia
+
 
 See also
 ~~~~~~~~
