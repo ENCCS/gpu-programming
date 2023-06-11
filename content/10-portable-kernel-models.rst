@@ -11,7 +11,7 @@ Portable kernel-based models
 .. objectives::
 
    - Be able to use portable kernel-based models to write simple codes
-   - Understand how different approaches to memory and syncronization in Kokkos and SYCL work
+   - Understand how different approaches to memory and synchronization in Kokkos and SYCL work
 
 .. instructor-note::
 
@@ -107,7 +107,7 @@ OpenCL supports two modes for compiling the programs: online and offline. Online
 
 OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel oneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as ``icx cl_devices.c -lOpenCL`` (Intel oneAPI) or ``nvcc cl_devices.c -lOpenCL`` (NVIDIA CUDA), where ``cl_devices.c`` is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply ``gcc cl_devices.c -lOpenCL`` (or ``g++`` when using C++ API), as long as the required libraries and headers are installed in a standard locations.
 
-The AMD compiler installed on LUMI has no support for OpenCL C++ API, so you would have to use C API.
+The AMD compiler installed on LUMI supports both OpenCL C and C++ API, the latter with some limitations.
 To compile a program, you can use the AMD compilers on a GPU partition:
 
 .. code-block:: console
@@ -115,8 +115,8 @@ To compile a program, you can use the AMD compilers on a GPU partition:
     $ module load LUMI/23.03 partition/G
     $ module load rocm/5.2.3
     $ module load PrgEnv-cray-amd
-    $ CC program.cpp -lOpenCL -o program
-    $ ./file
+    $ CC program.cpp -lOpenCL -o program # C++ program
+    $ cc program.c -lOpenCL -o program # C program
 
 
 OpenCL programming
@@ -236,7 +236,9 @@ of hipSYCL 0.9.4 was prepared, which can be loaded as:
     $ module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
     $ module load hipSYCL
 
-The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enought to call ``syclcc -O2 file.cpp``.
+The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enough to call ``syclcc -O2 file.cpp``.
+
+When running applications built with hipSYCL, one can often see the warning "[hipSYCL Warning] dag_direct_scheduler: Detected a requirement that is neither of discard access mode", reflecting the lack of an optimization hint when using buffer-accessor model. The warning is harmless and can be ignored.
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
@@ -1004,7 +1006,7 @@ Lambda-based kernel models (Kokkos, SYCL)
 Separate-source kernel models (OpenCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     - Very good portability
-    - Matured ecosystem 
+    - Mature ecosystem 
     - Low-level API gives more control and allows fine tuning
     - Both C and C++ APIs available (C++ API is less well supported)
     - The low-level API and separate-source kernel model are less user friendly
