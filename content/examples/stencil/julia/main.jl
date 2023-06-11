@@ -26,7 +26,7 @@ function visualize(curr::Field, filename=:none)
 end
 
 
-ncols, nrows = 1000, 1000
+ncols, nrows = 2048, 2048
 nsteps = 500
 
 # initialize current and previous states to the same state

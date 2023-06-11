@@ -3,7 +3,7 @@ using BenchmarkTools
 using AMDGPU
 
 include("heat.jl")
-include("core.jl")
+include("core_gpu.jl")
 
 
 """

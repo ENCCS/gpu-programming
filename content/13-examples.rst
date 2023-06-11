@@ -551,6 +551,33 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
          :language: julia
 
 
+.. challenge:: Exercise: Port to GPUs
+
+   Carefully inspect all Julia source files and consider the following questions:
+
+   1. Which functions should be ported to run on GPU?
+   2. Look at the :meth:`initialize!` function and how it uses the ``arraytype`` argument. This could be done more compactly and elegantly, but this solution solves scalar indexing errors. What are scalar indexing errors?
+   3. Try to start sketching GPU-ported versions of the key functions.
+
+   .. solution:: 
+
+      1. The :meth:`evolve!` and :meth:`simulate!` functions need to be ported. The ``main.jl`` file also needs to be updated to work with GPU arrays.
+      2. "Scalar indexing" is where you iterate over a GPU array, which would be excruciatingly slow and is indeed only allowed in interactive REPL sessions. Without the if-statements in the :meth:`initialize!` function, the :meth:`generate_field!` method would be doing disallowed scalar indexing if you were running on a GPU.
+      3. The GPU-ported version is found below. Try it out on both CPU and GPU and observe the speedup. Play around with array size to see if the speedup is affected. You can also play around with the ``xthreads`` and ``ythreads`` variables to see if it changes anything.
+
+      .. tabs::
+
+         .. tab:: main_gpu.jl
+         
+            .. literalinclude:: examples/stencil/julia/main_gpu.jl
+               :language: julia
+   
+         .. tab:: core_gpu.jl
+         
+            .. literalinclude:: examples/stencil/julia/core_gpu.jl
+               :language: julia
+
+
 See also
 ~~~~~~~~
 

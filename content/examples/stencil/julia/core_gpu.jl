@@ -41,10 +41,6 @@ function evolve_rocm!(currdata, prevdata, dx2, dy2, nx, ny, a, dt)
 end
 
 
-
-
-
-
 """
     swap_fields!(curr::Field, prev::Field)
 
