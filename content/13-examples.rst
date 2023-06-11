@@ -19,7 +19,6 @@ GPU programming example: stencil computation
    - 40 min teaching
    - 40 min exercises
 
-
 Problem: heat flow in two-dimensional area
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -29,7 +28,6 @@ Heat flows in objects according to local temperature differences, as if seeking 
    :align: center
    
    Over time, the temperature distribution progresses from the initial state toward an end state where upper triangle is warm and lower is cold. The average temperature tends to (70 + 85 + 20 + 5) / 4 = 45.
-
 
 Technique: stencil computation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -57,6 +55,14 @@ The standard way to numerically solve differential equations is to *discretize* 
       
       One obvious choice is *convolution* operation, used in image processing to apply various filter kernels; in some contexts, "convolution" and "stencil" are used almost interchangeably.
 
+Technical considerations
+------------------------
+
+**1. How fast and/ or accurate can the solution be?**
+
+Spatial resolution of the temperature field is controlled by the number/ density of the grid points. As the full grid update is required to proceed from one time point to the next, stencil computation is the main target of parallelization (on CPU or GPU).
+
+Moreover, in many cases the chosen time step cannot be arbitrarily large, otherwise the numerical differentiation will fail, and dense/ accurate grids imply small time steps (see inset below), which makes efficient spatial update even more important.
 
 .. solution:: Stencil expression and time-step limit
    
@@ -78,26 +84,32 @@ The standard way to numerically solve differential equations is to *discretize* 
    .. math::
       \Delta t_{max} = \frac{(\Delta x)^2 (\Delta y)^2}{2 \alpha ((\Delta x)^2 + (\Delta y)^2)}
 
-
-Technical considerations
-------------------------
-
-**1. How fast and/ or accurate can the solution be?**
-
-Spatial resolution of the temperature field is controlled by the number/ density of the grid points. As the full grid update is required to proceed from one time point to the next, stencil computation is the main target of parallelization (on CPU or GPU).
-
-Moreover, in many cases the chosen time step cannot be arbitrarily large, otherwise the numerical differentiation will fail, and dense/ accurate grids imply small time steps (see inset above), which makes efficient spatial update even more important.
-
 **2. What to do with area boundaries?**
 
 Naturally, stencil expression can't be applied directly to the outermost grid points that have no outer neighbors. This can be solved by either changing the expression for those points or by adding an additional layer of grid that is used in computing update, but not updated itself -- points of fixed temperature for the sides are being used in this example.
 
 **3. How could the algorithm be optimized further?**
 
-In `an earlier episode <https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/#memory-optimizations>`_, importance of efficient memory access was already stressed. In the following examples, each grid point (and its neighbors) will be treated mostly independently; however, this also means that for 5-point stencil each value of the grid point may be read up to 5 times from memory (even if it's the fast GPU memory). By rearranging the order of mathematical operations, it may be possible to reuse these values in a more efficient way.
+In `an earlier episode <https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/#memory-optimizations>`_, importance of efficient memory access was already stressed. In the following examples, each grid point (and its neighbors) is treated mostly independently; however, this also means that for 5-point stencil each value of the grid point may be read up to 5 times from memory (even if it's the fast GPU memory). By rearranging the order of mathematical operations, it may be possible to reuse these values in a more efficient way.
 
 Another point to note is that even if the solution is propagated in small time steps, not every step might actually be needed for output. Once some *local* region of the field is updated, mathematically nothing prevents it from being updated for the second time step -- even if the rest of the field is still being recalculated -- as long as :math:`t = m-1` values for the region boundary are there when needed. (Of course, this is more complicated to implement and would only give benefits in certain cases.)
 
+.. challenge:: Poll: which programming model/ framework are you most interested in today?
+
+   - OpenMP offloading (C++)
+   - SYCL
+   - _Python_ (`numba`/CUDA)
+   - Julia
+
+The following table will aid you in navigating the rest of this section:
+
+.. admonition:: Episode guide
+
+   - `Sequential and OpenMP-threaded code <https://enccs.github.io/gpu-programming/13-examples/#sequential-and-thread-parallel-program-in-c>`_ in C++, including compilation/ running instructions
+   - `Naive GPU parallelization <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-first-steps>`_, including SYCL compilation instructions
+   - `GPU code with device data management <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_ (OpenMP, SYCL)
+   - `Python implementation <>`_, including running instructions on `Google Colab <https://colab.research.google.com/>`_
+   - `Julia implementation <>`_, including running instructions
 
 Sequential and thread-parallel program in C++
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,7 +128,6 @@ Sequential and thread-parallel program in C++
    .. warning::
 
       Don't forget to `git pull` for the latest updates if you already have the content from the first day of the workshop!
-
 
 If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP `#pragma`:
 
@@ -184,8 +195,7 @@ If we assume the grid point values to be truly independent *for a single time st
       Iterations took 1.197 seconds.
       $ 
 
-   Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script
-   (make sure there is no running interactive allocation at the time):
+   Changing number of default OpenMP threads is somewhat tricky to do interactively, so OpenMP-CPU "scaling" tests are done via provided batch script (make sure (f. e.f, using `squeue --me`) that there is no currently running interactive allocation):
    
    .. code-block:: console
 
@@ -206,7 +216,6 @@ If we assume the grid point values to be truly independent *for a single time st
       Iterations took 0.069 seconds.
       Iterations took 0.547 seconds.
       (... 18 lines in total ...)
-
 
 CPU parallelization: timings
 ----------------------------
@@ -240,8 +249,6 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
 .. figure:: img/stencil/heat-omp-S.png
    :align: center
 
-(SPAN)
-
 .. challenge:: Exercise: heat flow computation scaling
 
    1. How is heat flow computation expected to scale with respect to the number of time steps?
@@ -258,21 +265,18 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
    
    3. (Optional) Do you expect GPU-accelerated computations to suffer from the memory effects observed above? Why/ why not?
    
-   
    .. solution::
    
       1. The answer is a: since each time-step update is sequential and involves a similar number of operations, then the update time will be more or less constant.
       2. The answer is b: since stencil application is independent for every grid point, the update time will be proportional to the number of points i.e. side * side.
       3. GPU computations are indeed sensitive to memory access patterns and tend to resort to (GPU) memory quickly. However, the effect above arises because multiple active CPU threads start competing for access to RAM. In contrast, "over-subscribing" the GPU with large amount of threads executing the same kernel (stencil update on a grid point) tends to hide memory access latencies; increasing grid size might actually help to achieve this.
-      
 
 GPU parallelization: first steps
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Let's apply several techniques presented in previous episodes to make stencil update GPU-parallel.
 
-OpenMP (or OpenACC) offloading requires to define a region to be executed in parallel as well as data that shall be copied over/ used in GPU memory. 
-Similarly, SYCL programming model offers convenient ways to define execution kernels, context to run them in (called queue) and simplified CPU-GPU transfer of needed data.
+OpenMP (or OpenACC) offloading requires to define a region to be executed in parallel as well as data that shall be copied over/ used in GPU memory. Similarly, SYCL programming model offers convenient ways to define execution kernels, context to run them in (called queue) and simplified CPU-GPU transfer of needed data.
 
 Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
@@ -289,24 +293,6 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
          .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
                         :emphasize-lines: 31,35
-                        
-   .. tab:: Python
-
-         .. literalinclude:: examples/stencil/python/heat_core.py 
-                        :language: py
-                        :lines: 6-8,34-48
-         
-   .. tab:: Julia
-
-         WRITEME  
-
-   .. tab:: CUDA
-
-         .. literalinclude:: examples/stencil/cuda/core_cuda.cu 
-                        :language: cpp
-                        :lines: 1-61
-                        :emphasize-lines: 22-25, 51-60
-
 
 .. solution:: Optional: compiling the SYCL executables
 
@@ -332,17 +318,14 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
 .. challenge:: Exercise: naive GPU ports
 
-   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. 
-   Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`.
+   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil`, `base/stencil_off` and `sycl/stencil_naive`. Try changing problem size parameters, e. g. `srun stencil_naive 2000 2000 5000`.
    
    - How computation times change? 
    - Do the results align to your expectations?
    
    .. solution::
    
-      If you ran the program (or looked up output of earlier sections), you might already know that the GPU-"ported" versions actually run slower than the single-CPU-core version!
-      In fact, the scaling behavior of all three variants is similar and expected, which is a good sign; only the "computation unit cost" is different. 
-      You can compare benchmark summaries in the tabs below:
+      If you ran the program (or looked up output of earlier sections), you might already know that the GPU-"ported" versions actually run slower than the single-CPU-core version! In fact, the scaling behavior of all three variants is similar and expected, which is a good sign; only the "computation unit cost" is different. You can compare benchmark summaries in the tabs below:
 
       .. tabs::
 
@@ -360,7 +343,6 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
             .. figure:: img/stencil/heat-sycl0.png
                :align: center
-
 
 GPU parallelization: data movement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -404,8 +386,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
 .. challenge:: Exercise: updated GPU ports
 
-   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil_data` and `sycl/stencil`. 
-   Try changing problem size parameters, e. g. `srun stencil 2000 2000 5000`. 
+   In the interactive allocation, run (using `srun`) provided or compiled executables `base/stencil_data` and `sycl/stencil`. Try changing problem size parameters, e. g. `srun stencil 2000 2000 5000`. 
    
    - How computation times change this time around?
    - What largest grid and/or longest propagation time can you get in 10 s on your machine?
@@ -416,26 +397,24 @@ Changes of stencil update code as well as the main program are shown in tabs bel
       
          .. tab:: OpenMP data mapping
          
-            Using GPU offloading with mapped device data, it is possible to achieve performance gains compared to thread-parallel version for larger grid sizes, 
-            due to the fact that the latter version becomes essentially RAM-bound, but the former does not.
+            Using GPU offloading with mapped device data, it is possible to achieve performance gains compared to thread-parallel version for larger grid sizes, due to the fact that the latter version becomes essentially RAM-bound, but the former does not.
             
             .. figure:: img/stencil/heat-map.png
                :align: center
                
          .. tab:: SYCL device buffers
          
-            Because of the more explicit programming approach, SYCL GPU port is still 10 times faster than OpenMP offloaded version, 
-            comparable with thread-parallel CPU version running on all cores of a single node.
-            Moreover, the performance scales perfectly with respect to both grid size and number of time steps (grid updates) computed.
+            Because of the more explicit programming approach, SYCL GPU port is still 10 times faster than OpenMP offloaded version, comparable with thread-parallel CPU version running on all cores of a single node. Moreover, the performance scales perfectly with respect to both grid size and number of time steps (grid updates) computed.
             
             .. figure:: img/stencil/heat-sycl2.png
                :align: center            
 
 
-Python, Julia, CUDA: WRITEME (in progress)
+WRITEME Python, Julia: (in progress)
+
 
 See also
---------
+~~~~~~~~
 
 This section leans heavily on source code and material created for several other computing workshops 
 by `ENCCS <https://enccs.se/>`_ and `CSC <https://csc.fi/>`_ and adapted for the purposes of this lesson.
@@ -443,7 +422,7 @@ If you want to know more about specific programming models / framework, definite
 
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`_
 - `Heterogeneous programming with SYCL <https://enccs.github.io/sycl-workshop/>`_
-- (CSC CUDA?)
+- `Educational implementation of heat flow example (incl. MPI-aware CUDA) <https://github.com/cschpc/heat-equation/>`_
 
 .. keypoints::
 
