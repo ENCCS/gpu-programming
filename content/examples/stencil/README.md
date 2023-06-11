@@ -1,4 +1,4 @@
-### Implementation notes:
+# Implementation notes
 
 Currently, these source files are identical between base/ OpenMP and SYCL variants:
 * io.cpp
