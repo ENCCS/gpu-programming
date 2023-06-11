@@ -38,22 +38,31 @@ Field(nx::Int64, ny::Int64, data) = Field{typeof(data)}(nx, ny, 0.01, 0.01, data
 Base.deepcopy(f::Field) = Field(f.nx, f.ny, f.dx, f.dy, deepcopy(f.data))
 
 """
-    initialize(rows::Int, cols::Int)
+    initialize(rows::Int, cols::Int, arraytype = Matrix)
 
 Initialize two temperature field with (nrows, ncols) number of 
-rows and columns.
+rows and columns. If the arraytype is something else than Matrix,
+create data on the CPU first to avoid scalar indexing errors.
 """
 function initialize(nrows = 1000, ncols = 1000, arraytype = Matrix)
-
-    data = arraytype(zeros(nrows+2, ncols+2))
-    previous = Field(nrows, ncols, data)
-
-    # generate a specific field with boundary conditions
-    generate_field!(previous)
+    data = zeros(nrows+2, ncols+2)
+    
+    # generate a field with boundary conditions
+    if arraytype != Matrix
+        tmp = Field(nrows, ncols, data)
+        generate_field!(tmp)
+        gpudata = arraytype(tmp.data)
+        previous = Field(nrows, ncols, gpudata)
+    else
+        previous = Field(nrows, ncols, data)
+        generate_field!(previous)
+    end
+    
     current = Base.deepcopy(previous)
 
     return previous, current
 end
+
 
 """
     generate_field!(field0::Field)

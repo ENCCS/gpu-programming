@@ -507,7 +507,11 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
 Julia GPU acceleration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl. To run it on LUMI CPU partition, type:
+A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl. 
+
+Source files of the examples presented below are available in the `content/examples/stencil/julia <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/julia>`_ directory.
+
+To run the example on LUMI CPU partition, type:
 
 .. code-block:: console
 
@@ -517,7 +521,7 @@ A Julia version of the stencil example above can be found below (a simplified ve
    $ module purge
    $ module use /appl/local/csc/modulefiles
    $ module load julia/1.9.0
-   $ # copy all the files below to a directory, and then instantiate an environment to install packages
+   $ # in directory with Project.toml and source files, instantiate an environment to install packages
    $ julia --project -e "using Pkg ; Pkg.instantiate()"
    $ # finally run
    $ julia --project main.jl
