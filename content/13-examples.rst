@@ -112,33 +112,38 @@ Intro: WRITEME
 
 .. solution:: Julia version
 
-   A Julia version of the stencil example above can be found below as well as in the repository https://github.com/ENCCS/HeatEquation.jl. The multithreaded version is in the ``threaded`` branch, so you will need to: 
+   A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl. To run it on LUMI CPU partition, type:
 
    .. code-block:: console
 
-      $ git clone https://github.com/ENCCS/HeatEquation.jl   
-      $ git checkout threaded
+      $ # interactive CPU node
+      $ srun --account=project_465000485 --partition=small --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
+      $ # load Julia env
+      $ module purge
+      $ module use /appl/local/csc/modulefiles
+      $ module load julia/1.9.0
+      $ # copy all the files below to a directory, and then instantiate an environment to install packages
+      $ julia --project -e "using Pkg ; Pkg.instantiate()"
+      $ # finally run
+      $ julia --project main.jl
+
+   Note that the Plots.jl dependency is commented out to save precompilation time.
 
    .. tabs::
 
-      .. tab:: HeatEquation.jl
+      .. tab:: main.jl
 
-         .. literalinclude:: examples/stencil/julia/src/HeatEquation.jl
+         .. literalinclude:: examples/stencil/julia/main.jl
             :language: julia
-
-      .. tab:: setup.jl
-
-         .. literalinclude:: examples/stencil/julia/src/setup.jl
-            :language: julia
-
-      .. tab:: io.jl
-
-         .. literalinclude:: examples/stencil/julia/src/io.jl
-                     :language: julia
 
       .. tab:: core.jl
 
-         .. literalinclude:: examples/stencil/julia/src/core.jl
+         .. literalinclude:: examples/stencil/julia/core.jl
+            :language: julia
+
+      .. tab:: heat.jl
+
+         .. literalinclude:: examples/stencil/julia/heat.jl
             :language: julia
 
       .. tab:: Project.toml
@@ -146,10 +151,6 @@ Intro: WRITEME
          .. literalinclude:: examples/stencil/julia/Project.toml
             :language: julia
 
-      .. tab:: example.jl
-      
-         .. literalinclude:: examples/stencil/julia/example.jl
-            :language: julia
 
 
 WRITEME (comments and some benchmarks?)
