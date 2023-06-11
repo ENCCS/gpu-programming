@@ -482,7 +482,7 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
    
       Some numbers from Colab:
       
-      .. list-table:: Run times of Numba CUDA Python program, s. Projected numbers for longer jobs are marked with "*"
+      .. list-table:: Run times of Numba CUDA Python program, s
          :widths: 25 25 25 25
          :header-rows: 1
 
