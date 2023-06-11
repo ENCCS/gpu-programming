@@ -452,7 +452,7 @@ You can run provided code examples on `Google Colab <https://enccs.github.io/gpu
      - no JIT (Colab)
    * - S:2000 T:500
      - 1.648
-     - 8.780
+     - 8.495
      - S:200 T:50
      - 5.318
    * - S:2000 T:200
@@ -482,25 +482,25 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
    
       Some numbers from Colab:
       
-      .. list-table:: Run times of Numba CUDA Python program, s
+      .. list-table:: Run times of Numba CUDA Python program, s. Projected numbers for longer jobs are marked with "*"
          :widths: 25 25 25 25
          :header-rows: 1
 
          * - Job size
            - JIT (LUMI)
-           - JIT (Colab, *proj.*)
+           - JIT (Colab)
            - CUDA (Colab)
          * - S:2000 T:500
            - 1.648
-           - 8.780
+           - 8.495
            - 1.079
          * - S:2000 T:2000
            - 6.133
-           - 35.2*
+           - 36.61
            - 3.931
          * - S:5000 T:500
            - 9.478
-           - 55.0*
+           - 57.19
            - 6.448
 
 
@@ -545,7 +545,6 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
 
       .. literalinclude:: examples/stencil/julia/Project.toml
          :language: julia
-
 
 
 See also
