@@ -97,7 +97,16 @@ With Kokkos, the data can be accessed either through raw pointers or through Kok
 
 Finally, Kokkos provides three different parallel operations: ``parallel_for``, ``parallel_reduce``, and ``parallel_scan``. The ``parallel_for`` operation is used to execute a loop in parallel. The ``parallel_reduce`` operation is used to execute a loop in parallel and reduce the results to a single value. The ``parallel_scan`` operation implements a prefix scan. The usage of ``parallel_for`` and ``parallel_reduce`` are demonstrated in the examples later in this chapter. More detail about the parallel operations are found `HERE <https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/ParallelDispatch.html>`__.
 
+Run Kokkos hello.cpp example in simple steps
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The following should work on AMD VEGA90A devices straight out of the box (needs ROCM installation). On NVIDIA Volta V100 devices (needs CUDA installation), use the variables commented out on the Makefile.
+
+1. ``git clone https://github.com/kokkos/kokkos.git``
+2. Copy the above Makefile into the current folder (make sure the indentation of the last line is tab, and not space)
+3. Copy the above hello.cpp file into the current folder
+4. ``make``
+5. ``./hello``
 
 
 OpenCL
