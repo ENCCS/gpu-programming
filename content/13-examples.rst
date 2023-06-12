@@ -319,7 +319,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       module load hipSYCL
       
       cd ../sycl/
-      (give the following lines some time (probably a couple of min)!)
+      (give the following lines some time, probably a couple of min)
       syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
       syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
