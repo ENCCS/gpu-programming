@@ -16,8 +16,8 @@ GPU programming example: stencil computation
 
 .. instructor-note::
 
-   - 40 min teaching
-   - 40 min exercises
+   - 45 min teaching
+   - 45 min exercises
 
 Problem: heat flow in two-dimensional area
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -64,7 +64,7 @@ Spatial resolution of the temperature field is controlled by the number/ density
 
 Moreover, in many cases the chosen time step cannot be arbitrarily large, otherwise the numerical differentiation will fail, and dense/ accurate grids imply small time steps (see inset below), which makes efficient spatial update even more important.
 
-.. solution:: Stencil expression and time-step limit
+.. solution:: Optional: stencil expression and time-step limit
    
    Differential equation shown above can be discretized using different schemes. For this example, temperature values at each grid point :math:`u^{m}(i,j)` are updated from one time point (:math:`m`) to the next (:math:`m+1`), using the following expressions:
       
@@ -249,7 +249,7 @@ However, for larger grid sizes the parallelization becomes inefficient -- as the
 .. figure:: img/stencil/heat-omp-S.png
    :align: center
 
-.. challenge:: Exercise: heat flow computation scaling
+.. challenge:: Discussion: heat flow computation scaling
 
    1. How is heat flow computation expected to scale with respect to the number of time steps?
    
@@ -439,7 +439,20 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/6-language-sup
 
 The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
 
-You can run provided code examples on `Google Colab <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`__ or your local computer. Short summary of a typical Colab run is provided below:
+.. callout:: Trying out Python examples
+
+   You can run provided code examples on Google Colab using instructions provided in the `Setup <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`_, your local machine, or LUMI node (non-GPU variants). On LUMI, you can set up Python distribution as following:
+   
+   .. code-block:: console
+
+      $ module load cray-python/3.9.13.1
+      (install needed dependencies locally)
+      $ pip3 install --user numba matplotlib
+      $ cd ../python/
+      (make sure you have active allocation)
+      $ srun python3 main.py
+
+Short summary of a typical Colab run is provided below:
 
 .. list-table:: Run times of Numba JIT-enabled Python program, s
    :widths: 25 25 25 25 25
@@ -551,7 +564,7 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
          :language: julia
 
 
-.. challenge:: Exercise: Port to GPUs
+.. challenge:: Exercise: Julia port to GPUs
 
    Carefully inspect all Julia source files and consider the following questions:
 
