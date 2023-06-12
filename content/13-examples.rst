@@ -328,7 +328,9 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
 .. challenge:: Exercise: naive GPU ports
 
-   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil``, ``base/stencil_off`` and ``sycl/stencil_naive``. Try changing problem size parameters, e. g. ``srun stencil_naive 2000 2000 5000``.
+   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil``, ``base/stencil_off`` and ``sycl/stencil_naive``. Try changing problem size parameters:
+   
+   - ``srun stencil_naive 2000 2000 5000``
    
    - How computation times change? 
    - Do the results align to your expectations?
@@ -403,7 +405,9 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
 .. challenge:: Exercise: updated GPU ports
 
-   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil_data`` and ``sycl/stencil``. Try changing problem size parameters, e. g. ``srun stencil 2000 2000 5000``. 
+   In the interactive allocation, run (using ``srun``) provided or compiled executables ``base/stencil_data`` and ``sycl/stencil``. Try changing problem size parameters:
+   
+   - ``srun stencil 2000 2000 5000``
    
    - How computation times change this time around?
    - What largest grid and/or longest propagation time can you get in 10 s on your machine?
@@ -495,7 +499,10 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
 
 .. challenge:: Exercise: CUDA acceleration in Python
 
-   Using Google Colab (or your own machine), run provided Numba-CUDA Python program. Try changing problem size parameters, e. g. ``args.rows, args.cols, args.nsteps = 2000, 2000, 5000``. 
+   Using Google Colab (or your own machine), run provided Numba-CUDA Python program. Try changing problem size parameters:
+   
+   - ``args.rows, args.cols, args.nsteps = 2000, 2000, 5000`` for notebooks,
+   - [``srun``] ``python3 main.py 2000 2000 5000`` for command line.
    
    - How computation times change?
    - Do you get better performance than from JIT-compiled CPU version? How far can you push the problem size?
