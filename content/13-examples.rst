@@ -579,6 +579,7 @@ To run on the GPU partition, use instead the ``srun`` command
    1. Which functions should be ported to run on GPU?
    2. Look at the :meth:`initialize!` function and how it uses the ``arraytype`` argument. This could be done more compactly and elegantly, but this solution solves scalar indexing errors. What are scalar indexing errors?
    3. Try to start sketching GPU-ported versions of the key functions.
+   4. When you have a version running on a GPU (your own or the solution provided below), try benchmarking it by adding ``@btime`` in front of :meth:`simulate!` in ``main.jl``. Benchmark also the CPU version, and compare.
 
    .. solution:: Hints
 
