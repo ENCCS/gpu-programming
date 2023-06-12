@@ -151,6 +151,15 @@ If we assume the grid point values to be truly independent *for a single time st
                         :language: cpp
                         :lines: 7-34
 
+.. callout::
+
+      If you will be using the Git-stored versions of the executables, you should also make them... well, executable:
+      
+      .. code-block:: console
+      
+         $ cd lumi
+         $ chmod 770 stencil*
+
 .. solution:: Optional: compiling the executables and running OpenMP-CPU tests
 
    Executable files for the OpenMP-enabled variants are provided together with the source code. However, if you'd like to compile them yourself, follow the instructions below:
@@ -310,6 +319,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       module load hipSYCL
       
       cd ../sycl/
+      (give the following lines some time (probably a couple of min)!)
       syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
       syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
