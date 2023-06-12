@@ -59,7 +59,7 @@ However, Kokkos offers a simple way to compile Kokkos library simultaneously wit
          include $(KOKKOS_PATH)/Makefile.kokkos
          
          build: $(KOKKOS_LINK_DEPENDS) $(KOKKOS_CPP_DEPENDS) hello.cpp
-          $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) $(KOKKOS_LIBS) hello.cpp -o hello
+          $(CXX) $(KOKKOS_CPPFLAGS) $(KOKKOS_CXXFLAGS) $(KOKKOS_LDFLAGS) hello.cpp $(KOKKOS_LIBS) -o hello
 
 To build a **hello.cpp** project with the above Makefile, no steps other than cloning the Kokkos project into the current directory is required. 
 
