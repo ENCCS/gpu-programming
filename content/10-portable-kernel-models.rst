@@ -45,11 +45,14 @@ However, Kokkos offers a simple way to compile Kokkos library simultaneously wit
    
          # Set compiler
          KOKKOS_PATH = $(shell pwd)/kokkos
-         CXX = ${KOKKOS_PATH}/bin/nvcc_wrapper
+         CXX = hipcc
+         # CXX = ${KOKKOS_PATH}/bin/nvcc_wrapper
          
          # Variables for the Makefile.kokkos
-         KOKKOS_DEVICES = "Cuda"
-         KOKKOS_ARCH = "Volta70"
+         KOKKOS_DEVICES = "HIP"
+         # KOKKOS_DEVICES = "Cuda"
+         KOKKOS_ARCH = "VEGA90A"
+         # KOKKOS_ARCH = "Volta70"
          KOKKOS_CUDA_OPTIONS = "enable_lambda,force_uvm"
          
          # Include Makefile.kokkos
