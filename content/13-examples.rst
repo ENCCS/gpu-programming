@@ -520,16 +520,15 @@ However, for NVIDIA GPUs, Numba also offers direct CUDA-based kernel programming
 Julia GPU acceleration
 ~~~~~~~~~~~~~~~~~~~~~~
 
-A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl. 
-
-Source files of the examples presented below are available in the `content/examples/stencil/julia <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/julia>`_ directory.
+A Julia version of the stencil example above can be found below (a simplified version of the HeatEquation module at https://github.com/ENCCS/HeatEquation.jl). 
+The source files are also available in the `content/examples/stencil/julia <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/julia>`_ directory of this repository.
 
 To run the example on LUMI CPU partition, type:
 
 .. code-block:: console
 
    $ # interactive CPU node
-   $ srun --account=project_465000485 --partition=small --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
+   $ srun --account=project_465000485 --partition=standard --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
    $ # load Julia env
    $ module purge
    $ module use /appl/local/csc/modulefiles
@@ -539,7 +538,16 @@ To run the example on LUMI CPU partition, type:
    $ # finally run
    $ julia --project main.jl
 
-Note that the Plots.jl dependency is commented out to save precompilation time.
+To run on the GPU partition, use instead the ``srun`` command 
+
+.. code-block:: console
+
+   $ srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+
+
+.. callout:: Optional dependency
+
+   Note that the ``Plots.jl`` dependency is commented out in ``main.jl`` and ``Project.toml``. This saves ~2 minute precompilation time when you first instantiate the Julia environment. To generate plots, just uncomment the commented ``Plots.jl`` dependency in ``Project.toml``, instantiate again, and import and use ``Plots`` in ``main.jl``.
 
 .. tabs::
 
@@ -572,6 +580,22 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
    2. Look at the :meth:`initialize!` function and how it uses the ``arraytype`` argument. This could be done more compactly and elegantly, but this solution solves scalar indexing errors. What are scalar indexing errors?
    3. Try to start sketching GPU-ported versions of the key functions.
 
+   .. solution:: Hints
+
+      - create a new function :meth:`evolve_gpu!` which contains the GPU kernelized version of :meth:`evolve!`
+      - in the loop over timesteps in :meth:`simulate!`, you will need a conditional like ``if typeof(curr.data) <: ROCArray`` to call your GPU-ported function
+      - you cannot pass the struct ``Field`` to the kernel. You will instead need to directly pass the array ``Field.data``. This also necessitates passing in other variables like ``curr.dx^2``, etc.
+
+
+   .. solution:: More hints
+
+      - since the data is two-dimensional, you'll need ``i = (blockIdx().x - 1) * blockDim().x + threadIdx().x`` and ``j = (blockIdx().y - 1) * blockDim().y + threadIdx().y``
+      - to not overindex the 2D array, you can use a conditional like ``if i > 1 && j > 1 && i < nx+2 && j < ny+2``
+      - when calling the kernel, you can set the number of threads and blocks like ``xthreads = ythreads = 16`` and ``xblocks, yblocks = cld(curr.nx, xthreads), cld(curr.ny, ythreads)``, and then call it with, e.g., ``@roc threads=(xthreads, ythreads) blocks = (xblocks, yblocks) evolve_rocm!(curr.data, prev.data, curr.dx^2, curr.dy^2, nx, ny, a, dt)``.
+
+
+
+
    .. solution:: 
 
       1. The :meth:`evolve!` and :meth:`simulate!` functions need to be ported. The ``main.jl`` file also needs to be updated to work with GPU arrays.
@@ -581,12 +605,12 @@ Note that the Plots.jl dependency is commented out to save precompilation time.
       .. tabs::
 
          .. tab:: main_gpu.jl
-         
+
             .. literalinclude:: examples/stencil/julia/main_gpu.jl
                :language: julia
-   
+
          .. tab:: core_gpu.jl
-         
+
             .. literalinclude:: examples/stencil/julia/core_gpu.jl
                :language: julia
 
