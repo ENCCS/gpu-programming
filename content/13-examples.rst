@@ -177,11 +177,13 @@ If we assume the grid point values to be truly independent *for a single time st
    
    .. code-block:: console
 
-      srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
-      ./stencil
-      ./stencil_off
-      ./stencil_data
-      exit
+      $ srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+      
+      $ ./stencil
+      $ ./stencil_off
+      $ ./stencil_data
+      
+      $ exit
       
    If everything works well, the output should look similar to this:
    
@@ -304,12 +306,12 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
                         :language: cpp
                         :emphasize-lines: 31,35
 
-.. solution:: Optional: compiling the SYCL executables
-
-   As previously, you are welcome to generate your own executables. This time we will be using the interactive allocation:
+.. callout:: Loading modules on LUMI
+   
+   As SYCL is placed on top of ROCm/HIP (or CUDA) software stack, even running SYCL executables may require respective modules to be loaded. On current nodes, it can be done as follows:
    
    .. code-block:: console
-
+   
       salloc -A project_465000485 -N 1 -t 1:00:0 -p standard-g --gpus-per-node=1
       
       module load LUMI/22.08
@@ -317,14 +319,20 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       module load rocm/5.3.3
       module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
       module load hipSYCL
-      
-      cd ../sycl/
+
+.. solution:: Optional: compiling the SYCL executables
+
+   As previously, you are welcome to generate your own executables. This time we will be using the interactive allocation:
+   
+   .. code-block:: console
+
+      $ cd ../sycl/
       (give the following lines some time, probably a couple of min)
-      syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
-      syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
+      $ syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
+      $ syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
-      srun ./stencil_naive
-      srun ./stencil
+      $ srun ./stencil_naive
+      $ srun ./stencil
 
 .. challenge:: Exercise: naive GPU ports
 
