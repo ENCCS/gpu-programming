@@ -331,8 +331,8 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       $ syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
       $ syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
-      $ srun ./stencil_naive
-      $ srun ./stencil
+      $ srun stencil_naive
+      $ srun stencil
 
 .. challenge:: Exercise: naive GPU ports
 
