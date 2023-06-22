@@ -77,7 +77,7 @@ create race conditions.
 Exposing parallelism
 --------------------
 
-The are two types of parallelism that can be explored.
+There are two types of parallelism that can be explored.
 The data parallelism is when the data can be distributed across computational units that can run in parallel.
 The units process the data by applying the same or very similar operation to different data elements.
 A common example is applying a blur filter to an image --- the same function is applied to all the pixels on an image.
