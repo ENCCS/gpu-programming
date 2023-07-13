@@ -64,6 +64,14 @@ to learn and use for their projects. Specifically, you will:
    glossary
    guide
 
+.. toctree::
+   :maxdepth: 1
+   :caption: About
+
+   All lessons <https://enccs.se/lessons/>
+   ENCCS <https://enccs.se/>
+
+
 
 
 .. _learner-personas:
