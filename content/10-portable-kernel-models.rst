@@ -18,7 +18,7 @@ Portable kernel-based models
    - 45 min teaching
    - 30 min exercises
 
-The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`_ (also known as Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (also known as hipSYCL or Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 Kokkos
 ^^^^^^
@@ -209,7 +209,7 @@ The above kernel named ``dot`` and stored in the string ``kernel_source`` can be
 SYCL
 ^^^^
 
-`SYCL <https://www.khronos.org/sycl/>`__ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`__ and `hipSYCL <https://github.com/OpenSYCL/OpenSYCL>`__ are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`__ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
+`SYCL <https://www.khronos.org/sycl/>`__ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`__ and `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`__ (also known as hipSYCL) are the most popular for desktop and HPC GPUs; `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`__ is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.
 
 The most recent version of the SYCL standard is SYCL 2020, and it is the version we will be using in this course. 
 
@@ -227,10 +227,10 @@ Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
 - ``clang++ -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_86 file.cpp`` for targeting CUDA 8.6 NVIDIA GPU,
 - ``clang++ -fsycl -fsycl-targets=amdgcn-amd-amdhsa -Xsycl-target-backend=amdgcn-amd-amdhsa --offload-arch=gfx90a`` for targeting GFX90a AMD GPU.
 
-hipSYCL
-*******
+AdaptiveCpp
+***********
 
-Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
+Using AdaptiveCpp for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
 
 - ``syclcc --hipsycl-targets='hip:gfx90a;cuda:sm_70' file.cpp``
 
@@ -250,7 +250,7 @@ of hipSYCL 0.9.4 was prepared, which can be loaded as:
 
 The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enough to call ``syclcc -O2 file.cpp``.
 
-When running applications built with hipSYCL, one can often see the warning "[hipSYCL Warning] dag_direct_scheduler: Detected a requirement that is neither of discard access mode", reflecting the lack of an optimization hint when using buffer-accessor model. The warning is harmless and can be ignored.
+When running applications built with AdaptiveCpp/hipSYCL, one can often see the warning "[hipSYCL Warning] dag_direct_scheduler: Detected a requirement that is neither of discard access mode", reflecting the lack of an optimization hint when using buffer-accessor model. The warning is harmless and can be ignored.
 
 SYCL programming
 ~~~~~~~~~~~~~~~~
