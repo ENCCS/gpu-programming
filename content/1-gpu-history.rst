@@ -31,7 +31,7 @@ Higher performance of a single node has to rely on its more complicated structur
    :align: center
 
    The evolution of microprocessors.
-   The number of transistors per chip increase roughly every 2 years.
+   The number of transistors per chip doubles roughly every 2 years.
    However, it can no longer be explored by the core frequency due to the power consumption limits.
    Before 2000, the increase in the single core clock frequency was the major source of the 
    increase in the performance. Mid 2000 mark a transition towards multi-core processors.
