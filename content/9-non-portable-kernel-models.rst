@@ -1287,7 +1287,7 @@ At the block level we still have to perform a reduction in an efficient way. Doi
                if (ind + N / 2 < N) {
                   shtmp[tid + tpb] = x[ind + N / 2];
                }
-
+               item.barrier();
                for (int s = tpb; s > 0; s >>= 1) {
                   if (tid < s) {
                       shtmp[tid] += shtmp[tid + s];
