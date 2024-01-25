@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GPU programming concepts &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Introduction to GPU programming models" href="../5-intro-to-gpu-prog-models/" />
+    <link rel="prev" title="What problems fit to GPU?" href="../3-gpu-problems/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GPU programming concepts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#different-types-of-parallelism">Different types of parallelism</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#distributed-vs-shared-memory-architecture">Distributed- vs. Shared-Memory Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processes-and-threads">Processes and threads</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exposing-parallelism">Exposing parallelism</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gpu-execution-model">GPU Execution Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cuda-threads-warps-blocks">CUDA Threads, Warps, Blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#terminology">Terminology</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#software">Software</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">GPU programming concepts</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/4-gpu-concepts.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gpu-programming-concepts">
+<span id="gpu-concepts"></span><h1>GPU programming concepts<a class="headerlink" href="#gpu-programming-concepts" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What types of parallel computing is possible?</p></li>
+<li><p>How does data parallelism differ from task parallelism, and how are they utilized in parallel computing?</p></li>
+<li><p>How is the work parallelized and executed on GPUs?</p></li>
+<li><p>What are general considerations for an efficient code running on GPUs?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand parallel computing principles and architectures.</p></li>
+<li><p>Differentiate data parallelism from task parallelism.</p></li>
+<li><p>Learn the GPU execution model.</p></li>
+<li><p>Parallelize and execute work on GPUs.</p></li>
+<li><p>Develop efficient GPU code for high performance.</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>25 min teaching</p></li>
+<li><p>0 min exercises</p></li>
+</ul>
+</div>
+<section id="different-types-of-parallelism">
+<h2>Different types of parallelism<a class="headerlink" href="#different-types-of-parallelism" title="Permalink to this heading"></a></h2>
+<section id="distributed-vs-shared-memory-architecture">
+<h3>Distributed- vs. Shared-Memory Architecture<a class="headerlink" href="#distributed-vs-shared-memory-architecture" title="Permalink to this heading"></a></h3>
+<p>Most of computing problems are not trivially parallelizable, which means that the subtasks
+need to have access from time to time to some of the results computed by other subtasks.
+The way subtasks exchange needed information depends on the available hardware.</p>
+<figure class="align-center" id="id4">
+<img alt="../_images/distributed_vs_shared.png" src="../_images/distributed_vs_shared.png" />
+<figcaption>
+<p><span class="caption-text">Distributed- vs shared-memory parallel computing.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>In a distributed memory environment each computing unit operates independently from the
+others. It has its own memory and it  <strong>cannot</strong> access the memory in other nodes.
+The communication is done via network and each computing unit runs a separate copy of the
+operating system. In a shared memory machine all computing units have access to the memory
+and can read or modify the variables within.</p>
+</section>
+<section id="processes-and-threads">
+<h3>Processes and threads<a class="headerlink" href="#processes-and-threads" title="Permalink to this heading"></a></h3>
+<p>The type of environment (distributed- or shared-memory) determines the programming model.
+There are two types of parallelism possible, process based and thread based.</p>
+<figure class="align-center">
+<img alt="../_images/processes-threads.png" src="../_images/processes-threads.png" />
+</figure>
+<p>For distributed memory machines, a process-based parallel programming model is employed.
+The processes are independent execution units which have their <em>own memory</em> address spaces.
+They are created when the parallel program is started and they are only terminated at the
+end. The communication between them is done explicitly via message passing like MPI.</p>
+<p>On the shared memory architectures it is possible to use a thread based parallelism.
+The threads are light execution units and can be created and destroyed at a relatively
+small cost. The threads have their own state information but they <em>share</em> the <em>same memory</em>
+address space. When needed the communication is done though the shared memory.</p>
+<p>Both approaches have their advantages and disadvantages.  Distributed machines are
+relatively cheap to build and they  have an “infinite ” capacity. In principle one could
+add more and more computing units. In practice the more computing units are used the more
+time consuming is the communication. The shared memory systems can achieve good performance
+and the programming model is quite simple. However they are limited by the memory capacity
+and by the access speed. In addition in the shared parallel model it is much easier to
+create race conditions.</p>
+</section>
+</section>
+<section id="exposing-parallelism">
+<h2>Exposing parallelism<a class="headerlink" href="#exposing-parallelism" title="Permalink to this heading"></a></h2>
+<p>The are two types of parallelism that can be explored.
+The data parallelism is when the data can be distributed across computational units that can run in parallel.
+The units process the data by applying the same or very similar operation to different data elements.
+A common example is applying a blur filter to an image — the same function is applied to all the pixels on an image.
+This parallelism is natural for the GPU, where the same instruction set is executed in multiple <abbr title="In OpenCL and SYCL: work-item.">threads</abbr>.</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="../_images/ENCCS-OpenACC-CUDA_TaskParallelism_Explanation.png"><img alt="../_images/ENCCS-OpenACC-CUDA_TaskParallelism_Explanation.png" src="../_images/ENCCS-OpenACC-CUDA_TaskParallelism_Explanation.png" style="width: 715.2px; height: 265.6px;" /></a>
+<figcaption>
+<p><span class="caption-text">Data parallelism and task parallelism.
+The data parallelism is when the same operation applies to multiple data (e.g. multiple elements of an array are transformed).
+The task parallelism implies that there are more than one independent task that, in principle, can be executed in parallel.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>Data parallelism can usually be explored by the GPUs quite easily.
+The most basic approach would be finding a loop over many data elements and converting it into a GPU kernel.
+If the number of elements in the data set is fairly large (tens or hundred of thousands elements), the GPU should perform quite well. Although it would be odd to expect absolute maximum performance from such a naive approach, it is often the one to take. Getting absolute maximum out of the data parallelism requires good understanding of how GPU works.</p>
+<p>Another type of parallelism is a task parallelism.
+This is when an application consists of more than one task that requiring to perform different operations with (the same or) different data.
+An example of task parallelism is cooking: slicing vegetables and grilling are very different tasks and can be done at the same time.
+Note that the tasks can consume totally different resources, which also can be explored.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">In short</p>
+<ul class="simple">
+<li><p>Computing problems can be parallelized in distributed memory or shared memory architectures.</p></li>
+<li><p>In distributed memory, each unit operates independently, with no direct memory access between nodes.</p></li>
+<li><p>In shared memory, units have access to the same memory and can communicate through shared variables.</p></li>
+<li><p>Parallel programming can be process-based (distributed memory) or thread-based (shared memory).</p></li>
+<li><p>Process-based parallelism uses independent processes with separate memory spaces and explicit message passing.</p></li>
+<li><p>Thread-based parallelism uses lightweight threads that share the same memory space and communicate through shared memory.</p></li>
+<li><p>Data parallelism distributes data across computational units, processing them with the same or similar operations.</p></li>
+<li><p>Task parallelism involves multiple independent tasks that perform different operations on the same or different data.</p></li>
+<li><p>Task parallelism involves executing different tasks concurrently, leveraging different resources.</p></li>
+</ul>
+</div>
+</section>
+<section id="gpu-execution-model">
+<h2>GPU Execution Model<a class="headerlink" href="#gpu-execution-model" title="Permalink to this heading"></a></h2>
+<p>In order to obtain maximum performance it is important to understand how GPUs execute the programs. As mentioned before a CPU is a flexible device oriented towards general purpose usage. It’s fast and versatile, designed to run operating systems and various, very different types of applications. It has lots of features, such as better control logic, caches and cache coherence, that are not related to pure computing. CPUs optimize the execution by trying to achieve low latency via heavy caching and branch prediction.</p>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="../_images/cpu-gpu-highway.png"><img alt="../_images/cpu-gpu-highway.png" src="../_images/cpu-gpu-highway.png" style="width: 768.0px; height: 432.0px;" /></a>
+<figcaption>
+<p><span class="caption-text">Cars and roads analogy for the CPU and GPU behavior. The compact road is analogous to the CPU
+(low latency, low throughput) and the broader road is analogous to the GPU (high latency, high throughput).</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. GPU <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions.</p>
+<section id="cuda-threads-warps-blocks">
+<h3>CUDA Threads, Warps, Blocks<a class="headerlink" href="#cuda-threads-warps-blocks" title="Permalink to this heading"></a></h3>
+<p>In order to perform some work the program launches a function called <em>kernel</em>, which is executed simultaneously by tens of thousands of <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> that can be run on GPU cores parallelly. GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By “over-subscribing” the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/THREAD_CORE.png"><img alt="../_images/THREAD_CORE.png" src="../_images/THREAD_CORE.png" style="width: 638.8000000000001px; height: 265.6px;" /></a>
+</figure>
+<p>Every <abbr title="In OpenCL and SYCL: work-item.">thread</abbr> is associated with a particular intrinsic index which can be used to calculate and access  memory locations in an array. Each thread has its context and set of private variables. All threads have access to the global GPU memory, but there is no general way to synchronize when executing a kernel. If some threads need data from the global memory which was modified by other threads the code would have to be splitted in several kernels because only at the completion of a kernel it is ensured that the writing to the global memory was completed.</p>
+<p>Apart from being much light weighted there are more differences between GPU threads and CPU threads. GPU <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> are grouped together in groups called <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warps</abbr>. This done at hardware level.</p>
+<p>All memory accesses to the GPU memory are as a group in blocks of specific sizes (32B, 64B, 128B etc.). To obtain good performance the CUDA threads in the same warp need to access elements of the data which are adjacent in the memory. This is called <em>coalesced</em> memory access.</p>
+<p>On some architectures, all members of a <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warp</abbr> have to execute the
+same instruction, the so-called “lock-step” execution. This is done to achieve
+higher performance, but there are some drawbacks. If an <strong>if</strong> statement
+is present inside a <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warp</abbr> will cause the warp to be executed more than once,
+one time for each branch. When different threads within a single <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warp</abbr>
+take different execution paths based on a conditional statement (if), both
+branches are executed sequentially, with some threads being active while
+others are inactive. On architectures without lock-step execution, such
+as NVIDIA Volta / Turing (e.g., GeForce 16xx-series) or newer, <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warp</abbr>
+divergence is less costly.</p>
+<p>There is another level in the GPU <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> hierarchy. The <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> are grouped together in so called <abbr title="In OpenCL and SYCL: work-group.">blocks</abbr>. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT (single instruction multiple threads) units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called <abbr title="In OpenCL and SYCL: local memory (not to be confused with CUDA and HIP local memory).">shared memory</abbr>. The shared memory can be used to “cache” data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in a coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/BLOCK_SMP.png"><img alt="../_images/BLOCK_SMP.png" src="../_images/BLOCK_SMP.png" style="width: 550.8000000000001px; height: 430.0px;" /></a>
+</figure>
+<p>Finally, a block of threads can not be splitted among SMPs. For performance blocks should have more than one <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">warp</abbr>. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are sufficient, due to fast context switching, an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.</p>
+<p>To summarize this section. In order to take advantage of GPUs the algorithms must allow the division of work in many small subtasks which can be executed in the same time. The computations are offloaded to GPUs, by launching tens of thousands of threads all executing the same function, <em>kernel</em>, each thread working on different part of the problem. The threads are executed in groups called <em>blocks</em>, each block being assigned to a SMP. Furthermore the threads of a block are divided in <em>warps</em>, each executed by SIMT unit. All threads in a warp execute the same instructions and all memory accesses are done collectively at warp level. The threads can synchronize and share data only at block level. Depending on the architecture, some data sharing can be done as well at warp level.</p>
+<p>In order to hide latencies it is recommended to “over-subscribe” the GPU. There should be many more blocks than SMPs present on the device. Also in order to ensure a good occupancy of the CUDA cores there should be more warps active on a given SMP than SIMT units. This way while some warps of threads are idle waiting for some memory operations to complete, others use the CUDA cores, thus ensuring a high occupancy of the GPU.</p>
+<p>In addition to this there are some architecture-specific features of which the developers can take advantage. <abbr title="In HIP: wavefront. In OpenCL and SYCL: sub-group.">Warp</abbr>-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow <abbr title="In OpenCL and SYCL: work-item.">threads</abbr> within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.</p>
+<p>Below there is an example of how the threads in a grid can be associated with specific elements of an array</p>
+<figure class="align-center">
+<a class="reference internal image-reference" href="../_images/Indexing.png"><img alt="../_images/Indexing.png" src="../_images/Indexing.png" style="width: 546.4px; height: 247.20000000000002px;" /></a>
+</figure>
+<p>The thread marked by orange color is part of a grid of threads size 4096. The threads are grouped in blocks of size 256. The “orange” thread has index 3 in the block 2 and the global calculated index 515.</p>
+<p>For a vector addition example this would be used as follow <code class="docutils literal notranslate"><span class="pre">c[index]=a[index]+b[index]</span></code>.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">In short</p>
+<ul class="simple">
+<li><p>GPUs have a different execution model compared to CPUs, with a focus on parallelism and mathematical operations.</p></li>
+<li><p>GPUs consist of thousands of lightweight threads that can be executed simultaneously on GPU cores.</p></li>
+<li><p>Threads are organized into warps, and warps are grouped into blocks assigned to streaming multiprocessors (SMPs).</p></li>
+<li><p>GPUs achieve performance through high degrees of parallelism and efficient memory access.</p></li>
+<li><p>Shared memory can be used to cache data and improve memory access efficiency within a block.</p></li>
+<li><p>Synchronization and data sharing are limited to the block level, with some possible sharing at the warp level depending on the architecture.</p></li>
+<li><p>Over-subscribing the GPU and maximizing warp and block occupancy help hide latencies and improve performance.</p></li>
+<li><p>Warp-level operations and cooperative groups provide efficient communication and synchronization within a warp or block.</p></li>
+<li><p>Thread indexing allows associating threads with specific elements in an array for parallel processing.</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="terminology">
+<h2>Terminology<a class="headerlink" href="#terminology" title="Permalink to this heading"></a></h2>
+<p>At the moment there are three major GPU producers: NVIDIA, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.</p>
+<section id="software">
+<h3>Software<a class="headerlink" href="#software" title="Permalink to this heading"></a></h3>
+<table class="docutils align-center" id="id7">
+<caption><span class="caption-text">Software mapping naming</span><a class="headerlink" href="#id7" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>CUDA</p></th>
+<th class="head"><p>HIP</p></th>
+<th class="head"><p>OpenCL</p></th>
+<th class="head"><p>SYCL</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td colspan="2"><p>grid of threads</p></td>
+<td colspan="2"><p>NDRange</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>block</p></td>
+<td colspan="2"><p>work-group</p></td>
+</tr>
+<tr class="row-even"><td><p>warp</p></td>
+<td><p>wavefront</p></td>
+<td colspan="2"><p>sub-group</p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>thread</p></td>
+<td colspan="2"><p>work-item</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>registers</p></td>
+<td colspan="2"><p>private memory</p></td>
+</tr>
+<tr class="row-odd"><td><p>shared memory</p></td>
+<td><p>local data share</p></td>
+<td colspan="2"><p>local memory</p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>threadIdx.{x,y,z}</p></td>
+<td><p>get_local_id({0,1,2})</p></td>
+<td><p>nd_item::get_local({2,1,0}) <a class="footnote-reference brackets" href="#syclindex" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-odd"><td colspan="2"><p>blockIdx.{x,y,z}</p></td>
+<td><p>get_group_id({0,1,2})</p></td>
+<td><p>nd_item::get_group({2,1,0}) <a class="footnote-reference brackets" href="#syclindex" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+</tr>
+<tr class="row-even"><td colspan="2"><p>blockDim.{x,y,z}</p></td>
+<td><p>get_local_size({0,1,2})</p></td>
+<td><p>nd_item::get_local_range({2,1,0}) <a class="footnote-reference brackets" href="#syclindex" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a></p></td>
+</tr>
+</tbody>
+</table>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="syclindex" role="note">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>)</span>
+<p>In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consecutive X (0) index in CUDA, HIP, and OpenCL, but consecutive Z (2) index in SYCL.
+In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
+Same applies to block dimensions and indexing.</p>
+</aside>
+</aside>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>Parallel computing can be classified into distributed-memory and shared-memory architectures</p></li>
+<li><p>Two types of parallelism that can be explored are data parallelism and task parallelism.</p></li>
+<li><p>GPUs are a type of shared memory architecture suitable for data parallelism.</p></li>
+<li><p>GPUs have high parallelism, with threads organized into warps and blocks and.</p></li>
+<li><p>GPU optimization involves coalesced memory access, shared memory usage, and high thread and warp occupancy. Additionally, architecture-specific features such as warp-level operations and cooperative groups can be leveraged for more efficient processing.</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../3-gpu-problems/" class="btn btn-neutral float-left" title="What problems fit to GPU?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../5-intro-to-gpu-prog-models/" class="btn btn-neutral float-right" title="Introduction to GPU programming models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
