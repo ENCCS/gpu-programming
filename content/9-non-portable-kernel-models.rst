@@ -801,7 +801,7 @@ The shared memory can be used to improve performance in two ways. It is possible
 
 
 Matrix Transpose
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
 Matrix transpose is a classic example where shared memory can significantly improve the performance. The use of shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory.
 
 .. figure:: img/concepts/transpose_img.png
@@ -1222,7 +1222,7 @@ By padding the array the data is slightly shifting it resulting in no bank confl
 
 
 Reductions
-^^^^^^^^^^
+~~~~~~~~~~
 
 `Reductions` refer to operations in which the elements of an array are aggregated in a single value through operations such as summing, finding the maximum or minimum, or performing logical operations. 
 
@@ -1333,8 +1333,8 @@ For a detail analysis of how to optimize reduction operations in CUDA/HIP check 
    - Parallel reduction on GPUs involves dividing the problem into subsets, performing reductions within blocks of threads using shared memory, and repeatedly reducing the number of elements (two per GPU thread) until only one remains.
 
 
-CUDA/HIP Streams
-^^^^^^^^^^^^^^^^
+Overlapping Computations and Memory transfer. CUDA/HIP Streams
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Modern GPUs can overlap independent operations. They can do transfers between CPU and GPU and execute kernels in the same time, or they can execute kernels concurrently. CUDA/HIP streams are independent execution units, a sequence of operations that execute in issue-order on the GPU. The operations issue in different streams can be executed concurrently. 
 
 Consider the previous case of vector addition, which involves copying data from CPU to GPU, computations and then copying back the result to GPU. In this way nothing can be overlap. 
