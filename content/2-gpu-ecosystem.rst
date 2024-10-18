@@ -244,7 +244,7 @@ Terminology
    * - NVIDIA
      - AMD
      - Intel
-   * - streaming processor/streaming core
+   * - Streaming processor/streaming core
      - SIMD lane
      - processing element
    * - SIMT unit
