@@ -45,7 +45,7 @@ The communication is done via network and each computing unit runs a separate co
 operating system. In a shared memory machine all computing units have access to the memory 
 and can read or modify the variables within.
 
-Processes and threads
+Processes and Threads
 ~~~~~~~~~~~~~~~~~~~~~
 
 The type of environment (distributed- or shared-memory) determines the programming model. 
