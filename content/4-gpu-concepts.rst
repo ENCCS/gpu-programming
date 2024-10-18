@@ -61,7 +61,7 @@ end. The communication between them is done explicitly via message passing like 
 
 On the shared memory architectures it is possible to use a thread based parallelism.  
 The threads are light execution units and can be created and destroyed at a relatively 
-small cost. The threads have their own state information but they *share* the *same memory* 
+small cost. The threads have their own state information, but they *share* the *same memory* 
 address space. When needed the communication is done though the shared memory. 
 
 
