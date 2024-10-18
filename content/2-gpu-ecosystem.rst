@@ -246,7 +246,7 @@ Terminology
      - Intel
    * - Streaming processor/streaming core
      - SIMD lane
-     - processing element
+     - Processing element
    * - SIMT unit
      - SIMD unit
      - Vector engine (XVE)
