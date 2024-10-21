@@ -131,7 +131,27 @@ In contrast the GPUs contain a relatively small amount of transistors dedicated 
 CUDA Threads, Warps, Blocks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In order to perform some work the program launches a function called *kernel*, which is executed simultaneously by tens of thousands of :abbr:`threads` that can be run on GPU cores parallelly. GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing" the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
+In order to understand the GPU execution model let's look at the so called `axpy` operation. On a single CPU core this operation would be executed in a serial manner in a `for/do` loop going over each element on the array, `id`, and computing `y[id]=y[id]+a*x[id]`. 
+
+.. code-block:: C++
+    
+        void axpy_(int n, double a, double *x, double *y)
+        {
+            for(int id=0;id<n; id++) {
+               y[id] += a * x[id];
+            }
+        }
+
+In order to perform the some operation on a GPU the program launches a function called *kernel*, which is executed simultaneously by tens of thousands of :abbr:`threads` that can be run on GPU cores parallelly.
+
+.. code-block:: C++
+    
+        GPU_K void ker_axpy_(int n, double a, double *x, double *y, int id)
+        {
+            y[id] += a * x[id]; // id<n
+        }
+
+GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing" the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
 
 .. figure:: img/concepts/THREAD_CORE.png
     :align: center
