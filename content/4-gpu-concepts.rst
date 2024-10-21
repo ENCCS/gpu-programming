@@ -151,6 +151,8 @@ In order to perform the some operation on a GPU the program launches a function 
             y[id] += a * x[id]; // id<n
         }
 
+The programmers control how many instances of `ker_axpy_` are created and they have to make sure that all the elements are processed and also that no out of bounds accessed are happening. 
+
 GPU threads are much lighter than the usual CPU threads and they have very little penalty for context switching. By "over-subscribing" the GPU there are threads that are performing some memory operations (reading or writing), while others execute instructions.  
 
 .. figure:: img/concepts/THREAD_CORE.png
