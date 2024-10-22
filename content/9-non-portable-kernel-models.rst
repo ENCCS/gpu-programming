@@ -159,7 +159,7 @@ To experiment with different GPUs, modify the code to include the following line
 Replace **deviceNumber** with the desired GPU device index. Run the code with different device numbers to observe the output (more examples for the "Hello World" program are available in the `content/examples/cuda-hip <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip>`__ subdirectory of this lesson repository).
 
 
-Vector addition
+Vector Addition
 ~~~~~~~~~~~~~~~
 To demonstrate the fundamental features of CUDA/HIP programming, let's begin with a straightforward task of element-wise vector addition. The code snippet below demonstrates how to utilize CUDA and HIP for efficiently executing this operation.
 
@@ -825,6 +825,7 @@ First as a reference we use a simple kernel which copy the data from one array t
 
         const static int width = 4096;
         const static int height = 4096;
+        const static int tile_dim = 16;
 
         __global__ void copy_kernel(float *in, float *out, int width, int height) {
             int x_index = blockIdx.x * tile_dim + threadIdx.x;
@@ -903,6 +904,7 @@ First as a reference we use a simple kernel which copy the data from one array t
 
         const static int width = 4096;
         const static int height = 4096;
+        const static int tile_dim = 16;
 
         __global__ void copy_kernel(float *in, float *out, int width, int height) {
             int x_index = blockIdx.x * tile_dim + threadIdx.x;
