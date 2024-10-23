@@ -1364,10 +1364,12 @@ We can apply this to the vector addition problem above.
          for (int i = 0; i < n_streams; ++i) {
            int offset = i * stream_size;
            cudaEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
+
            cudaMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
            cudaMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), cudaMemcpyHostToDevice, stream[i]);
            vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
            cudaMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), cudaMemcpyDeviceToHost, stream[i]);
+
            cudaEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
          }
       
@@ -1379,12 +1381,12 @@ We can apply this to the vector addition problem above.
          for (int i = 0; i < n_streams; ++i) {
            int offset = i * (N/stream_size);
            hipEventRecord(start_event[i], stream[i]); // stamp the moment when the kernel is submitted on stream i
-           hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
-                  hipMemcpyHostToDevice);
+
            hipMemcpyAsync( &Ad[offset],  &Ah[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
            hipMemcpyAsync( &Bd[offset],  &Bh[offset], N/n_streams*sizeof(float), hipMemcpyHostToDevice, stream[i]);
            vector_add<<<gridsize / n_streams, blocksize, 0, stream[i]>>>(&Ad[offset], &Bd[offset], &Cd[offset], N/n_streams); //each call processes N/n_streams elements
            hipMemcpyAsync( &Ch[offset],  &Cd[offset], N/n_streams*sizeof(float), hipMemcpyDeviceToHost, stream[i]);
+
            hipEventRecord(stop_event[i], stream[i]);  // stamp the moment when the kernel on stream i finished
          }
          ...
@@ -1409,7 +1411,7 @@ There are advantages and limitations to CUDA and HIP:
 CUDA Pros:
    1. Performance Boost: CUDA is designed for NVIDIA GPUs and delivers excellent performance.
    2. Wide Adoption: CUDA is popular, with many resources and tools available.
-   3. Mature Ecosystem: NVIDIA provides comprehensive libraries and tools for CUDA programming.
+   3. Mature Ecosystem: NVIDIA has aprovides comprehensive libraries and tools for CUDA programming.
 
 HIP Pros:
    1. Portability: HIP is portable across different GPU architectures.
