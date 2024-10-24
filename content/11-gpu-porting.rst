@@ -85,7 +85,7 @@ Discussion
 
    Some steps at first glance:
 
-      * the code could (has to) be splitted in 3 kernels. Why? 
+      * the code could (has to) be splitted in 3-4 kernels. Why? 
       * check if there are any variables that could lead to false dependencies between iterations, like the index `k2`
       * is it efficient for GPUs to split the work over the index `i`? What about the memory access? Note the arrays are `2D` in Fortran
       * is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
