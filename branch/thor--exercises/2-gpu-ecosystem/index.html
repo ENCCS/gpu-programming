@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The GPU hardware and software ecosystem &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="What problems fit to GPU?" href="../3-gpu-problems/" />
+    <link rel="prev" title="Why GPUs?" href="../1-gpu-history/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The GPU hardware and software ecosystem</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-gpu-hardware">Overview of GPU hardware</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-do-gpus-differ-from-cpus">How do GPUs differ from CPUs?</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#gpu-platforms">GPU platforms</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cuda">CUDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rocm">ROCm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#oneapi">oneAPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#differences-and-similarities">Differences and similarities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#terminology">Terminology</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exercises">Exercises</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The GPU hardware and software ecosystem</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/2-gpu-ecosystem.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="the-gpu-hardware-and-software-ecosystem">
+<span id="gpu-ecosystem"></span><h1>The GPU hardware and software ecosystem<a class="headerlink" href="#the-gpu-hardware-and-software-ecosystem" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What are the differences between GPUs and CPUs?</p></li>
+<li><p>What GPU software stacks are available? What do they provide?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand the fundamental differences between GPUs and CPUs</p></li>
+<li><p>Explore the major GPU software suites available, such as CUDA, ROCm, and oneAPI, and gain a basic understanding of them</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>20 min teaching</p></li>
+<li><p>0 min exercises</p></li>
+</ul>
+</div>
+<section id="overview-of-gpu-hardware">
+<h2>Overview of GPU hardware<a class="headerlink" href="#overview-of-gpu-hardware" title="Permalink to this heading"></a></h2>
+<figure class="align-center" id="id1">
+<img alt="../_images/CPUAndGPU.png" src="../_images/CPUAndGPU.png" />
+<figcaption>
+<p><span class="caption-text">A comparison of the CPU and GPU architecture.
+CPU (left) has complex core structure and pack several cores on a single chip.
+GPU cores are very simple in comparison, they also share data and control between each other.
+This allows to pack more cores on a single chip, thus achieving very high compute density.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<div class="dropdown admonition">
+<p class="admonition-title">In short</p>
+<ul class="simple">
+<li><p>Accelerators offer high performance due to their scalability and high density of compute elements.</p></li>
+<li><p>They have separate circuit boards connected to CPUs via PCIe bus, with their own memory.</p></li>
+<li><p>CPUs copy data from their own memory to the GPU memory, execute the program, and copy the results back.</p></li>
+<li><p>GPUs run thousands of threads simultaneously, quickly switching between them to hide memory operations.</p></li>
+<li><p>Effective data management and access pattern is critical on the GPU to avoid running out of memory.</p></li>
+</ul>
+</div>
+<p>One of the most important features that allows the accelerators to reach this high performance is their scalability.
+Computational cores on accelerators are usually grouped into multiprocessors.
+The multiprocessors share the data and logical elements.
+This allows to achieve a very high density of compute elements on a GPU.
+This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.</p>
+<p>Accelerators are a separate main circuit board with the processor, memory, power management, etc.
+It is connected to the motherboard with CPUs via PCIe bus.
+Having its own memory means that the data has to be copied to and from it.
+CPU acts as a main processor, controlling the execution workflow.
+It copies the data from its own memory to the GPU memory, executes the program and copies the results back.
+GPUs runs tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management.
+With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly.
+This makes the data management and its access pattern is essential on the GPU.
+Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly.
+This allows to hide the memory operations: while some threads wait, others can compute.</p>
+<section id="how-do-gpus-differ-from-cpus">
+<h3>How do GPUs differ from CPUs?<a class="headerlink" href="#how-do-gpus-differ-from-cpus" title="Permalink to this heading"></a></h3>
+<p>CPUs and GPUs were designed with different goals in mind. While the CPU
+is designed to excel at executing a sequence of operations, called a thread,
+as fast as possible and can execute a few tens of these threads in parallel,
+the GPU is designed to excel at executing many thousands of them in parallel.
+GPUs were initially developed for highly-parallel task of graphic processing
+and therefore designed such that more transistors are devoted to data processing
+rather than data caching and flow control. More transistors dedicated to
+data processing is beneficial for highly parallel computations; the GPU can
+hide memory access latencies with computation, instead of relying on large data caches
+and complex flow control to avoid long memory access latencies,
+both of which are expensive in terms of transistors.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CPU</p></th>
+<th class="head"><p>GPU</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>General purpose</p></td>
+<td><p>Highly specialized for parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Good for serial processing</p></td>
+<td><p>Good for parallel processing</p></td>
+</tr>
+<tr class="row-even"><td><p>Great for task parallelism</p></td>
+<td><p>Great for data parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Low latency per thread</p></td>
+<td><p>High-throughput</p></td>
+</tr>
+<tr class="row-even"><td><p>Large area dedicated cache and control</p></td>
+<td><p>Hundreds of floating-point execution units</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="gpu-platforms">
+<h2>GPU platforms<a class="headerlink" href="#gpu-platforms" title="Permalink to this heading"></a></h2>
+<p>GPUs come together with software stacks or APIs that work in conjunction with the hardware and give a standard way for the software to interact with the GPU hardware. They are used by software developers to write code that can take advantage of the parallel processing power of the GPU, and they provide a standard way for software to interact with the GPU hardware. Typically, they provide access to low-level functionality, such as memory management, data transfer between the CPU and the GPU, and the scheduling and execution of parallel processing tasks on the GPU. They may also provide higher level functions and libraries optimized for specific HPC workloads, like linear algebra or fast Fourier transforms. Finally, in order to facilitate the developers to optimize and write correct codes, debugging and profiling tools are also included.</p>
+<p><em>NVIDIA</em>, <em>AMD</em>, and <em>Intel</em> are the major companies which design and produces GPUs for HPC providing each its own suite <strong>CUDA</strong>, <strong>ROCm</strong>, and respectively <strong>oneAPI</strong>. This way they can offer optimization, differentiation (offering unique features tailored to their devices), vendor lock-in, licensing, and royalty fees, which can result in better performance, profitability, and customer loyalty.
+There are also cross-platform APIs such <strong>DirectCompute</strong> (only for Windows operating system), <strong>OpenCL</strong>, and <strong>SYCL</strong>.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">CUDA - In short</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>CUDA: NVIDIA’s parallel computing platform</dt><dd><ul>
+<li><p>Components: CUDA Toolkit &amp; CUDA driver</p></li>
+<li><p>Supports C, C++, and Fortran languages</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>CUDA API Libraries: cuBLAS, cuFFT, cuRAND, cuSPARSE</dt><dd><ul>
+<li><p>Accelerate complex computations on GPUs</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Compilers: nvcc, nvc, nvc++, nvfortran</dt><dd><ul>
+<li><p>Support GPU and multicore CPU programming</p></li>
+<li><p>Compatible with OpenACC and OpenMP</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Debugging tools: cuda-gdb, compute-sanitizer</dt><dd><ul>
+<li><p>Debug GPU and CPU code simultaneously</p></li>
+<li><p>Identify memory access issues</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Performance analysis tools: NVIDIA Nsight Systems, NVIDIA Nsight Compute</dt><dd><ul>
+<li><p>Analyze system-wide and kernel-level performance</p></li>
+<li><p>Optimize CPU and GPU usage, memory bandwidth, instruction throughput</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Comprehensive CUDA ecosystem with extensive tools and features</p></li>
+</ul>
+</div>
+<div class="dropdown admonition">
+<p class="admonition-title">ROCm - In short</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>ROCm: Open software platform for AMD accelerators</dt><dd><ul>
+<li><p>Built for open portability across multiple vendors and architectures</p></li>
+<li><p>Offers libraries, compilers, and development tools for AMD GPUs</p></li>
+<li><p>Supports C, C++, and Fortran languages</p></li>
+<li><p>Support GPU and multicore CPU programming</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Debugging: <code class="docutils literal notranslate"><span class="pre">roc-gdb</span></code> command line tool</dt><dd><ul>
+<li><p>Facilitates debugging of GPU programs</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Performance analysis: <code class="docutils literal notranslate"><span class="pre">rocprof</span></code> and <code class="docutils literal notranslate"><span class="pre">roctracer</span></code> tools</dt><dd><ul>
+<li><p>Analyze and optimize program performance</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Supports various heterogenous programming models such as <strong>HIP</strong>, <strong>OpenMP</strong>, and <strong>OpenCL</strong></p></li>
+<li><dl class="simple">
+<dt>Heterogeneous-Computing Interface for Portability (HIP)</dt><dd><ul>
+<li><p>Enables source portability for NVIDIA and AMD platforms, Intel in plan</p></li>
+<li><p>Provides <code class="docutils literal notranslate"><span class="pre">hipcc</span></code> compiler driver and runtime libraries</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Libraries: Prefixed with <code class="docutils literal notranslate"><span class="pre">roc</span></code> for AMD platforms</dt><dd><ul>
+<li><p>Can be called directly from HIP</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hip</span></code>-prefixed wrappers ensure portability with no performance cost</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="dropdown admonition">
+<p class="admonition-title">oneAPI - In short</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>Intel oneAPI: Unified software toolkit for optimizing and deploying applications across various architectures</dt><dd><ul>
+<li><p>Supports CPUs, GPUs, and FPGAs</p></li>
+<li><p>Enables code reusability and performance portability</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Intel oneAPI Base Toolkit: Core set of tools and libraries for high-performance, data-centric applications</dt><dd><ul>
+<li><p>Includes C++ compiler with SYCL support</p></li>
+<li><p>Features Collective Communications Library, Data Analytics Library, Deep Neural Networks Library, and more</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Additional toolkits: Intel oneAPI HPC Toolkit</dt><dd><ul>
+<li><p>Contains compilers, debugging tools, MPI library, and performance analysis tool</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>Multiple programming models and languages supported:</dt><dd><ul>
+<li><p>OpenMP, Classic Fortran, C++, SYCL</p></li>
+<li><p>Unless custom Intel libraries are used, the code is portable to other OpenMP and SYCL frameworks</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>DPC++ Compiler: Supports Intel, NVIDIA, and AMD GPUs</dt><dd><ul>
+<li><p>Targets Intel GPUs using oneAPI Level Zero interface</p></li>
+<li><p>Added support for NVIDIA GPUs with CUDA and AMD GPUs with ROCm</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Debugging and performance analysis tools: Intel Adviser, Intel Vtune Profiler, Cluster Checker, Inspector, Intel Trace Analyzer and Collector, Intel Distribution for GDB</p></li>
+<li><dl class="simple">
+<dt>Comprehensive and unified approach to heterogeneous computing</dt><dd><ul>
+<li><p>Abstracts complexities and provides consistent programming interface</p></li>
+<li><p>Promotes code reusability, productivity, and performance portability</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<section id="cuda">
+<h3>CUDA<a class="headerlink" href="#cuda" title="Permalink to this heading"></a></h3>
+<p><strong>Compute Unified Device Architecture</strong> is the parallel computing platform from NVIDIA. The CUDA API provides a comprehensive set of functions and tools for developing high-performance applications that run on NVIDIA GPUs. It consists of two main components: the CUDA Toolkit and the CUDA driver. The toolkit provides a set of libraries, compilers, and development tools for programming and optimizing CUDA applications, while the driver is responsible for communication between the host CPU and the device GPU. CUDA is designed to work with programming languages such as C, C++, and Fortran.</p>
+<p>CUDA API provides many highly optimize libraries such as: <strong>cuBLAS</strong> (for linear algebra operations, such a dense matrix multiplication), <strong>cuFFT</strong> (for performing fast Fourier transforms), <strong>cuRAND</strong> (for generating pseudo-random numbers), <strong>cuSPARSE</strong> (for sparse matrices operations). Using these libraries, developers can quickly and easily accelerate complex computations on NVIDIA GPUs without having to write low-level GPU code themselves.</p>
+<p>There are several compilers that can be used for developing and executing code on NVIDIA GPUs: <strong>nvcc</strong>. The latest versions are based on the widely used LLVM (low level virtual machine) open source compiler infrastructure. nvcc produces optimized code for NVIDIA GPUs and drives a supported host compiler for AMD, Intel, OpenPOWER, and Arm CPUs.</p>
+<p>In addition to this are provided <strong>nvc</strong> (C11 compiler), <strong>nvc++</strong> (C++17 compiler), and  <strong>nvfortran</strong> (ISO Fortran 2003 compiler). These compilers can as well create code for execution on the NVIDIA GPUs, and also support GPU and multicore CPU programming with parallel language features, OpeanACC and OpenMP.</p>
+<p>When programming mistakes are inevitable they have to be fixed as soon as possible. The CUDA toolkit includes the command line tool <strong>cuda-gdb</strong> which can be used to find errors in the code. It is an extension to GDB, the GNU Project debugger.  The existing GDB debugging features are inherently present for debugging the host code, and additional features have been provided to support debugging CUDA device code, allowing simultaneous debugging of both GPU and CPU code within the same application. The tool provides developers with a mechanism for debugging CUDA applications running on actual hardware. This enables developers to debug applications without the potential variations introduced by simulation and emulation environments.</p>
+<p>In addition to this the command line tool <strong>compute-sanitizer</strong> can be used to look exclusively for memory access problems: unallocated buffers, out of bounds accesses, race conditions, and uninitialized variables.</p>
+<p>Finally, in order to utilize the GPUs at maximum some performance analysis tools. NVIDIA provides NVIDIA Nsight Systems and NVIDIA Nsight Compute tools for helping the developers to optimize their applications. The former, NVIDIA Nsight Systems, is a system-wide performance analysis tool that provides detailed metrics on both CPU and GPU usage, memory bandwidth, and other system-level metrics. The latter, NVIDIA Nsight Compute, is a kernel-level performance analysis tool that allows developers to analyze the performance of individual CUDA kernels. It provides detailed metrics on kernel execution, including memory usage, instruction throughput, and occupancy. These tools have graphical which can be used for all steps of the performance analysis, however on supercomputers it is recommended to use the command line interface for collecting the information needed and then visualize and analyse the results using the graphical interface on personal computers.</p>
+<p>Apart from what was presented above there are many others tools and features provided by NVIDIA. The CUDA eco-system is very well developed.</p>
+</section>
+<section id="rocm">
+<h3>ROCm<a class="headerlink" href="#rocm" title="Permalink to this heading"></a></h3>
+<p>ROCm is an open software platform allowing researchers to tap the power of AMD accelerators.
+The ROCm platform is built on the foundation of open portability, supporting environments across multiple
+accelerator vendors and architectures. In some way it is very similar to CUDA API.
+It contains libraries, compilers, and development tools for programming and optimizing programs for AMD GPUs.
+For debugging, it provides the command line tool <code class="docutils literal notranslate"><span class="pre">rocgdb</span></code>, while for performance analysis <code class="docutils literal notranslate"><span class="pre">rocprof</span></code> and <code class="docutils literal notranslate"><span class="pre">roctracer</span></code>.
+In order to produce code for the AMD GPUs, one can use the Heterogeneous-Computing Interface for Portability (HIP).
+HIP is a C++ runtime API and a set of tools that allows developers to write portable GPU-accelerated code for both NVIDIA and AMD platforms.
+It provides the <code class="docutils literal notranslate"><span class="pre">hipcc</span></code> compiler driver, which will call the appropriate toolchain depending on the desired platform.
+On the AMD ROCm platform, HIP provides a header and runtime library built on top of the HIP-Clang (ROCm compiler).
+On an NVIDIA platform, HIP provides a header file which translates from the HIP runtime APIs to CUDA runtime APIs.
+The header file contains mostly inlined functions and thus has very low overhead.
+The code is then compiled with <code class="docutils literal notranslate"><span class="pre">nvcc</span></code>, the standard C++ compiler provided with CUDA.
+On AMD platforms, libraries are prefixed by <code class="docutils literal notranslate"><span class="pre">roc</span></code>, which can be called directly from HIP. In order to make portable calls,
+one can call the libraries using <code class="docutils literal notranslate"><span class="pre">hip</span></code>-prefixed wrappers. These wrappers can be used at no performance cost and ensure that
+HIP code can be used on other platforms with no changes. Libraries included in the ROCm, are almost one-to-one equivalent to the ones supplied with CUDA.</p>
+<p>ROCm also integrates with popular machine learning frameworks such as TensorFlow and PyTorch and provides optimized libraries and drivers to accelerate machine learning workloads on AMD GPUs enabling the researchers to leverage the power of ROCm and AMD accelerators to train and deploy machine learning models efficiently.</p>
+</section>
+<section id="oneapi">
+<h3>oneAPI<a class="headerlink" href="#oneapi" title="Permalink to this heading"></a></h3>
+<p><strong>Intel oneAPI</strong> is a unified software toolkit developed by Intel that allows developers to optimize and deploy applications across a variety of architectures, including CPUs, GPUs, and FPGAs. It provides a comprehensive set of tools, libraries, and frameworks, enabling developers to leverage the full potential of heterogeneous computing environments. With oneAPI, the developers can write code once and deploy it across different hardware targets without the need for significant modifications or rewriting. This approach promotes code reusability, productivity, and performance portability, as it abstracts the complexities of heterogeneous computing and provides a consistent programming interface based on open standards.</p>
+<p>The core of suite is <strong>Intel oneAPI Base Toolkit</strong>, a set of tools and libraries for developing high-performance, data-centric applications across diverse architectures. It features an industry-leading C++ compiler that implements SYCL, an evolution of C++ for heterogeneous computing. It includes the <strong>Collective Communications Library</strong>, the <strong>Data Analytics Library</strong>, the <strong>Deep Neural Networks Library</strong>, the <strong>DPC++/C++ Compiler</strong>, the <strong>DPC++ Library</strong>, the <strong>Math Kernel Library</strong>, the <strong>Threading Building Blocks</strong>, debugging tool <strong>Intel Distribution for GDB</strong>, performance analisis tools <strong>Intel Adviser</strong> and <strong>Intel Vtune Profiler</strong>, the <strong>Video Processing Library</strong>, <strong>Intel Distribution for Python</strong>, the <strong>DPC++ Compatibility Tool</strong>, the <strong>FPGA Add-on for oneAPI Base Toolkit</strong>, the <strong>Integrated Performance Primitives</strong>.
+This can be complemented with additional toolkits. The <strong>Intel oneAPI HPC Toolkit</strong> contains <strong>DPC++/C++ Compiler</strong>, <strong>Fortran</strong> and <strong>C++</strong> Compiler Classic, debugging tools <strong>Cluster Checker</strong> and <strong>Inspector</strong>, <strong>Intel MPI Library</strong>, and performance analysis tool <strong>Intel Trace Analyzer and Collector</strong>.</p>
+<p>oneAPI supports multiple programming models and programming languages. It enables developers to write <strong>OpenMP</strong> codes targeting multi-core CPUs and Intel GPUs using the Classic Fortran and C++ compilers and as well <strong>SYCL</strong> programs for GPUs and FPGAs using the <strong>DPC++</strong> compiler. Initially, the <strong>DPC++</strong> compiler only targeted Intel GPUs using the <strong>oneAPI Level Zero</strong> low-level programming interface, but now support for NVIDIA GPUs (using  CUDA) and AMD GPUs (using ROCm) has been added.
+Overall, Intel oneAPI offers a comprehensive and unified approach to heterogeneous computing, empowering developers to optimize and deploy applications across different architectures with ease. By abstracting the complexities and providing a consistent programming interface, oneAPI promotes code reusability, productivity, and performance portability, making it an invaluable toolkit for developers in the era of diverse computing platforms.</p>
+</section>
+<section id="differences-and-similarities">
+<h3>Differences and similarities<a class="headerlink" href="#differences-and-similarities" title="Permalink to this heading"></a></h3>
+<p>GPUs in general support different features, even among the same producer. In general newer cards come with extra
+features and sometimes old features are not supported anymore. It is important when compiling to create binaries
+targeting the specific architecture when compiling. A binary built for a newer card will not run on older devices,
+while a binary build for older devices might not run efficiently on newer architectures. In CUDA the compute
+capability which is targeted is specified by the <code class="docutils literal notranslate"><span class="pre">-arch=sm_XY</span></code>, where <code class="docutils literal notranslate"><span class="pre">X</span></code> specifies the major architecture and it is between 1 and 9, and <code class="docutils literal notranslate"><span class="pre">Y</span></code> the minor. When using HIP on NVIDIA platforms one needs to use compiling option <code class="docutils literal notranslate"><span class="pre">--gpu-architecture=sm_XY</span></code>, while on AMD platforms  <code class="docutils literal notranslate"><span class="pre">--offload-arch=gfxabc</span></code> ( where <code class="docutils literal notranslate"><span class="pre">abc</span></code> is the architecture code such as <code class="docutils literal notranslate"><span class="pre">90a</span></code> for the MI200 series or <code class="docutils literal notranslate"><span class="pre">908</span></code> for MI100 series).
+Note that in the case of portable (single source) programs one would specify <code class="docutils literal notranslate"><span class="pre">openmp</span></code> as well as target for
+compilation, enabling to run the same code on multicore CPU.</p>
+<section id="terminology">
+<h4>Terminology<a class="headerlink" href="#terminology" title="Permalink to this heading"></a></h4>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Hardware</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>NVIDIA</p></th>
+<th class="head"><p>AMD</p></th>
+<th class="head"><p>Intel</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>streaming processor/streaming core</p></td>
+<td><p>SIMD lane</p></td>
+<td><p>processing element</p></td>
+</tr>
+<tr class="row-odd"><td><p>SIMT unit</p></td>
+<td><p>SIMD unit</p></td>
+<td><p>Vector engine (XVE)</p></td>
+</tr>
+<tr class="row-even"><td><p>Streaming Multiprocessor (SM)</p></td>
+<td><p>Computing Unit (CU)</p></td>
+<td><p>Xe-core / Execution unit (EU)</p></td>
+</tr>
+<tr class="row-odd"><td><p>GPU processing clusters (GPC)</p></td>
+<td><p>Compute Engine</p></td>
+<td><p>Xe-slice</p></td>
+</tr>
+</tbody>
+</table>
+<p>Please keep in mind, that this table is only a rough approximation.
+Each GPU architecture is different, and it’s impossible to make a 1-to-1 mapping between terms used by different vendors.</p>
+</section>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>GPUs are designed to execute thousands of threads simultaneously, making them highly parallel processors. In contrast, CPUs excel at executing a smaller number of threads in parallel.</p></li>
+<li><p>GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.</p></li>
+<li><p>GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (NVIDIA), ROCm (AMD), and oneAPI (Intel).</p></li>
+<li><p>These platforms offer debugging tools (e.g., <code class="docutils literal notranslate"><span class="pre">cuda-gdb</span></code>, <code class="docutils literal notranslate"><span class="pre">rocgdb</span></code>) and performance analysis tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute, <code class="docutils literal notranslate"><span class="pre">rocprof</span></code>, <code class="docutils literal notranslate"><span class="pre">roctracer</span></code>) to facilitate code optimization and ensure efficient utilization of GPU resources.</p></li>
+</ul>
+</section>
+<section id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this heading"></a></h2>
+<div class="admonition-gpus-and-memory exercise important admonition" id="exercise-0">
+<p class="admonition-title">GPUs and memory</p>
+<p>Which statement about the relationship between GPUs and memory is true?</p>
+<ul class="simple">
+<li><ol class="upperalpha simple">
+<li><p>GPUs are not affected by memory access latencies.</p></li>
+</ol>
+</li>
+<li><ol class="upperalpha simple" start="2">
+<li><p>GPUs can run out of memory quickly with many cores trying to access the memory simultaneously.</p></li>
+</ol>
+</li>
+<li><ol class="upperalpha simple" start="3">
+<li><p>GPUs have an unlimited cache size.</p></li>
+</ol>
+</li>
+<li><ol class="upperalpha simple" start="4">
+<li><p>GPUs prefer to run with a minimal number of threads to manage memory effectively.</p></li>
+</ol>
+</li>
+</ul>
+<div class="admonition-solution solution important dropdown admonition" id="solution-0">
+<p class="admonition-title">Solution</p>
+<p>The correct answer is B). This is true because GPUs run many threads simultaneously on thousands of
+cores, and with limited cache available, this can lead to the GPU running out of memory quickly if many
+cores are trying to access the memory simultaneously. This is why data management and access patterns
+are essential in GPU computing.</p>
+</div>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>GPUs vs. CPUs, key differences between them</p></li>
+<li><p>GPU software suites, support specific GPU features, programming models, compatibility</p></li>
+<li><p>Applications of GPUs</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../1-gpu-history/" class="btn btn-neutral float-left" title="Why GPUs?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../3-gpu-problems/" class="btn btn-neutral float-right" title="What problems fit to GPU?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
