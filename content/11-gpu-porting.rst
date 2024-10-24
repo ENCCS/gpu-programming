@@ -26,7 +26,7 @@ Porting from CPU to GPU
 
 When porting code to take advantage of the parallel processing capability of GPUs, several steps need to be followed and some additional work is required before writing actual parallel code to be executed on the GPUs:
 
-* **Identify Targeted Parts**: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10% of the code accounts for 90% of the execution time.
+* **Identify Targeted Parts**: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10-20% of the code accounts for 80-90% of the execution time.
 
 * **Equivalent GPU Libraries**: If the original code uses CPU libraries like BLAS, FFT, etc, it's crucial to identify the equivalent GPU libraries. For example, `cuBLAS` or `hipBLAS` can replace CPU-based BLAS libraries. Utilizing GPU-specific libraries ensures efficient GPU utilization.
 
