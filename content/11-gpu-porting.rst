@@ -131,11 +131,15 @@ Discussion
           i=list_of_i(k2)
           locdot=0.d0
 
-          !omp parallel do reduction(+:locdot)
+          !omp parallel do reduction(+:locdot_rad_der,locdot_azi_der,locdot_pol_der)
           do is=1,nsoap
-            locdot=locdot+soap(is, i) * soap_rad_der(is, k2) 
+            locdot_rad_der=locdot_rad_der+soap(is, i) * soap_rad_der(is, k2) 
+            locdot_azi_der=locdot_azi_der+soap(is, i) * soap_azi_der(is, k2) 
+            locdot_pol_der=locdot_pol_der+soap(is, i) * soap_pol_der(is, k2) 
          enddo
-         dot_soap(k2)= locdot
+         dot_soap_rad_der(k2)= locdot_rad_der
+         dot_soap_azi_der(k2)= locdot_azi_der
+         dot_soap_pol_der(k2)= locdot_pol_der
        end do
      
        !omp target teams distribute
@@ -144,7 +148,9 @@ Discussion
  
           !omp parallel do
           do is=1,nsoap
-             soap_rad_der(is, k2) = soap_rad_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap(k2)
+             soap_rad_der(is, k2) = soap_rad_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_rad_der(k2)
+             soap_azi_der(is, k2) = soap_azi_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_azi_der(k2)
+             soap_pol_der(is, k2) = soap_pol_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_pol_der(k2)
           end do
        end do
 
@@ -155,9 +161,9 @@ Discussion
           !omp parallel do private (is)
           do is=1,n_soap
              if( k3 /= k2)then
-               soap_cart_der(1, is, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-               soap_cart_der(2, is, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-               soap_cart_der(3, is, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
+               soap_cart_der(1, is, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
+               soap_cart_der(2, is, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
+               soap_cart_der(3, is, k2) = dcos(thetas(k2)) * soap_rad_der(is, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(is, k2)
              end if
          end do
        end do
@@ -175,7 +181,8 @@ Discussion
             end do
          end do
        end do
-         
+
+
 .. keypoints::
 
    - Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.
