@@ -1216,8 +1216,8 @@ By padding the array the data is slightly shifting it resulting in no bank confl
    :class: dropdown
 
    - Shared memory can significantly improve performance in operations like matrix transpose.
-   - Shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory
-   - An optimized implementation utilizes shared memory, loads data coalescedly, and performs transpose operations
+   - Shared memory reduces global memory accesses and exploits the high bandwidth and low latency of shared memory.
+   - An optimized implementation utilizes shared memory, loads data coalescedly, and performs transpose operations.
    - The optimized implementation uses a 2D grid of thread blocks and a shared memory tile size determined by a constant.
    - The kernel loads data from global memory into the shared memory tile and uses a synchronization barrier.
    - To avoid bank conflicts in shared memory, padding the temporary array is a simple solution.
