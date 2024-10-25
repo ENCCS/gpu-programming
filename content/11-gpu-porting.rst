@@ -91,14 +91,6 @@ Discussion
       * is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
       * what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
 
-
-.. keypoints::
-
-   - Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.
-   - Importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time.
-   - The need to refactor loops to suit the GPU architecture.
-   - Significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns.
-
 .. admonition:: Refactored code
    :class: dropdown
 
@@ -134,18 +126,42 @@ Discussion
             soap_azi_der(1:n_soap, k2) = soap_azi_der(1:n_soap, k2) / sqrt_dot_p(i) - soap(1:n_soap, i) / sqrt_dot_p(i)**3 * dot_product( soap(1:n_soap, i), soap_azi_der(1:n_soap, k2) )
             soap_pol_der(1:n_soap, k2) = soap_pol_der(1:n_soap, k2) / sqrt_dot_p(i) - soap(1:n_soap, i) / sqrt_dot_p(i)**3 * dot_product( soap(1:n_soap, i), soap_pol_der(1:n_soap, k2) )
         
-            if( j == 1 )then
-              k3 = k2
-            else
-              soap_cart_der(1, 1:n_soap, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-              soap_cart_der(2, 1:n_soap, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
-              soap_cart_der(3, 1:n_soap, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
-              soap_cart_der(1, 1:n_soap, k3) = soap_cart_der(1, 1:n_soap, k3) - soap_cart_der(1, 1:n_soap, k2)
-              soap_cart_der(2, 1:n_soap, k3) = soap_cart_der(2, 1:n_soap, k3) - soap_cart_der(2, 1:n_soap, k2)
-              soap_cart_der(3, 1:n_soap, k3) = soap_cart_der(3, 1:n_soap, k3) - soap_cart_der(3, 1:n_soap, k2)
-            end if
-          end do
         end do
+       
+       !omp teams distribute private(k3)
+       do k2 = 1, k2_max
+          k3=list_k2k3(k2)
+
+          !omp parallel do private (is)
+          do is=1,n_soap
+             if( k3 /= k2)then
+               soap_cart_der(1, is, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
+               soap_cart_der(2, is, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(1:n_soap, k2)
+               soap_cart_der(3, is, k2) = dcos(thetas(k2)) * soap_rad_der(1:n_soap, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2)
+             end if
+         end do
+       end do
+
+       !omp teams distribute private(k3)
+       do i = 1, _sites
+          k3=list_k3(i)
+
+         !omp parallel do private(is, k2)
+         do is=1,n_soap
+            do k2=k3+1,k3+n_neigh(i)
+              soap_cart_der(1, is, k3) = soap_cart_der(1, is, k3) - soap_cart_der(1, is, k2)
+              soap_cart_der(2, is, k3) = soap_cart_der(2, is, k3) - soap_cart_der(2, is, k2)
+              soap_cart_der(3, is, k3) = soap_cart_der(3, is, k3) - soap_cart_der(3, is, k2)
+            end do
+         end do
+       end do
+         
+.. keypoints::
+
+   - Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.
+   - Importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time.
+   - The need to refactor loops to suit the GPU architecture.
+   - Significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns.
 
 Porting between different GPU frameworks
 ----------------------------------------
