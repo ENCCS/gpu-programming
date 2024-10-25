@@ -94,8 +94,6 @@ Discussion
 .. admonition:: Refactored code
    :class: dropdown
 
-   
-
     .. code-block:: Fortran
     
         k2 = 0
