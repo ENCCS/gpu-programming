@@ -92,7 +92,11 @@ Discussion
       * what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
 
 
- .. challenge:: Refactored code!
+.. admonition:: Refactored code!
+   :class: dropdown
+
+   - The loop has been splitted in serval parts.
+   - Note the indeces in the first part. The matrices are transposed for better access patterns.
 
     .. code-block:: Fortran
     
@@ -112,9 +116,9 @@ Discussion
                     k = 1 + l*(l+1)/2 + m
                     counter2 = counter2 + 1 
                     multiplicity = multiplicity_array(counter2)
-                    soap_rad_der(counter, k2) = soap_rad_der(counter, k2) + multiplicity * real( cnk_rad_der(k, n, k2) * conjg(cnk(k, np, i)) + cnk(k, n, i) * conjg(cnk_rad_der(k, np, k2)) )
-                    soap_azi_der(counter, k2) = soap_azi_der(counter, k2) + multiplicity * real( cnk_azi_der(k, n, k2) * conjg(cnk(k, np, i)) + cnk(k, n, i) * conjg(cnk_azi_der(k, np, k2)) )
-                    soap_pol_der(counter, k2) = soap_pol_der(counter, k2) + multiplicity * real( cnk_pol_der(k, n, k2) * conjg(cnk(k, np, i)) + cnk(k, n, i) * conjg(cnk_pol_der(k, np, k2)) )
+                    tsoap_rad_der(counter, k2) = tsoap_rad_der(counter, k2) + multiplicity * real( tcnk_rad_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_rad_der(k, np, k2)) )
+                    tsoap_azi_der(counter, k2) = tsoap_azi_der(counter, k2) + multiplicity * real( tcnk_azi_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_azi_der(k, np, k2)) )
+                    tsoap_pol_der(counter, k2) = tsoap_pol_der(counter, k2) + multiplicity * real( tcnk_pol_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_pol_der(k, np, k2)) )
                   end do
                 end do
               end do
@@ -137,12 +141,14 @@ Discussion
                        k = 1 + l*(l+1)/2 + m
                        counter2 = counter2 + 1
                        multiplicity = multiplicity_array(counter2)
-     soap_rad_der(k2,counter) = soap_rad_der(k2,counter) + multiplicity*real ( cnk_rad_der(k2,k,n)*conjg(cnk(i,k,np)) + cnk(i,k,n)*conjg (cnk_rad_der(k2,k,np)) )
-     ...
-   end do
-  end do
- end do
-end do
+                       soap_rad_der(k2,counter) = soap_rad_der(k2,counter) + multiplicity * real ( cnk_rad_der(k2,k,n)* conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_rad_der(k2,k,np)) )
+                       soap_azi_der(k2,counter) = soap_azi_der(k2,counter) + multiplicity * real( cnk_azi_der(k2,k,n) * conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_azi_der(k2,k,np)) )
+                       soap_pol_der(k2,counter) = soap_pol_der(k2,counter) + multiplicity * real( cnk_pol_der(k2,k,n) * conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_pol_der(k2,k,np)) )
+                    end do
+                 end do
+              end do
+           end do
+        end do
        
        !omp target teams  distribute private(i)
        do k2 = 1, k2_max
