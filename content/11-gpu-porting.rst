@@ -95,38 +95,14 @@ Discussion
 .. admonition:: Refactored code!
    :class: dropdown
 
-   - The loop has been splitted in serval parts.
+   - Registers are limited and the larger the kernel use more registers registersresulting in less active threads (small occupancy).
+   - In order to compute soap_rad_der(is,k2) the cuda thread needs access to all the previous values soap_rad_der(1:nsoap,k2).
+   - In order to compute soap_cart_der(1, 1:n_soap, k3) it is required to haveaccess to all values (k3+1:k2+n_neigh(i)).
    - Note the indeces in the first part. The matrices are transposed for better access patterns.
 
     .. code-block:: Fortran
     
-        k2 = 0
-        do i = 1, n_sites
-          do j = 1, n_neigh(i)
-            k2 = k2 + 1
-            counter = 0 
-            counter2 = 0
-            do n = 1, n_max
-              do np = n, n_max
-                do l = 0, l_max
-                  if( skip_soap_component(l, np, n) )cycle
-                  
-                  counter = counter+1
-                  do m = 0, l
-                    k = 1 + l*(l+1)/2 + m
-                    counter2 = counter2 + 1 
-                    multiplicity = multiplicity_array(counter2)
-                    tsoap_rad_der(counter, k2) = tsoap_rad_der(counter, k2) + multiplicity * real( tcnk_rad_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_rad_der(k, np, k2)) )
-                    tsoap_azi_der(counter, k2) = tsoap_azi_der(counter, k2) + multiplicity * real( tcnk_azi_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_azi_der(k, np, k2)) )
-                    tsoap_pol_der(counter, k2) = tsoap_pol_der(counter, k2) + multiplicity * real( tcnk_pol_der(k, n, k2) * conjg(tcnk(k, np, i)) + tcnk(k, n, i) * conjg(tcnk_pol_der(k, np, k2)) )
-                  end do
-                end do
-              end do
-            end do
-        
-        end do
-
-        !omp target teams distribute parallel do
+        !omp target teams distribute parallel do private (i)
         do k2 = 1, k2_max
            i=list_of_i(k2)
            counter = 0 
@@ -141,15 +117,17 @@ Discussion
                        k = 1 + l*(l+1)/2 + m
                        counter2 = counter2 + 1
                        multiplicity = multiplicity_array(counter2)
-                       soap_rad_der(k2,counter) = soap_rad_der(k2,counter) + multiplicity * real ( cnk_rad_der(k2,k,n)* conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_rad_der(k2,k,np)) )
-                       soap_azi_der(k2,counter) = soap_azi_der(k2,counter) + multiplicity * real( cnk_azi_der(k2,k,n) * conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_azi_der(k2,k,np)) )
-                       soap_pol_der(k2,counter) = soap_pol_der(k2,counter) + multiplicity * real( cnk_pol_der(k2,k,n) * conjg(cnk(i,k,np)) + cnk(i,k,n) * conjg(cnk_pol_der(k2,k,np)) )
+                       tsoap_rad_der(k2,counter) = tsoap_rad_der(k2,counter) + multiplicity * real( tcnk_rad_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_rad_der(k2,k,np)) )
+                       tsoap_azi_der(k2,counter) = tsoap_azi_der(k2,counter) + multiplicity * real( tcnk_azi_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_azi_der(k2,k,np)) )
+                       tsoap_pol_der(k2,counter) = tsoap_pol_der(k2,counter) + multiplicity * real( tcnk_pol_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_pol_der(k2,k,np)) )
                     end do
                  end do
               end do
            end do
         end do
-       
+
+      ! Before the next part the variables are transposed again to their original layout.       
+
        !omp target teams  distribute private(i)
        do k2 = 1, k2_max
           i=list_of_i(k2)
