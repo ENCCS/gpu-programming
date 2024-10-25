@@ -91,8 +91,8 @@ Discussion
       * is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.
       * what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput
 
-.. admonition:: Refactored code
-   :class: dropdown
+
+ .. challenge:: Refactored code!
 
     .. code-block:: Fortran
     
@@ -126,6 +126,28 @@ Discussion
         
         end do
        
+       !omp target teams  distribute private(i)
+       do k2 = 1, k2_max
+          i=list_of_i(k2)
+          locdot=0.d0
+
+          !omp parallel do reduction(+:locdot)
+          do is=1,nsoap
+            locdot=locdot+soap(is, i) * soap_rad_der(is, k2) 
+         enddo
+         dot_soap(k2)= locdot
+       end do
+     
+       !omp target teams distribute
+       do k2 = 1, k2_max
+          i=list_of_i(k2)
+ 
+          !omp parallel do
+          do is=1,nsoap
+             soap_rad_der(is, k2) = soap_rad_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap(k2)
+          end do
+       end do
+
        !omp teams distribute private(k3)
        do k2 = 1, k2_max
           k3=list_k2k3(k2)
