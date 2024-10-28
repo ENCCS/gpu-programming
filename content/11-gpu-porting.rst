@@ -97,7 +97,7 @@ Discussion
 
    - Registers are limited and the larger the kernel use more registers registers resulting in less active threads (small occupancy).
    - In order to compute `soap_rad_der(is,k2)` the cuda thread needs access to all the previous values `soap_rad_der(1:nsoap,k2)`.
-   - In order to compute `soap_cart_der(1, 1:n_soap, k3)` it is required to haveaccess to all values `(k3+1:k2+n_neigh(i))`.
+   - In order to compute `soap_cart_der(1, 1:n_soap, k3)` it is required to have access to all values `(k3+1:k2+n_neigh(i))`.
    - Note the indeces in the first part. The matrices are transposed for better access patterns.
 
     .. code-block:: Fortran
