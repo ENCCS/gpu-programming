@@ -36,7 +36,7 @@ When porting code to take advantage of the parallel processing capability of GPU
 
 Discussion
 ^^^^^^^^^^
- .. challenge:: How would this be ported? (n_soap ≈ 100, k_max, n_soap ⩾ 10000)
+ .. challenge:: How would this be ported? (n_soap ≈ 100, n_sites ⩾ 10000, k_max ≈ 20*n_sites )
      
     Inspect the following Fortran code (if you don't read Fortran: do-loops == for-loops)
 
