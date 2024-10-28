@@ -18,7 +18,7 @@ Portable kernel-based models
    - 45 min teaching
    - 30 min exercises
 
-The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (also known as hipSYCL or Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (previously known as hipSYCL or Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 Kokkos
 ^^^^^^
@@ -224,33 +224,33 @@ For targeting Intel GPUs, it is enough to install `Intel oneAPI Base Toolkit <ht
 It is also possible to use oneAPI for NVIDIA and AMD GPUs. In addition to oneAPI Base Toolkit, the vendor-provided runtime (CUDA or HIP) and the corresponding `Codeplay oneAPI plugin <https://codeplay.com/solutions/oneapi/>`__ must be installed.
 Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:
 
-- ``clang++ -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_86 file.cpp`` for targeting CUDA 8.6 NVIDIA GPU,
-- ``clang++ -fsycl -fsycl-targets=amdgcn-amd-amdhsa -Xsycl-target-backend=amdgcn-amd-amdhsa --offload-arch=gfx90a`` for targeting GFX90a AMD GPU.
+- ``clang++ -fsycl -fsycl-targets=nvidia_gpu_sm_86 file.cpp`` for targeting CUDA 8.6 NVIDIA GPU,
+- ``clang++ -fsycl -fsycl-targets=amd_gpu_gfx90a`` for targeting GFX90a AMD GPU.
 
 AdaptiveCpp
 ***********
 
-Using AdaptiveCpp for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``syclcc`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
+Using AdaptiveCpp for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then ``acpp`` can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:
 
-- ``syclcc --hipsycl-targets='hip:gfx90a;cuda:sm_70' file.cpp``
+- ``acpp --acpp-targets='hip:gfx90a;cuda:sm_70' file.cpp``
 
 
 Using SYCL on LUMI
 ******************
 
-LUMI does not have a system-wide installation of any SYCL framework. For this course, an installation
-of hipSYCL 0.9.4 was prepared, which can be loaded as:
+LUMI does not have a system-wide installation of any SYCL framework, but a recent AdaptiveCpp installation is
+available in CSC modules:
 
 .. code-block:: console
 
-    $ module load LUMI/22.08 partition/G
-    $ module load rocm/5.3.3
-    $ module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
-    $ module load hipSYCL
+    $ module load LUMI/24.03 partition/G
+    $ module load rocm/6.0.3
+    $ module use /appl/local/csc/modulefiles
+    $ module load acpp/24.06.0
 
-The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enough to call ``syclcc -O2 file.cpp``.
+The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enough to call ``acpp -O2 file.cpp``.
 
-When running applications built with AdaptiveCpp/hipSYCL, one can often see the warning "[hipSYCL Warning] dag_direct_scheduler: Detected a requirement that is neither of discard access mode", reflecting the lack of an optimization hint when using buffer-accessor model. The warning is harmless and can be ignored.
+When running applications built with AdaptiveCpp, one can often see the warning "dag_direct_scheduler: Detected a requirement that is neither of discard access mode", reflecting the lack of an optimization hint when using buffer-accessor model. The warning is harmless and can be ignored.
 
 SYCL programming
 ~~~~~~~~~~~~~~~~

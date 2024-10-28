@@ -308,17 +308,17 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
 .. callout:: Loading modules on LUMI
    
-   As SYCL is placed on top of ROCm/HIP (or CUDA) software stack, even running SYCL executables may require respective modules to be loaded. On current nodes, it can be done as follows:
+   As SYCL is placed on top of ROCm/HIP (or CUDA) software stack, running SYCL executables may require respective modules to be loaded. On current nodes, it can be done as follows:
    
    .. code-block:: console
    
       salloc -A project_465000485 -N 1 -t 1:00:0 -p standard-g --gpus-per-node=1
       
-      module load LUMI/22.08
+      module load LUMI/24.03
       module load partition/G
-      module load rocm/5.3.3
-      module use /project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
-      module load hipSYCL
+      module load rocm/6.0.3
+      module use  /appl/local/csc/modulefiles
+      module load acpp/24.06.0
 
 .. solution:: Optional: compiling the SYCL executables
 
@@ -328,8 +328,8 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
       $ cd ../sycl/
       (give the following lines some time, probably a couple of min)
-      $ syclcc -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
-      $ syclcc -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
+      $ acpp -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
+      $ acpp -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
       $ srun stencil_naive
       $ srun stencil
