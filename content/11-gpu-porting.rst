@@ -104,40 +104,41 @@ Discussion
     
         !omp target teams distribute parallel do private (i)
         do k2 = 1, k2_max
-           i=list_of_i(k2)
-           counter = 0 
-           counter2 = 0 
-           do n = 1, n_max
-              do np = n, n_max
-                 do l = 0, l_max
-                    if( skip_soap_component(l, np, n) )cycle
-
-                    counter = counter+1
-                    do m = 0, l
-                       k = 1 + l*(l+1)/2 + m
-                       counter2 = counter2 + 1
-                       multiplicity = multiplicity_array(counter2)
-                       tsoap_rad_der(k2,counter) = tsoap_rad_der(k2,counter) + multiplicity * real( tcnk_rad_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_rad_der(k2,k,np)) )
-                       tsoap_azi_der(k2,counter) = tsoap_azi_der(k2,counter) + multiplicity * real( tcnk_azi_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_azi_der(k2,k,np)) )
-                       tsoap_pol_der(k2,counter) = tsoap_pol_der(k2,counter) + multiplicity * real( tcnk_pol_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_pol_der(k2,k,np)) )
-                    end do
-                 end do
+          i=list_of_i(k2)
+          counter = 0 
+          counter2 = 0 
+          do n = 1, n_max
+            do np = n, n_max
+              do l = 0, l_max
+                if( skip_soap_component(l, np, n) ) then
+                  cycle
+                endif
+                counter = counter+1
+                do m = 0, l
+                  k = 1 + l*(l+1)/2 + m
+                  counter2 = counter2 + 1
+                  multiplicity = multiplicity_array(counter2)
+                  tsoap_rad_der(k2,counter) = tsoap_rad_der(k2,counter) + multiplicity * real( tcnk_rad_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_rad_der(k2,k,np)) )
+                  tsoap_azi_der(k2,counter) = tsoap_azi_der(k2,counter) + multiplicity * real( tcnk_azi_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_azi_der(k2,k,np)) )
+                  tsoap_pol_der(k2,counter) = tsoap_pol_der(k2,counter) + multiplicity * real( tcnk_pol_der(k2,k,n) * conjg(tcnk(i,k,np)) + tcnk(i,k,n) * conjg(tcnk_pol_der(k2,k,np)) )
+                end do
               end do
-           end do
+            end do
+          end do
         end do
 
       ! Before the next part the variables are transposed again to their original layout.       
 
        !omp target teams  distribute private(i)
        do k2 = 1, k2_max
-          i=list_of_i(k2)
-          locdot=0.d0
+         i=list_of_i(k2)
+         locdot=0.d0
 
-          !omp parallel do reduction(+:locdot_rad_der,locdot_azi_der,locdot_pol_der)
-          do is=1,nsoap
-            locdot_rad_der=locdot_rad_der+soap(is, i) * soap_rad_der(is, k2) 
-            locdot_azi_der=locdot_azi_der+soap(is, i) * soap_azi_der(is, k2) 
-            locdot_pol_der=locdot_pol_der+soap(is, i) * soap_pol_der(is, k2) 
+         !omp parallel do reduction(+:locdot_rad_der,locdot_azi_der,locdot_pol_der)
+         do is=1,nsoap
+           locdot_rad_der=locdot_rad_der+soap(is, i) * soap_rad_der(is, k2) 
+           locdot_azi_der=locdot_azi_der+soap(is, i) * soap_azi_der(is, k2) 
+           locdot_pol_der=locdot_pol_der+soap(is, i) * soap_pol_der(is, k2) 
          enddo
          dot_soap_rad_der(k2)= locdot_rad_der
          dot_soap_azi_der(k2)= locdot_azi_der
@@ -146,41 +147,41 @@ Discussion
      
        !omp target teams distribute
        do k2 = 1, k2_max
-          i=list_of_i(k2)
+         i=list_of_i(k2)
  
-          !omp parallel do
-          do is=1,nsoap
-             soap_rad_der(is, k2) = soap_rad_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_rad_der(k2)
-             soap_azi_der(is, k2) = soap_azi_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_azi_der(k2)
-             soap_pol_der(is, k2) = soap_pol_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_pol_der(k2)
-          end do
-       end do
-
-       !omp teams distribute private(k3)
-       do k2 = 1, k2_max
-          k3=list_k2k3(k2)
-
-          !omp parallel do private (is)
-          do is=1,n_soap
-             if( k3 /= k2)then
-               soap_cart_der(1, is, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
-               soap_cart_der(2, is, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
-               soap_cart_der(3, is, k2) = dcos(thetas(k2)) * soap_rad_der(is, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(is, k2)
-             end if
+         !omp parallel do
+         do is=1,nsoap
+           soap_rad_der(is, k2) = soap_rad_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_rad_der(k2)
+           soap_azi_der(is, k2) = soap_azi_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_azi_der(k2)
+           soap_pol_der(is, k2) = soap_pol_der(is, k2) / sqrt_dot_p(i) -   soap(is, i) / sqrt_dot_p(i)**3 * dot_soap_pol_der(k2)
          end do
        end do
 
        !omp teams distribute private(k3)
-       do i = 1, _sites
-          k3=list_k3(i)
+       do k2 = 1, k2_max
+         k3=list_k2k3(k2)
+
+         !omp parallel do private (is)
+         do is=1,n_soap
+           if( k3 /= k2)then
+             soap_cart_der(1, is, k2) = dsin(thetas(k2)) * dcos(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dcos(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) - dsin(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
+             soap_cart_der(2, is, k2) = dsin(thetas(k2)) * dsin(phis(k2)) * soap_rad_der(1:n_soap, k2) - dcos(thetas(k2)) * dsin(phis(k2)) / rjs(k2) * soap_pol_der(1:n_soap, k2) + dcos(phis(k2)) / rjs(k2) * soap_azi_der(is, k2)
+             soap_cart_der(3, is, k2) = dcos(thetas(k2)) * soap_rad_der(is, k2) + dsin(thetas(k2)) / rjs(k2) * soap_pol_der(is, k2)
+           end if
+         end do
+       end do
+
+       !omp teams distribute private(k3)
+       do i = 1, n_sites
+         k3=list_k3(i)
 
          !omp parallel do private(is, k2)
          do is=1,n_soap
-            do k2=k3+1,k3+n_neigh(i)
-              soap_cart_der(1, is, k3) = soap_cart_der(1, is, k3) - soap_cart_der(1, is, k2)
-              soap_cart_der(2, is, k3) = soap_cart_der(2, is, k3) - soap_cart_der(2, is, k2)
-              soap_cart_der(3, is, k3) = soap_cart_der(3, is, k3) - soap_cart_der(3, is, k2)
-            end do
+           do k2=k3+1,k3+n_neigh(i)
+             soap_cart_der(1, is, k3) = soap_cart_der(1, is, k3) - soap_cart_der(1, is, k2)
+             soap_cart_der(2, is, k3) = soap_cart_der(2, is, k3) - soap_cart_der(2, is, k2)
+             soap_cart_der(3, is, k3) = soap_cart_der(3, is, k3) - soap_cart_der(3, is, k2)
+           end do
          end do
        end do
 
