@@ -90,7 +90,7 @@ with an accompanying change in the programming paradigm.
 A look at the Top-500 list
 --------------------------
 
-The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most powerful non-distributed computer systems in the world. The project was started in 1993 and publishes an updated list of the supercomputers twice a year. The snapshot below shows the top-5 HPC systems as of June 2023, where the columns show:
+The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most powerful non-distributed computer systems in the world. The project was started in 1993 and publishes an updated list of the supercomputers twice a year. The snapshot below shows the top-5 HPC systems as of June 2024, where the columns show:
 
 - **Cores** - Number of processors 
 - **Rmax** - Maximal LINPACK performance achieved
@@ -100,9 +100,9 @@ The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most 
 .. figure:: img/history/top-5.png
    :align: center
 
-   Snapshot from the `Top500 list from June, 2023 <https://www.top500.org/lists/top500/2023/06/>`__.
+   Snapshot from the `TOP500 list from June, 2024 <https://www.top500.org/lists/top500/2024/06/>`__.
 
-All systems in the top-5 positions contain GPUs from AMD or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
+All systems in the top-5 positions contain GPUs from AMD, Intel, or NVIDIA, except for Fugaku which instead relies on custom-built Arm A64FX CPUs.
 
 
 Why GPUs?
@@ -117,7 +117,7 @@ Improved energy efficiency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
-which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2023/06/>`__.
+which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2024/06/>`__.
 
 Cost-effectiveness 
 ^^^^^^^^^^^^^^^^^^
