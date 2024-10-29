@@ -108,7 +108,7 @@ OpenACC has four levels of parallelism for offloading execution:
 
   - **gang** coarse grain: the iterations are distributed among the gangs
   - **worker** fine grain: worker's threads are activated within gangs and iterations are shared among the threads 
-  - **vector** each worker activtes its threads working in SIMT fashion and the work is shared among the threads
+  - **vector** each worker activates its threads working in SIMT fashion and the work is shared among the threads
   - **seq** the iterations are executed sequentially
 
 

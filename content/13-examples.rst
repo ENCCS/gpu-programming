@@ -129,7 +129,7 @@ Sequential and thread-parallel program in C++
 
       Don't forget to ``git pull`` for the latest updates if you already have the content from the first day of the workshop!
 
-If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straighforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP ``#pragma``:
+If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straightforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP ``#pragma``:
 
 .. tabs::
 

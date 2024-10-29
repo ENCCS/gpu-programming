@@ -22,7 +22,7 @@ Introduction
 
 Exploring multiple GPUs (Graphics Processing Units) across distributed nodes offers the potential to fully leveraging the capacity of modern HPC (High-Performance Computing) systems at a large scale. Here one of the approaches to accelerate computing on distributed systems is to combine MPI (Message Passing Interface) with a GPU programming model such as OpenACC and OpenMP application programming interfaces (APIs). This combination is motivated by both the simplicity of these APIs, and the widespread use of MPI.   
 
-In this guide we provide readers, who are familiar with MPI, with insighits on implementing a hybrid model in which the MPI communication framework is combined with either OpenACC or OpenMP APIs. A special focus will be on performing point-to-point (e.g. `MPI_Send` and `MPI_Recv`) and collective operations (e.g. `MPI_Allreduce`) from OpenACC and OpenMP APIs. Here we address two scenarios: (i) a scenario in which MPI operations are performed in the CPU-host followed by an offload to the GPU-device; and (ii) a scenario in which MPI operations are performed between a pair of GPUs without involving the CPU-host memory. The latter scenario is referred to as GPU-awareness MPI, and has the advantage of reducing the computing time caused by transferring data via the host-memory during heterogenous communications, thus rendering HPC applications efficient. 
+In this guide we provide readers, who are familiar with MPI, with insights on implementing a hybrid model in which the MPI communication framework is combined with either OpenACC or OpenMP APIs. A special focus will be on performing point-to-point (e.g. `MPI_Send` and `MPI_Recv`) and collective operations (e.g. `MPI_Allreduce`) from OpenACC and OpenMP APIs. Here we address two scenarios: (i) a scenario in which MPI operations are performed in the CPU-host followed by an offload to the GPU-device; and (ii) a scenario in which MPI operations are performed between a pair of GPUs without involving the CPU-host memory. The latter scenario is referred to as GPU-awareness MPI, and has the advantage of reducing the computing time caused by transferring data via the host-memory during heterogeneous communications, thus rendering HPC applications efficient. 
 
 This guide is organized as follows: we first introduce how to assign each MPI rank to a GPU device within the same node. We consider a situation in which the host and the device have a distinct memory. This is followed by a presentation on the hybrid MPI-OpenACC/OpenMP offloading with and without the GPU-awareness MPI. Exercises to help understanding these concepts are provided at the end.
 
@@ -152,7 +152,7 @@ To be specific, in the GPU-awareness approach, the device pointers point to the 
 In the hybrid MPI-OpenACC model, the concept is defined by combining the directive `host_data` together with the clause
 `use_device(list_array)`. This combination enables the access to the arrays listed in the clause `use_device(list_array)` from the host (see `here <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`__). The list of arrays, which are already present in the GPU-device memory, are directly passed to an MPI routine without a need of a staging host-memory for copying the data. Note that for initially copying data to GPU, we use unstructured data blocks characterized by the directives `enter data` and `exit data`. The unstructured data has the advantage of allowing to allocate and deallocate arrays within a data region.
 
-To illustarte the concept of the GPU-awareness MPI, we show below two examples that make use of point-to-point and collective operations from OpenACC and OpenMP APIs. In the first code example, the device pointer **f** is passed to the MPI functions `MPI_Send()` and `MP_Recv()`; and in the second one, the pointer **SumToT** is passed to the MPI function `MPI_Allreduce`. Here, the MPI operations `MPI_Send` and `MPI_Recv` as well as `MPI_Allreduce` are performed between a pair of GPUs without passing through the CPU-host memory. 
+To illustrate the concept of the GPU-awareness MPI, we show below two examples that make use of point-to-point and collective operations from OpenACC and OpenMP APIs. In the first code example, the device pointer **f** is passed to the MPI functions `MPI_Send()` and `MP_Recv()`; and in the second one, the pointer **SumToT** is passed to the MPI function `MPI_Allreduce`. Here, the MPI operations `MPI_Send` and `MPI_Recv` as well as `MPI_Allreduce` are performed between a pair of GPUs without passing through the CPU-host memory. 
 
 .. typealong:: Example: ``GPU-awareness: MPI_Send & MPI_Recv``
 
@@ -273,7 +273,7 @@ We consider an MPI fortran code that solves a 2D-Laplace equation, and which is 
 
 .. challenge:: Exercise II: Apply traditional MPI-OpenACC/OpenMP
 
-   2.1 Incoporate the OpenACC directives `*update host()*` and `*update device()*` before and after calling an MPI function, respectively. 
+   2.1 Incorporate the OpenACC directives `*update host()*` and `*update device()*` before and after calling an MPI function, respectively. 
 
    .. note:: 
       The OpenACC directive `*update host()*` is used to transfer data from GPU to CPU within a data region; while the directive `*update device()*` is used to transfer the data from CPU to GPU. 
