@@ -145,7 +145,7 @@ Despite the simplicity of implementing the hybrid MPI-OpenACC/OpenMP offloading,
 Hybrid MPI-OpenACC/OpenMP with GPU-awareness approach 
 -----------------------------------------------------
 
-The concept of the GPU-aware MPI enables an MPI library to directly access the GPU-device memory without necessarily using the CPU-host memory as an intermediate buffer (see e.g. `here <https://docs.open-mpi.org/en/v5.0.0rc9/networking/cuda.html>`__). This offers the benefit of transferring data from one GPU to another GPU without the involvement of the CPU-host memory.
+The concept of the GPU-aware MPI enables an MPI library to directly access the GPU-device memory without necessarily using the CPU-host memory as an intermediate buffer (see e.g. `OpenMPI documentation <https://docs.open-mpi.org/en/v5.0.1/tuning-apps/networking/cuda.html>`__). This offers the benefit of transferring data from one GPU to another GPU without the involvement of the CPU-host memory.
 	  
 To be specific, in the GPU-awareness approach, the device pointers point to the data allocated in the GPU memory space (data should be present in the GPU device). Here, the pointers are passed as arguments to an MPI routine that is supported by the GPU memory. As MPI routines can directly access GPU memory, it offers the possibility of communicating between pairs of GPUs without transferring data back to the host. 
 

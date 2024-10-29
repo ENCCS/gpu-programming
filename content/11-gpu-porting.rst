@@ -247,7 +247,7 @@ the ``hipify-clang`` tool is based on clang for translating CUDA sources into HI
 The tool is more robust for translating CUDA codes compared to the ``hipify-perl`` tool.
 Furthermore, it facilitates the analysis of the code by providing assistance.
 
-In short, ``hipify-clang`` requires ``LLVM+CLANG`` and ``CUDA``. Details about building ``hipify-clang`` can be found `here <https://github.com/ROCm-Developer-Tools/HIPIFY>`__. Note that ``hipify-clang`` is available on LUMI-G.
+In short, ``hipify-clang`` requires ``LLVM+CLANG`` and ``CUDA``. Details about building ``hipify-clang`` can be found `here <https://github.com/ROCm/HIPIFY>`__. Note that ``hipify-clang`` is available on LUMI-G.
 The issue however might be related to the installation of CUDA-toolkit.
 To avoid any eventual issues with the installation procedure we opt for CUDA singularity container. Here we present a step-by-step guide for running ``hipify-clang``:
 
@@ -412,7 +412,7 @@ This concludes a brief overview of the usage of available tools to convert CUDA 
 See also
 --------
 
-- `Hipify GitHub <https://github.com/ROCm-Developer-Tools/HIPIFY>`_
+- `Hipify GitHub <https://github.com/ROCm/HIPIFY>`_
 - `HIPify Reference Guide v5.1 <https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html>`_
 - `HIP example <https://github.com/olcf-tutorials/simple_HIP_examples/tree/master/vector_addition>`_
 - `Porting CUDA to HIP <https://www.admin-magazine.com/HPC/Articles/Porting-CUDA-to-HIP>`_
