@@ -16,7 +16,7 @@ Interactive job, 1 node, 1 GPU, 1 hour:
 
 .. code-block:: console
 
-   $ salloc -A project_465000485 -N 1 -t 1:00:0 -p standard-g --gpus-per-node=1
+   $ salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
    $ srun <some-command>
 
 Exit interactive allocation with ``exit``.
@@ -25,7 +25,7 @@ Interacive terminal session on compute node:
 
 .. code-block:: console
 
-   $ srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+   $ srun --account=project_465001310 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
    $ <some-command>
 
 Corresponding batch script ``submit.sh``:
@@ -41,7 +41,7 @@ Corresponding batch script ``submit.sh``:
    #SBATCH --ntasks-per-node=1
    #SBATCH --gpus-per-node=1
    #SBATCH --time=1:00:00
-   #SBATCH --account=project_465000485
+   #SBATCH --account=project_465001310
 
    srun <some_command> 
 
@@ -58,7 +58,7 @@ To run Julia with AMDGPU.jl on LUMI:
 
 .. code-block:: console
 
-   $ srun --account=project_465000485 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+   $ srun --account=project_465001310 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
    
    $ module purge
    $ module use /appl/local/csc/modulefiles
