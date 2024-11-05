@@ -1,5 +1,6 @@
 //
-// nvcc 02_hello.cu
+// nvcc 02_hello.cu # on nvidia platorms
+// cc -xhip 02_hello.cu # on amd platforms
 //
 #include <stdio.h>
 
