@@ -20,6 +20,64 @@ Portable kernel-based models
 
 The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (previously known as hipSYCL or Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
+C++ StdPar
+^^^^^^^^^^
+
+In C++17, the initial support for parallel execution of standard algorithms has been introduced.
+Most algorithms available via the standard ``<algorithms>`` header were given an overload accepting with an `*execution policy* <https://en.cppreference.com/w/cpp/algorithm>`_ argument which allows the programmer to request parallel execution of the standard library function.
+While perhaps the main goal is to allow low-effort, high-level interface to run existing algorithms like ``std::sort`` on many CPU cores, implementations are allowed to use other hardware, and functions like ``std::for_each`` or ``std::transform`` offer great flexibility in writing the algorithm.
+
+C++ StdPar could be considered to be close to directive-based models, as it is very high-level and does not give the programmer fine-grained control over data movement or any access to hardware-specific features like shared (local) memory.
+However, for applications that already relies on algorithms from C++ standard library, StdPar can be a good way to reap the performance benefits of both CPUs and GPUs with minimal code modifications.
+
+For GPU programming, all three vendors offer their implementations of StdPar with the ability to offload code to the GPU: NVIDIA has ``nvc++``, AMD has experimental `roc-stdpar <https://github.com/ROCm/roc-stdpar>`_, and Intel offers StdPar offload with their oneAPI compiler. `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`__ offers an independent StdPar implementation, able to target devices from all three vendors. While being a part of the C++ standard, the level of support and the maturity of StdPar implementations varies a lot between different compilers.
+
+StdPar compilation
+~~~~~~~~~~~~~~~~~~
+
+The build process depends a lot on the used compiler:
+
+- AdaptiveCpp: Add ``-acpp-stdpar`` flag when calling ``acpp``.
+- Intel oneAPI: Add ``-fsycl -fsycl-pstl-offload=gpu`` flags when calling ``icpx``.
+- NVIDIA NVC++: Add ``-stdpar`` flag when calling ``nvc++`` (not supported with plain ``nvcc``).
+
+
+StdPar programming
+~~~~~~~~~~~~~~~~~~
+
+In its simplest form, using C++ standard parallelism requires including an additional ``<execution>`` header and adding one argument to a supported standard library function.
+
+For example, let's look at the following sequential code sorting a vector:
+
+.. code-block:: C++
+
+    #include <algorithm>
+    #include <vector>
+    
+    void f(std::vector<int>& a) {
+      std::sort(a.begin(), a.end());
+    }
+
+To make it run sorting on the GPU, only a minor modification is needed:
+
+.. code-block:: C++
+
+    #include <algorithm>
+    #include <vector>
+    #include <execution> // To get std::execution
+    
+    void f(std::vector<int>& a) {
+      std::sort(
+          std::execution::par, // This algorithm can be run in parallel
+          a.begin(), a.end()
+        );
+    }
+
+Now, when compiled with one of the supported compilers (note: as of oneAPI 2025.0, ICPX does not support offloading ``std::sort`` to the GPUs), the code will run the sorting on a GPU.
+
+While this can initially seem very limiting, many standard algorithms, such as ``std::transform``, ``std::accumulate``, ``std::transform_reduce``, and ``std::for_each`` can run custom functions over an array, thus allowing one to offload an arbitrary algorithm.
+
+
 Kokkos
 ^^^^^^
 
@@ -355,6 +413,41 @@ Parallel for with Unified Memory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. tabs:: 
+
+   .. tab:: StdPar
+
+      .. code-block:: C++
+
+          #include <algorithm>
+          #include <cstdio>
+          #include <execution>
+          #include <vector>
+          
+          int main() {
+            unsigned n = 5;
+          
+            // Allocate arrays
+            std::vector<int> a(n), b(n), c(n);
+          
+            // Initialize values
+            for (unsigned i = 0; i < n; i++) {
+              a[i] = i;
+              b[i] = 1;
+            }
+          
+            // Run element-wise multiplication on device
+            std::transform(std::execution::par_unseq,
+                  a.begin(), a.end(),
+                  b.begin(),
+                  c.begin(),
+                  [](int i, int j) { return i * j; });
+          
+            for (unsigned i = 0; i < n; i++) {
+              printf("c[%d] = %d\n", i, c[i]);
+            }
+          
+            return 0;
+          }
 
    .. tab:: Kokkos
 
@@ -700,6 +793,7 @@ Asynchronous parallel for kernels
 
 .. tabs:: 
 
+
    .. tab:: Kokkos
 
       .. code-block:: C++
@@ -848,6 +942,35 @@ Asynchronous parallel for kernels
 Reduction
 ~~~~~~~~~
 .. tabs:: 
+
+    .. tab:: StdPar
+
+      .. code-block:: C++
+
+          #include <cstdio>
+          #include <execution>
+          #include <vector>
+          #include <numeric>
+          
+          int main() {
+            unsigned n = 10;
+          
+            std::vector<int> a(n);
+          
+            std::iota(a.begin(), a.end(), 0); // Fill the array
+          
+            // Run reduction on the device
+            int sum = std::reduce(
+                    std::execution::par_unseq,
+                    a.cbegin(), a.cend(),
+                    0, std::plus<int>{});
+          
+            // Print results
+            printf("sum = %d\n", sum);
+          
+            return 0;
+          }
+
 
    .. tab:: Kokkos
 
