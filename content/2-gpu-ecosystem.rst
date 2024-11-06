@@ -52,11 +52,11 @@ Accelerators like to be overloaded with the number of threads, because they can 
 This allows to hide the memory operations: while some threads wait, others can compute.
 
 
-A very important featur of  the accelerators  is their scalability.
+A very important feature of  the accelerators  is their scalability.
 Computational cores on accelerators are usually grouped into multiprocessors.
 The multiprocessors share the data and logical elements.
 This allows to achieve a very high density of compute elements on a GPU.
-This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
+This also allows the scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
 
 
 How do GPUs differ from CPUs?
