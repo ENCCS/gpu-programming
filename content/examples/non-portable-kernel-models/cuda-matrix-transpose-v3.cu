@@ -10,13 +10,23 @@ const static int width = 4096;
 const static int height = 4096;
 const static int tile_dim = 16;
 
-__global__ void copy_kernel(float *in, float *out, int width, int height) {
-  int x_index = blockIdx.x * tile_dim + threadIdx.x;
-  int y_index = blockIdx.y * tile_dim + threadIdx.y;
+__global__ void transpose_SM_nobc_kernel(float *in, float *out, int width,
+                                         int height) {
+  __shared__ float tile[tile_dim][tile_dim + 1];
 
-  int index = y_index * width + x_index;
+  int x_tile_index = blockIdx.x * tile_dim;
+  int y_tile_index = blockIdx.y * tile_dim;
 
-  out[index] = in[index];
+  int in_index =
+      (y_tile_index + threadIdx.y) * width + (x_tile_index + threadIdx.x);
+  int out_index =
+      (x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
+
+  tile[threadIdx.y][threadIdx.x] = in[in_index];
+
+  __syncthreads();
+
+  out[out_index] = tile[threadIdx.x][threadIdx.y];
 }
 
 int main() {
@@ -36,7 +46,7 @@ int main() {
   cudaMalloc((void **)&d_out, width * height * sizeof(float));
 
   cudaMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
-             hipMemcpyHostToDevice);
+             cudaMemcpyHostToDevice);
 
   printf("Setup complete. Launching kernel \n");
   int block_x = width / tile_dim;
@@ -50,15 +60,17 @@ int main() {
 
   printf("Warm up the gpu!\n");
   for (int i = 1; i <= 10; i++) {
-    copy_kernel<<<dim3(block_x, block_y), dim3(tile_dim, tile_dim)>>>(
-        d_in, d_out, width, height);
+    transpose_SM_nobc_kernel<<<dim3(block_x, block_y),
+                               dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,
+                                                           height);
   }
 
   cudaEventRecord(start_kernel_event, 0);
 
   for (int i = 1; i <= 10; i++) {
-    copy_kernel<<<dim3(block_x, block_y), dim3(tile_dim, tile_dim)>>>(
-        d_in, d_out, width, height);
+    transpose_SM_nobc_kernel<<<dim3(block_x, block_y),
+                               dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,
+                                                           height);
   }
 
   cudaEventRecord(end_kernel_event, 0);
@@ -70,12 +82,13 @@ int main() {
 
   printf("Kernel execution complete \n");
   printf("Event timings:\n");
-  printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel / 10,
+  printf("  %.6f ms - transpose (SM, no BC) \n  Bandwidth %.6f GB/s\n",
+         time_kernel / 10,
          2.0 * 10000 * (((double)(width) * (double)height) * sizeof(float)) /
              (time_kernel * 1024 * 1024 * 1024));
 
   cudaMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
-             hipMemcpyDeviceToHost);
+             cudaMemcpyDeviceToHost);
 
   return 0;
 }

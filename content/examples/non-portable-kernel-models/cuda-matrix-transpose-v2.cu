@@ -46,7 +46,7 @@ int main() {
   cudaMalloc((void **)&d_out, width * height * sizeof(float));
 
   cudaMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
-             hipMemcpyHostToDevice);
+             cudaMemcpyHostToDevice);
 
   printf("Setup complete. Launching kernel \n");
   int block_x = width / tile_dim;
@@ -86,7 +86,7 @@ int main() {
              (time_kernel * 1024 * 1024 * 1024));
 
   cudaMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
-             hipMemcpyDeviceToHost);
+             cudaMemcpyDeviceToHost);
 
   return 0;
 }

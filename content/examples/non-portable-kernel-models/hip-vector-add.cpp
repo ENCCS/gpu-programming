@@ -2,7 +2,7 @@
 #include <hip/hip_runtime.h>
 #include <math.h>
 #include <stdio.h>
-#include <stlib.h>
+#include <stdlib.h>
 
 __global__ void vector_add(float *A, float *B, float *C, int n) {
 
@@ -18,13 +18,13 @@ int main(void) {
   float *Ad, *Bd, *Cd;
 
   // Allocate the arrays on CPU
-  Ah = (float *)malloc(n * sizeof(float));
-  Bh = (float *)malloc(n * sizeof(float));
-  Ch = (float *)malloc(n * sizeof(float));
-  Cref = (float *)malloc(n * sizeof(float));
+  Ah = (float *)malloc(N * sizeof(float));
+  Bh = (float *)malloc(N * sizeof(float));
+  Ch = (float *)malloc(N * sizeof(float));
+  Cref = (float *)malloc(N * sizeof(float));
 
   // initialise data and calculate reference values on CPU
-  for (i = 0; i < n; i++) {
+  for (int i = 0; i < N; i++) {
     Ah[i] = sin(i) * 2.3;
     Bh[i] = cos(i) * 1.1;
     Cref[i] = Ah[i] + Bh[i];
@@ -36,8 +36,8 @@ int main(void) {
   hipMalloc((void **)&Cd, N * sizeof(float));
 
   // Transfer the data from CPU to GPU
-  hipMemcpy(Ad, Ah, sizeof(float) * n, hipMemcpyHostToDevice);
-  hipMemcpy(Bd, Bh, sizeof(float) * n, hipMemcpyHostToDevice);
+  hipMemcpy(Ad, Ah, sizeof(float) * N, hipMemcpyHostToDevice);
+  hipMemcpy(Bd, Bh, sizeof(float) * N, hipMemcpyHostToDevice);
 
   // define grid dimensions + launch the device kernel
   dim3 blocks, threads;
@@ -47,22 +47,22 @@ int main(void) {
   // Launch Kernel
   //  use
   // hipLaunchKernelGGL(vector_add, blocks, threads, 0, 0, Ad, Bd, Cd, N); // or
-  vector_add < <<blocks, threads, 0, 0>>(Ad, Bd, Cd, N);
+  vector_add<<<blocks, threads, 0, 0>>>(Ad, Bd, Cd, N);
 
   // copy results back to CPU
   hipMemcpy(Ch, Cd, sizeof(float) * N, hipMemcpyDeviceToHost);
 
   printf("reference: %f %f %f %f ... %f %f\n", Cref[0], Cref[1], Cref[2],
-         Cref[3], Cref[n - 2], Cref[n - 1]);
+         Cref[3], Cref[N - 2], Cref[N - 1]);
   printf("   result: %f %f %f %f ... %f %f\n", Ch[0], Ch[1], Ch[2], Ch[3],
-         Ch[n - 2], Ch[n - 1]);
+         Ch[N - 2], Ch[N - 1]);
 
   // confirm that results are correct
   float error = 0.0;
   float tolerance = 1e-6;
   float diff;
-  for (i = 0; i < n; i++) {
-    diff = abs(y_ref[i] - y[i]);
+  for (int i = 0; i < N; i++) {
+    diff = abs(Cref[i] - Ch[i]);
     if (diff > tolerance) {
       error += diff;
     }
