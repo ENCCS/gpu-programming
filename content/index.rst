@@ -47,11 +47,11 @@ to learn and use for their projects. Specifically, you will:
    3-gpu-problems
    4-gpu-concepts
    5-intro-to-gpu-prog-models
-   6-language-support
-   7-directive-based-models
-   8-multiple_gpu
-   9-non-portable-kernel-models
-   10-portable-kernel-models
+   6-directive-based-models
+   7-non-portable-kernel-models
+   8-portable-kernel-models
+   9-language-support
+   10-multiple_gpu
    11-gpu-porting
    12-recommendations
    13-examples
@@ -127,6 +127,7 @@ The lesson file structure and browsing layout is inspired by and derived from
 <http://opensource.org/licenses/mit-license.html>`__. We have copied and adapted
 most of their license text.
 
+
 Instructional Material
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -138,20 +139,12 @@ The following is a human-readable summary of (and not a substitute for) the
 You are free to:
 
 - **share** - copy and redistribute the material in any medium or format
-- **adapt** - remix, transform, and build upon the material for any purpose,
-  even commercially.
+- **adapt** - remix, transform, and build upon the material for any purpose, even commercially.
 
 The licensor cannot revoke these freedoms as long as you follow these license terms:
 
-- **Attribution** - You must give appropriate credit (mentioning that your work
-  is derived from work that is Copyright (c) ENCCS and individual contributors and, where practical, linking
-  to `<https://enccs.github.io/sphinx-lesson-template>`_), provide a `link to the license
-  <https://creativecommons.org/licenses/by/4.0/>`__, and indicate if changes were
-  made. You may do so in any reasonable manner, but not in any way that suggests
-  the licensor endorses you or your use.
-- **No additional restrictions** - You may not apply legal terms or
-  technological measures that legally restrict others from doing anything the
-  license permits.
+- **Attribution** - You must give appropriate credit (mentioning that your work is derived from work that is Copyright (c) ENCCS and individual contributors and, where practical, linking to `<https://enccs.github.io/sphinx-lesson-template>`_), provide a `link to the license <https://creativecommons.org/licenses/by/4.0/>`__, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. 
+- **No additional restrictions** - You may not apply legal terms or technological measures that legally restrict others from doing anything the license permits.
 
 With the understanding that:
 
@@ -169,3 +162,4 @@ Software
 Except where otherwise noted, the example programs and other software provided
 with this repository are made available under the `OSI <http://opensource.org/>`__-approved
 `MIT license <https://opensource.org/licenses/mit-license.html>`__.
+
