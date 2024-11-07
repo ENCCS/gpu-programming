@@ -42,7 +42,7 @@ The way subtasks exchange needed information depends on the available hardware.
 In a distributed memory environment each processing unit operates independently from the 
 others. It has its own memory and it  **cannot** access the memory in other nodes. 
 The communication is done via network and each computing unit runs a separate copy of the 
-operating system. In a shared memory machine all computing units have access to the memory 
+operating system. In a shared memory machine all processing units have access to the memory 
 and can read or modify the variables within.
 
 Processes and Threads
