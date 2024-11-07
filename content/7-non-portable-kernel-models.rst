@@ -46,101 +46,24 @@ Below we have the most basic example of CUDA and HIP, the "Hello World" program:
 .. tabs:: 
 
    ..  group-tab:: CUDA
-
-      .. code-block:: C
-      
-        #include <cuda_runtime.h>
-        #include <cuda.h>
-        #include <stdio.h>
-          
-        int main(void){
-          int count, device;
-            
-          cudaGetDeviceCount(&count);
-          cudaGetDevice(&device);
-            
-          printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count); 
-          return 0;
-        }
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-hello-world.c
+           :language: C
 
    ..  group-tab:: HIP
-
-      .. code-block:: C
-      
-          #include <hip/hip_runtime.h>
-          #include <stdio.h>
-      
-          int main(void){
-            int count, device;
-        
-            hipGetDeviceCount(&count);
-            hipGetDevice(&device);
-        
-            printf("Hello! I'm GPU %d out of %d GPUs in total.\n", device, count);
-            return 0;
-          }
+        .. literalinclude:: examples/non-portable-kernel-models/hip-hello-world.c
+           :language: C
 
    ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-
-         #include <Kokkos_Core.hpp>
-         #include <iostream>
-         
-         int main() {
-           Kokkos::initialize();
-
-           int count = Kokkos::Cuda().concurrency();
-           int device = Kokkos::Cuda().impl_internal_space_instance()->impl_internal_space_id();
-         
-           std::cout << "Hello! I'm GPU " << device << " out of " << count << " GPUs in total." << std::endl;
-         
-           Kokkos::finalize();
-         
-           return 0;
-         }
-
+        .. literalinclude:: examples/non-portable-kernel-models/kokkos-hello-world.cpp
+           :language: C++
 
    ..  group-tab:: OpenCL
-
-      .. code-block:: C
-      
-         #include <CL/opencl.h>
-         #include <stdio.h>
-         int main(void) {
-           cl_uint count;
-           cl_platform_id platform;
-           clGetPlatformIDs(1, &platform, NULL);
-
-           cl_device_id device;
-           clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, &count);
-
-           char deviceName[1024];
-           clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(deviceName), deviceName, NULL);
-
-           printf("Hello! I'm GPU %s out of %d GPUs in total.\n", deviceName, count);
-
-           return 0;
-         }
-
+        .. literalinclude:: examples/non-portable-kernel-models/opencl-hello-world.c
+           :language: C
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-         
-         int main() {
-           auto gpu_devices = sycl::device::get_devices(sycl::info::device_type::gpu);
-           auto count = gpu_devices.size();
-           std::cout << "Hello! I'm using a SYCL device by "
-                     << gpu_devices[0].get_info<sycl::info::device::vendor>()
-                     << ">, the first of " << count << " devices." << std::endl;
-           return 0;
-         }
-
-
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-hello-world.cpp
+           :language: C++
 
 In both versions, we include the necessary headers: **cuda_runtime.h** and **cuda.h** for CUDA, and **hip_runtime.h** for HIP. These headers provide the required functionality for GPU programming.
 
@@ -166,360 +89,20 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 .. tabs:: 
 
    ..  group-tab:: CUDA
-
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #include <cuda_runtime.h>
-        #include <math.h>
-
-        __global__ void vector_add(float *A, float *B, float *C, int n) {
-          int tid = threadIdx.x + blockIdx.x * blockDim.x;
-          if (tid < n) {
-              C[tid] = A[tid] + B[tid];
-          }
-        }
-
-        int main(void) {
-          const int N = 10000;
-          float *Ah, *Bh, *Ch, *Cref;
-          float *Ad, *Bd, *Cd;
-          int i;
-
-          // Allocate the arrays on CPU
-          Ah = (float*)malloc(N * sizeof(float));
-          Bh = (float*)malloc(N * sizeof(float));
-          Ch = (float*)malloc(N * sizeof(float));
-          Cref = (float*)malloc(N * sizeof(float));
-
-          // initialise data and calculate reference values on CPU
-          for (i = 0; i < N; i++) {
-              Ah[i] = sin(i) * 2.3;
-              Bh[i] = cos(i) * 1.1;
-              Cref[i] = Ah[i] + Bh[i];
-          }
-
-          // Allocate the arrays on GPU
-          cudaMalloc((void**)&Ad, N * sizeof(float));
-          cudaMalloc((void**)&Bd, N * sizeof(float));
-          cudaMalloc((void**)&Cd, N * sizeof(float));
-
-          // Transfer the data from CPU to GPU
-          cudaMemcpy(Ad, Ah, sizeof(float) * N, cudaMemcpyHostToDevice);
-          cudaMemcpy(Bd, Bh, sizeof(float) * N, cudaMemcpyHostToDevice);
-
-          // define grid dimensions + launch the device kernel
-          dim3 blocks, threads;
-          threads = dim3(256, 1, 1);
-          blocks = dim3((N + 256 - 1) / 256, 1, 1);
-
-          // Launch Kernel
-          vector_add<<<blocks, threads>>>(Ad, Bd, Cd, N);
-
-          // copy results back to CPU
-          cudaMemcpy(Ch, Cd, sizeof(float) * N, cudaMemcpyDeviceToHost);
-
-          printf("reference: %f %f %f %f ... %f %f\n",
-              Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
-          printf("   result: %f %f %f %f ... %f %f\n",
-              Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
-
-          // confirm that results are correct
-          float error = 0.0;
-          float tolerance = 1e-6;
-          float diff;
-          for (i = 0; i < N; i++) {
-              diff = fabs(Cref[i] - Ch[i]);
-              if (diff > tolerance) {
-                  error += diff;
-              }
-          }
-          printf("total error: %f\n", error);
-          printf("  reference: %f at (42)\n", Cref[42]);
-          printf("     result: %f at (42)\n", Ch[42]);
-
-          // Free the GPU arrays
-          cudaFree(Ad);
-          cudaFree(Bd);
-          cudaFree(Cd);
-
-          // Free the CPU arrays
-          free(Ah);
-          free(Bh);
-          free(Ch);
-          free(Cref);
-
-          return 0;
-        }
-
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add.cpp
+           :language: C++
       
    ..  group-tab:: HIP
-
-      .. code-block:: C++
-      
-         #include <hip/hip_runtime.h>
-         #include <stdio.h>
-         #include <stlib.h>
-         #include <math.h> 
-         
-         __global__ void vector_add(float *A, float *B, float *C, int n){
-           
-           int tid = threadIdx.x + blockIdx.x * blockDim.x;
-           if(tid<n){
-             C[tid] = A[tid]+B[tid];
-           }
-        }
-        
-        int main(void){ 
-          const int N = 10000;
-          float *Ah, *Bh, *Ch, *Cref;
-          float *Ad, *Bd, *Cd;
-
-          // Allocate the arrays on CPU
-          Ah =(float*)malloc(n * sizeof(float));
-          Bh =(float*)malloc(n * sizeof(float));
-          Ch =(float*)malloc(n * sizeof(float));
-          Cref =(float*)malloc(n * sizeof(float));
-          
-          // initialise data and calculate reference values on CPU
-          for (i=0; i < n; i++) {
-            Ah[i] = sin(i) * 2.3;
-            Bh[i] = cos(i) * 1.1;
-            Cref[i] = Ah[i] + Bh[i];
-          }
-          
-          // Allocate the arrays on GPU
-          hipMalloc((void**)&Ad, N * sizeof(float));
-          hipMalloc((void**)&Bd, N * sizeof(float));
-          hipMalloc((void**)&Cd, N * sizeof(float));
-          
-          // Transfer the data from CPU to GPU
-          hipMemcpy(Ad, Ah, sizeof(float) * n, hipMemcpyHostToDevice);
-          hipMemcpy(Bd, Bh, sizeof(float) * n, hipMemcpyHostToDevice);
-          
-          // define grid dimensions + launch the device kernel
-          dim3 blocks, threads;
-          threads=dim3(256,1,1);
-          blocks=dim3((N+256-1)/256,1,1);
-          
-          //Launch Kernel
-          // use
-          //hipLaunchKernelGGL(vector_add, blocks, threads, 0, 0, Ad, Bd, Cd, N); // or
-          vector_add<<< blocks, threads,0,0>>(Ad, Bd, Cd, N);
-          
-          // copy results back to CPU
-          hipMemcpy(Ch, Cd, sizeof(float) * N, hipMemcpyDeviceToHost);
-          
-          printf("reference: %f %f %f %f ... %f %f\n",
-                        Cref[0], Cref[1], Cref[2], Cref[3], Cref[n-2], Cref[n-1]);
-          printf("   result: %f %f %f %f ... %f %f\n",
-                          Ch[0],   Ch[1],   Ch[2],   Ch[3],   Ch[n-2],   Ch[n-1]);
-
-          // confirm that results are correct
-          float error = 0.0;
-          float tolerance = 1e-6;
-          float diff;
-          for (i=0; i < n; i++) {
-            diff = abs(y_ref[i] - y[i]);
-            if (diff > tolerance){
-              error += diff;
-            }
-          }
-         printf("total error: %f\n", error);
-         printf("  reference: %f at (42)\n", Cref[42]);
-         printf("     result: %f at (42)\n",    Ch[42]);
-         
-         // Free the GPU arrays
-         hipFree(Ad);
-         hipFree(Bd);
-         hipFree(Cd);
-
-         // Free the CPU arrays
-         free(Ah);
-         free(Bh);
-         free(Ch);
-         free(Cref);
-
-         return 0;
-       }
-
-   ..  group-tab:: Kokkos
-
-      .. code-block:: C++
-        
+        .. literalinclude:: examples/non-portable-kernel-models/hip-vector-add.cpp
+           :language: C++
       
    ..  group-tab:: OpenCL
-
-      .. code-block:: C
-      
-         // We're using C API here; examples with C++ API can be found in the "Portable kernel models" chapter
-         #include <stdio.h>
-         #include <stdlib.h>
-         #include <math.h>
-         #include <CL/cl.h>
-
-         #define N 10000
-
-         static const char* programSource =
-            "__kernel void vector_add(__global const float* A, __global const float* B, __global float* C, int N) {\n"
-            "    int tid = get_global_id(0);\n"
-            "    if (tid < N) {\n"
-            "        C[tid] = A[tid] + B[tid];\n"
-            "    }\n"
-            "}\n";
-
-         int main() {
-            // Initialize data and calculate reference values on CPU
-            float Ah[N], Bh[N], Ch[N], Cref[N];
-            for (int i = 0; i < N; i++) {
-               Ah[i] = sin(i) * 2.3f;
-               Bh[i] = cos(i) * 1.1f;
-               Ch[i] = 12.f;
-               Cref[i] = Ah[i] + Bh[i];
-            }
-
-            // Use the default device
-            cl_platform_id platform;
-            clGetPlatformIDs(1, &platform, NULL);
-            cl_device_id device;
-            clGetDeviceIDs(platform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
-            cl_context context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
-            cl_command_queue queue = clCreateCommandQueue(context, device, 0, NULL);
-
-            // Build the kernel from string
-            cl_program program = clCreateProgramWithSource(context, 1, &programSource, NULL, NULL);
-            clBuildProgram(program, 1, &device, NULL, NULL, NULL);
-            cl_kernel kernel = clCreateKernel(program, "vector_add", NULL);
-
-            // Allocate the arrays on GPU
-            cl_mem d_A = clCreateBuffer(context, CL_MEM_READ_ONLY, N * sizeof(float), NULL, NULL);
-            cl_mem d_B = clCreateBuffer(context, CL_MEM_READ_ONLY, N * sizeof(float), NULL, NULL);
-            cl_mem d_C = clCreateBuffer(context, CL_MEM_WRITE_ONLY, N * sizeof(float), NULL, NULL);
-
-            clEnqueueWriteBuffer(queue, d_A, CL_TRUE, 0, N * sizeof(float), Ah, 0, NULL, NULL);
-            clEnqueueWriteBuffer(queue, d_B, CL_TRUE, 0, N * sizeof(float), Bh, 0, NULL, NULL);
-
-            // Set arguments and launch the kernel
-            clSetKernelArg(kernel, 0, sizeof(cl_mem), &d_A);
-            clSetKernelArg(kernel, 1, sizeof(cl_mem), &d_B);
-            clSetKernelArg(kernel, 2, sizeof(cl_mem), &d_C);
-            cl_int N_as_cl_int = N;
-            clSetKernelArg(kernel, 3, sizeof(cl_int), &N_as_cl_int);
-            size_t globalSize = N;
-            clEnqueueNDRangeKernel(queue, kernel, 1, NULL, &globalSize, NULL, 0, NULL, NULL);
-
-            // Copy the results back
-            clEnqueueReadBuffer(queue, d_C, CL_TRUE, 0, N * sizeof(float), Ch, 0, NULL, NULL);
-
-            // Print reference and result values
-            printf("Reference: %f %f %f %f ... %f %f\n",
-               Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
-            printf("Result   : %f %f %f %f ... %f %f\n",
-               Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
-
-            // Compare results and calculate the total error
-            float error = 0.0f;
-            float tolerance = 1e-6f;
-            for (int i = 0; i < N; i++) {
-               float diff = fabs(Cref[i] - Ch[i]);
-               if (diff > tolerance) {
-                     error += diff;
-               }
-            }
-
-            printf("Total error: %f\n", error);
-            printf("Reference:   %f at (42)\n", Cref[42]);
-            printf("Result   :   %f at (42)\n", Ch[42]);
-
-            clReleaseMemObject(d_A);
-            clReleaseMemObject(d_B);
-            clReleaseMemObject(d_C);
-            clReleaseKernel(kernel);
-            clReleaseProgram(program);
-            clReleaseCommandQueue(queue);
-            clReleaseContext(context);
-
-            return 0;
-         }
-      
+        .. literalinclude:: examples/non-portable-kernel-models/opencl-vector-add.c
+           :language: C
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-
-         int main() {
-            const int N = 10000;
-            // The queue will be executed on the best device in the system
-            // We use in-order queue for simplicity
-            sycl::queue q{{sycl::property::queue::in_order()}};
-
-            std::vector<float> Ah(N);
-            std::vector<float> Bh(N);
-            std::vector<float> Ch(N);
-            std::vector<float> Cref(N);
-
-            // Initialize data and calculate reference values on CPU
-            for (int i = 0; i < N; i++) {
-               Ah[i] = std::sin(i) * 2.3f;
-               Bh[i] = std::cos(i) * 1.1f;
-               Cref[i] = Ah[i] + Bh[i];
-            }
-
-            // Allocate the arrays on GPU
-            float *Ad = sycl::malloc_device<float>(N, q);
-            float *Bd = sycl::malloc_device<float>(N, q);
-            float *Cd = sycl::malloc_device<float>(N, q);
-
-            q.copy<float>(Ah.data(), Ad, N);
-            q.copy<float>(Bh.data(), Bd, N);
-
-            // Define grid dimensions
-            // We can specify the block size explicitly, but we don't have to
-            sycl::range<1> global_size(N);
-            q.submit([&](sycl::handler &h) {
-               h.parallel_for<class VectorAdd>(global_size, [=](sycl::id<1> threadId) {
-                  int tid = threadId.get(0);
-                  Cd[tid] = Ad[tid] + Bd[tid];
-               });
-            });
-
-            // Copy results back to CPU
-            sycl::event eventCCopy = q.copy<float>(Cd, Ch.data(), N);
-            // Wait for the copy to finish
-            eventCCopy.wait();
-
-            // Print reference and result values
-            std::cout << "Reference: " << Cref[0] << " " << Cref[1] << " " << Cref[2]
-                        << " " << Cref[3] << " ... " << Cref[N - 2] << " " << Cref[N - 1]
-                        << std::endl;
-            std::cout << "Result   : " << Ch[0] << " " << Ch[1] << " " << Ch[2] << " "
-                        << Ch[3] << " ... " << Ch[N - 2] << " " << Ch[N - 1] << std::endl;
-
-            // Compare results and calculate the total error
-            float error = 0.0f;
-            float tolerance = 1e-6f;
-            for (int i = 0; i < N; i++) {
-               float diff = std::abs(Cref[i] - Ch[i]);
-               if (diff > tolerance) {
-                  error += diff;
-               }
-            }
-
-            std::cout << "Total error: " << error << std::endl;
-            std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-            std::cout << "Result   :   " << Ch[42] << " at (42)" << std::endl;
-
-            // Free the GPU memory
-            sycl::free(Ad, q);
-            sycl::free(Bd, q);
-            sycl::free(Cd, q);
-
-            return 0;
-         }
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-vector-add.cpp
+           :language: C++
       
 In this case, the CUDA and HIP codes are equivalent one to one so we will only refer to the CUDA version. The CUDA and HIP programming model are host centric programming models. The main program is executed on CPU and controls all the operations, memory allocations, data transfers between CPU and GPU, and launches the kernels to be executed on the GPU. The code starts with defining the GPU kernel function called **vector_add** with attribute **___global__**. It takes three input arrays `A`, `B`, and `C` along with the array size `n`. The kernel function contains the actually code which is executed on the GPU by multiple threads in parallel.
 
@@ -546,216 +129,16 @@ For a while already GPUs support unified memory, which allows to use the same po
 .. tabs:: 
 
    ..  group-tab:: CUDA
-
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #include <cuda_runtime.h>
-        #include <math.h>
-
-        __global__ void vector_add(float *A, float *B, float *C, int n) {
-          int tid = threadIdx.x + blockIdx.x * blockDim.x;
-          if (tid < n) {
-              C[tid] = A[tid] + B[tid];
-          }
-        }
-
-        int main(void) {
-          const int N = 10000;
-          float *Ah, *Bh, *Ch, *Cref;
-          int i;
-
-          // Allocate the arrays using Unified Memory
-          cudaMallocManaged(&Ah, N * sizeof(float));
-          cudaMallocManaged(&Bh, N * sizeof(float));
-          cudaMallocManaged(&Ch, N * sizeof(float));
-          cudaMallocManaged(&Cref, N * sizeof(float));
-
-
-          // initialise data and calculate reference values on CPU
-          for (i = 0; i < N; i++) {
-              Ah[i] = sin(i) * 2.3;
-              Bh[i] = cos(i) * 1.1;
-              Cref[i] = Ah[i] + Bh[i];
-          }
-
-          // define grid dimensions
-          dim3 blocks, threads;
-          threads = dim3(256, 1, 1);
-          blocks = dim3((N + 256 - 1) / 256, 1, 1);
-
-          // Launch Kernel
-          vector_add<<<blocks, threads>>>(Ah, Bh, Ch, N);
-          cudaDeviceSynchronize(); // Wait for the kernel to complete
-          
-          //At this point we want to access the data on CPU
-          printf("reference: %f %f %f %f ... %f %f\n",
-              Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
-          printf("   result: %f %f %f %f ... %f %f\n",
-              Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
-
-          // confirm that results are correct
-          float error = 0.0;
-          float tolerance = 1e-6;
-          float diff;
-          for (i = 0; i < N; i++) {
-              diff = fabs(Cref[i] - Ch[i]);
-              if (diff > tolerance) {
-                  error += diff;
-              }
-          }
-          printf("total error: %f\n", error);
-          printf("  reference: %f at (42)\n", Cref[42]);
-          printf("     result: %f at (42)\n", Ch[42]);
-
-          // Free the GPU arrays
-          cudaFree(Ah);
-          cudaFree(Bh);
-          cudaFree(Ch);
-          cudaFree(Cref);
-          
-          return 0;
-        }
-
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add-unified-memory.cpp
+           :language: C++
       
    ..  group-tab:: HIP
-
-      .. code-block:: C++ 
-         
-         #include <hip/hip_runtime.h>
-         #include <stdio.h>
-         #include <math.h>
-
-         __global__ void vector_add(float *A, float *B, float *C, int n) {
-            int tid = threadIdx.x + blockIdx.x * blockDim.x;            
-            if (tid < n) {
-              C[tid] = A[tid] + B[tid];
-           }
-         }
-         
-         int main(void) { 
-           const int N = 10000;
-           float *Ah, *Bh, *Ch, *Cref;
-           // Allocate the arrays using Unified Memory  
-           hipMallocManaged((void **)&Ah, N * sizeof(float));
-           hipMallocManaged((void **)&Bh, N * sizeof(float));
-           hipMallocManaged((void **)&Ch, N * sizeof(float));
-           hipMallocManaged((void **)&Cref, N * sizeof(float));
-
-           // Initialize data and calculate reference values on CPU
-           for (int i = 0; i < N; i++) {
-             Ah[i] = sin(i) * 2.3;
-             Bh[i] = cos(i) * 1.1;
-             Cref[i] = Ah[i] + Bh[i];
-           }
-           // All data at this point is on CPU
-
-           // Define grid dimensions + launch the device kernel
-           dim3 blocks, threads;
-           threads = dim3(256, 1, 1);
-           blocks = dim3((N + 256 - 1) / 256, 1, 1);
-           
-           //Launch Kernel
-           // use
-           //hipLaunchKernelGGL(vector_add, blocks, threads, 0, 0, Ah, Bh, Ch, N); // or
-           vector_add<<<blocks, threads>>>(Ah, Bh, Ch, N);
-           hipDeviceSynchronize(); // Wait for the kernel to complete
-
-           // At this point we want to access the data on the CPU
-           printf("reference: %f %f %f %f ... %f %f\n",
-                 Cref[0], Cref[1], Cref[2], Cref[3], Cref[N - 2], Cref[N - 1]);
-           printf("   result: %f %f %f %f ... %f %f\n",
-                 Ch[0], Ch[1], Ch[2], Ch[3], Ch[N - 2], Ch[N - 1]);
-
-           // Confirm that results are correct
-           float error = 0.0;
-           float tolerance = 1e-6;
-           float diff;
-           for (int i = 0; i < N; i++) {
-           diff = fabs(Cref[i] - Ch[i]);
-             if (diff > tolerance) {
-               error += diff;
-             }
-           }
-           printf("total error: %f\n", error);
-           printf("  reference: %f at (42)\n", Cref[42]);
-           printf("     result: %f at (42)\n", Ch[42]);
-
-           // Free the Unified Memory arrays
-           hipFree(Ah);
-           hipFree(Bh);
-           hipFree(Ch);
-           hipFree(Cref);
-
-           return 0;
-         }
+        .. literalinclude:: examples/non-portable-kernel-models/hip-vector-add-unified-memory.cpp
+           :language: C++
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         #include <iostream>
-         #include <sycl/sycl.hpp>
-
-         int main() {
-            const int N = 10000;
-            // The queue will be executed on the best device in the system
-            // We use in-order queue for simplicity
-            sycl::queue q{{sycl::property::queue::in_order()}};
-
-            std::vector<float> Cref(N);
-
-            // Allocate the shared arrays
-            float *A = sycl::malloc_shared<float>(N, q);
-            float *B = sycl::malloc_shared<float>(N, q);
-            float *C = sycl::malloc_shared<float>(N, q);
-
-            // Initialize data and calculate reference values on CPU
-            for (int i = 0; i < N; i++) {
-               A[i] = std::sin(i) * 2.3f;
-               B[i] = std::cos(i) * 1.1f;
-               Cref[i] = A[i] + B[i];
-            }
-
-            // Define grid dimensions
-            // We can specify the block size explicitly, but we don't have to
-            sycl::range<1> global_size(N);
-            q.submit([&](sycl::handler &h) {
-               h.parallel_for<class VectorAdd>(global_size, [=](sycl::id<1> threadId) {
-                  int tid = threadId.get(0);
-                  C[tid] = A[tid] + B[tid];
-               });
-               }).wait(); // Wait for the kernel to finish
-
-            // Print reference and result values
-            std::cout << "Reference: " << Cref[0] << " " << Cref[1] << " " << Cref[2]
-                        << " " << Cref[3] << " ... " << Cref[N - 2] << " " << Cref[N - 1]
-                        << std::endl;
-            std::cout << "Result   : " << C[0] << " " << C[1] << " " << C[2] << " "
-                        << C[3] << " ... " << C[N - 2] << " " << C[N - 1] << std::endl;
-
-            // Compare results and calculate the total error
-            float error = 0.0f;
-            float tolerance = 1e-6f;
-            for (int i = 0; i < N; i++) {
-               float diff = std::abs(Cref[i] - C[i]);
-               if (diff > tolerance) {
-                  error += diff;
-               }
-            }
-
-            std::cout << "Total error: " << error << std::endl;
-            std::cout << "Reference:   " << Cref[42] << " at (42)" << std::endl;
-            std::cout << "Result   :   " << C[42] << " at (42)" << std::endl;
-
-            // Free the shared memory
-            sycl::free(A, q);
-            sycl::free(B, q);
-            sycl::free(C, q);
-
-            return 0;
-         }  
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-vector-add-unified-memory.cpp
+           :language: C++
 
 Now the arrays `Ah`, `Bh`, `Ch`, and `Cref` are using `cudaMallocManaged` to allocate Unified Memory. The **vector_add kernel** is launched by passing these Unified Memory pointers directly. After the kernel launch, **cudaDeviceSynchronize** is used to wait for the kernel to complete execution. Finally, **cudaFree** is used to free the Unified Memory arrays. The Unified Memory allows for transparent data migration between CPU and GPU, eliminating the need for explicit data transfers.
 
@@ -810,249 +193,18 @@ Matrix transpose is a classic example where shared memory can significantly impr
 First as a reference we use a simple kernel which copy the data from one array to the other. 
 
 .. tabs:: 
-
          
    ..  group-tab:: CUDA
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v0.cpp
+           :language: C++
 
-      .. code-block:: C++
-
-        #include <stdio.h>
-        #include <cuda.h>
-        #include <cuda_runtime.h>
-        #include <math.h>
-        #include <cstdlib>
-        #include <vector>
-
-        const static int width = 4096;
-        const static int height = 4096;
-        const static int tile_dim = 16;
-
-        __global__ void copy_kernel(float *in, float *out, int width, int height) {
-            int x_index = blockIdx.x * tile_dim + threadIdx.x;
-            int y_index = blockIdx.y * tile_dim + threadIdx.y;
-
-            int index = y_index * width + x_index;
-
-            out[index] = in[index];
-        }
-        
-        int main() {
-           std::vector<float> matrix_in;
-           std::vector<float> matrix_out;
-
-           matrix_in.resize(width * height);
-           matrix_out.resize(width * height);
-
-           for (int i = 0; i < width * height; i++) {
-             matrix_in[i] = (float)rand() / (float)RAND_MAX;
-           }
-        
-           float *d_in,*d_out;
-        
-           cudaMalloc((void **)&d_in, width * height * sizeof(float));
-           cudaMalloc((void **)&d_out, width * height * sizeof(float));
-
-           cudaMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
-                  hipMemcpyHostToDevice);
-
-           printf("Setup complete. Launching kernel \n");
-           int block_x = width / tile_dim;
-           int block_y = height / tile_dim;
-  
-           // Create events
-           cudaEvent_t start_kernel_event;
-           cudaEventCreate(&start_kernel_event);
-           cudaEvent_t end_kernel_event;
-           cudaEventCreate(&end_kernel_event);
-
-           printf("Warm up the gpu!\n");
-           for(int i=1;i<=10;i++){
-              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
-           }
-
-           cudaEventRecord(start_kernel_event, 0);
-        
-           for(int i=1;i<=10;i++){
-              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
-           }
-  
-          cudaEventRecord(end_kernel_event, 0);
-          cudaEventSynchronize(end_kernel_event);
-
-          cudaDeviceSynchronize();
-          float time_kernel;
-          cudaEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
-
-          printf("Kernel execution complete \n");
-          printf("Event timings:\n");
-          printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
- 
-          cudaMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
-                     hipMemcpyDeviceToHost);
-
-          return 0;
-        }
-      
    ..  group-tab:: HIP
-
-      .. code-block:: C++ 
+        .. literalinclude:: examples/non-portable-kernel-models/hip-matrix-transpose-v0.cpp
+           :language: C++
       
-        #include <hip/hip_runtime.h>
-
-        #include <cstdlib>
-        #include <vector>
-
-        const static int width = 4096;
-        const static int height = 4096;
-        const static int tile_dim = 16;
-
-        __global__ void copy_kernel(float *in, float *out, int width, int height) {
-            int x_index = blockIdx.x * tile_dim + threadIdx.x;
-            int y_index = blockIdx.y * tile_dim + threadIdx.y;
-
-            int index = y_index * width + x_index;
-
-            out[index] = in[index];
-        }
-        
-        int main() {
-           std::vector<float> matrix_in;
-           std::vector<float> matrix_out;
-
-           matrix_in.resize(width * height);
-           matrix_out.resize(width * height);
-
-           for (int i = 0; i < width * height; i++) {
-             matrix_in[i] = (float)rand() / (float)RAND_MAX;
-           }
-        
-           float *d_in,*d_out;
-        
-           hipMalloc((void **)&d_in, width * height * sizeof(float));
-           hipMalloc((void **)&d_out, width * height * sizeof(float));
-
-           hipMemcpy(d_in, matrix_in.data(), width * height * sizeof(float),
-                  hipMemcpyHostToDevice);
-
-           printf("Setup complete. Launching kernel \n");
-           int block_x = width / tile_dim;
-           int block_y = height / tile_dim;
-  
-           // Create events
-           hipEvent_t start_kernel_event;
-           hipEventCreate(&start_kernel_event);
-           hipEvent_t end_kernel_event;
-           hipEventCreate(&end_kernel_event);
-
-           printf("Warm up the gpu!\n");
-           for(int i=1;i<=10;i++){
-              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
-           }
-
-           hipEventRecord(start_kernel_event, 0);
-        
-           for(int i=1;i<=10;i++){
-              copy_kernel<<<dim3(block_x, block_y),dim3(tile_dim, tile_dim)>>>(d_in, d_out, width,height);
-           }
-  
-          hipEventRecord(end_kernel_event, 0);
-          hipEventSynchronize(end_kernel_event);
-
-          hipDeviceSynchronize();
-          float time_kernel;
-          hipEventElapsedTime(&time_kernel, start_kernel_event, end_kernel_event);
-
-          printf("Kernel execution complete \n");
-          printf("Event timings:\n");
-          printf("  %.6f ms - copy \n  Bandwidth %.6f GB/s\n", time_kernel/10, 2.0*10000*(((double)(width)*      (double)height)*sizeof(float))/(time_kernel*1024*1024*1024));
- 
-          hipMemcpy(matrix_out.data(), d_out, width * height * sizeof(float),
-                     hipMemcpyDeviceToHost);
-
-          return 0;
-        }
-
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         #include <sycl/sycl.hpp>
-         #include <vector>
-
-         const static int width = 4096;
-         const static int height = 4096;
-         const static int tile_dim = 16;
-
-         // Instead of defining kernel lambda at the place of submission,
-         // we can define it here:
-         auto copyKernel(const float *in, float *out, int width, int height) {
-            return [=](sycl::nd_item<2> item) {
-               int x_index = item.get_global_id(1);
-               int y_index = item.get_global_id(0);
-               int index = y_index * width + x_index;
-               out[index] = in[index];
-            };
-         }
-
-         int main() {
-            std::vector<float> matrix_in(width * height);
-            std::vector<float> matrix_out(width * height);
-
-            for (int i = 0; i < width * height; i++) {
-               matrix_in[i] = (float)rand() / (float)RAND_MAX;
-            }
-
-            // Create queue on the default device with profiling enabled
-            sycl::queue queue{{sycl::property::queue::in_order(),
-                                 sycl::property::queue::enable_profiling()}};
-
-            float *d_in = sycl::malloc_device<float>(width * height, queue);
-            float *d_out = sycl::malloc_device<float>(width * height, queue);
-
-            queue.copy<float>(matrix_in.data(), d_in, width * height);
-            queue.wait();
-
-            printf("Setup complete. Launching kernel\n");
-            sycl::range<2> global_size{height, width}, local_size{tile_dim, tile_dim};
-            sycl::nd_range<2> kernel_range{global_size, local_size};
-
-            // Create events
-            printf("Warm up the GPU!\n");
-            for (int i = 0; i < 10; i++) {
-               queue.submit([&](sycl::handler &cgh) {
-                  cgh.parallel_for(kernel_range, copyKernel(d_in, d_out, width, height));
-               });
-            }
-
-            // Unlike in CUDA or HIP, for SYCL we have to store all events
-            std::vector<sycl::event> kernel_events;
-            for (int i = 0; i < 10; i++) {
-               sycl::event kernel_event = queue.submit([&](sycl::handler &cgh) {
-                  cgh.parallel_for(kernel_range, copyKernel(d_in, d_out, width, height));
-               });
-               kernel_events.push_back(kernel_event);
-            }
-
-            queue.wait();
-
-            auto first_kernel_started =
-                  kernel_events.front().get_profiling_info<sycl::info::event_profiling::command_start>();
-            auto last_kernel_ended =
-                  kernel_events.back().get_profiling_info<sycl::info::event_profiling::command_end>();
-            double total_kernel_time_ns = static_cast<double>(last_kernel_ended - first_kernel_started);
-            double time_kernels = total_kernel_time_ns / 1e6; // convert ns to ms
-            double bandwidth = 2.0 * 10000 *
-                                 (((double)(width) * (double)height) * sizeof(float)) /
-                                 (time_kernels * 1024 * 1024 * 1024);
-
-            printf("Kernel execution complete\n");
-            printf("Event timings:\n");
-            printf("  %.6lf ms - copy\n  Bandwidth %.6lf GB/s\n", time_kernels / 10, bandwidth);
-
-            sycl::free(d_in, queue);
-            sycl::free(d_out, queue);
-            return 0;
-         }
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-matrix-transpose-v0.cpp
+           :language: C++
 
 We note that this code does not do any calculations. Each thread reads one element and then writes it to another locations. By measuring the execution time of the kernel we can compute the effective bandwidth achieve by this kernel. We can measure the time using **rocprof** or **cuda/hip events**. On a NVIDIA V100 GPU this code achieves `717 GB/s` out of the theoretical peak `900 GB/s`. 
 
@@ -1060,94 +212,32 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
 
 .. tabs:: 
 
-      
    ..  group-tab:: CUDA/HIP
-
-      .. code-block:: C++ 
-         
-         __global__ void transpose_naive_kernel(float *in, float *out, int width, int height) {
-            int x_index = blockIdx.x * tile_dim + threadIdx.x;
-            int y_index = blockIdx.y * tile_dim + threadIdx.y;
-
-            int in_index = y_index * width + x_index;
-            int out_index = x_index * height + y_index;
-
-           out[out_index] = in[in_index];
-        }
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v1.cpp
+           :language: C++
+           :lines: 13-22
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         auto transposeKernel(const float *in, float *out, int width, int height) {
-            return [=](sycl::nd_item<2> item) {
-               int x_index = item.get_global_id(1);
-               int y_index = item.get_global_id(0);
-               int in_index = y_index * width + x_index;
-               int out_index = x_index * height + y_index;
-               out[out_index] = in[in_index];
-            };
-         }
-
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-matrix-transpose-v1.cpp
+           :language: C++
+           :lines: 11-19
 
 Checking the index `in_index` we see that two adjacent threads (`threadIx.x, threadIdx.x+1`) access location in memory near each other. However the writes are not. Threads access data which in a strided way. Two adjacent threads access data separated by `height` elements. This practically results in 32 memory operations, however due to under the hood optimizations the achieved bandwidth is `311 GB/s`.
 
 We can improve the code by reading the data in a `coalesced` way, save it in the shared memory row by row and then write in the global memory column by column.
 
 
-
-
  .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-
-      .. code-block:: C++ 
-         
-         const static int tile_dim = 16;
-
-         __global__ void transpose_SM_kernel(float *in, float *out, int width, int height) {
-           __shared__ float tile[tile_dim][tile_dim];
-
-           int x_tile_index = blockIdx.x * tile_dim;
-           int y_tile_index = blockIdx.y * tile_dim;
-           
-           int in_index =(y_tile_index + threadIdx.y) * width + (x_tile_index + threadIdx.x);
-           int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
-
-           tile[threadIdx.y][threadIdx.x] = in[in_index];
-
-           __syncthreads();
-
-          out[out_index] = tile[threadIdx.x][threadIdx.y];
-       }
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cpp
+           :language: C++
+           :lines: 13-30
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         auto transposeKernel(sycl::handler &cgh, const float *in, float *out, int width, int height) {
-            sycl::local_accessor<float, 1> tile{{tile_dim * tile_dim}, cgh};
-            return [=](sycl::nd_item<2> item) {
-               int x_tile_index = item.get_group(1) * tile_dim;
-               int y_tile_index = item.get_group(0) * tile_dim;
-               int x_local_index = item.get_local_id(1);
-               int y_local_index = item.get_local_id(0);
-               int in_index = (y_tile_index + y_local_index) * width +
-                              (x_tile_index + x_local_index);
-               int out_index = (x_tile_index + y_local_index) * width +
-                              (y_tile_index + x_local_index);
-
-               tile[y_local_index * tile_dim + x_local_index] = in[in_index];
-               item.barrier();
-               out[out_index] = tile[x_local_index * tile_dim + y_local_index];
-            };
-         }
-         
-         /* Since allocating shared memory in SYCL requires sycl::handler, when calling parallel_for,
-          * an additional parameter must be passed:
-          * cgh.parallel_for(kernel_range, transposeKernel(cgh, d_in, d_out, width, height));
-          */
-
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-matrix-transpose-v2.cpp
+           :language: C++
+           :lines: 11-28
 
 We define a **tile_dim** constant to determine the size of the shared memory tile. The matrix transpose kernel uses a 2D grid of thread blocks, where each thread block operates on a `tile_dim x tile_dim` tile of the input matrix.
 
@@ -1166,49 +256,14 @@ Shared memory is composed of `banks`. Each banks can service only one request at
 .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-
-      .. code-block:: C++ 
-         
-         const static int tile_dim = 16;
-
-         __global__ void transpose_SM_nobc_kernel(float *in, float *out, int width, int height) {
-           __shared__ float tile[tile_dim][tile_dim+1];
-
-           int x_tile_index = blockIdx.x * tile_dim;
-           int y_tile_index = blockIdx.y * tile_dim;
-           
-           int in_index =(y_tile_index + threadIdx.y) * width + (x_tile_index + threadIdx.x);
-           int out_index =(x_tile_index + threadIdx.y) * height + (y_tile_index + threadIdx.x);
-
-           tile[threadIdx.y][threadIdx.x] = in[in_index];
-
-           __syncthreads();
-
-           out[out_index] = tile[threadIdx.x][threadIdx.y];
-         }
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cpp
+           :language: C++
+           :lines: 13-30
 
    ..  group-tab:: SYCL
-
-      .. code-block:: C++
-
-         auto transposeKernel(sycl::handler &cgh, const float *in, float *out, int width, int height) {
-            sycl::local_accessor<float, 1> tile{{tile_dim * (tile_dim + 1)}, cgh};
-            return [=](sycl::nd_item<2> item) {
-               int x_tile_index = item.get_group(1) * tile_dim;
-               int y_tile_index = item.get_group(0) * tile_dim;
-               int x_local_index = item.get_local_id(1);
-               int y_local_index = item.get_local_id(0);
-               int in_index = (y_tile_index + y_local_index) * width +
-                              (x_tile_index + x_local_index);
-               int out_index = (x_tile_index + y_local_index) * width +
-                               (y_tile_index + x_local_index);
-
-               tile[y_local_index * (tile_dim + 1) + x_local_index] = in[in_index];
-               item.barrier();
-               out[out_index] = tile[x_local_index * (tile_dim + 1) + y_local_index];
-            };
-         }
-      
+        .. literalinclude:: examples/non-portable-kernel-models/sycl-matrix-transpose-v3.cpp
+           :language: C++
+           :lines: 11-28
 
 By padding the array the data is slightly shifting it resulting in no bank conflicts. The effective bandwidth for this kernel is `697 GB/s`. 
 
