@@ -1,7 +1,9 @@
 .. _gpu-ecosystem:
 
+
 The GPU hardware and software ecosystem
 =======================================
+
 
 .. questions::
 
@@ -59,8 +61,9 @@ This allows to achieve a very high density of compute elements on a GPU.
 This also allows the scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.
 
 
+
 How do GPUs differ from CPUs?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+-----------------------------
 
 CPUs and GPUs were designed with different goals in mind. While the CPU 
 is designed to excel at executing a sequence of operations, called a thread, 
@@ -73,8 +76,6 @@ data processing is beneficial for highly parallel computations; the GPU can
 hide memory access latencies with computation, instead of relying on large data caches 
 and complex flow control to avoid long memory access latencies, 
 both of which are expensive in terms of transistors.
-
-
 
 
 .. list-table::  
@@ -213,6 +214,7 @@ ROCm also integrates with popular machine learning frameworks such as TensorFlow
 oneAPI
 ^^^^^^
 
+
 **Intel oneAPI** is a unified software toolkit developed by Intel that allows developers to optimize and deploy applications across a variety of architectures, including CPUs, GPUs, and FPGAs. It provides a comprehensive set of tools, libraries, and frameworks, enabling developers to leverage the full potential of heterogeneous computing environments. With oneAPI, the developers can write code once and deploy it across different hardware targets without the need for significant modifications or rewriting. This approach promotes code reusability, productivity, and performance portability, as it abstracts the complexities of heterogeneous computing and provides a consistent programming interface based on open standards.
 
 The core of suite is **Intel oneAPI Base Toolkit**, a set of tools and libraries for developing high-performance, data-centric applications across diverse architectures. It features an industry-leading C++ compiler that implements SYCL, an evolution of C++ for heterogeneous computing. It includes the **Collective Communications Library**, the **Data Analytics Library**, the **Deep Neural Networks Library**, the **DPC++/C++ Compiler**, the **DPC++ Library**, the **Math Kernel Library**, the **Threading Building Blocks**, debugging tool **Intel Distribution for GDB**, performance analysis tools **Intel Adviser** and **Intel Vtune Profiler**, the **Video Processing Library**, **Intel Distribution for Python**, the **DPC++ Compatibility Tool**, the **FPGA Add-on for oneAPI Base Toolkit**, the **Integrated Performance Primitives**.
@@ -237,7 +239,7 @@ compilation, enabling to run the same code on multicore CPU.
 
 
 Terminology
-+++++++++++
+^^^^^^^^^^^
 
 .. list-table:: Hardware
    :widths: 25 25 50
@@ -262,6 +264,8 @@ Terminology
 Please keep in mind, that this table is only a rough approximation.
 Each GPU architecture is different, and it's impossible to make a 1-to-1 mapping between terms used by different vendors.
 
+
+
 Summary
 -------
 
@@ -269,6 +273,8 @@ Summary
 - GPUs allocate a larger portion of transistors to data processing rather than data caching and flow control. This prioritization of data processing enables GPUs to effectively handle parallel computations and hide memory access latencies through computation.
 - GPU producers provide comprehensive toolkits, libraries, and compilers for developing high-performance applications that leverage the parallel processing power of GPUs. Examples include CUDA (NVIDIA), ROCm (AMD), and oneAPI (Intel).
 - These platforms offer debugging tools (e.g., ``cuda-gdb``, ``rocgdb``) and performance analysis tools (e.g., NVIDIA Nsight Systems, NVIDIA Nsight Compute, ``rocprof``, ``roctracer``) to facilitate code optimization and ensure efficient utilization of GPU resources.
+
+
 
 Exercises
 ---------
@@ -289,8 +295,10 @@ Exercises
       cores are trying to access the memory simultaneously. This is why data management and access patterns 
       are essential in GPU computing.
 
+
 .. keypoints::
 
    - GPUs vs. CPUs, key differences between them
    - GPU software suites, support specific GPU features, programming models, compatibility
    - Applications of GPUs
+

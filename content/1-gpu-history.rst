@@ -1,7 +1,9 @@
 .. _gpu-history:
 
+
 Why GPUs?
 =========
+
 
 .. questions::
 
@@ -108,42 +110,17 @@ All systems in the top-5 positions contain GPUs from AMD, Intel, or NVIDIA, exce
 Why GPUs?
 ---------
 
-Speed
-^^^^^
-
-GPU computing can significantly accelerate many types of scientific workloads.
-
-Improved energy efficiency
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
+- **Speed**: GPU computing can significantly accelerate many types of scientific workloads.
+- **Improved energy efficiency**: Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
 which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2024/06/>`__.
-
-Cost-effectiveness 
-^^^^^^^^^^^^^^^^^^
-
-GPUs can be more cost-effective than traditional CPU-based systems for certain 
-workloads.
+- **Cost-effectiveness**: GPUs can be more cost-effective than traditional CPU-based systems for certain workloads.
 
 
 Limitations and drawbacks
 -------------------------
 
-Only for certain workloads
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Not all workloads can be efficiently parallelized and accelerated on GPUs. 
-Certain types of workloads, such as those with irregular data access patterns or 
-high branching behavior, may not see significant performance improvements on GPUs.
-
-Steeper learning curve
-^^^^^^^^^^^^^^^^^^^^^^
-
-Depending on the GPU programming API that you choose, GPU computing could 
-require specialized skills in GPU programming and knowledge of 
-GPU architecture, leading to a steeper learning curve compared to CPU programming. 
-Fortunately, if you study this training material closely you will become productive 
-with GPU programming quickly!
+- **Only for certain workloads**: Not all workloads can be efficiently parallelized and accelerated on GPUs. Certain types of workloads, such as those with irregular data access patterns or high branching behavior, may not see significant performance improvements on GPUs.
+- **Steeper learning curve**: Depending on the GPU programming API that you choose, GPU computing could require specialized skills in GPU programming and knowledge of GPU architecture, leading to a steeper learning curve compared to CPU programming. Fortunately, if you study this training material closely you will become productive with GPU programming quickly!
 
 
 

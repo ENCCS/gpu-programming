@@ -1,5 +1,6 @@
 .. _gpu-problems:
 
+
 What problems fit to GPU?
 =========================
 
@@ -19,8 +20,9 @@ What problems fit to GPU?
    - 10 min exercises
 
 
-What are GPUs good for
-----------------------
+
+What are GPUs good for?
+-----------------------
 
 
 Answer from `Stack Exchange <https://scicomp.stackexchange.com/questions/943/what-kinds-of-problems-lend-themselves-well-to-gpu-computing>`__:
@@ -45,8 +47,10 @@ Specifically, you can expect good performance on GPUs for:
 - **Big data analytics**: Clustering, classification, regression, etc.
 - **Graphics rendering**: Original use-case for GPUs.
 
-What are GPUs not good for
---------------------------
+
+What are GPUs not good for?
+---------------------------
+
 
 Not all programming problems can efficiently leverage the parallelism offered by GPUs. 
 Some types of problems that do not fit well on a GPU include:
@@ -77,6 +81,7 @@ Some types of problems that do not fit well on a GPU include:
 - **Memory-bound problems**: GPUs generally have less memory available compared to CPUs, and their memory bandwidth 
   can be a limiting factor. If a problem requires a large amount of memory or involves memory-intensive operations, 
   it may not be well-suited for a GPU.
+
 
 Examples of GPU acceleration
 ----------------------------
@@ -145,6 +150,7 @@ To give a flavor of what type of performance gains we can achieve by porting a c
            - 5.910 ms
            - ~550x / ~27x
 
+
 Electronic structure calculations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -159,7 +165,6 @@ VASP is a popular software package used for electronic structure calculations. T
    :align: center
 
    Total energy usage comparison when running VASP on Perlmutter and Cori. The vertical axis shows the energy used by VASP benchmark jobs on Perlmutter GPUs (blue bars), CPUs (red bars), Cori KNL (yellow bars), and Cori Haswell (green bars) in ratio to the Cori Haswell usage.  (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs)
-
 
 
 
@@ -191,6 +196,7 @@ an efficient manner that fit GPU architectures.
 
 Humanities
 ^^^^^^^^^^
+
 A brief introduction into some of the work that is being done in the humanities that can benefit from utilizing GPUs. 
 
 **Language models and NLP (natural language processing)**
@@ -217,6 +223,8 @@ preserve the site for future researchers to gain critical insights and contribut
 Techniques such as Markov Chain Monte Carlo (MCMC) sampling have proven to be invaluable in studies that delve into human behavior or population dynamics. MCMC sampling allows researchers to simulate and analyze complex systems by iteratively sampling from a Markov chain, enabling the exploration of high-dimensional parameter spaces. This method is particularly useful when studying human behavior, as it can capture the inherent randomness and interdependencies that characterize social systems. By leveraging MCMC sampling, researchers can gain insights into various aspects of human behavior, such as decision-making, social interactions, and the spread of information or diseases within populations. 
 
 By offloading the computational workload to GPUs, researchers can experience substantial speedup in the execution of MCMC algorithms. This speedup allows for more extensive exploration of parameter spaces and facilitates the analysis of larger datasets, leading to more accurate and detailed insights into human behavior or population dynamics. Examples of studies done using these methods can be found at the `Center for Humanities Computing Aarhus <https://chc.au.dk/>`__ (CHCAA) and `Interacting Minds Centre <https://interactingminds.au.dk/>`__ (IMC) at Aarhus University.
+
+
 
 Exercises
 ---------

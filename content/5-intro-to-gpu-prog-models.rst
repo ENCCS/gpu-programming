@@ -1,5 +1,6 @@
 .. _intro-to-gpu-prog-models:
 
+
 Introduction to GPU programming models
 ======================================
 
@@ -18,8 +19,10 @@ Introduction to GPU programming models
    - 20 min teaching
    - 0 min exercises
 
+
 There are different ways to use GPUs for computations. In the best case, when someone has already written the code, one only needs to set the parameters and initial configurations in order to get started. Or in some cases the problem is in such a way that it is only needed to use a library to solve the most intensive part of the code. 
 However these are quite limited cases and in general some programming might be needed. There are several GPU programming software environments and APIs available such as, **directive-based models**, **non-portable kernel-based models**, and **portable kernel-based models**, as well as high-level frameworks and libraries.
+
 
 Standard C++/Fortran
 --------------------
@@ -32,6 +35,7 @@ those for Fortran code can be found `here <https://developer.nvidia.com/blog/acc
 The performance of these two approaches is promising as it can be seen in the examples provided in those
 guidelines.
 
+
 Directive-based programming
 ---------------------------
 
@@ -39,26 +43,30 @@ A fast and cheap way is to use **directive based** approaches. In this case the 
 
 
 OpenACC
-~~~~~~~~
+~~~~~~~
 
 `OpenACC <https://www.openacc.org/>`_ is developed by a consortium formed in 2010 with the goal of developing a standard, portable, and scalable programming model for accelerators, including GPUs. Members of the OpenACC consortium include GPU vendors, such as NVIDIA and AMD, as well as leading supercomputing centers, universities, and software companies. Until recently it was supporting only NVIDIA GPUs, but now there is effort to support more and more devices and architectures.
 
+
 OpenMP
-~~~~~~~
+~~~~~~
 
 `OpenMP <https://www.openmp.org/>`_ starts a multi-platform, shared-memory parallel programming API for multi-core CPUs and adds relatively recently support for GPU offloading. It aims to support various types of GPUs. 
 
 In theory the directive based approaches should work with both C/C++ and FORTRAN codes and third party extensions are available for other languages. 
+
 
 Non-portable kernel-based models (native programming models)
 ------------------------------------------------------------
 
 When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used. Multiple examples of CUDA/HIP code are available in the `content/examples/cuda-hip <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip>`__ directory of this repository.
 
+
 CUDA
 ~~~~
 
 `CUDA <https://developer.nvidia.com/cuda-toolkit>`_ is a parallel computing platform and API developed by NVIDIA. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is restricted to NVIDIA hardware. 
+
 
 HIP
 ~~~
@@ -70,6 +78,7 @@ Portable kernel-based models (cross-platform portability ecosystems)
 --------------------------------------------------------------------
 
 Cross-platform portability ecosystems typically provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is achieving performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `Alpaka <https://alpaka.readthedocs.io/>`_, `Kokkos <https://github.com/kokkos/kokkos>`_, `OpenCL <https://www.khronos.org/opencl/>`_ (C and C++ APIs), `RAJA <https://github.com/LLNL/RAJA>`_, and `SYCL <https://www.khronos.org/sycl/>`_.
+
 
 Kokkos
 ~~~~~~
@@ -83,6 +92,7 @@ OpenCL
 `OpenCL <https://www.khronos.org/opencl/>`_ (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on CPUs, GPUs and FPGAs. It supports a wide range of hardware from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike programming models such as CUDA, HIP, Kokkos, and SYCL, OpenCL uses a separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is still more widely used. 
 The OpenCL Working Group doesn’t provide any frameworks of its own. Instead, vendors who produce OpenCL-compliant devices release frameworks as part of their software development kits (SDKs). The two most popular OpenCL SDKs are released by NVIDIA and AMD. In both cases, the development kits are free and contain the libraries and tools that make it possible to build OpenCL applications
 
+
 SYCL
 ~~~~
 
@@ -93,7 +103,6 @@ While Alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a
 
 High-level language support
 ---------------------------
-
 
 Python
 ~~~~~~
@@ -121,6 +130,7 @@ PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA progr
 **Numba**
 
 Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. Numba supports GPUs from NVIDIA and will likely support AMD GPUs in the future.
+
 
 Julia
 ~~~~~
@@ -190,6 +200,7 @@ while **low-level and performance-focused APIs** provide a high level of control
 require more coding effort and expertise.
 
 
+
 Exercises
 ---------
 
@@ -199,7 +210,9 @@ Exercises
    - What did you find most challenging? What was most useful?
 
 
+
 .. keypoints::
 
    - GPU programming approaches can be split into 1) directive-based, 2) non-portable kernel-based, 3) portable kernel-based, and 4) high-level language support.
    - There are multiple frameworks/languages available for each approach, each with pros and cons. 
+

@@ -1,7 +1,9 @@
 .. _gpu-concepts:
 
+
 GPU programming concepts
 ========================
+
 
 .. questions::
 
@@ -22,6 +24,7 @@ GPU programming concepts
 
    - 25 min teaching
    - 0 min exercises
+
 
 Different types of parallelism
 ------------------------------
@@ -44,6 +47,7 @@ others. It has its own memory and it  **cannot** access the memory in other node
 The communication is done via network and each computing unit runs a separate copy of the 
 operating system. In a shared memory machine all processing units have access to the memory 
 and can read or modify the variables within.
+
 
 Processes and Threads
 ~~~~~~~~~~~~~~~~~~~~~
@@ -113,7 +117,8 @@ Note that the tasks can consume totally different resources, which also can be e
    - Data parallelism distributes data across computational units, processing them with the same or similar operations.
    - Task parallelism involves multiple independent tasks that perform different operations on the same or different data.
    - Task parallelism involves executing different tasks concurrently, leveraging different resources.
-   
+
+
 GPU Execution Model
 -------------------
 
@@ -128,8 +133,10 @@ In order to obtain maximum performance it is important to understand how GPUs ex
 
 In contrast the GPUs contain a relatively small amount of transistors dedicated to control and caching, and a much larger fraction of transistors dedicated to the mathematical operations. Since the cores in a GPU are designed just for 3D graphics, they can be made much simpler and there can be a very larger number of cores. The current GPUs contain thousands of CUDA cores. Performance in GPUs is obtain by having a very high degree of parallelism. Lots of threads are launched in parallel. For good performance there should be at least several times more than the number of CUDA cores. GPU :abbr:`threads` are much lighter than the usual CPU threads and they have very little penalty for context switching. This way when some threads are performing some memory operations (reading or writing) others execute instructions.
 
+
+
 CUDA Threads, Warps, Blocks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 In order to understand the GPU execution model let's look at the so called `axpy` operation. On a single CPU core this operation would be executed in a serial manner in a `for/do` loop going over each element on the array, `id`, and computing `y[id]=y[id]+a*x[id]`. 
 
@@ -185,11 +192,9 @@ divergence is less costly.
 There is another level in the GPU :abbr:`threads` hierarchy. The :abbr:`threads` are grouped together in so called :abbr:`blocks`. Each block is assigned to one Streaming Multiprocessor (SMP) unit. A SMP contains one or more SIMT (single instruction multiple threads) units, schedulers, and very fast on-chip memory. Some of this on-chip memory can be used in the programs, this is called :abbr:`shared memory`. The shared memory can be used to "cache" data that is used by more than one thread, thus avoiding multiple reads from the global memory. It can also be used to avoid memory accesses which are not efficient. For example in a matrix transpose operation, we have two memory operations per element and only can be coalesced. In the first step a tile of the matrix is saved read a coalesced manner in the shared memory. After all the reads of the block are done the tile can be locally transposed (which is very fast) and then written to the destination matrix in a coalesced manner as well. Shared memory can also be used to perform block-level reductions and similar collective operations. All threads can be synchronized at block level. Furthermore when the shared memory is written in order to ensure that all threads have completed the operation the synchronization is compulsory to ensure correctness of the program.
 
 
-
 .. figure:: img/concepts/BLOCK_SMP.png
     :align: center
     :scale: 40 %
-
 
 
 Finally, a block of threads can not be split among SMPs. For performance blocks should have more than one :abbr:`warp`. The more warps are active on an SMP the better is hidden the latency associated with the memory operations. If the resources are sufficient, due to fast context switching, an SMP can have more than one block active in the same time. However these blocks can not share data with each other via the on-chip memory.
@@ -202,7 +207,6 @@ In order to hide latencies it is recommended to "over-subscribe" the GPU. There 
 In addition to this there are some architecture-specific features of which the developers can take advantage. :abbr:`Warp`-level operations are primitives provided by the GPU architecture to allow for efficient communication and synchronization within a warp. They allow :abbr:`threads` within a warp to exchange data efficiently, without the need for explicit synchronization. These warp-level operations, combined with the organization of threads into blocks and clusters, make it possible to implement complex algorithms and achieve high performance on the GPU. The cooperative groups feature introduced in recent versions of CUDA provides even finer-grained control over thread execution, allowing for even more efficient processing by giving more flexibility to the thread hierarchy. Cooperative groups allow threads within a block to organize themselves into smaller groups, called cooperative groups, and to synchronize their execution and share data within the group.
 
 Below there is an example of how the threads in a grid can be associated with specific elements of an array
-
 
 
 .. figure:: img/concepts/Indexing.png
@@ -227,14 +231,11 @@ For a vector addition example this would be used as follow ``c[index]=a[index]+b
    - Thread indexing allows associating threads with specific elements in an array for parallel processing.
 
 
-
 Terminology
 -----------
 
 At the moment there are three major GPU producers: NVIDIA, Intel, and AMD. While the basic concept behind GPUs is pretty similar they use different names for the various parts. Furthermore there are software environments for GPU programming, some from the producers and some from external groups all having different naming as well. Below there is a short compilation of the some terms used across different platforms and software environments.
 
-Software
-~~~~~~~~
 
 .. table:: Software mapping naming
    :align: center
@@ -264,6 +265,7 @@ Software
 .. [#syclindex] In SYCL, the thread indexing is inverted. In a 3D grid, physically adjacent threads have consecutive X (0) index in CUDA, HIP, and OpenCL, but consecutive Z (2) index in SYCL. 
    In a 2D grid, CUDA, HIP, and OpenCL still has contiguous indexing along X (0) dimension, while in SYCL it is Y (1).
    Same applies to block dimensions and indexing. 
+
 
 
 Exercises
@@ -345,6 +347,8 @@ Exercises
    .. solution::
 
       Correct answer: *b) It ensures that there are more blocks than SMPs present on the device, helping to hide latencies and ensure high occupancy of the GPU.*
+
+
 
 .. keypoints::
 
