@@ -270,16 +270,19 @@ The compilation process of the hybrid MPI-OpenACC and MPI-OpenMP offloading is d
    .. tabs::
 
       .. tab:: Compiling MPI-OpenACC (Fortran)
-        .. code-block:: console
-           $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
+         .. code-block:: console
+
+            $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
 
       .. tab:: Compiling MPI-OpenMP (Fortran)
-        .. code-block:: console
-            $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
+         .. code-block:: console
+
+             $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
 
       .. tab:: Compiling MPI-OpenMP (C++)
-        .. code-block:: console
-            $ CC -fopenmp -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target -march=gfx90a -o mycode.mpiomp.exe mycode_mpiomp.cpp
+         .. code-block:: console
+
+             $ CC -fopenmp -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target -march=gfx90a -o mycode.mpiomp.exe mycode_mpiomp.cpp
 
 Here, the flags `hacc` and `homp` enable the OpenACC and OpenMP directives in the hybrid MPI-OpenACC and MPI-OpenMP applications, respectively.
 
