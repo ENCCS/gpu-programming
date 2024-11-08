@@ -35,12 +35,17 @@ One of the way to ensure that two MPI ranks do not use the same GPU, is to deter
 
 .. tabs::
 
-    .. tab:: Splitting communicator in MPI
+    .. tab:: Splitting communicator in MPI (Fortran)
 
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
             :language: fortran
             :lines: 22-29
 
+    .. tab:: Splitting communicator in MPI (C++)
+
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.cpp
+            :language: C++
+            :lines: 17-22
 
 Here, the size of each sub-communicator corresponds to the number of GPUs per node (which is also the number of tasks per node), and each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument `MPI_COMM_TYPE_SHARED` (see the `MPI report <https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf>`_) for more details). Calling the routine `MPI_COMM_SPLIT_TYPE()` returns a sub-communicator labelled in the code above *”host_comm”*, and in which MPI-ranks are ranked from 0 to number of processes per node -1. These MPI ranks are in turn assigned to different GPU devices within the same node. This procedure is done according to which directive-based model is implemented. The retrieved MPI ranks are then stored in the variable **myDevice**. The variable is passed to an OpenACC or OpenMP routine as indicated in the code below. 
 
@@ -48,18 +53,23 @@ Here, the size of each sub-communicator corresponds to the number of GPUs per no
 
    .. tabs::
 
-      .. tab:: OpenACC
+      .. tab:: Fortran OpenACC
 
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
             :language: fortran
             :lines: 34-40
 
-      .. tab:: OpenMP
+      .. tab:: Fortran OpenMP
 
          .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
             :language: fortran
             :lines: 34-40
 
+      .. tab:: C++ OpenMP
+
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.cpp
+            :language: C++
+            :lines: 29-34
 
 Another useful function for retrieving the device number of a specific device, which is useful, e.g., to map data to a specific device is
 	
@@ -83,18 +93,23 @@ The syntax of assigning MPI ranks to GPU devices is summarised below
 
    .. tabs::
 
-      .. tab:: MPI-OpenACC
-	 
+      .. tab:: Fortran OpenACC
+
          .. literalinclude:: examples/mpi_acc/assignDevice_acc.f90
             :language: fortran
             :lines: 15-40
 
-      .. tab:: MPI-OpenMP
-	 
-         .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
-                     :language: fortran
-                     :lines: 15-40
+      .. tab:: Fortran OpenMP
 
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.f90
+            :language: fortran
+            :lines: 15-40
+
+      .. tab:: C++ OpenMP
+
+         .. literalinclude:: examples/mpi_omp/assignDevice_omp.cpp
+            :language: C++
+            :lines: 8-34
 
 Hybrid MPI-OpenACC/OpenMP without GPU-awareness approach
 --------------------------------------------------------
@@ -109,18 +124,23 @@ To illustrate the concept of the hybrid MPI-OpenACC/OpenMP, we show below an exa
 
    .. tabs::
 
-      .. tab:: MPI-OpenACC
+      .. tab:: Fortran OpenACC
 
          .. literalinclude:: examples/mpi_acc/mpiacc.f90
-                     :language: fortran
-                     :lines: 62-77
+            :language: fortran
+            :lines: 62-77
 
-      .. tab:: MPI-OpenMP
+      .. tab:: Fortran OpenMP
 
          .. literalinclude:: examples/mpi_omp/mpiomp.f90
-                     :language: fortran
-                     :lines: 63-78
+            :language: fortran
+            :lines: 63-78
 
+      .. tab:: C++ OpenMP
+
+         .. literalinclude:: examples/mpi_omp/mpiomp.cpp
+            :language: C++
+            :lines: 63-78
 
 Here we present a code example that combines MPI with OpenACC/OpenMP API.
 
@@ -128,17 +148,23 @@ Here we present a code example that combines MPI with OpenACC/OpenMP API.
 
    .. tabs::
 
-      .. tab:: MPI-OpenACC
-	 
+      .. tab:: Fortan OpenACC
+ 
          .. literalinclude:: examples/mpi_acc/mpiacc.f90
-                     :language: fortran
-                     :lines: 60-94
+            :language: fortran
+            :lines: 60-94
 
-      .. tab:: MPI-OpenMP
+      .. tab:: Fortran OpenMP
 
          .. literalinclude:: examples/mpi_omp/mpiomp.f90
-                     :language: fortran
-                     :lines: 61-97
+            :language: fortran
+            :lines: 61-97
+
+      .. tab:: C++ OpenMP
+
+         .. literalinclude:: examples/mpi_omp/mpiomp.cpp
+            :language: C++
+            :lines: 60-97
 
 Despite the simplicity of implementing the hybrid MPI-OpenACC/OpenMP offloading, it suffers from a low performance caused by an explicit transfer of data between the host and the device before and after calling an MPI routine. This constitutes a bottleneck in GPU-programming. To improve the performance affected by the host staging during the data transfer, one can implement the GPU-awareness MPI approach as described in the following section.
 	  
@@ -152,41 +178,52 @@ To be specific, in the GPU-awareness approach, the device pointers point to the 
 In the hybrid MPI-OpenACC model, the concept is defined by combining the directive `host_data` together with the clause
 `use_device(list_array)`. This combination enables the access to the arrays listed in the clause `use_device(list_array)` from the host (see `here <https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf>`__). The list of arrays, which are already present in the GPU-device memory, are directly passed to an MPI routine without a need of a staging host-memory for copying the data. Note that for initially copying data to GPU, we use unstructured data blocks characterized by the directives `enter data` and `exit data`. The unstructured data has the advantage of allowing to allocate and deallocate arrays within a data region.
 
-To illustrate the concept of the GPU-awareness MPI, we show below two examples that make use of point-to-point and collective operations from OpenACC and OpenMP APIs. In the first code example, the device pointer **f** is passed to the MPI functions `MPI_Send()` and `MP_Recv()`; and in the second one, the pointer **SumToT** is passed to the MPI function `MPI_Allreduce`. Here, the MPI operations `MPI_Send` and `MPI_Recv` as well as `MPI_Allreduce` are performed between a pair of GPUs without passing through the CPU-host memory. 
+To illustrate the concept of the GPU-awareness MPI, we show below two examples that make use of point-to-point and collective operations from OpenACC and OpenMP APIs. In the first code example, the device pointer **f** is passed to the MPI functions `MPI_Send()` and `MPI_Recv()`; and in the second one, the pointer **SumToT** is passed to the MPI function `MPI_Allreduce`. Here, the MPI operations `MPI_Send` and `MPI_Recv` as well as `MPI_Allreduce` are performed between a pair of GPUs without passing through the CPU-host memory. 
 
 .. typealong:: Example: ``GPU-awareness: MPI_Send & MPI_Recv``
 
    .. tabs::
 
-      .. tab:: GPU-aware MPI with OpenACC
+      .. tab:: GPU-aware MPI with OpenACC (Fortran)
 	 
          .. literalinclude:: examples/mpi_acc/mpiacc_gpuaware.f90
-                     :language: fortran
-                     :lines: 65-74
+            :language: fortran
+            :lines: 65-74
 
-      .. tab:: GPU-aware MPI with OpenMP
+      .. tab:: GPU-aware MPI with OpenMP (Fortran)
 	 
          .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
-                     :language: fortran
-                     :lines: 66-75
+            :language: fortran
+            :lines: 66-75
+
+      .. tab:: GPU-aware MPI with OpenMP (C++)
+	 
+         .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.cpp
+            :language: C++
+            :lines: 66-76
 
 
 .. typealong:: Example: ``GPU-awareness: MPI_Allreduce``
 
    .. tabs::
 
-      .. tab:: GPU-aware MPI with OpenACC
+      .. tab:: GPU-aware MPI with OpenACC (Fortran)
 	 
          .. literalinclude:: examples/mpi_acc/mpiacc_gpuaware.f90
-                     :language: fortran
-                     :lines: 90-94
+            :language: fortran
+            :lines: 90-94
 
-      .. tab:: GPU-aware MPI with OpenMP
+      .. tab:: GPU-aware MPI with OpenMP (Fortran)
 	 
          .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
-                     :language: fortran
-                     :lines: 93-97 
+            :language: fortran
+            :lines: 93-97 
 
+      .. tab:: GPU-aware MPI with OpenMP (C++)
+	 
+         .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.cpp
+            :language: C++
+            :lines: 90-97 
 
 We provide below a code example that illustrates the implementation of the MPI functions `MPI_Send()`, `MPI_Recv()` and `MPI_Allreduce()` within an OpenACC/OpenMP API. This implementation is specifically designed to support GPU-aware MPI operations. 
 
@@ -194,17 +231,23 @@ We provide below a code example that illustrates the implementation of the MPI f
 
    .. tabs::
 
-      .. tab:: GPU-aware MPI with OpenACC
+      .. tab:: GPU-aware MPI with OpenACC (Fortran)
 
          .. literalinclude:: examples/mpi_acc/mpiacc_gpuaware.f90
-                     :language: fortran
-                     :lines: 60-97
+            :language: fortran
+            :lines: 60-97
 
-      .. tab:: GPU-aware MPI with OpenMP
+      .. tab:: GPU-aware MPI with OpenMP (Fortran)
 
          .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
-                     :language: fortran
-                     :lines: 60-100
+            :language: fortran
+            :lines: 60-100
+
+      .. tab:: GPU-aware MPI with OpenMP (C++)
+
+         .. literalinclude:: examples/mpi_omp/mpiomp_gpuaware.f90
+            :language: C++
+            :lines: 61-99
 
 The GPU-aware MPI with OpenACC/OpenMP APIs has the capability of directly communicating between a pair of GPUs within a single node. However, performing the GPU-to-GPU communication across multiple nodes requires the the GPUDirect RDMA (Remote Direct Memory Access) technology. This technology can further improve performance by reducing latency.
 
@@ -213,27 +256,30 @@ Compilation process
 
 The compilation process of the hybrid MPI-OpenACC and MPI-OpenMP offloading is described below. This description is given for a Cray compiler of the wrapper `ftn`. On LUMI-G, the following modules may be necessary before compiling (see the `LUMI documentation <https://docs.lumi-supercomputer.eu/development/compiling/prgenv/>`_ for further details about the available programming environments): 
 
-.. code-block::
+.. code-block:: console
 
-	 ml CrayEnv
-	 ml PrgEnv-cray
-	 ml cray-mpich
-	 ml rocm
-	 ml craype-accel-amd-gfx90a
+	 $ ml LUMI/24.03
+	 $ ml PrgEnv-cray
+	 $ ml cray-mpich
+	 $ ml rocm
+	 $ ml craype-accel-amd-gfx90a
 
 
 .. typealong:: Example: ``Compilation process``
 
    .. tabs::
 
-      .. tab:: Compiling MPI-OpenACC
+      .. tab:: Compiling MPI-OpenACC (Fortran)
+        .. code-block:: console
+           $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
 
-         $ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90
+      .. tab:: Compiling MPI-OpenMP (Fortran)
+        .. code-block:: console
+            $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
 
-      .. tab:: Compiling MPI-OpenMP
-
-         $ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90
-
+      .. tab:: Compiling MPI-OpenMP (C++)
+        .. code-block:: console
+            $ CC -fopenmp -fopenmp-targets=amdgcn-amd-amdhsa -Xopenmp-target -march=gfx90a -o mycode.mpiomp.exe mycode_mpiomp.cpp
 
 Here, the flags `hacc` and `homp` enable the OpenACC and OpenMP directives in the hybrid MPI-OpenACC and MPI-OpenMP applications, respectively.
 
