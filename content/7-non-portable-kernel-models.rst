@@ -89,7 +89,7 @@ To demonstrate the fundamental features of CUDA/HIP programming, let's begin wit
 .. tabs:: 
 
    ..  group-tab:: CUDA
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add.cu
            :language: C++
       
    ..  group-tab:: HIP
@@ -129,7 +129,7 @@ For a while already GPUs support unified memory, which allows to use the same po
 .. tabs:: 
 
    ..  group-tab:: CUDA
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add-unified-memory.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-vector-add-unified-memory.cu
            :language: C++
       
    ..  group-tab:: HIP
@@ -195,7 +195,7 @@ First as a reference we use a simple kernel which copy the data from one array t
 .. tabs:: 
          
    ..  group-tab:: CUDA
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v0.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v0.cu
            :language: C++
 
    ..  group-tab:: HIP
@@ -213,7 +213,7 @@ Now we do the first iteration of the code, a naive transpose. The reads have a n
 .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v1.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v1.cu
            :language: C++
            :lines: 13-22
 
@@ -230,7 +230,7 @@ We can improve the code by reading the data in a `coalesced` way, save it in the
  .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cu
            :language: C++
            :lines: 13-30
 
@@ -256,7 +256,7 @@ Shared memory is composed of `banks`. Each banks can service only one request at
 .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cpp
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cu
            :language: C++
            :lines: 13-30
 
@@ -409,7 +409,6 @@ After the first and second stream copy data to the GPU, the GPU is practically o
 We can apply this to the vector addition problem above. 
 
 .. tabs:: 
-
          
    ..  group-tab:: CUDA
 
