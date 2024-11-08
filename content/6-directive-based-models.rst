@@ -20,19 +20,19 @@ Directive-based models
    - 30 min teaching
    - 20 min exercises
 
+
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
 
-- OpenACC is known to be more **descriptive**, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data. 
-- OpenMP offloading approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
+- **OpenACC** is known to be more **descriptive**, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data. 
+- **OpenMP offloading** approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
 
-In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as 
-special comments identified by unique sentinels in Fortran. Compilers can ignore the 
-directives if the support for OpenMP/OpenACC is not enabled.
+In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as special comments identified by unique sentinels in Fortran. Compilers can ignore the directives if the support for OpenMP/OpenACC is not enabled.
 
 The compiler directives are used for various purposes: for thread creation, workload 
 distribution (work sharing), data-environment management, serializing sections of code or 
 for synchronization of work among the threads.
+
 
 Execution model 
 ~~~~~~~~~~~~~~~
@@ -122,7 +122,8 @@ OpenACC has four levels of parallelism for offloading execution:
     The optimal numbers are highly GPU architecture and compiler implementation dependent though.
 
     There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
-    
+
+
 
 OpenMP Offloading
 ^^^^^^^^^^^^^^^^^
@@ -163,8 +164,6 @@ OpenMP offloading offers multiple levels of parallelism as well:
     Threads in a team can synchronize but no synchronization among the teams. 
 
     Since OpenMP 5.0, there is a new ``loop`` directive available, which has the similar functionality as the corresponding one in OpenACC.
-
-
 
 
 
@@ -218,7 +217,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
                 cc -O2 -fopenmp -o ex1 ex1.c 
                 # Only OpenACC Fortran is supported by HPE compiler.
 
-                salloc --nodes=1 --account=project_465000485 --partition=standard-g -t 2:00:00
+                salloc --nodes=1 --account=project_465001310 --partition=standard-g -t 2:00:00
                 srun --interactive --pty --jobid=<jobid> $SHELL
 
                 export CRAY_ACC_DEBUG=2
@@ -239,7 +238,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
                 # OpenACC
                 ftn -O2 -hacc -o ex1 ex1.f90
 
-                salloc --nodes=1 --account=project_465000485 --partition=standard-g -t 2:00:00
+                salloc --nodes=1 --account=project_465001310 --partition=standard-g -t 2:00:00
                 srun --interactive --pty --jobid=<jobid> $SHELL
 
                 export CRAY_ACC_DEBUG=2
@@ -1003,6 +1002,7 @@ See also
 
 - `ENCCS lesson on OpenACC <https://enccs.github.io/openacc/>`__
 - `ENCCS lesson on OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`__
+
 
 .. keypoints::
 
