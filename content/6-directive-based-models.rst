@@ -209,19 +209,18 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                module load LUMI/23.03
+                salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+
+                module load LUMI/24.03
                 module load partition/G
-                module load rocm/5.2.3
+                module load rocm/6.0.3
 
                 # OpenMP
                 cc -O2 -fopenmp -o ex1 ex1.c 
                 # Only OpenACC Fortran is supported by HPE compiler.
 
-                salloc --nodes=1 --account=project_465001310 --partition=standard-g -t 2:00:00
-                srun --interactive --pty --jobid=<jobid> $SHELL
-
                 export CRAY_ACC_DEBUG=2
-                ./ex1
+                srun ./ex1
         
 
 
@@ -229,20 +228,21 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                module load LUMI/23.03
+                salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+
+                module load LUMI/24.03
                 module load partition/G
-                module load rocm/5.2.3
-
-                # OpenMP
-                ftn -O2 -homp -o ex1 ex1.f90
-                # OpenACC
-                ftn -O2 -hacc -o ex1 ex1.f90
-
-                salloc --nodes=1 --account=project_465001310 --partition=standard-g -t 2:00:00
-                srun --interactive --pty --jobid=<jobid> $SHELL
+                module load rocm/6.0.3
 
                 export CRAY_ACC_DEBUG=2
-                ./ex1
+                # OpenMP
+                ftn -O2 -homp -o ex1 ex1.f90
+                srun ./ex1
+
+                # OpenACC
+                ftn -O2 -hacc -o ex1 ex1.f90
+                srun ./ex1
+
 
 
    Example of a trivially parallelizable vector addition problem:
