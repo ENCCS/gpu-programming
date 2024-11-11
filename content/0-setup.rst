@@ -45,35 +45,52 @@ Corresponding batch script ``submit.sh``:
 
    srun <some_command> 
 
-Submit the job: ``sbatch submit.sh``
+- Submit the job: ``sbatch submit.sh``
+- Monitor your job: ``squeue --me``
+- Kill job: ``scancel <JOB_ID>``
 
-Monitor your job: ``squeue --me``
 
-Kill job: ``scancel <JOB_ID>``
 
 Running Julia on LUMI
 ^^^^^^^^^^^^^^^^^^^^^
 
-To run Julia with AMDGPU.jl on LUMI:
+In order to run Julia with ``AMDGPU.jl`` on LUMI, we use the following directory structure and assume it is our working directory.
 
 .. code-block:: console
 
-   $ srun --account=project_465001310 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
-   
-   $ module purge
-   $ module use /appl/local/csc/modulefiles
-   $ module load julia/1.9.0
+	.
+	├── Project.toml  # Julia environment
+	├── script.jl     # Julia script
+	└── submit.sh     # Slurm batch script
 
-Then in Julia session:
+An example of a ``Project.toml`` project file.
 
-.. code-block:: julia
+.. code-block:: console
+	[deps]
+	AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
 
-   # only needed in your first Julia session:
-   using Pkg
-   Pkg.resolve()
+For the ``submit.sh`` batch script, include additional content to the 
 
-   # load AMDGPU
-   using AMDGPU
+.. code-block:: bash
+
+   module use /appl/local/csc/modulefiles
+
+   module load julia
+   module load julia-amdgpu
+
+   julia --project=. -e 'using Pkg; Pkg.instantiate()'
+   julia --project=. script.jl
+
+An example of the ``script.jl`` code is provided below.
+
+.. code-block:: console
+	using AMDGPU
+
+	A = rand(2^9, 2^9)
+	A_d = ROCArray(A)
+	B_d = A_d * A_d
+
+
 
 Running on Google Colab
 -----------------------
