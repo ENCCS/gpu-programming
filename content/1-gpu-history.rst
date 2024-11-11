@@ -111,8 +111,8 @@ Why GPUs?
 ---------
 
 - **Speed**: GPU computing can significantly accelerate many types of scientific workloads.
-- **Improved energy efficiency**: Compared to CPUs, GPUs can perform more calculations per watt of power consumed, 
-which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2024/06/>`__.
+- **Improved energy efficiency**: Compared to CPUs, GPUs can perform more calculations per watt of power consumed,
+  which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2024/06/>`__.
 - **Cost-effectiveness**: GPUs can be more cost-effective than traditional CPU-based systems for certain workloads.
 
 

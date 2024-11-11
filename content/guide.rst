@@ -3,7 +3,7 @@ Instructor's guide
 
 
 Updated schedule for a three-day workshop (2024)
-------------------------------------------
+------------------------------------------------
 
 
 **Day 1**
