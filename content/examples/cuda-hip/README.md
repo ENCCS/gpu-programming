@@ -9,7 +9,7 @@ module load partition/G
 module load rocm/6.0.3
 ``` 
 This will load the newest ROCm on LUMI.
-Now compile the code can be compiled:
+Now the code can be compiled:
 ```
 hipcc -O2 --offload-arch=gfx90a <code>.cpp
 ``` 
