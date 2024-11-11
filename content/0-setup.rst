@@ -33,15 +33,15 @@ Corresponding batch script ``submit.sh``:
 .. code-block:: bash
 
    #!/bin/bash -l
+   #SBATCH --account=project_465001310
    #SBATCH --job-name=example-job
    #SBATCH --output=examplejob.o%j
    #SBATCH --error=examplejob.e%j
    #SBATCH --partition=standard-g
    #SBATCH --nodes=1
-   #SBATCH --ntasks-per-node=1
    #SBATCH --gpus-per-node=1
+   #SBATCH --ntasks-per-node=1
    #SBATCH --time=1:00:00
-   #SBATCH --account=project_465001310
 
    srun <some_command> 
 
@@ -66,12 +66,16 @@ In order to run Julia with ``AMDGPU.jl`` on LUMI, we use the following directory
 An example of a ``Project.toml`` project file.
 
 .. code-block:: console
+
 	[deps]
 	AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
 
 For the ``submit.sh`` batch script, include additional content to the 
 
 .. code-block:: bash
+
+   #SBATCH --cpus-per-task=2
+   #SBATCH --mem-per-cpu=1750
 
    module use /appl/local/csc/modulefiles
 
@@ -83,12 +87,13 @@ For the ``submit.sh`` batch script, include additional content to the
 
 An example of the ``script.jl`` code is provided below.
 
-.. code-block:: console
-	using AMDGPU
+.. code-block:: julia
 
-	A = rand(2^9, 2^9)
-	A_d = ROCArray(A)
-	B_d = A_d * A_d
+   using AMDGPU
+   
+   A = rand(2^9, 2^9)
+   A_d = ROCArray(A)
+   B_d = A_d * A_d
 
 
 
