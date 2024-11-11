@@ -31,7 +31,7 @@ __global__ void transpose__naive_kernel(float *in, float *out, int width, int he
   out[out_index] = in[in_index];
 }
 ```
-The index `in_index` increases with `threadIdx.x`, two adjacent threads, `threadIdx.x` and `threadIdx.x+1`, access elements near each other in the gloabl memory. This ensures coalesced reads. On the other hand the writing is strided. Two adjacent threads write to location in memory far away from each other by `height`.
+The index `in_index` increases with `threadIdx.x`, two adjacent threads, `threadIdx.x` and `threadIdx.x+1`, access elements near each other in the global memory. This ensures coalesced reads. On the other hand the writing is strided. Two adjacent threads write to location in memory far away from each other by `height`.
 
 ## Transpose with shared memory
 Shared Memory (SM) can be used in order to avoid the uncoalesced writing mentioned above.
