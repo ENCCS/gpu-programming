@@ -22,6 +22,8 @@ srun -p dev-g --gpus 2 -N 1 -n 2 -c 4 --time=00:10:00 --account=project_46500131
 ``` 
 Modify this according to the neeeds of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 
+If a reservation is available add `--reservation=<res_name>` to use the specific nodes dedicated to the course.
+
 ## Exercise instructions
 The best way to learn programming is to get our hands dirty. Use the example codes in this folder to repoduce the problems presented in the [Non-portable kernel-based models](https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/) episode.
 
