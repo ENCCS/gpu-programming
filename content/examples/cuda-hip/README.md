@@ -34,3 +34,4 @@ Here are some suggestions for playing around:
 * implement a code using 1 GPU and do a reduction on a vector
 * based on the [CUDA blog streams](https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/) tray to implement a code doing vector additions using streams ovelap data transfers and computations.
 * based on the [CUDA blog reduction](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) try to implement a code doing a sum reduction.
+* check on LUMI the memory bandwidth in the [memory transpose](https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip/hip/04_matrix_transpose) example.
