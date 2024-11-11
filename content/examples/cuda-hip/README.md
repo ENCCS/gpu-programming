@@ -32,4 +32,5 @@ Here are some suggestions for playing around:
 * check the vector addition with device memory and with unified memory
 * implement the matrix transpose and compute the effective bandwidths achieved on LUMI GPUs
 * implement a code using 1 GPU and do a reduction on a vector
-* based on the [CUDA blog](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) try to implement a code using [HIP streams](https://docs.amd.com/bundle/4.5-HIP-API/page/group___stream.html)  to perform the vector addition problem or reduction.
+* based on the [CUDA blog streams](https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/) tray to implement a code doing vector additions using streams ovelap data transfers and computations.
+* based on the [CUDA blog reduction](https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf) try to implement a code doing a sum reduction.
