@@ -17,8 +17,8 @@ Directive-based models
 
 .. instructor-note::
 
-   - 30 min teaching
-   - 20 min exercises
+   - 40 min teaching
+   - 40 min exercises
 
 
 The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC. 
@@ -984,8 +984,6 @@ Optimize Data Transfers
 - Try to keep data environment residing on the device as long as possible
 
 
-
-
 Pros of directive-based frameworks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -994,7 +992,6 @@ Pros of directive-based frameworks
 - Same code can be compiled to CPU and GPU versions easily using compiler flag
 - Low learning curve, do not need to know low-level hardware details
 - Good portability
-
 
 
 See also
