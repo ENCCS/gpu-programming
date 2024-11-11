@@ -13,7 +13,7 @@ Now compile the code can be compiled:
 ```
 hipcc -O2 --offload-arch=gfx90a <code>.cpp
 ``` 
-Alternatively one could use `Makefile` in the folder which are set to use the [cray compilers](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/#using-hipcc). 
+Alternatively, when avilable,  one could use `Makefile` set to use the [cray compilers](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/#using-hipcc). 
 ## Running
 In order to execute the HIP application on GPU nodes we submit it to the partition `standard-g` (`-p` flag). We have specify as well the running options like number of gpus needed, mpi tasks and CPU core per MPI taks. Below we have an example of a job with 2GPUs, 1 node, 2 MPI tasks and 4 cores per MPI task:
 
