@@ -4,9 +4,9 @@ This folder contains several examples in CUDA and HIP that can be used for the h
 ## Compiling on LUMI
 First load the modules:
 ```
-module load LUMI/22.08
+module load LUMI
 module load partition/G
-module load rocm/5.3.3
+module load rocm/6.0.3
 ``` 
 This will load the newest ROCm on LUMI.
 Now compile the code can be compiled:
