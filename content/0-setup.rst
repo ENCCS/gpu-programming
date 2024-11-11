@@ -70,7 +70,7 @@ An example of a ``Project.toml`` project file.
 	[deps]
 	AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
 
-For the ``submit.sh`` batch script, include additional content to the 
+For the ``submit.sh`` batch script, include additional content to the batch script mentioned above.
 
 .. code-block:: bash
 
@@ -94,6 +94,8 @@ An example of the ``script.jl`` code is provided below.
    A = rand(2^9, 2^9)
    A_d = ROCArray(A)
    B_d = A_d * A_d
+
+   println("----EOF----")
 
 
 
