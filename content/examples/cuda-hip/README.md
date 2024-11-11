@@ -18,7 +18,7 @@ Alternatively one could use `Makefile` in the folder which are set to use the [c
 In order to execute the HIP application on GPU nodes we submit it to the partition `standard-g` (`-p` flag). We have specify as well the running options like number of gpus needed, mpi tasks and CPU core per MPI taks. Below we have an example of a job with 2GPUs, 1 node, 2 MPI tasks and 4 cores per MPI task:
 
 ``` 
-srun -p standard-g --gpus 2 -N 1 -n 2 -c 4 --time=00:10 --account=project_465000485 ./a.out
+srun -p dev-g --gpus 2  -n 2 -c 4 --time=00:10 --account=project_465001310 ./a.out
 ``` 
 Modify this according to the neeeds of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 
