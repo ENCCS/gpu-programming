@@ -256,7 +256,7 @@ Shared memory is composed of `banks`. Each banks can service only one request at
 .. tabs:: 
 
    ..  group-tab:: CUDA/HIP
-        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v2.cu
+        .. literalinclude:: examples/non-portable-kernel-models/cuda-matrix-transpose-v3.cu
            :language: C++
            :lines: 13-30
 
