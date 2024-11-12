@@ -15,10 +15,10 @@ hipcc -O2 --offload-arch=gfx90a <code>.cpp
 ``` 
 Alternatively, when available,  one could use `Makefile` set to use the [cray compilers](https://docs.lumi-supercomputer.eu/development/compiling/prgenv/#using-hipcc). 
 ## Running
-In order to execute the HIP application on GPU nodes we submit it to the partition `dev-g` (`-p` flag). We have specify as well the running options like number of GPUs needed, MPI tasks and CPU core per MPI task. Below we have an example of a job with 2 GPUs (`--gpus`, 1 node (`-N`), 2 MPI tasks (`-n`)  and 4 cores per MPI task (`-c`):
+In order to execute the HIP application on GPU nodes we submit it to the partition `dev-g` (`-p` flag). We have specify as well the running options like number of GPUs needed, MPI tasks and CPU core per MPI task. Below we have an example of a job with 2 GPUs (`--gpus`, 1 node (`-N`), 2 MPI tasks (`-n`)  and 7 cores per MPI task (`-c`):
 
 ``` 
-srun -p dev-g --gpus 2 -N 1 -n 2 -c 4 --time=00:10:00 --account=project_465001310 ./a.out
+srun -p dev-g --gpus 2 -N 1 -n 2 -c 7 --time=00:10:00 --account=project_465001310 ./a.out
 ``` 
 Modify this according to the needs of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 
@@ -30,7 +30,7 @@ The best way to learn programming is to get our hands dirty. Use the example cod
 Here are some suggestions for playing around:
 * check the GPU assignment in the "Hello World" example. 
     - try  1 MPI task with multiple GPUs and set the code to use something different from the default `device 0`. Use the set device function `hipSetDevice(nd)` before the `hipGetDevice(&device)`.
-    - try P nodes with n(<=7)  MPI tasks per node with each MPI task being assigned a different GPU.
+    - try P nodes with n(<=8)  MPI tasks per node with each MPI task being assigned a different GPU.
 * check the vector addition with device memory and with unified memory
 * implement the matrix transpose and compute the effective bandwidths achieved on LUMI GPUs
 * implement a code using 1 GPU and do a reduction on a vector
