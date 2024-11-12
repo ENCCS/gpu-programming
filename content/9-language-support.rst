@@ -11,8 +11,8 @@ High-level language support
 
 .. instructor-note::
 
-   - 25 min teaching
-   - 15 min exercises
+   - 40 min teaching
+   - 20 min exercises
 
 
 Julia
@@ -477,6 +477,7 @@ into kernels and device functions following the execution model.
 Kernels written in Numba appear to have direct access to NumPy arrays. 
 NumPy arrays are transferred between the CPU and the GPU automatically.
 
+
 ufunc (gufunc) decorator
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -485,6 +486,7 @@ and it requires minimal understanding of GPU programming. Numba ``@vectorize``
 will produce a ufunc-like object. This object is a close analog but not fully compatible 
 with a regular NumPy ufunc. Generating a ufunc for GPU requires the explicit 
 type signature and  target attribute.
+
 
 Examples
 ~~~~~~~~
@@ -632,6 +634,8 @@ Using ufuncs (or gfuncs) for GPU processing can be straightforward, but this app
 
 To gain greater control and flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the *Python for HPDA* resource linked below for guidance on implementing such techniques using Numba.
 
+
+
 Exercises
 ---------
 
@@ -646,7 +650,11 @@ Exercises
 See also
 --------
 
-* `Python for HPDA (ENCCS) <https://enccs.github.io/hpda-python/parallel-computing/>`__
-* `Python in HPC (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`__
-* `Julia for HPC <https://enccs.github.io/julia-for-hpc/>`__
-
+* `Introduction to programming in Julia (ENCCS) <https://enccs.github.io/julia-intro/>`__
+* `Julia for High-Performance Scientific Computing (ENCCS) <https://enccs.github.io/julia-for-hpc/>`__
+* `Julia for high-performance data analytics (ENCCS) <https://enccs.github.io/julia-for-hpda/>`__
+* `Introduction to running R, Python, Julia, and Matlab in HPC (NAISS-LUNARC-HPC2N-UPPMAX) <https://uppmax.github.io/R-python-julia-matlab-HPC/>`__
+* `High Performance Data Analytics in Python (ENCCS) <https://enccs.github.io/hpda-python/>`_
+* `Practical Intro to GPU Programming using Python (ENCCS) <https://github.com/ENCCS/webinar_documents/tree/main/2024-oct-24-python>`_
+* `Using Python in an HPC environment (UPPMAX-HPC2N)  <https://uppmax.github.io/HPC-python/>`__
+* `Python for Scientific Computing (Aalto Scientific Computing) <https://aaltoscicomp.github.io/python-for-scicomp/>`_
