@@ -5,7 +5,7 @@ Portable kernel-based models
 
 .. questions::
 
-   - How to program GPUs with Kokkos, OpenCL, and SYCL?
+   - How to program GPUs with C++ StdPar, Kokkos, OpenCL, and SYCL?
    - What are the differences between these programming models.
 
 .. objectives::
@@ -15,7 +15,7 @@ Portable kernel-based models
 
 .. instructor-note::
 
-   - 45 min teaching
+   - 60 min teaching
    - 30 min exercises
 
 The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_, `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (previously known as hipSYCL or Open SYCL), `triSYCL <https://github.com/triSYCL/triSYCL>`_, and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
@@ -420,6 +420,62 @@ More information on USM can be found in the `Section 4.8 of SYCL 2020 specificat
     q.wait();
     // After we're done, the memory must be deallocated
     sycl::free(v, q);
+
+Exercise
+~~~~~~~~
+
+.. exercise:: Exercise: Implement SAXPY in SYCL
+
+   In this exercise we would like to write (fill-in-the-blanks) a simple code doing SAXPY (vector addition).
+   
+   To compile and run the code interactively, first make an allocation and load the AdaptiveCpp module:
+
+   .. code-block:: console
+
+      $ salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+      ....
+      salloc: Granted job allocation 123456
+
+      $ module load LUMI/24.03 partition/G
+      $ module use /appl/local/csc/modulefiles
+      $ module load rocm/6.0.3 acpp/24.06.0
+
+   Now you can run a simple device-detection utility to check that a GPU is available (note ``srun``):
+
+    .. code-block:: console
+
+      $ srun acpp-info -l
+      =================Backend information===================
+      Loaded backend 0: HIP
+        Found device: AMD Instinct MI250X
+      Loaded backend 1: OpenMP
+        Found device: hipSYCL OpenMP host device
+
+
+   If you have not done it already, clone the repository using ``git clone https://github.com/ENCCS/gpu-programming.git`` or **update it** using ``git pull origin main``.
+
+   Now, let's look at the example code in ``content/examples/portable-kernel-models/exercise-sycl-saxpy.cpp``:
+
+   .. literalinclude:: examples/portable-kernel-models/exercise-sycl-saxpy.cpp
+      :language: c++
+      :emphasize-lines: 16,17,25,30,31,35,39,40,62
+
+
+   To compile and run the code, use the following command:
+
+   .. code-block:: console
+
+      $ acpp -O3 exercise-sycl-saxpy.cpp -o exercise-sycl-saxpy
+      $ srun ./exercise-sycl-saxpy
+      Running on AMD Instinct MI250X
+      Results are correct!
+
+   The code will not compile as-is!
+   Your task is to fill in missing bits indicated by ``TODO`` comments.
+   You can also test your understanding using the "Bonus questions" in the code.
+
+   If you feel stuck, take a look at the ``exercise-sycl-saxpy-solution.cpp`` file.
+
 
 Examples
 ^^^^^^^^
