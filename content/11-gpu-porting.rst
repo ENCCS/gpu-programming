@@ -273,9 +273,9 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
 
            $ export PATH=/opt/rocm-5.2.3/bin:$PATH
 
-  Note that the rocm version we used is ````rocm-5.2.3````.
+  Note that the rocm version we used is ``rocm-5.2.3``.
 
-- **Step 4**: Running ````hipify-clang```` from inside the singularity container
+- **Step 4**: Running ``hipify-clang`` from inside the singularity container
 
   .. code-block:: console
 
