@@ -19,7 +19,7 @@ static const std::string kernel_source = R"(
              
              // Perform reduction across the local work group
              for (int s = 1; s < lsize; s *= 2) { // loop over local memory with stride doubling each iteration
-               if (lid % (2 * s) == 0) {
+               if (lid % (2 * s) == 0 && (lid + s) < lsize) {
                  local_mem[lid] += local_mem[lid + s];
                }
                barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory

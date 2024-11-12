@@ -197,8 +197,8 @@ To compile a program, you can use the AMD compilers on a GPU partition:
 
 .. code-block:: console
 
-    $ module load LUMI/23.03 partition/G
-    $ module load rocm/5.2.3
+    $ module load LUMI/24.03 partition/G
+    $ module load rocm/6.0.3
     $ module load PrgEnv-cray-amd
     $ CC program.cpp -lOpenCL -o program # C++ program
     $ cc program.c -lOpenCL -o program # C program
