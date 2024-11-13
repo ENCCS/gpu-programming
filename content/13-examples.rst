@@ -299,7 +299,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
    
    .. code-block:: console
 
-      # salloc -A project_465001310 -p small-g -N 1 --gpus-per-node=1 --t 1:00:00
+      # salloc -A project_465001310 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
       
       module load LUMI/24.03
       module load partition/G
@@ -320,6 +320,21 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       
       $ srun stencil_naive
       $ srun stencil
+
+   If everything works well, the output should look similar to this:
+   
+   .. code-block:: console
+
+      $ srun stencil_naive
+      Average temperature, start: 59.763305
+      Average temperature at end: 59.281239
+      Control temperature at end: 59.281239
+      Iterations took 2.683 seconds.
+      $ srun stencil
+      Average temperature, start: 59.763305
+      Average temperature at end: 59.281239
+      Control temperature at end: 59.281239
+      Iterations took 0.317 seconds.
 
 
 .. challenge:: Exercise: naive GPU ports
