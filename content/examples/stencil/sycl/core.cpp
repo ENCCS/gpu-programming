@@ -5,12 +5,12 @@
 // Update the temperature values using five-point stencil
 // Arguments:
 //   queue: SYCL queue
-//   d_curr: current temperature values
-//   d_prev: temperature values from previous time step
+//   currdata: current temperature values (device pointer)
+//   prevdata: temperature values from previous time step (device pointer)
 //   prev: description of the grid parameters
 //   a: diffusivity
 //   dt: time step
-void evolve(sycl::queue &Q, sycl::buffer<double, 2> d_curr, sycl::buffer<double, 2> d_prev,
+void evolve(sycl::queue &Q, double* currdata, const double* prevdata,
             const field *prev, double a, double dt)
 {
   int nx = prev->nx;
@@ -22,34 +22,29 @@ void evolve(sycl::queue &Q, sycl::buffer<double, 2> d_curr, sycl::buffer<double,
   double dx2 = prev->dx * prev->dx;
   double dy2 = prev->dy * prev->dy;
 
-  {
-    Q.submit([&](sycl::handler &cgh) {
-      auto acc_curr = sycl::accessor(d_curr, cgh, sycl::read_write);
-      auto acc_prev = sycl::accessor(d_prev, cgh, sycl::read_only);
+  Q.parallel_for(sycl::range<2>(nx, ny), [=](sycl::id<2> id) {
+    auto i = id[0] + 1;
+    auto j = id[1] + 1;
 
-      cgh.parallel_for(sycl::range<2>(nx, ny), [=](sycl::id<2> id) {
-        auto j = id[0] + 1;
-        auto i = id[1] + 1;
-        acc_curr[j][i] = acc_prev[j][i] + a * dt *
-            ((acc_prev[j][i + 1] - 2.0 * acc_prev[j][i] + acc_prev[j][i - 1]) / dx2 +
-             (acc_prev[j + 1][i] - 2.0 * acc_prev[j][i] + acc_prev[j - 1][i]) / dy2);
-      });
-    });
-  }
+    int ind = i * (ny + 2) + j;
+    int ip = (i + 1) * (ny + 2) + j;
+    int im = (i - 1) * (ny + 2) + j;
+    int jp = i * (ny + 2) + j + 1;
+    int jm = i * (ny + 2) + j - 1;
+    currdata[ind] = prevdata[ind] + a*dt*
+      ((prevdata[ip] - 2.0*prevdata[ind] + prevdata[im]) / dx2 +
+       (prevdata[jp] - 2.0*prevdata[ind] + prevdata[jm]) / dy2);
+  });
 }
 
-void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f)
+void copy_to_buffer(sycl::queue Q, double* buffer, const field* f)
 {
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::write>(h);
-    		h.copy(f->data.data(), acc);
-    	});
+    int size = (f->nx + 2) * (f->ny + 2);
+    Q.copy<double>(f->data.data(), buffer, size);
 }
 
-void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f)
+void copy_from_buffer(sycl::queue Q, const double* buffer, field *f)
 {
-    Q.submit([&](sycl::handler& h) {
-    		auto acc = buffer.get_access<sycl::access::mode::read>(h);
-    		h.copy(acc, f->data.data());
-    	}).wait();
+    int size = (f->nx + 2) * (f->ny + 2);
+    Q.copy<double>(buffer, f->data.data(), size).wait();
 }

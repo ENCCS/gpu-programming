@@ -32,7 +32,7 @@ int main(int argc, char **argv)
     // Set output interval
     int output_interval = 1500;
 
-    sycl::queue Q;
+    sycl::queue Q{sycl::property::queue::in_order()};
 
     // Start timer
     auto start_clock = start_time();

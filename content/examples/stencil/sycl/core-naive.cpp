@@ -9,14 +9,11 @@
 //   prev: temperature values from previous time step
 //   a: diffusivity
 //   dt: time step
-void evolve(sycl::queue &Q, 
-            field *curr, field *prev, double a, double dt)
-{
+void evolve(sycl::queue &Q, field *curr, field *prev, double a, double dt) {
   // Help the compiler avoid being confused by the structs
-  double *currdata = curr->data.data();
-  double *prevdata = prev->data.data();
   int nx = prev->nx;
   int ny = prev->ny;
+  int size = (nx + 2) * (ny + 2);
 
   // Determine the temperature field at next time step
   // As we have fixed boundary conditions, the outermost gridpoints
@@ -24,22 +21,26 @@ void evolve(sycl::queue &Q,
   double dx2 = prev->dx * prev->dx;
   double dy2 = prev->dy * prev->dy;
 
-  {
-    sycl::buffer<double, 2> buf_curr { currdata, sycl::range<2>(nx + 2, ny + 2) },
-                            buf_prev { prevdata, sycl::range<2>(nx + 2, ny + 2) };
+  double *currdata = sycl::malloc_device<double>(size, Q);
+  double *prevdata = sycl::malloc_device<double>(size, Q);
+  Q.copy<double>(curr->data.data(), currdata, size);
+  Q.copy<double>(prev->data.data(), prevdata, size);
 
-    Q.submit([&](sycl::handler &cgh) {
-      auto acc_curr = sycl::accessor(buf_curr, cgh, sycl::read_write);
-      auto acc_prev = sycl::accessor(buf_prev, cgh, sycl::read_only);
+  Q.parallel_for(sycl::range<2>(nx, ny), [=](sycl::id<2> id) {
+    auto i = id[0] + 1;
+    auto j = id[1] + 1;
 
-      cgh.parallel_for(sycl::range<2>(nx, ny), [=](sycl::id<2> id) {
-        auto j = id[0] + 1;
-        auto i = id[1] + 1;
-        acc_curr[j][i] = acc_prev[j][i] + a * dt *
-            ((acc_prev[j][i + 1] - 2.0 * acc_prev[j][i] + acc_prev[j][i - 1]) / dx2 +
-             (acc_prev[j + 1][i] - 2.0 * acc_prev[j][i] + acc_prev[j - 1][i]) / dy2);
-      });
-    });
-  }
-  // Data is automatically copied back to the CPU when buffers go out of scope
+    int ind = i * (ny + 2) + j;
+    int ip = (i + 1) * (ny + 2) + j;
+    int im = (i - 1) * (ny + 2) + j;
+    int jp = i * (ny + 2) + j + 1;
+    int jm = i * (ny + 2) + j - 1;
+    currdata[ind] = prevdata[ind] + a*dt*
+      ((prevdata[ip] - 2.0*prevdata[ind] + prevdata[im]) / dx2 +
+       (prevdata[jp] - 2.0*prevdata[ind] + prevdata[jm]) / dy2);
+  });
+
+  Q.copy<double>(currdata, curr->data.data(), size).wait();
+  sycl::free(currdata, Q);
+  sycl::free(prevdata, Q);
 }

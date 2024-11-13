@@ -41,7 +41,7 @@ void initialize(int argc, char *argv[], field *heat1,
 
 void evolve(sycl::queue &Q, field *curr, field *prev, double a, double dt);
 
-void evolve(sycl::queue &Q, sycl::buffer<double, 2> buf_curr, sycl::buffer<double, 2> buf_prev, 
+void evolve(sycl::queue &Q, double* buf_curr, const double* buf_prev, 
             const field *prev, double a, double dt);
 
 void field_set_size(field *heat, int nx, int ny);
@@ -61,8 +61,8 @@ void field_swap(field *heat1, field *heat2);
 void field_allocate(field *heat);
 
 // Data movement function prototypes
-void copy_to_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, const field* f);
+void copy_to_buffer(sycl::queue Q, double* buffer, const field* f);
 
-void copy_from_buffer(sycl::queue Q, sycl::buffer<double, 2> buffer, field *f);
+void copy_from_buffer(sycl::queue Q, const double* buffer, field *f);
 
 #endif  // __HEAT_H__
