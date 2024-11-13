@@ -288,7 +288,8 @@ GPU parallelization: first steps
 
 Let's apply several techniques presented in previous episodes to make stencil update GPU-parallel.
 
-OpenMP (or OpenACC) offloading requires to define a region to be executed in parallel as well as data that shall be copied over/ used in GPU memory. Similarly, SYCL programming model offers convenient ways to define execution kernels, context to run them in (called queue) and simplified CPU-GPU transfer of needed data.
+OpenMP (or OpenACC) offloading requires to define a region to be executed in parallel as well as data that shall be copied over/ used in GPU memory.
+Similarly, SYCL programming model offers convenient ways to define execution kernels, context to run them in (called queue). However, for better control over data movement, we use manual memory allocation and movement.
 
 Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
@@ -304,7 +305,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
          .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
-                        :emphasize-lines: 31,35
+                        :emphasize-lines: 24-27,29,43-45
 
 .. callout:: Loading modules on LUMI
    
@@ -398,7 +399,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
-                        :emphasize-lines: 13-14,27-28,41-55
+                        :emphasize-lines: 13-14,25,40-50
 
    .. tab:: Python
 
@@ -411,7 +412,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
          .. literalinclude:: examples/stencil/sycl/main.cpp 
                         :language: cpp
-                        :emphasize-lines: 38-39,44-45,51,56,59,75
+                        :emphasize-lines: 38-39,44-45,51,56,59,75-77
 
 .. challenge:: Exercise: updated GPU ports
 

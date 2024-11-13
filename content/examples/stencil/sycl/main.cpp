@@ -32,11 +32,11 @@ int main(int argc, char **argv)
     // Set output interval
     int output_interval = 1500;
 
-    sycl::queue Q;
+    sycl::queue Q{sycl::property::queue::in_order()};
 
     // Create two identical device buffers
-    const sycl::range<2> buffer_size{ size_t(current.nx + 2), size_t(current.ny + 2) };
-    sycl::buffer<double, 2> d_current{buffer_size}, d_previous{buffer_size};
+    double *d_current = sycl::malloc_device<double>((current.nx + 2) * (current.ny + 2), Q);
+    double *d_previous = sycl::malloc_device<double>((current.nx + 2) * (current.ny + 2), Q);
 
     // Start timer
     auto start_clock = start_time();
@@ -73,5 +73,7 @@ int main(int argc, char **argv)
     std::chrono::duration<double> elapsed = stop_clock - start_clock;
     printf("Iterations took %.3f seconds.\n", elapsed.count());
     Q.wait_and_throw();
+    sycl::free(d_previous, Q);
+    sycl::free(d_current, Q);
     return 0;
 }
