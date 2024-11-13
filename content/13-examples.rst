@@ -367,7 +367,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
          .. tab:: SYCL (naive)
 
-            .. figure:: img/stencil/omp-sycl-naive-scaling.png
+            .. figure:: img/stencil/omp-sycl-naive-scaling_new.png
                :align: center
 
 
@@ -446,10 +446,10 @@ Changes of stencil update code as well as the main program are shown in tabs bel
          
             Below you can find the summary graphs for step- and grid- scaling of the stencil update task. Because of the more explicit programming approach, SYCL GPU port is much faster than OpenMP-offloaded version, comparable with thread-parallel CPU version running on all cores of a single node.
             
-            .. figure:: img/stencil/summary-scaling-step.png
+            .. figure:: img/stencil/summary-scaling-step_new.png
                :align: center
 
-            .. figure:: img/stencil/summary-scaling-grid.png
+            .. figure:: img/stencil/summary-scaling-grid_new.png
                :align: center
 
 
