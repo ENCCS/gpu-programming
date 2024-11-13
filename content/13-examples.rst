@@ -161,7 +161,7 @@ If we assume the grid point values to be truly independent *for a single time st
    
    .. code-block:: console
 
-      salloc -A project_465001310 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 --t 1:00:00
+      salloc -A project_465001310 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
 
       module load LUMI/24.03
       module load partition/G
@@ -329,12 +329,12 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       Average temperature, start: 59.763305
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
-      Iterations took 2.683 seconds.
+      Iterations took 2.086 seconds.
       $ srun stencil
       Average temperature, start: 59.763305
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
-      Iterations took 0.317 seconds.
+      Iterations took 0.052 seconds.
 
 
 .. challenge:: Exercise: naive GPU ports
@@ -670,4 +670,6 @@ If you want to know more about specific programming models / framework, definite
 - `OpenMP for GPU offloading <https://enccs.github.io/openmp-gpu/>`_
 - `Heterogeneous programming with SYCL <https://enccs.github.io/sycl-workshop/>`_
 - `Educational implementation of heat flow example (incl. MPI-aware CUDA) <https://github.com/cschpc/heat-equation/>`_
+
+
 
