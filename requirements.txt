@@ -3,3 +3,4 @@ sphinx_rtd_theme
 sphinx_rtd_theme_ext_color_contrast
 myst_nb
 sphinx-lesson
+docstrfmt==1.9.0
