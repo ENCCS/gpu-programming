@@ -154,7 +154,7 @@ To give a flavor of what type of performance gains we can achieve by porting a c
 Electronic structure calculations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-[VASP](https://www.vasp.at/) is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the [VASP Power Profiles on NVIDIA A100 GPUs](https://ieeexplore.ieee.org/document/10820603), which was conducted on the Perlmutter system at NERSC.
+`VASP <https://www.vasp.at/>`_ is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the `VASP Power Profiles on NVIDIA A100 GPUs <https://ieeexplore.ieee.org/document/10820603>`_, which was conducted on the Perlmutter system at NERSC.
 An analysis of total energy usage demonstrated that VASP’s power usage varies significantly with different workloads, more so than with parallel concurrency.
 Additionally, power capping GPUs to 50% of their Thermal Design Power can be applied to most VASP workloads with less than a 10% performance loss.
 
