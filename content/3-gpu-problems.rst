@@ -154,17 +154,19 @@ To give a flavor of what type of performance gains we can achieve by porting a c
 Electronic structure calculations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-VASP is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the Perlmutter and Cori supercomputers, along with an analysis of total energy usage.
+[VASP](https://www.vasp.at/) is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the [VASP Power Profiles on NVIDIA A100 GPUs](https://ieeexplore.ieee.org/document/10820603), which was conducted on the Perlmutter system at NERSC.
+An analysis of total energy usage demonstrated that VASP’s power usage varies significantly with different workloads, more so than with parallel concurrency.
+Additionally, power capping GPUs to 50% of their Thermal Design Power can be applied to most VASP workloads with less than a 10% performance loss.
 
-.. figure:: img/problems/vasp_gpu.png
+.. figure:: img/problems/vasp_parallel_efficiency.png
    :align: center
 
-   VASP GPU speedup for benchmark Si128 acfdtr. The horizontal axis shows the number of nodes, and the vertical axis shows the GPU speedup of VASP (Time(CPU)/Time(GPU)). (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs).
+   Parallel efficiency of VASP on seven test cases representing diverse VASP production workloads and ensuring a comprehensive coverage of various code paths, elements, and problem sizes.
 
-.. figure:: img/problems/vasp_energy.png
+.. figure:: img/problems/vasp_energy_consumption.jpg
    :align: center
 
-   Total energy usage comparison when running VASP on Perlmutter and Cori. The vertical axis shows the energy used by VASP benchmark jobs on Perlmutter GPUs (blue bars), CPUs (red bars), Cori KNL (yellow bars), and Cori Haswell (green bars) in ratio to the Cori Haswell usage.  (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs)
+   (Left) Power usage of seven representative VASP workloads. The horizontal axis shows number of nodes used, and vertical axis shows high power mode per node. (Right) Power consumed per GPU when running VASP under four different power caps: 400 W (default), 300 W, 200 W, and 100 W. Horizontal axis shows power caps applied to GPUs, and vertical axis shows high power mode per GPU as a fraction of applied cap. The dashed horizontal line represents applied power cap. Each benchmark was run with a node count optimizing runtime while remaining above 70% parallel efficiency.
 
 
 
