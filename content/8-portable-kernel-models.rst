@@ -38,7 +38,7 @@ StdPar compilation
 
 The build process depends a lot on the used compiler:
 
-- AdaptiveCpp: Add ``-acpp-stdpar`` flag when calling ``acpp``.
+- AdaptiveCpp: Add ``--acpp-stdpar`` flag when calling ``acpp``.
 - Intel oneAPI: Add ``-fsycl -fsycl-pstl-offload=gpu`` flags when calling ``icpx``.
 - NVIDIA NVC++: Add ``-stdpar`` flag when calling ``nvc++`` (not supported with plain ``nvcc``).
 
