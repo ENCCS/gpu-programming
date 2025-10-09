@@ -78,7 +78,7 @@ Multiple examples of CUDA/HIP code are available in the `content/examples/cuda-h
 Portable kernel-based models (cross-platform portability ecosystems)
 --------------------------------------------------------------------
 
-Cross-platform portability ecosystems typically provide a higher-level abstraction layer which enables a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is to achieve performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `SYCL <https://www.khronos.org/sycl/>`_, `OpenCL <https://www.khronos.org/opencl/>`_ (C and C++ APIs), and `Kokkos <https://github.com/kokkos/kokkos>`_; others include `Alpaka <https://alpaka.readthedocs.io/>`_ and `RAJA <https://github.com/LLNL/RAJA>`_.
+Cross-platform portability ecosystems typically provide a higher-level abstraction layer which enables a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is to achieve performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are `SYCL <https://www.khronos.org/sycl/>`_, `OpenCL <https://www.khronos.org/opencl/>`_ (C and C++ APIs), and `Kokkos <https://github.com/kokkos/kokkos>`_; others include `alpaka <https://alpaka.readthedocs.io/>`_ and `RAJA <https://github.com/LLNL/RAJA>`_.
 
 
 OpenCL
@@ -99,7 +99,7 @@ SYCL
 
 `SYCL <https://www.khronos.org/sycl/>`_ is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL; however, it is no more limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.
 
-While Alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a standard, for which several implementations exist. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ (supporting Intel GPUs natively, and NVIDIA and AMD GPUs with `Codeplay oneAPI plugins <https://codeplay.com/solutions/oneapi/>`_) and `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (previously also known as hipSYCL or Open SYCL, supporting NVIDIA and AMD GPUs, with experimental Intel GPU support available in combination with Intel oneAPI DPC++) are the most widely used. Other implementations of note are `triSYCL <https://github.com/triSYCL/triSYCL>`_ and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
+While alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a standard, for which several implementations exist. For GPU programming, `Intel oneAPI DPC++ <https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html>`_ (supporting Intel GPUs natively, and NVIDIA and AMD GPUs with `Codeplay oneAPI plugins <https://codeplay.com/solutions/oneapi/>`_) and `AdaptiveCpp <https://github.com/AdaptiveCpp/AdaptiveCpp/>`_ (previously also known as hipSYCL or Open SYCL, supporting NVIDIA and AMD GPUs, with experimental Intel GPU support available in combination with Intel oneAPI DPC++) are the most widely used. Other implementations of note are `triSYCL <https://github.com/triSYCL/triSYCL>`_ and `ComputeCPP <https://developer.codeplay.com/products/computecpp/ce/home/>`_.
 
 
 High-level language support
@@ -164,7 +164,7 @@ All packages offer both high-level abstractions that require very little program
    - **Portable kernel-based models:**
      
      - Higher-level abstractions for GPU programming that provide portability.
-     - Examples include OpenCL, Kokkos, Alpaka, RAJA, and SYCL.
+     - Examples include OpenCL, Kokkos, alpaka, RAJA, and SYCL.
      - Aim to achieve performance portability with a single-source application.
      - Can run on various GPUs and platforms, reducing the effort required to maintain and deploy GPU-accelerated applications.
 
