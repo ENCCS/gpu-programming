@@ -476,6 +476,117 @@ Exercise
 
    If you feel stuck, take a look at the ``exercise-sycl-saxpy-solution.cpp`` file.
 
+alpaka
+^^^^^^
+
+The `alpaka <https://github.com/alpaka-group/alpaka3>`__ library is a header-only C++20 abstraction library for accelerator development.
+
+Its aim is to provide performance portability across accelerators by abstracting the underlying levels of parallelism.
+
+The library is platform-independent and supports the concurrent and cooperative use of multiple devices, including host CPUs (x86, ARM, RISC-V, and Power8+) and GPUs from different vendors (NVIDIA, AMD, and Intel).
+A variety of accelerator backends—CUDA, HIP, SYCL, OpenMP, and serial execution—are available and can be selected based on the target device.
+Only a single implementation of a user kernel is required, expressed as a function object with a standardized interface.
+This eliminates the need to write specialized CUDA, HIP, SYCL, OpenMP, Intel TBB or threading code.
+Moreover, multiple accelerator backends can be combined to target different vendor hardware within a single system and even within a single application.
+
+The abstraction is based on a virtual index domain decomposed into equally sized chunks called frames.
+**alpaka** provides a uniform abstraction to traverse these frames, independent of the underlying hardware.
+Algorithms to be parallelized map the chunked index domain and native worker threads onto the data, expressing the computation as kernels that are executed in parallel threads (SIMT), thereby also leveraging SIMD units.
+Unlike native parallelism models such as CUDA, HIP, and SYCL, **alpaka** kernels are not restricted to three dimensions.
+Explicit caching of data within a frame via shared memory allows developers to fully unleash the performance of the compute device.
+Additionally, **alpaka** offers primitive functions such as iota, transform, transform-reduce, reduce, and concurrent, simplifying the development of portable high-performance applications.
+Host, device, mapped, and managed multi-dimensional views provide a natural way to operate on data.
+
+Here we demonstrate the usage of **alpaka3**, which is a complete rewrite of `alpaka <https://github.com/alpaka-group/alpaka>`__.
+It is planned to merge this separate codebase back into the mainline alpaka repository before the first release in Q2/Q3 of 2026.
+Nevertheless, the code is well-tested and can be used for development today.
+
+Compile and Execute Examples
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can test the **alpaka** provided examples from the `example section <#examples>`_.
+The examples have hard coded the usage of the AMD ROCm platform required on LUMI.
+To switch to CPU usage only you can simply replace ``ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);`` with ``ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);``
+
+The following steps assume you have downloaded alpaka already and the path to the **alapka** alpaka source code is stored in the environment variable ``ALPAKA_DIR``.
+To test the example copy the code into a file ``main.cpp``
+
+Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first example using in the godbolt compiler explorer.
+
+AMD GPUs with Hip
+*****************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
+      clang++ -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
+      ./a.out
+
+Cpu with clang++
+****************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);
+      clang++ -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
+      ./a.out
+
+NVIDIA GPUs with CUDA
+*********************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::cuda, ap::deviceKind::nvidiaGpu);
+      nvcc -I $ALPAKA_DIR/include/ -std=c++20 --expt-relaxed-constexpr -x cuda main.cpp
+      ./a.out
+
+oneAPI SYCL for Cpu
+*******************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::cpu);
+      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64_x86_64 main.cpp
+      ./a.out
+
+oneAPI SYCL for Intel GPUs
+**************************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::intelGpu);
+      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64 main.cpp
+      ./a.out
+
+oneAPI SYCL for AMD GPUs
+*************************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::amdGpu);
+      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=amd_gpu_gfx90a main.cpp
+      ./a.out
+
+oneAPI SYCL for NVIDIA GPUs
+***************************
+
+   .. code-block:: bash
+
+      # use the following in C++ code
+      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::nvidiaGpu);
+      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_80 main.cpp
+      ./a.out
+
+
+.. note::
+
+  To use oneAPI Sycl with AMD or NVIDIA Gpus you must install the corresponding Codeplay oneAPI plugin as described `here <https://codeplay.com/solutions/oneapi/plugins/>`__.
 
 Examples
 ^^^^^^^^
@@ -501,6 +612,13 @@ Parallel for with Unified Memory
          .. literalinclude:: examples/portable-kernel-models/sycl-unified-memory.cpp
             :language: C++
 
+   .. tab:: alpaka-algorithms
+         .. literalinclude:: examples/portable-kernel-models/alpaka-algorithms-unified-memory.cpp
+            :language: C++
+
+   .. tab:: alpaka
+         .. literalinclude:: examples/portable-kernel-models/alpaka-unified-memory.cpp
+            :language: C++
 
 Parallel for with GPU buffers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -519,6 +637,14 @@ Parallel for with GPU buffers
          .. literalinclude:: examples/portable-kernel-models/sycl-buffers.cpp
             :language: C++
 
+   .. tab:: alpaka-algorithms
+         .. literalinclude:: examples/portable-kernel-models/alpaka-algorithms-buffers.cpp
+            :language: C++
+
+   .. tab:: alpaka
+         .. literalinclude:: examples/portable-kernel-models/alpaka-buffers.cpp
+            :language: C++
+
    
 Asynchronous parallel for kernels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -535,6 +661,14 @@ Asynchronous parallel for kernels
   
    .. tab:: SYCL
          .. literalinclude:: examples/portable-kernel-models/sycl-async-kernels.cpp
+            :language: C++
+
+   .. tab:: alpaka-algorithms
+         .. literalinclude:: examples/portable-kernel-models/alpaka-algorithms-async.cpp
+            :language: C++
+
+   .. tab:: alpaka
+         .. literalinclude:: examples/portable-kernel-models/alpaka-async-kernels.cpp
             :language: C++
  
 Reduction
@@ -556,6 +690,10 @@ Reduction
 
    .. tab:: SYCL
          .. literalinclude:: examples/portable-kernel-models/sycl-reduction.cpp
+            :language: C++
+
+   .. tab:: alpaka-algorithms
+         .. literalinclude:: examples/portable-kernel-models/alpaka-algorithms-reduction.cpp
             :language: C++
  
 
