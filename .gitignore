@@ -3,3 +3,4 @@
 /venv*
 .jupyter_cache
 jupyter_execute
+.idea
