@@ -5,7 +5,7 @@ Portable kernel-based models
 
 .. questions::
 
-   - How to program GPUs with C++ StdPar, Kokkos, OpenCL, and SYCL?
+   - How to program GPUs with alpaka, C++ StdPar, Kokkos, OpenCL, and SYCL?
    - What are the differences between these programming models.
 
 .. objectives::
@@ -479,11 +479,11 @@ Exercise
 alpaka
 ^^^^^^
 
-The `alpaka <https://github.com/alpaka-group/alpaka3>`__ library is a header-only C++20 abstraction library for accelerator development.
+The `alpaka <https://github.com/alpaka-group/alpaka3>`__ library is an open-source header-only C++20 abstraction library for accelerator development.
 
 Its aim is to provide performance portability across accelerators by abstracting the underlying levels of parallelism.
-
-The library is platform-independent and supports the concurrent and cooperative use of multiple devices, including host CPUs (x86, ARM, RISC-V, and Power8+) and GPUs from different vendors (NVIDIA, AMD, and Intel).
+The name "alpaka" comes from **A**\bstractions for **L**\evels of **P**\arallelism, **A**\lgorithms, and **K**\ernels for **A**\ccelerators.
+The library is platform-independent and supports the concurrent and cooperative use of multiple devices, including host CPUs (x86, ARM, and RISC-V) and GPUs from different vendors (NVIDIA, AMD, and Intel).
 A variety of accelerator backends—CUDA, HIP, SYCL, OpenMP, and serial execution—are available and can be selected based on the target device.
 Only a single implementation of a user kernel is required, expressed as a function object with a standardized interface.
 This eliminates the need to write specialized CUDA, HIP, SYCL, OpenMP, Intel TBB or threading code.
@@ -508,85 +508,84 @@ You can test the **alpaka** provided examples from the `example section <#exampl
 The examples have hard coded the usage of the AMD ROCm platform required on LUMI.
 To switch to CPU usage only you can simply replace ``ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);`` with ``ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);``
 
-The following steps assume you have downloaded alpaka already and the path to the **alapka** alpaka source code is stored in the environment variable ``ALPAKA_DIR``.
+The following steps assume you have downloaded alpaka already and the path to the **alapka** source code is stored in the environment variable ``ALPAKA_DIR``.
 To test the example copy the code into a file ``main.cpp``
 
 Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first example using in the godbolt compiler explorer.
 
-AMD GPUs with Hip
-*****************
+.. tabs::
 
-   .. code-block:: bash
+  .. tab:: AMD GPUs with Hip
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
-      clang++ -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
-      ./a.out
+    .. code-block:: bash
 
-Cpu with clang++
-****************
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
+        clang++ -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
+        ./a.out
 
-   .. code-block:: bash
+  .. tab:: Cpu with clang++
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);
-      clang++ -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
-      ./a.out
+    .. code-block:: bash
 
-NVIDIA GPUs with CUDA
-*********************
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);
+        clang++ -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
+        ./a.out
 
-   .. code-block:: bash
+  .. tab:: NVIDIA GPUs with CUDA
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::cuda, ap::deviceKind::nvidiaGpu);
-      nvcc -I $ALPAKA_DIR/include/ -std=c++20 --expt-relaxed-constexpr -x cuda main.cpp
-      ./a.out
+    .. code-block:: bash
 
-oneAPI SYCL for Cpu
-*******************
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::cuda, ap::deviceKind::nvidiaGpu);
+        nvcc -I $ALPAKA_DIR/include/ -std=c++20 --expt-relaxed-constexpr -x cuda main.cpp
+        ./a.out
 
-   .. code-block:: bash
+  .. tab:: oneAPI SYCL for Cpu
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::cpu);
-      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64_x86_64 main.cpp
-      ./a.out
+    .. code-block:: bash
 
-oneAPI SYCL for Intel GPUs
-**************************
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::cpu);
+        icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64_x86_64 main.cpp
+        ./a.out
 
-   .. code-block:: bash
+  .. tab:: oneAPI SYCL for Intel GPUs
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::intelGpu);
-      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64 main.cpp
-      ./a.out
+    .. code-block:: bash
 
-oneAPI SYCL for AMD GPUs
-*************************
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::intelGpu);
+        icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=spir64 main.cpp
+        ./a.out
 
-   .. code-block:: bash
+  .. tab:: oneAPI SYCL for AMD GPUs
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::amdGpu);
-      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=amd_gpu_gfx90a main.cpp
-      ./a.out
+    .. note::
+   
+        To use oneAPI Sycl with AMD or NVIDIA Gpus you must install the corresponding Codeplay oneAPI plugin as described `here <https://codeplay.com/solutions/oneapi/plugins/>`__.
 
-oneAPI SYCL for NVIDIA GPUs
-***************************
+    .. code-block:: bash
 
-   .. code-block:: bash
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::amdGpu);
+        icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=amd_gpu_gfx90a main.cpp
+        ./a.out
 
-      # use the following in C++ code
-      #   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::nvidiaGpu);
-      icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_80 main.cpp
-      ./a.out
+  .. tab:: oneAPI SYCL for NVIDIA GPUs
 
+    .. note::
+    
+        To use oneAPI Sycl with AMD or NVIDIA Gpus you must install the corresponding Codeplay oneAPI plugin as described `here <https://codeplay.com/solutions/oneapi/plugins/>`__.
+   
+    .. code-block:: bash
 
-.. note::
+        # use the following in C++ code
+        # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::oneApi, ap::deviceKind::nvidiaGpu);
+        icpx -I $ALPAKA_DIR/include/ -std=c++20 -fsycl -fsycl-targets=nvptx64-nvidia-cuda -Xsycl-target-backend=nvptx64-nvidia-cuda --offload-arch=sm_80 main.cpp
+        ./a.out
 
-  To use oneAPI Sycl with AMD or NVIDIA Gpus you must install the corresponding Codeplay oneAPI plugin as described `here <https://codeplay.com/solutions/oneapi/plugins/>`__.
 
 Examples
 ^^^^^^^^
