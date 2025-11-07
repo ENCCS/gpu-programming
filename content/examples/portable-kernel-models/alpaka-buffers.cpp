@@ -29,16 +29,25 @@ auto main() -> int {
   // Blocking device queue (requires synchronization)
   ap::onHost::Queue queue = devAcc.makeQueue(ap::queueKind::blocking);
 
-  // Allocate unified memory that is accessible on host and device
-  auto a = ap::onHost::allocUnified<int>(devAcc, n);
-  auto b = ap::onHost::allocUnified<int>(devAcc, n);
-  auto c = ap::onHost::allocUnified<int>(devAcc, n);
+  // Allocate memory that is accessible on host
+  auto h_a = ap::onHost::allocHost<int>(n);
+  auto h_b = ap::onHost::allocHostLike(h_a);
+  auto h_c = ap::onHost::allocHostLike(h_a);
+
+  // allocate memory on the device and inherit the extents from a
+  auto a = ap::onHost::allocLike(devAcc, h_a);
+  auto b = ap::onHost::allocLike(devAcc, h_a);
+  auto c = ap::onHost::allocLike(devAcc, h_a);
 
   // Initialize values on host
   for (unsigned i = 0; i < n; i++) {
-    a[i] = i;
-    b[i] = 1;
+    h_a[i] = i;
+    h_b[i] = 1;
   }
+
+  // Copy host memory element wise to the device memory
+  ap::onHost::memcpy(queue, a, h_a);
+  ap::onHost::memcpy(queue, b, h_b);
 
   unsigned frameExtent = 32u;
   auto frameSpec =
@@ -47,8 +56,11 @@ auto main() -> int {
   // Run element-wise multiplication on device
   queue.enqueue(frameSpec, ap::KernelBundle{MulKernel{}, c, a, b});
 
+  // Copy the device result back to host memory
+  ap::onHost::memcpy(queue, h_c, c);
+
   for (unsigned i = 0; i < n; i++) {
-    printf("c[%d] = %d\n", i, c[i]);
+    printf("c[%d] = %d\n", i, h_c[i]);
   }
 
   return 0;
