@@ -481,10 +481,10 @@ alpaka
 
 The `alpaka <https://github.com/alpaka-group/alpaka3>`__ library is an open-source header-only C++20 abstraction library for accelerator development.
 
-Its aim is to provide performance portability across accelerators by abstracting the underlying levels of parallelism.
+Its aim is to provide performance portability across accelerators by abstracting the underlying levels of parallelism. The project provides a single-source C++ API that enables developers to write parallel code once and run it on different hardware architectures without modification.
 The name "alpaka" comes from **A**\bstractions for **L**\evels of **P**\arallelism, **A**\lgorithms, and **K**\ernels for **A**\ccelerators.
 The library is platform-independent and supports the concurrent and cooperative use of multiple devices, including host CPUs (x86, ARM, and RISC-V) and GPUs from different vendors (NVIDIA, AMD, and Intel).
-A variety of accelerator backends—CUDA, HIP, SYCL, OpenMP, and serial execution—are available and can be selected based on the target device.
+A variety of accelerator backends, CUDA, HIP, SYCL, OpenMP, and serial execution, are available and can be selected based on the target device.
 Only a single implementation of a user kernel is required, expressed as a function object with a standardized interface.
 This eliminates the need to write specialized CUDA, HIP, SYCL, OpenMP, Intel TBB or threading code.
 Moreover, multiple accelerator backends can be combined to target different vendor hardware within a single system and even within a single application.
@@ -501,6 +501,280 @@ Here we demonstrate the usage of **alpaka3**, which is a complete rewrite of `al
 It is planned to merge this separate codebase back into the mainline alpaka repository before the first release in Q2/Q3 of 2026.
 Nevertheless, the code is well-tested and can be used for development today.
 
+
+Installing alpaka on your system
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For ease of use, we recommend installing alpaka using CMake as described below. For other ways to use alpaka in your projects, see the `alpaka3 documentation <https://alpaka3.readthedocs.io/en/latest/basic/install.html>`__.
+
+1. **Clone the repository**
+
+   Clone the alpaka source code from GitHub to a directory of your choice:
+
+   .. code-block:: bash
+
+      git clone https://github.com/alpaka-group/alpaka3.git
+      cd alpaka
+
+2. **Set installation directory**
+
+   Set the ``ALPAKA_DIR`` environment variable to the directory where you want to install alpaka. This can be any directory you choose where you have write access.
+
+   .. code-block:: bash
+
+      export ALPAKA_DIR=/path/to/your/alpaka/install/dir
+
+3. **Build and install**
+
+   Create a build directory and use CMake to build and install alpaka. We use ``CMAKE_INSTALL_PREFIX`` to tell CMake where to install the library.
+
+   .. code-block:: bash
+
+      mkdir build
+      cd build
+      cmake .. -DCMAKE_INSTALL_PREFIX=$ALPAKA_DIR
+      make install
+
+4. **Update environment**
+
+   To make sure that other projects can find your alpaka installation, you should add the installation directory to your ``CMAKE_PREFIX_PATH``. You can do this by adding the following line to your shell configuration file (e.g. ``~/.bashrc``):
+
+   .. code-block:: bash
+
+      export CMAKE_PREFIX_PATH=$ALPAKA_DIR:$CMAKE_PREFIX_PATH
+
+   You will need to source your shell configuration file or open a new terminal for the changes to take effect.
+
+
+alpaka Compilation
+~~~~~~~~~~~~~~~~~~~
+
+We recommend building your projects which use alpaka using CMake. A variety of strategies can be used to deal with building your application for a specific device or set of devices. Here we show a minimal way to get started, but this is by no means the only way to set up your projects.
+Please refer to the `alpaka3 documentation <https://alpaka3.readthedocs.io/en/latest/basic/install.html>`__ for alternative ways to use alpaka in your project, including a way to make your source code agnostic to the accelerator being targeted by defining a device specification in CMake.
+
+The following example demonstrates a ``CMakeLists.txt`` for a single-file project using alpaka3 (``main.cpp`` which is presented in the section below):
+
+    .. code-block:: cmake
+    
+        cmake_minimum_required(VERSION 3.25)
+        project(myAlpakaApp VERSION 1.0)
+    
+        # Find installed alpaka
+        find_package(alpaka REQUIRED)
+    
+        # Build the executable
+        add_executable(myAlpakaApp main.cpp)
+        target_link_libraries(myAlpakaApp PRIVATE alpaka::alpaka)
+        alpaka_finalize(myAlpakaApp)
+
+
+alpaka Programming
+~~~~~~~~~~~~~~~~~~
+
+When starting with alpaka3, the first step is understanding the **device selection model**. Unlike frameworks that require explicit initialization calls, alpaka3 uses a device specification to determine which backend and hardware to use. The device specification consists of two components:
+
+- **API**: The parallel programming interface (host, cuda, hip, oneApi)
+- **Device Kind**: The type of hardware (cpu, nvidiaGpu, amdGpu, intelGpu)
+
+Here we specify and use these at runtime to select and initialize devices. The device selection process is described in detail in the alpaka3 documentation.
+
+alpaka3 uses an **execution space model** to abstract parallel hardware details. A device selector is created using ``alpaka::onHost::makeDeviceSelector(devSpec)``, which returns an object that can query available devices and create device instances for the selected backend.
+
+The following example demonstrates a basic alpaka program that initializes a device and prints information about it:
+
+    .. code-block:: cpp
+        
+        #include <alpaka/alpaka.hpp>
+        #include <cstdlib>
+        #include <iostream>
+        
+        namespace ap = alpaka;
+
+        auto getDeviceSpec()
+        {
+            /* Select a device, possible combinations of api+deviceKind:
+             * host+cpu, cuda+nvidiaGpu, hip+amdGpu, oneApi+intelGpu, oneApi+cpu,
+             * oneApi+amdGpu, oneApi+nvidiaGpu
+             */
+            return ap::onHost::DeviceSpec{ap::api::hip, ap::deviceKind::amdGpu};
+        }
+        
+        int main(int argc, char** argv)
+        {
+            // Initialize device specification and selector
+            ap::onHost::DeviceSpec devSpec = getDeviceSpec();
+            auto deviceSelector = ap::onHost::makeDeviceSelector(devSpec);
+            
+            // Query available devices
+            auto num_devices = deviceSelector.getDeviceCount();
+            std::cout << "Number of available devices: " << num_devices << "\n";
+            
+            if (num_devices == 0) {
+                std::cerr << "No devices found for the selected backend\n";
+                return EXIT_FAILURE;
+            }
+            
+            // Select and initialize the first device
+            auto device = deviceSelector.makeDevice(0);
+            std::cout << "Using device: " << device.getName() << "\n";
+            
+            return EXIT_SUCCESS;
+        }
+
+alpaka3 provides memory management abstractions through buffers and views. Memory can be allocated on host or device using ``alpaka::allocBuf<T, Idx>(device, extent)``. Data transfers between host and device are handled through ``alpaka::memcpy(queue, dst, src)``. The library automatically manages memory layouts for optimal performance on different architectures.
+
+For parallel execution, alpaka3 provides kernel abstractions. Kernels are defined as functors or lambda functions and executed using work division specifications that define the parallelization strategy. The framework supports various parallel patterns including element-wise operations, reductions, and scans.
+
+Tour of **alpaka** Features
+***************************
+
+Now we will quickly explore the most commonly used features of alpaka and go over some basic usage. A quick reference of commonly used alpaka features is available `here. <https://alpaka3.readthedocs.io/en/latest/basic/cheatsheet.html>`__  
+
+**General setup**: Include the consolidated header once and you are ready to start using alpaka.
+
+.. code-block:: c++
+
+   #include <alpaka/alpaka.hpp>
+
+   namespace myProject
+   {
+       namespace ap = alpaka;
+       // Your code here
+   }
+
+**Accelerator, platform, and device management**: Select devices by combining the desired API with the appropriate hardware kind using the device selector.
+
+.. code-block:: c++
+
+   auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
+   if (devSelector.getDeviceCount() == 0)
+   {
+       throw std::runtime_error("No device found!");
+   }
+   auto device = devSelector.makeDevice(0);
+
+**Queues and events**: Create blocking or non-blocking queues per device, record events, and synchronize work as needed.
+
+.. code-block:: c++
+
+   auto queue = device.makeQueue();
+   auto nonBlockingQueue = device.makeQueue(ap::queueKind::nonBlocking);
+   auto blockingQueue = device.makeQueue(ap::queueKind::blocking);
+
+   auto event = device.makeEvent();
+   queue.enqueue(event);
+   ap::onHost::wait(event);
+   ap::onHost::wait(queue);
+
+**Memory management**: Allocate host, device, mapped, unified, or deferred buffers, create non-owning views, and move data portably with `memcpy`, `memset`, and `fill`.
+
+.. code-block:: c++
+
+    auto hostBuffer = ap::onHost::allocHost<DataType>(extent3D);
+    auto devBuffer = ap::onHost::alloc<DataType>(device, extentMd);
+    auto devMappedBuffer = ap::onHost::allocMapped<DataType>(device, extentMd);
+    
+    auto hostView = ap::makeView(api::host, externPtr, ap::Vec{numElements});
+    auto devNonOwningView = devBuffer.getView();
+    
+    ap::onHost::memset(queue, devBuffer, uint8_t{0});
+    ap::onHost::memcpy(queue, devBuffer, hostBuffer);
+    ap::onHost::fill(queue, devBuffer, DataType{42});
+
+**Kernel execution**: Build a `FrameSpec` manually or request one tuned for your data type, then enqueue kernels with automatic or explicit executors.
+
+.. code-block:: c++
+
+    constexpr uint32_t dim = 2u;
+    using IdxType = size_t;
+    using DataType = int;
+    
+    IdxType valueX, valueY;
+    auto extentMD = ap::Vec{valueY, valueX};
+
+    auto frameSpec = ap::onHost::FrameSpec{numFramesMd, frameExtentMd};
+    auto tunedSpec = ap::onHost::getFrameSpec<DataType>(device, extentMd);
+    
+    queue.enqueue(tunedSpec, ap::KernelBundle{kernel, kernelArgs...});
+    
+    auto executor = ap::exec::cpuSerial;
+    queue.enqueue(executor, tunedSpec, ap::KernelBundle{kernel, kernelArgs...});
+
+**Kernel implementation**: Write kernels as functors annotated with `ALPAKA_FN_ACC`, use shared memory, synchronization, atomics, and math helpers directly inside the kernel body.
+
+.. code-block:: c++
+
+   struct MyKernel
+   {
+       ALPAKA_FN_ACC void operator()(ap::onAcc::concepts::Acc auto const& acc, auto... args) const
+       {
+           auto idxMd = acc.getIdxWithin(ap::onAcc::origin::grid, ap::onAcc::unit::blocks);
+
+           auto sharedMdArray =
+               ap::onAcc::declareSharedMdArray<float, ap::uniqueId()>(acc, ap::CVec<uint32_t, 3, 4>{});
+
+           ap::onAcc::syncBlockThreads(acc);
+           auto old = onAcc::atomicAdd(acc, args...);
+           ap::onAcc::memFence(acc, ap::onAcc::scope::block);
+           auto sinValue = ap::math::sin(args[0]);
+       }
+   };
+
+   
+Run alpaka3 Example in Simple Steps
+***********************************
+
+
+The following example works on systems with CMake 3.25+ and an appropriate C++ compiler. For GPU execution, ensure the corresponding runtime (CUDA, ROCm, or oneAPI) is installed.
+
+1. Create a directory for your project:
+
+   .. code-block:: bash
+
+      mkdir my_alpaka_project && cd my_alpaka_project
+
+2. Copy the CMakeLists.txt from above into the current folder
+
+3. Copy the main.cpp file into the current folder
+
+4. Configure and build:
+
+   .. code-block:: bash
+
+      cmake -B build -S .
+      cmake --build build --parallel
+
+5. Run the executable:
+
+   .. code-block:: bash
+
+      ./build/myAlpakaApp
+
+.. note::
+
+    The device specification system allows you to select the target device at CMake configuration time. The format is ``"api:deviceKind"``, where:
+
+    - **api**: The parallel programming interface (``host``, ``cuda``, ``hip``, ``oneApi``)
+    - **deviceKind**: The type of device (``cpu``, ``nvidiaGpu``, ``amdGpu``, ``intelGpu``)
+
+    Available combinations are: ``host:cpu``, ``cuda:nvidiaGpu``, ``hip:amdGpu``, ``oneApi:cpu``, ``oneApi:intelGpu``, ``oneApi:nvidiaGpu``, ``oneApi:amdGpu``
+
+.. warning::
+
+    The CUDA, HIP, or Intel backends only work if the CUDA SDK, HIP SDK, or OneAPI SDK are available respectively
+
+
+Expected output
+***************
+
+.. code-block:: text
+
+   Number of available devices: 1
+   Using device: [Device Name]
+
+The device name will vary depending on your hardware (e.g., "NVIDIA A100", "AMD MI250X", or your CPU model).
+
+
 Compile and Execute Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -515,25 +789,25 @@ Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first
 
 .. tabs::
 
-  .. tab:: AMD GPUs with Hip
+  .. tab:: HIP for AMD GPUs
 
     .. code-block:: bash
 
         # use the following in C++ code
         # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
-        clang++ -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
+        CC -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
         ./a.out
 
-  .. tab:: Cpu with clang++
+  .. tab:: Host compiler for CPU
 
     .. code-block:: bash
 
         # use the following in C++ code
         # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);
-        clang++ -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
+        CC -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
         ./a.out
 
-  .. tab:: NVIDIA GPUs with CUDA
+  .. tab:: CUDA for NVIDIA GPUs  
 
     .. code-block:: bash
 
@@ -542,7 +816,7 @@ Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first
         nvcc -I $ALPAKA_DIR/include/ -std=c++20 --expt-relaxed-constexpr -x cuda main.cpp
         ./a.out
 
-  .. tab:: oneAPI SYCL for Cpu
+  .. tab:: oneAPI SYCL for CPU
 
     .. code-block:: bash
 

@@ -93,6 +93,12 @@ Kokkos
 
 `Kokkos <https://github.com/kokkos/kokkos>`_ is an open-source performance portable programming model for heterogeneous parallel computing that has been mainly developed at Sandia National Laboratories. It is a C++-based ecosystem that provides a programming model for developing efficient and scalable parallel applications that run on many-core architectures such as CPUs, GPUs, and FPGAs. The Kokkos ecosystem consists of several components, such as the Kokkos core library, which provides parallel execution and memory abstraction, the Kokkos kernel library, which provides math kernels for linear algebra and graph algorithms, and the Kokkos tools library, which provides profiling and debugging tools. Kokkos components integrate well with other software libraries and technologies, such as MPI and OpenMP. Furthermore, the project collaborates with other projects, in order to provide interoperability and standardization for portable C++ programming.
 
+alpaka
+~~~~~~
+
+`alpaka <https://alpaka.readthedocs.io/>`_ (Abstraction Library for Parallel Kernel Acceleration) is an open-source C++ header-only library that aims to provide performance portability across heterogeneous accelerator architectures by abstracting the underlying levels of parallelism. The library is platform-independent and supports the concurrent and cooperative use of multiple devices, including host CPUs (x86, ARM, RISC-V) and GPUs from different vendors (NVIDIA, AMD, and Intel).
+
+A key advantage of alpaka is that it requires only a single implementation of a user kernel, expressed as a function object with a standardized interface. This eliminates the need to write specialized code for different backends. The library provides a variety of accelerator backends, including CUDA, HIP, SYCL, OpenMP, and serial execution, that can be selected based on the target device. Moreover, multiple accelerator backends can even be combined to target different vendor hardware within a single application.
 
 SYCL
 ~~~~
