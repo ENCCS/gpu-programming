@@ -132,7 +132,10 @@ CUDA Python also aims to support higher-level toolkits and libraries, such as **
 
 **Numba**
 
-`Numba <https://numba.pydata.org/>`_ is an open-source JIT compiler that translates a subset of Python and NumPy code into optimized machine code. Numba supports CUDA-capable GPUs and is able to generate code for them using several different syntax variants. However, previously-available AMD (ROCm) support has since been discontinued.
+`Numba <https://numba.pydata.org/>`_ is an open-source JIT compiler that translates a subset of Python and NumPy code into optimized machine code. Numba supports CUDA-capable GPUs and is able to generate code for them using several different syntax variants.
+In 2021, upstream support for `AMD (ROCm) support <https://numba.readthedocs.io/en/stable/release-notes.html#version-0-54-0-19-august-2021>`_ was discontinued.
+However, as of 2025, AMD has added downstream support for the Numba API through the 
+`Numba HIP package <https://github.com/ROCm/numba-hip>`_.
 
 
 Julia
