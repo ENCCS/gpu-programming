@@ -25,7 +25,7 @@ The most common directive-based models for GPU parallel programming are OpenMP o
 The parallelization is done by introducing directives in places which are targeted for parallelization. 
 
 - **OpenACC** is known to be more **descriptive**, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data. 
-- **OpenMP offloading** approach, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.
+- **OpenMP offloading**, on the other hand, is known to be more **prescriptive**, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decide.
 
 In OpenMP/OpenACC the compiler directives are specified by using **#pragma** in C/C++ or as special comments identified by unique sentinels in Fortran. Compilers can ignore the directives if the support for OpenMP/OpenACC is not enabled.
 
@@ -44,9 +44,9 @@ first parallel region construct is encountered.
 .. figure:: img/levels/threads.png
    :align: center
 
-When a parallel region is encountered, master thread creates a group of threads, 
+When a parallel region is encountered, the master thread creates a group of threads, 
 becomes the master of this group of threads, and is assigned the thread index 0 within 
-the group. There is an implicit barrier at the end of the parallel regions. 
+the group. There is an implicit barrier at the end of the parallel regions.
 
 
 Offloading Directives
@@ -58,7 +58,7 @@ OpenACC
 
 In OpenACC, one of the most commonly used directives is ``kernels``,
 which defines a region to be transferred into a series of kernels to be executed in sequence on a GPU. 
-Work sharing is defined automatically for the separate kernels, but tuning prospects is limited.
+Work sharing is defined automatically for the separate kernels, but tuning prospects are limited.
 
 
 .. challenge:: Example: ``kernels``
@@ -79,9 +79,9 @@ Work sharing is defined automatically for the separate kernels, but tuning prosp
 
 
 
-The other approach of OpenACC to define parallel regions is to use ``parallel`` directive.
+The other approach of OpenACC to define parallel regions is to use the ``parallel`` directive.
 Contrary to the ``kernels`` directive, the ``parallel`` directive is more explicit and requires 
-more analysis by the programmer. Work sharing has to be defined manually using the ``loop`` directive, 
+more analysis by the programmer. Work sharing has to be defined manually using the ``loop`` directive,
 and refined tuning is possible to achieve. The above example can be re-written as the following:
 
 
@@ -103,7 +103,7 @@ and refined tuning is possible to achieve. The above example can be re-written a
 
 
 
-Sometimes we can obtain a little more performance by guiding the compiler to make specific choices. 
+Sometimes we can obtain a little more performance by guiding the compiler to make specific choices.
 OpenACC has four levels of parallelism for offloading execution: 
 
   - **gang** coarse grain: the iterations are distributed among the gangs
@@ -115,13 +115,13 @@ OpenACC has four levels of parallelism for offloading execution:
 
 .. note:: 
 
-    By default, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler. 
+    By default, ``gang``, ``worker`` and ``vector`` parallelism are automatically decided and applied by the compiler.
 
-    The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of gangs, workers and vector length. 
+    The programmer could add clauses like ``num_gangs``, ``num_workers`` and ``vector_length`` within the parallel region to specify the number of gangs, workers and vector length.
 
-    The optimal numbers are highly GPU architecture and compiler implementation dependent though.
+    The optimal numbers are highly dependent on the GPU architecture and the compiler implementation though.
 
-    There is no thread synchronization at ``gang`` level, which means there maybe a risk of race condition.
+    There is no thread synchronization at ``gang`` level, which means there is a risk of race condition.
 
 
 
@@ -147,8 +147,8 @@ With OpenMP, the ``target`` directive is used for device offloading.
                         :emphasize-lines: 14,18
 
 
-Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop at all. 
-To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants. 
+Compared to the OpenACC's ``kernels`` directive, the ``target`` directive will not parallelise the underlying loop at all.
+To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants.
 OpenMP offloading offers multiple levels of parallelism as well:
 
   - **teams** coarse grain: creates a league of teams and one master thread in each team, but no worksharing among the teams
@@ -159,21 +159,21 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
 .. note:: 
 
-    The programmer could add clauses like ``num_teams`` and ``thread_limit`` to specify the number of teams and threads within a team.
+    The programmer can add clauses like ``num_teams`` and ``thread_limit`` to specify the number of teams and threads within a team.
 
-    Threads in a team can synchronize but no synchronization among the teams. 
+    Threads in a team can synchronize but no synchronization among the teams.
 
-    Since OpenMP 5.0, there is a new ``loop`` directive available, which has the similar functionality as the corresponding one in OpenACC.
+    Since OpenMP 5.0, there is a new ``loop`` directive available, which has a functionality similar to the corresponding one in OpenACC.
 
 
 
 .. keypoints::
 
-   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)
+   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (**HPE implementation**)
       :widths: 25 25 25 25
       :header-rows: 1
 
-      * - NVIDIA
+      * - Nvidia
         - AMD
         - Fortran OpenACC/OpenMP
         - C/C++ OpenMP
@@ -191,12 +191,17 @@ OpenMP offloading offers multiple levels of parallelism as well:
         - parallel for simd
 
 
+   - Each compiler supports different levels of parallelism.
+   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limits defined by the implementation.
+   - The maximum thread/grid/block size can be found via ``rocminfo``/``nvaccelinfo``.
+
+
 
 .. exercise:: Exercise: Change the levels of parallelism
 
-   In this exercise we would like to change the levels of parallelism using clauses. 
-   First compile and run one of the example to find out the default number of block and thread set by compiler at runtime. 
-   To make a change, adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
+   In this exercise we would like to change the levels of parallelism using clauses.
+   First compile and run one of the examples to find out the default number of blocks and threads set by the compiler at runtime.
+   To make a change, try adding clauses like ``num_gangs``, ``num_workers``,  ``vector_length`` for OpenACC 
    and ``num_teams``, ``thread_limit`` for OpenMP offloading.
 
    Remember to set the environment by executing ``export CRAY_ACC_DEBUG=2`` at runtime.
@@ -356,34 +361,6 @@ OpenMP offloading offers multiple levels of parallelism as well:
                   end program vecsum
 
 
-.. keypoints::
-
-   .. list-table:: Mapping between OpenACC/OpenMP directives and GPU (**HPE implementation**)
-      :widths: 25 25 25 25
-      :header-rows: 1
-
-      * - Nvidia
-        - AMD
-        - Fortran OpenACC/OpenMP
-        - C/C++ OpenMP
-      * - Threadblock
-        - Work group
-        - gang/teams
-        - teams
-      * - Wrap
-        - Wavefront
-        - worker/simd
-        - parallel for simd
-      * - Thread
-        - Work item
-        - vector/simd
-        - parallel for simd
-
-
-   - Each compiler supports different levels of parallelism
-   - The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limits defined by the implementation.
-   - The maximum thread/grid/block size can be found via ``rocminfo``/``nvaccelinfo``
-
 
 
 Data Movement
@@ -391,8 +368,8 @@ Data Movement
 
 Due to distinct memory spaces on host and device, transferring data becomes inevitable. 
 New directives are needed to specify how variables are transferred from the host to the device data environment. 
-The common transferred items consist of arrays (array sections), scalars, pointers, and structure elements. 
-Various data clauses used for data movement is summarised in the following table
+Commonly transferred items consist of arrays (array sections), scalars, pointers, and structure elements. 
+Various data clauses used for data movement are summarised in the following table:
 
 .. csv-table::
    :widths: auto
@@ -417,8 +394,8 @@ Data region
 ^^^^^^^^^^^
 
 The specific data clause combined with the data directive constitutes the start of a data region.
-How the directives create storage, transfer data, and remove storage on the device are classified as two categories: 
-structured data region and unstructured data region. 
+How the directives create storage, transfer data, and remove storage on the device are classified as two categories:
+structured data region and unstructured data region.
 
 
 Structured Data Region
@@ -475,8 +452,8 @@ A structured data region is convenient for providing persistent data on the devi
 Unstructured Data Region
 ++++++++++++++++++++++++
 
-However it is inconvenient in real applications to use structured data region, therefore the unstructured data region  
-with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.
+However it is inconvenient in real applications to use a structured data region. An unstructured data region
+gives more freedom in creating and deleting data on the device at any appropriate point.
 
 .. challenge:: Syntax for unstructured data region
 
@@ -548,7 +525,7 @@ with much more freedom in creating and deleting of data on the device at any app
 Update
 ++++++
 
-Sometimes, variables need to be synchronized between the host and the device memory, e.g. in order to write out variables on the host for debugging or visualization, and it is often used in conjunction with unstructured data regions. To control data transfer direction, a motion-clause must be present.
+Sometimes, variables need to be synchronized between the host and the device memory, e.g. in order to write out variables on the host for debugging or visualization, and it is often used in conjunction with unstructured data regions. To control the data transfer direction, a motion-clause must be present.
 
 
 
@@ -624,7 +601,7 @@ Sometimes, variables need to be synchronized between the host and the device mem
 
 .. challenge:: Exercise:  ``update``
 
-   Trying to figure out the variable values on host and device at each check point.
+   Try to figure out the variable values on host and device at each check point.
 
    .. tabs::
 
@@ -979,9 +956,9 @@ Sometimes, variables need to be synchronized between the host and the device mem
 Optimize Data Transfers
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-- Explicitly transfer the data as much as possible
-- Reduce the amount of data mapping between host and device, get rid of unnecessary data transfer
-- Try to keep data environment residing on the device as long as possible
+- Explicitly transfer the data as much as possible.
+- Reduce the amount of data mapping between host and device, get rid of unnecessary data transfers.
+- Try to keep the data environment residing on the device as long as possible.
 
 
 Pros of directive-based frameworks
@@ -1003,5 +980,7 @@ See also
 
 .. keypoints::
 
-   - OpenACC and OpenMP-offloading enables you to annotate your code with special directives to identify areas to be executed in parallel on a GPU. 
-   - This saves time compared to lower-level approaches, but you need to be mindful of memory movement.
+   - OpenACC and OpenMP-offloading enables you to annotate your code with special directives to identify areas to be executed in parallel on a GPU.
+   - Both allow to fine-tune the distribution of the work to match architecture characteristics.
+   - Both allow to control the flow of data to/from the GPU.
+   - The directive-based approaches save time compared to lower-level approaches, but you need to be mindful of data movement in particular to obtain good performance.
