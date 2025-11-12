@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Directive-based models &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Multiple GPU programming with MPI" href="../8-multiple_gpu/" />
+    <link rel="prev" title="High-level language support" href="../6-language-support/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Directive-based models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#execution-model">Execution model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#offloading-directives">Offloading Directives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openacc">OpenACC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openmp-offloading">OpenMP Offloading</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#data-movement">Data Movement</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-region">Data region</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#structured-data-region">Structured Data Region</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#unstructured-data-region">Unstructured Data Region</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#update">Update</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#optimize-data-transfers">Optimize Data Transfers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pros-of-directive-based-frameworks">Pros of directive-based frameworks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Directive-based models</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/7-directive-based-models.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="directive-based-models">
+<span id="id1"></span><h1>Directive-based models<a class="headerlink" href="#directive-based-models" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What is OpenACC and OpenMP offloading</p></li>
+<li><p>How to write GPU code using directives</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand the process of offloading</p></li>
+<li><p>Understand the differences between OpenACC and OpenMP offloading</p></li>
+<li><p>Understand the various levels of parallelism on a GPU</p></li>
+<li><p>Understand what is data movement</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>30 min teaching</p></li>
+<li><p>20 min exercises</p></li>
+</ul>
+</div>
+<p>The most common directive-based models for GPU parallel programming are OpenMP offloading and OpenACC.
+The parallelization is done by introducing directives in places which are targeted for parallelization.</p>
+<ul class="simple">
+<li><p>OpenACC is known to be more <strong>descriptive</strong>, which means the programmer uses directives to tell the compiler how/where to parallelize the code and to move the data.</p></li>
+<li><p>OpenMP offloading approach, on the other hand, is known to be more <strong>prescriptive</strong>, where the programmer uses directives to tell the compiler more explicitly how/where to parallelize the code, instead of letting the compiler decides.</p></li>
+</ul>
+<p>In OpenMP/OpenACC the compiler directives are specified by using <strong>#pragma</strong> in C/C++ or as
+special comments identified by unique sentinels in Fortran. Compilers can ignore the
+directives if the support for OpenMP/OpenACC is not enabled.</p>
+<p>The compiler directives are used for various purposes: for thread creation, workload
+distribution (work sharing), data-environment management, serializing sections of code or
+for synchronization of work among the threads.</p>
+<section id="execution-model">
+<h2>Execution model<a class="headerlink" href="#execution-model" title="Permalink to this heading"></a></h2>
+<p>OpenMP and OpenACC use the fork-join model of parallel execution. The program begins as a single
+thread of execution, the <strong>master</strong> thread. Everything is executed sequentially until the
+first parallel region construct is encountered.</p>
+<figure class="align-center">
+<img alt="../_images/threads.png" src="../_images/threads.png" />
+</figure>
+<p>When a parallel region is encountered, master thread creates a group of threads,
+becomes the master of this group of threads, and is assigned the thread index 0 within
+the group. There is an implicit barrier at the end of the parallel regions.</p>
+</section>
+<section id="offloading-directives">
+<h2>Offloading Directives<a class="headerlink" href="#offloading-directives" title="Permalink to this heading"></a></h2>
+<section id="openacc">
+<h3>OpenACC<a class="headerlink" href="#openacc" title="Permalink to this heading"></a></h3>
+<p>In OpenACC, one of the most commonly used directives is <code class="docutils literal notranslate"><span class="pre">kernels</span></code>,
+which defines a region to be transferred into a series of kernels to be executed in sequence on a GPU.
+Work sharing is defined automatically for the separate kernels, but tuning prospects is limited.</p>
+<div class="admonition-example-kernels exercise important admonition" id="exercise-0">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">kernels</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-0-0-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-0-0-1" name="0-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;openacc.h&gt;</span>
+
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="cp">#pragma acc kernels</span>
+</span><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-0-1" class="sphinx-tabs-panel" hidden="true" id="panel-0-0-1" name="0-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">main</span>
+<span class="w">  </span><span class="k">implicit none</span>
+
+<span class="k">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">  </span><span class="kt">double precision</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecC</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">     </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">     </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">  </span><span class="k">end do</span>
+
+<span class="hll"><span class="w">  </span><span class="c">!$acc kernels</span>
+</span><span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end do</span>
+<span class="hll"><span class="w">  </span><span class="c">!$acc end kernels</span>
+</span>
+<span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>The other approach of OpenACC to define parallel regions is to use <code class="docutils literal notranslate"><span class="pre">parallel</span></code> directive.
+Contrary to the <code class="docutils literal notranslate"><span class="pre">kernels</span></code> directive, the <code class="docutils literal notranslate"><span class="pre">parallel</span></code> directive is more explicit and requires
+more analysis by the programmer. Work sharing has to be defined manually using the <code class="docutils literal notranslate"><span class="pre">loop</span></code> directive,
+and refined tuning is possible to achieve. The above example can be re-written as the following:</p>
+<div class="admonition-example-parallel-loop exercise important admonition" id="exercise-1">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">parallel</span> <span class="pre">loop</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;openacc.h&gt;</span>
+
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="cp">#pragma acc parallel loop</span>
+</span><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">main</span>
+<span class="w">  </span><span class="k">implicit none</span>
+
+<span class="k">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">  </span><span class="kt">double precision</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecC</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">     </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">     </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">  </span><span class="k">end do</span>
+
+<span class="hll"><span class="w">  </span><span class="c">!$acc parallel loop</span>
+</span><span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end do</span>
+<span class="hll"><span class="w">  </span><span class="c">!$acc end parallel loop</span>
+</span>
+<span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Sometimes we can obtain a little more performance by guiding the compiler to make specific choices.
+OpenACC has four levels of parallelism for offloading execution:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>gang</strong> coarse grain: the iterations are distributed among the gangs</p></li>
+<li><p><strong>worker</strong> fine grain: worker’s threads are activated within gangs and iterations are shared among the threads</p></li>
+<li><p><strong>vector</strong> each worker activtes its threads working in SIMT fashion and the work is shared among the threads</p></li>
+<li><p><strong>seq</strong> the iterations are executed sequentially</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">gang</span></code>, <code class="docutils literal notranslate"><span class="pre">worker</span></code> and <code class="docutils literal notranslate"><span class="pre">vector</span></code> parallelism are automatically decided and applied by the compiler.</p>
+<p>The programmer could add clauses like <code class="docutils literal notranslate"><span class="pre">num_gangs</span></code>, <code class="docutils literal notranslate"><span class="pre">num_workers</span></code> and <code class="docutils literal notranslate"><span class="pre">vector_length</span></code> within the parallel region to specify the number of gangs, workers and vector length.</p>
+<p>The optimal numbers are highly GPU architecture and compiler implementation dependent though.</p>
+<p>There is no thread synchronization at <code class="docutils literal notranslate"><span class="pre">gang</span></code> level, which means there maybe a risk of race condition.</p>
+</div>
+</section>
+<section id="openmp-offloading">
+<h3>OpenMP Offloading<a class="headerlink" href="#openmp-offloading" title="Permalink to this heading"></a></h3>
+<p>With OpenMP, the <code class="docutils literal notranslate"><span class="pre">target</span></code> directive is used for device offloading.</p>
+<div class="admonition-example-target-construct exercise important admonition" id="exercise-2">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">target</span></code> construct</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="cp">#pragma omp target</span>
+</span><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">main</span>
+<span class="w">  </span><span class="k">implicit none</span>
+
+<span class="k">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">  </span><span class="kt">double precision</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecC</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span>
+
+<span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">     </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">     </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">  </span><span class="k">end do</span>
+
+<span class="hll"><span class="w">  </span><span class="c">!$omp target</span>
+</span><span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">  </span><span class="k">end do</span>
+<span class="hll"><span class="w">  </span><span class="c">!$omp end target</span>
+</span>
+<span class="k">end program</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Compared to the OpenACC’s <code class="docutils literal notranslate"><span class="pre">kernels</span></code> directive, the <code class="docutils literal notranslate"><span class="pre">target</span></code> directive will not parallelise the underlying loop at all.
+To achieve proper parallelisation, one needs to be more prescriptive and specify what one wants.
+OpenMP offloading offers multiple levels of parallelism as well:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>teams</strong> coarse grain: creates a league of teams and one master thread in each team, but no worksharing among the teams</p></li>
+<li><p><strong>distribute</strong> distributes the iterations across the master threads in the teams, but no worksharing among the threads within one team</p></li>
+<li><p><strong>parallel do/for</strong> fine grain: threads are activated within one team and worksharing among them</p></li>
+<li><p><strong>SIMD</strong> like the <code class="docutils literal notranslate"><span class="pre">vector</span></code> directive in OpenACC</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The programmer could add clauses like <code class="docutils literal notranslate"><span class="pre">num_teams</span></code> and <code class="docutils literal notranslate"><span class="pre">thread_limit</span></code> to specify the number of teams and threads within a team.</p>
+<p>Threads in a team can synchronize but no synchronization among the teams.</p>
+<p>Since OpenMP 5.0, there is a new <code class="docutils literal notranslate"><span class="pre">loop</span></code> directive available, which has the similar functionality as the corresponding one in OpenACC.</p>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Mapping between OpenACC/OpenMP directives and GPU (HPE implementation)</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>NVIDIA</p></th>
+<th class="head"><p>AMD</p></th>
+<th class="head"><p>Fortran OpenACC/OpenMP</p></th>
+<th class="head"><p>C/C++ OpenMP</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Threadblock</p></td>
+<td><p>Work group</p></td>
+<td><p>gang/teams</p></td>
+<td><p>teams</p></td>
+</tr>
+<tr class="row-odd"><td><p>Wrap</p></td>
+<td><p>Wavefront</p></td>
+<td><p>worker/simd</p></td>
+<td><p>parallel for simd</p></td>
+</tr>
+<tr class="row-even"><td><p>Thread</p></td>
+<td><p>Work item</p></td>
+<td><p>vector/simd</p></td>
+<td><p>parallel for simd</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition-exercise-change-the-levels-of-parallelism exercise important admonition" id="exercise-3">
+<p class="admonition-title">Exercise: Change the levels of parallelism</p>
+<p>In this exercise we would like to change the levels of parallelism using clauses.
+First compile and run one of the example to find out the default number of block and thread set by compiler at runtime.
+To make a change, adding clauses like <code class="docutils literal notranslate"><span class="pre">num_gangs</span></code>, <code class="docutils literal notranslate"><span class="pre">num_workers</span></code>,  <code class="docutils literal notranslate"><span class="pre">vector_length</span></code> for OpenACC
+and <code class="docutils literal notranslate"><span class="pre">num_teams</span></code>, <code class="docutils literal notranslate"><span class="pre">thread_limit</span></code> for OpenMP offloading.</p>
+<p>Remember to set the environment by executing <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">CRAY_ACC_DEBUG=2</span></code> at runtime.</p>
+<p>How to compile and run the code interactively:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>LUMI/23.03
+module<span class="w"> </span>load<span class="w"> </span>partition/G
+module<span class="w"> </span>load<span class="w"> </span>rocm/5.2.3
+
+<span class="c1"># OpenMP</span>
+cc<span class="w"> </span>-O2<span class="w"> </span>-fopenmp<span class="w"> </span>-o<span class="w"> </span>ex1<span class="w"> </span>ex1.c
+<span class="c1"># Only OpenACC Fortran is supported by HPE compiler.</span>
+
+salloc<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--account<span class="o">=</span>project_465000485<span class="w"> </span>--partition<span class="o">=</span>standard-g<span class="w"> </span>-t<span class="w"> </span><span class="m">2</span>:00:00
+srun<span class="w"> </span>--interactive<span class="w"> </span>--pty<span class="w"> </span>--jobid<span class="o">=</span>&lt;jobid&gt;<span class="w"> </span><span class="nv">$SHELL</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">CRAY_ACC_DEBUG</span><span class="o">=</span><span class="m">2</span>
+./ex1
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>LUMI/23.03
+module<span class="w"> </span>load<span class="w"> </span>partition/G
+module<span class="w"> </span>load<span class="w"> </span>rocm/5.2.3
+
+<span class="c1"># OpenMP</span>
+ftn<span class="w"> </span>-O2<span class="w"> </span>-homp<span class="w"> </span>-o<span class="w"> </span>ex1<span class="w"> </span>ex1.f90
+<span class="c1"># OpenACC</span>
+ftn<span class="w"> </span>-O2<span class="w"> </span>-hacc<span class="w"> </span>-o<span class="w"> </span>ex1<span class="w"> </span>ex1.f90
+
+salloc<span class="w"> </span>--nodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--account<span class="o">=</span>project_465000485<span class="w"> </span>--partition<span class="o">=</span>standard-g<span class="w"> </span>-t<span class="w"> </span><span class="m">2</span>:00:00
+srun<span class="w"> </span>--interactive<span class="w"> </span>--pty<span class="w"> </span>--jobid<span class="o">=</span>&lt;jobid&gt;<span class="w"> </span><span class="nv">$SHELL</span>
+
+<span class="nb">export</span><span class="w"> </span><span class="nv">CRAY_ACC_DEBUG</span><span class="o">=</span><span class="m">2</span>
+./ex1
+</pre></div>
+</div>
+</div></div>
+<p>Example of a trivially parallelizable vector addition problem:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-5-5-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-5-5-0" name="5-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-5-5-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-1" name="5-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-5-5-0" class="sphinx-tabs-panel" id="panel-5-5-0" name="5-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialize vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="cp">#pragma omp target teams distribute parallel for simd</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w"> </span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-1" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-1" name="5-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="c">! Initialization of vectors</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="w">    </span><span class="c">!$omp target teams distribute parallel do simd</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do simd</span>
+<span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-6-6-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-6-6-0" name="6-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-6-6-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-1" name="6-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-6-6-0" class="sphinx-tabs-panel" id="panel-6-6-0" name="6-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;openacc.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="cp">#pragma acc parallel loop</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-1" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-1" name="6-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">vecA</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="n">vecC</span><span class="p">(</span><span class="n">nx</span><span class="p">))</span>
+<span class="w">    </span><span class="c">! Initialization of vectors</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="w">    </span><span class="c">!$acc parallel loop</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$acc end parallel loop</span>
+<span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-1">
+<p class="admonition-title">Keypoints</p>
+<table class="docutils align-default" id="id3">
+<caption><span class="caption-text">Mapping between OpenACC/OpenMP directives and GPU (<strong>HPE implementation</strong>)</span><a class="headerlink" href="#id3" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Nvidia</p></th>
+<th class="head"><p>AMD</p></th>
+<th class="head"><p>Fortran OpenACC/OpenMP</p></th>
+<th class="head"><p>C/C++ OpenMP</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Threadblock</p></td>
+<td><p>Work group</p></td>
+<td><p>gang/teams</p></td>
+<td><p>teams</p></td>
+</tr>
+<tr class="row-odd"><td><p>Wrap</p></td>
+<td><p>Wavefront</p></td>
+<td><p>worker/simd</p></td>
+<td><p>parallel for simd</p></td>
+</tr>
+<tr class="row-even"><td><p>Thread</p></td>
+<td><p>Work item</p></td>
+<td><p>vector/simd</p></td>
+<td><p>parallel for simd</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>Each compiler supports different levels of parallelism</p></li>
+<li><p>The size of gang/team/worker/vector_length can be chosen arbitrarily by the user but there are limits defined by the implementation.</p></li>
+<li><p>The maximum thread/grid/block size can be found via <code class="docutils literal notranslate"><span class="pre">rocminfo</span></code>/<code class="docutils literal notranslate"><span class="pre">nvaccelinfo</span></code></p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="data-movement">
+<h2>Data Movement<a class="headerlink" href="#data-movement" title="Permalink to this heading"></a></h2>
+<p>Due to distinct memory spaces on host and device, transferring data becomes inevitable.
+New directives are needed to specify how variables are transferred from the host to the device data environment.
+The common transferred items consist of arrays (array sections), scalars, pointers, and structure elements.
+Various data clauses used for data movement is summarised in the following table</p>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">OpenMP</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">OpenACC</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(to:list)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">copyin(list)</span></code></p></td>
+<td><p>On entering the region, variables in the list are initialized on the device using the original values from the host</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map(from:list)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">copyout(list)</span></code></p></td>
+<td><p>At the end of the target region, the values from variables in the list are copied into the original variables on the host. On entering the region, the initial value of the variables on the device is not initialized</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(tofrom:list)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">copy(list)</span></code></p></td>
+<td><p>The effect of both a map-to and a map-from</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">map(alloc:list)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">create(list)</span></code></p></td>
+<td><p>On entering the region, data is allocated and uninitialized on the device</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">map(delete:list)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">delete(list)</span></code></p></td>
+<td><p>Delete data on the device</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<dl class="simple">
+<dt>When mapping data arrays or pointers, be careful about the array section notation:</dt><dd><ul class="simple">
+<li><p>In C/C++: array[lower-bound:length]. The notation :N is equivalent to 0:N.</p></li>
+<li><p>In Fortran:array[lower-bound:upper-bound]. The notation :N is equivalent to 1:N.</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+<section id="data-region">
+<h3>Data region<a class="headerlink" href="#data-region" title="Permalink to this heading"></a></h3>
+<p>The specific data clause combined with the data directive constitutes the start of a data region.
+How the directives create storage, transfer data, and remove storage on the device are classified as two categories:
+structured data region and unstructured data region.</p>
+<section id="structured-data-region">
+<h4>Structured Data Region<a class="headerlink" href="#structured-data-region" title="Permalink to this heading"></a></h4>
+<p>A structured data region is convenient for providing persistent data on the device which could be used for subsequent GPU directives.</p>
+<div class="admonition-syntax-for-structured-data-region exercise important admonition" id="exercise-4">
+<p class="admonition-title">Syntax for structured data region</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-7-7-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-7-7-0" name="7-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-7-7-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-1" name="7-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-7-7-0" class="sphinx-tabs-panel" id="panel-7-7-0" name="7-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-8-8-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-8-8-0" name="8-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-8-8-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-1" name="8-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-8-8-0" class="sphinx-tabs-panel" id="panel-8-8-0" name="8-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target data [clauses]</span>
+<span class="p">{</span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-1" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-1" name="8-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target data [clauses]</span>
+<span class="w"> </span><span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$omp end target data</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-7-7-1" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-1" name="7-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-9-9-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-9-9-0" name="9-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-9-9-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-9-9-1" name="9-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-9-9-0" class="sphinx-tabs-panel" id="panel-9-9-0" name="9-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma acc data [clauses]</span>
+<span class="w"> </span><span class="p">{</span><span class="n">structured</span><span class="o">-</span><span class="n">block</span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-9-9-1" class="sphinx-tabs-panel" hidden="true" id="panel-9-9-1" name="9-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$acc data [clauses]</span>
+<span class="w">  </span><span class="n">structured</span><span class="o">-</span><span class="k">block</span>
+<span class="c">!$acc end data</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+</div>
+</section>
+<section id="unstructured-data-region">
+<h4>Unstructured Data Region<a class="headerlink" href="#unstructured-data-region" title="Permalink to this heading"></a></h4>
+<p>However it is inconvenient in real applications to use structured data region, therefore the unstructured data region
+with much more freedom in creating and deleting of data on the device at any appropriate point is adopted.</p>
+<div class="admonition-syntax-for-unstructured-data-region exercise important admonition" id="exercise-5">
+<p class="admonition-title">Syntax for unstructured data region</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-10-10-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-10-10-0" name="10-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-10-10-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-10-10-1" name="10-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-10-10-0" class="sphinx-tabs-panel" id="panel-10-10-0" name="10-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-11-11-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-11-11-0" name="11-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-11-11-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-11-11-1" name="11-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-11-11-0" class="sphinx-tabs-panel" id="panel-11-11-0" name="11-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target enter data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target exit data</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-11-11-1" class="sphinx-tabs-panel" hidden="true" id="panel-11-11-1" name="11-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target enter data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target exit data</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-10-10-1" class="sphinx-tabs-panel" hidden="true" id="panel-10-10-1" name="10-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-12-12-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-12-12-0" name="12-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-12-12-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-12-12-1" name="12-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-12-12-0" class="sphinx-tabs-panel" id="panel-12-12-0" name="12-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma acc enter data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma acc exit data</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-12-12-1" class="sphinx-tabs-panel" hidden="true" id="panel-12-12-1" name="12-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$acc enter data [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$acc exit data</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-2">
+<p class="admonition-title">Keypoints</p>
+<dl class="simple">
+<dt>Structured Data Region</dt><dd><ul class="simple">
+<li><p>Start and end points within a single subroutine</p></li>
+<li><p>Memory exists within the data region</p></li>
+</ul>
+</dd>
+<dt>Unstructured Data Region</dt><dd><ul class="simple">
+<li><p>Multiple start and end points across different subroutines</p></li>
+<li><p>Memory exists until explicitly deallocated</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+<section id="update">
+<h4>Update<a class="headerlink" href="#update" title="Permalink to this heading"></a></h4>
+<p>Sometimes, variables need to be synchronized between the host and the device memory, e.g. in order to write out variables on the host for debugging or visualization, and it is often used in conjunction with unstructured data regions. To control data transfer direction, a motion-clause must be present.</p>
+<div class="admonition-syntax-for-update-directive exercise important admonition" id="exercise-6">
+<p class="admonition-title">Syntax for update directive</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-13-13-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-13-13-0" name="13-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-13-13-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-13-13-1" name="13-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-13-13-0" class="sphinx-tabs-panel" id="panel-13-13-0" name="13-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-14-14-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-14-14-0" name="14-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-14-14-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-14-14-1" name="14-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-14-14-0" class="sphinx-tabs-panel" id="panel-14-14-0" name="14-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma omp target update [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">motion</span><span class="o">-</span><span class="n">clause</span><span class="o">:</span>
+<span class="w">          </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="w">          </span><span class="n">from</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-14-14-1" class="sphinx-tabs-panel" hidden="true" id="panel-14-14-1" name="14-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$omp target update [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">motion</span><span class="o">-</span><span class="n">clause</span><span class="p">:</span>
+<span class="w">          </span><span class="n">to</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="w">          </span><span class="n">from</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-13-13-1" class="sphinx-tabs-panel" hidden="true" id="panel-13-13-1" name="13-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-15-15-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-15-15-0" name="15-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-15-15-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-15-15-1" name="15-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-15-15-0" class="sphinx-tabs-panel" id="panel-15-15-0" name="15-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#pragma acc update [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">motion</span><span class="o">-</span><span class="n">clause</span><span class="o">:</span>
+<span class="w">          </span><span class="n">self</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="w">          </span><span class="n">device</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-15-15-1" class="sphinx-tabs-panel" hidden="true" id="panel-15-15-1" name="15-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="c">!$acc update [clauses]</span>
+</pre></div>
+</div>
+<div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">motion</span><span class="o">-</span><span class="n">clause</span><span class="p">:</span>
+<span class="w">          </span><span class="n">self</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+<span class="w">          </span><span class="n">device</span><span class="w"> </span><span class="p">(</span><span class="n">list</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">update</span></code> directive can only be used in host code since data movement must be initiated from the host, i.e. it may not appear inside of a compute region.</p></li>
+<li><p>in OpenACC, motion-clause “host” has been deprecated and renamed “self”</p></li>
+</ul>
+</div>
+<div class="admonition-exercise-update exercise important admonition" id="exercise-7">
+<p class="admonition-title">Exercise:  <code class="docutils literal notranslate"><span class="pre">update</span></code></p>
+<p>Trying to figure out the variable values on host and device at each check point.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-16-16-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-16-16-0" name="16-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-16-16-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-16-16-1" name="16-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-16-16-0" class="sphinx-tabs-panel" id="panel-16-16-0" name="16-0" role="tabpanel" tabindex="0"><div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="cp">#pragma omp target data map(tofrom:x)</span>
+<span class="p">{</span>
+<span class="w">   </span><span class="cm">/* check point 1 */</span>
+<span class="w">  </span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+<span class="w">   </span><span class="cm">/* check point 2 */</span>
+<span class="cp">#pragma omp target update to(x)</span>
+<span class="w">   </span><span class="cm">/* check point 3 */</span>
+<span class="p">}</span>
+
+<span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-16-16-1" class="sphinx-tabs-panel" hidden="true" id="panel-16-16-1" name="16-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">ex_update</span>
+<span class="k">implicit none</span>
+
+<span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">x</span>
+
+<span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="c">!$acc data copy(x)</span>
+<span class="c">! check point 1</span>
+<span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span>
+<span class="c">! check point 2</span>
+<span class="c">!$acc update device(x)</span>
+<span class="c">! check point 3</span>
+<span class="c">!$acc end data</span>
+
+<span class="k">end program </span><span class="n">ex_update</span>
+</pre></div>
+</div>
+</div></div>
+<div class="admonition-solution solution important dropdown admonition" id="solution-0">
+<p class="admonition-title">Solution</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>check point</p></th>
+<th class="head"><p>x on host</p></th>
+<th class="head"><p>x on device</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>check point1</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>check point2</p></td>
+<td><p>10</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>check point3</p></td>
+<td><p>10</p></td>
+<td><p>10</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="admonition-exercise-adding-data-mapping-clauses exercise important admonition" id="exercise-8">
+<p class="admonition-title">Exercise: Adding data mapping clauses</p>
+<p>Add proper data mapping clauses explicitly to the directives</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-17-17-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-17-17-0" name="17-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-17-17-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-17-17-1" name="17-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-17-17-0" class="sphinx-tabs-panel" id="panel-17-17-0" name="17-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-18-18-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-18-18-0" name="18-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-18-18-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-18-18-1" name="18-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-18-18-0" class="sphinx-tabs-panel" id="panel-18-18-0" name="18-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialize vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="cm">/* Adding mapping clauses here */</span>
+<span class="w">    </span><span class="cp">#pragma omp target teams distribute parallel for simd</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-18-18-1" class="sphinx-tabs-panel" hidden="true" id="panel-18-18-1" name="18-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="k">implicit none</span>
+
+<span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">          </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="nb">sum</span>
+<span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="c">! Initialization of vectors</span>
+<span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="k">end do</span>
+<span class="c">! Adding mapping clauses here</span>
+<span class="c">!$omp target teams distribute parallel do simd</span>
+<span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">    </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="k">enddo</span>
+<span class="c">!$omp end target teams distribute parallel do simd</span>
+
+<span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="c">! Calculate the sum</span>
+<span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">    </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sum</span>
+<span class="k">end do</span>
+<span class="k">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,F18.6)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span>
+
+<span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-17-17-1" class="sphinx-tabs-panel" hidden="true" id="panel-17-17-1" name="17-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-19-19-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-19-19-0" name="19-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-19-19-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-19-19-1" name="19-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-19-19-0" class="sphinx-tabs-panel" id="panel-19-19-0" name="19-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;openacc.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="cm">/* Adding mapping clauses here */</span>
+<span class="w">    </span><span class="cp">#pragma acc parallel loop</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-19-19-1" class="sphinx-tabs-panel" hidden="true" id="panel-19-19-1" name="19-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(:),</span><span class="w"> </span><span class="k">allocatable</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">              </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="k">allocate</span><span class="w"> </span><span class="p">(</span><span class="n">vecA</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">nx</span><span class="p">),</span><span class="n">vecC</span><span class="p">(</span><span class="n">nx</span><span class="p">))</span>
+<span class="w">    </span><span class="c">! Initialization of vectors</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="k">end do</span>
+<span class="w">    </span><span class="c">! Adding mapping clauses here</span>
+<span class="w">    </span><span class="c">!$acc parallel loop</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$acc end parallel loop</span>
+
+<span class="w">    </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="c">! Calculate the sum</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">       </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="k">end do</span>
+<span class="k">    write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,F18.6)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span>
+
+<span class="nb">    </span><span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+<div class="admonition-solution solution important dropdown admonition" id="solution-1">
+<p class="admonition-title">Solution</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-20-20-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-20-20-0" name="20-0" role="tab" tabindex="0">OpenMP</button><button aria-controls="panel-20-20-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-20-20-1" name="20-1" role="tab" tabindex="-1">OpenACC</button></div><div aria-labelledby="tab-20-20-0" class="sphinx-tabs-panel" id="panel-20-20-0" name="20-0" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-21-21-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-21-21-0" name="21-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-21-21-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-21-21-1" name="21-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-21-21-0" class="sphinx-tabs-panel" id="panel-21-21-0" name="21-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialize vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="cp">#pragma omp target teams distribute parallel for simd map(to:vecA[0:NX],vecB[0:NX]) map(from:vecC[0:NX])</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">         </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-21-21-1" class="sphinx-tabs-panel" hidden="true" id="panel-21-21-1" name="21-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">              </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="c">! Initialization of vectors</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="hll"><span class="w">    </span><span class="c">!$omp target teams distribute parallel do simd map(to:vecA,vecB) map(from:vecC)</span>
+</span><span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do simd</span>
+
+<span class="w">    </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="c">! Calculate the sum</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="k">end do</span>
+<span class="k">    write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,F18.6)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span>
+
+<span class="nb">    </span><span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div><div aria-labelledby="tab-20-20-1" class="sphinx-tabs-panel" hidden="true" id="panel-20-20-1" name="20-1" role="tabpanel" tabindex="0"><div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-22-22-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-22-22-0" name="22-0" role="tab" tabindex="0">C/C++</button><button aria-controls="panel-22-22-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-22-22-1" name="22-1" role="tab" tabindex="-1">Fortran</button></div><div aria-labelledby="tab-22-22-0" class="sphinx-tabs-panel" id="panel-22-22-0" name="22-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;openacc.h&gt;</span>
+<span class="cp">#define NX 102400</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">NX</span><span class="p">],</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">NX</span><span class="p">];</span>
+
+<span class="w">    </span><span class="cm">/* Initialization of the vectors */</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="hll"><span class="w">    </span><span class="cp">#pragma acc parallel loop copyin(vecA[0:NX],vecB[0:NX]) copyout(vecC[0:NX])</span>
+</span><span class="w">    </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">NX</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">vecC</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;The sum is: %8.6f </span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-22-22-1" class="sphinx-tabs-panel" hidden="true" id="panel-22-22-1" name="22-1" role="tabpanel" tabindex="0"><div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="k">program </span><span class="n">vecsum</span>
+<span class="w">    </span><span class="k">implicit none</span>
+
+<span class="k">    </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">102400</span>
+<span class="w">    </span><span class="kt">real</span><span class="p">,</span><span class="w"> </span><span class="k">dimension</span><span class="p">(</span><span class="n">nx</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">vecA</span><span class="p">,</span><span class="n">vecB</span><span class="p">,</span><span class="n">vecC</span>
+<span class="w">              </span><span class="kt">real</span><span class="w">    </span><span class="kd">::</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">i</span>
+
+<span class="w">    </span><span class="c">! Initialization of vectors</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">        </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">        </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="w">    </span><span class="k">end do</span>
+
+<span class="hll"><span class="w">    </span><span class="c">!$acc parallel loop copyin(vecA,vecB) copyout(vecC)</span>
+</span><span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">nx</span>
+<span class="w">       </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecA</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">vecB</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$acc end parallel loop</span>
+
+<span class="w">    </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span>
+<span class="w">    </span><span class="c">! Calculate the sum</span>
+<span class="w">    </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span>
+<span class="w">       </span><span class="nb">sum</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="n">vecC</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">sum</span>
+<span class="nb">    </span><span class="k">end do</span>
+<span class="k">    write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span><span class="s1">&#39;(A,F18.6)&#39;</span><span class="p">)</span><span class="w"> </span><span class="s1">&#39;The sum is: &#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span>
+
+<span class="nb">    </span><span class="k">end program </span><span class="n">vecsum</span>
+</pre></div>
+</div>
+</div></div>
+</div></div>
+</div>
+</div>
+</section>
+</section>
+<section id="optimize-data-transfers">
+<h3>Optimize Data Transfers<a class="headerlink" href="#optimize-data-transfers" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Explicitly transfer the data as much as possible</p></li>
+<li><p>Reduce the amount of data mapping between host and device, get rid of unnecessary data transfer</p></li>
+<li><p>Try to keep data environment residing on the device as long as possible</p></li>
+</ul>
+</section>
+</section>
+<section id="pros-of-directive-based-frameworks">
+<h2>Pros of directive-based frameworks<a class="headerlink" href="#pros-of-directive-based-frameworks" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Incremental programming</p></li>
+<li><p>Porting of existing software requires less work</p></li>
+<li><p>Same code can be compiled to CPU and GPU versions easily using compiler flag</p></li>
+<li><p>Low learning curve, do not need to know low-level hardware details</p></li>
+<li><p>Good portability</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://enccs.github.io/openacc/">ENCCS lesson on OpenACC</a></p></li>
+<li><p><a class="reference external" href="https://enccs.github.io/openmp-gpu/">ENCCS lesson on OpenMP for GPU offloading</a></p></li>
+</ul>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-3">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>OpenACC and OpenMP-offloading enables you to annotate your code with special directives to identify areas to be executed in parallel on a GPU.</p></li>
+<li><p>This saves time compared to lower-level approaches, but you need to be mindful of memory movement.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../6-language-support/" class="btn btn-neutral float-left" title="High-level language support" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../8-multiple_gpu/" class="btn btn-neutral float-right" title="Multiple GPU programming with MPI" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

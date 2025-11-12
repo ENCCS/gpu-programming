@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matrix Transpose &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx_lesson.css?v=e9df6548" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/term_role_formatting.css?v=4194e21c" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/sphinx_rtd_theme_ext_color_contrast.css?v=8e8ea19f" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/overrides.css?v=eafd8254" />
+
+  
+    <link rel="shortcut icon" href="../../../../../_static/favicon.ico"/>
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=187304be"></script>
+      <script src="../../../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../../../_static/minipres.js?v=a0d29692"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../../../../../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex/" />
+    <link rel="search" title="Search" href="../../../../../search/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../../../../../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../6-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../7-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../8-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../9-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../10-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../guide/">Instructor’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://enccs.se/lessons/">All lessons</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://enccs.se/">ENCCS</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Matrix Transpose</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/examples/cuda-hip/hip/04_matrix_transpose/README.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="matrix-transpose">
+<h1>Matrix Transpose<a class="headerlink" href="#matrix-transpose" title="Link to this heading"></a></h1>
+<p>Assuming a matrix <code class="docutils literal notranslate"><span class="pre">a</span></code> of size <code class="docutils literal notranslate"><span class="pre">(NxM)</span></code> how to improve matrix operations on GPU? In particular the transposing operation <code class="docutils literal notranslate"><span class="pre">b(i,j)=a(j,i)</span></code>. We will compare the execution times and the effective bandwidth between a simple <code class="docutils literal notranslate"><span class="pre">copy</span></code> kernel, a  <code class="docutils literal notranslate"><span class="pre">naive</span></code> transpose implementation, and two more optimized versions using <code class="docutils literal notranslate"><span class="pre">shared</span> <span class="pre">memory</span></code> (with and without bank conflicts). The time is measured using the <code class="docutils literal notranslate"><span class="pre">events</span></code>. The effective bandwidth is computed as the ratio between the total memory read and written by the kernel (<code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">x</span> <span class="pre">Total</span> <span class="pre">size</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">Matrix</span> <span class="pre">in</span> <span class="pre">Gbytes</span></code>) and the execution time in seconds.</p>
+<section id="copy-kernel">
+<h2>Copy kernel<a class="headerlink" href="#copy-kernel" title="Link to this heading"></a></h2>
+<p>The base line for our experiment is the simple copy kernel.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span> <span class="n">void</span> <span class="n">copy_kernel</span><span class="p">(</span><span class="nb">float</span> <span class="o">*</span><span class="ow">in</span><span class="p">,</span> <span class="nb">float</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="nb">int</span> <span class="n">width</span><span class="p">,</span> <span class="nb">int</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nb">int</span> <span class="n">x_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">tile_dim</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="nb">int</span> <span class="n">y_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">tile_dim</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="nb">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">y_index</span> <span class="o">*</span> <span class="n">width</span> <span class="o">+</span> <span class="n">x_index</span><span class="p">;</span>
+
+  <span class="n">out</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="ow">in</span><span class="p">[</span><span class="n">index</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This kernel is only reading the data from the input matrix to the output matrix. No optimizations are needed except for minor tuning in the  number of threads per block. All reads from and writes to the GPU memory are coalesced and it is maximum bandwidth that one could achieve on a given machine in a kernel.</p>
+</section>
+<section id="naive-transpose">
+<h2>Naive transpose<a class="headerlink" href="#naive-transpose" title="Link to this heading"></a></h2>
+<p>This is the first transpose version where each the reads are done in a coalesced way, but not the writing.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+<span class="n">__global__</span> <span class="n">void</span> <span class="n">transpose__naive_kernel</span><span class="p">(</span><span class="nb">float</span> <span class="o">*</span><span class="ow">in</span><span class="p">,</span> <span class="nb">float</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="nb">int</span> <span class="n">width</span><span class="p">,</span> <span class="nb">int</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nb">int</span> <span class="n">x_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">tile_dim</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">;</span>
+  <span class="nb">int</span> <span class="n">y_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">tile_dim</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">;</span>
+
+  <span class="nb">int</span> <span class="n">in_index</span> <span class="o">=</span> <span class="n">y_index</span> <span class="o">*</span> <span class="n">width</span> <span class="o">+</span> <span class="n">x_index</span><span class="p">;</span>
+  <span class="nb">int</span> <span class="n">out_index</span> <span class="o">=</span> <span class="n">x_index</span> <span class="o">*</span> <span class="n">height</span> <span class="o">+</span> <span class="n">y_index</span><span class="p">;</span>
+
+  <span class="n">out</span><span class="p">[</span><span class="n">out_index</span><span class="p">]</span> <span class="o">=</span> <span class="ow">in</span><span class="p">[</span><span class="n">in_index</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The index <code class="docutils literal notranslate"><span class="pre">in_index</span></code> increases with <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>, two adjacent threads, <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code> and <code class="docutils literal notranslate"><span class="pre">threadIdx.x+1</span></code>, access elements near each other in the global memory. This ensures coalesced reads. On the other hand the writing is strided. Two adjacent threads write to location in memory far away from each other by <code class="docutils literal notranslate"><span class="pre">height</span></code>.</p>
+</section>
+<section id="transpose-with-shared-memory">
+<h2>Transpose with shared memory<a class="headerlink" href="#transpose-with-shared-memory" title="Link to this heading"></a></h2>
+<p>Shared Memory (SM) can be used in order to avoid the uncoalesced writing mentioned above.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span> <span class="n">void</span> <span class="n">transpose_SM_kernel</span><span class="p">(</span><span class="nb">float</span> <span class="o">*</span><span class="ow">in</span><span class="p">,</span> <span class="nb">float</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="nb">int</span> <span class="n">width</span><span class="p">,</span>
+                                     <span class="nb">int</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">__shared__</span> <span class="nb">float</span> <span class="n">tile</span><span class="p">[</span><span class="n">tile_dim</span><span class="p">][</span><span class="n">tile_dim</span><span class="p">];</span>
+
+  <span class="nb">int</span> <span class="n">x_tile_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">tile_dim</span><span class="p">;</span>
+  <span class="nb">int</span> <span class="n">y_tile_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">tile_dim</span><span class="p">;</span>
+
+  <span class="nb">int</span> <span class="n">in_index</span> <span class="o">=</span>
+      <span class="p">(</span><span class="n">y_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span> <span class="o">+</span> <span class="p">(</span><span class="n">x_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">);</span>
+  <span class="nb">int</span> <span class="n">out_index</span> <span class="o">=</span>
+      <span class="p">(</span><span class="n">x_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">height</span> <span class="o">+</span> <span class="p">(</span><span class="n">y_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">);</span>
+
+  <span class="n">tile</span><span class="p">[</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="ow">in</span><span class="p">[</span><span class="n">in_index</span><span class="p">];</span>
+
+  <span class="n">__syncthreads</span><span class="p">();</span>
+
+  <span class="n">out</span><span class="p">[</span><span class="n">out_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">tile</span><span class="p">[</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">][</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The shared memory is local to each CU with about 100 time smaller latency than the global memory. While there is an extra synchronization needed to ensure that the data has been saved locally, the gain in switching from uncoalesced to coalesced accesses outweights the loss. The reading and writing of SM can be done in any order as long as there are no bank conflicts. While the first SM access <code class="docutils literal notranslate"><span class="pre">tile[threadIdx.y][threadIdx.x]</span> <span class="pre">=</span> <span class="pre">in[in_index];</span></code> is free on bank conflicts the second one <code class="docutils literal notranslate"><span class="pre">out[out_index]</span> <span class="pre">=</span> <span class="pre">tile[threadIdx.x][threadIdx.y];</span></code>. When bank conflicts occur the access to the data is serialized. Even so the gain of using SM is quite big.</p>
+</section>
+<section id="transpose-with-shared-memory-and-no-bank-conflicts">
+<h2>Transpose with shared memory and no bank conflicts<a class="headerlink" href="#transpose-with-shared-memory-and-no-bank-conflicts" title="Link to this heading"></a></h2>
+<p>The bank conflicts in this case can be solved in a very simple way. We pad the shared matrix. Instead of <code class="docutils literal notranslate"><span class="pre">__shared__</span> <span class="pre">float</span> <span class="pre">tile[tile_dim][tile_dim];</span></code> we use <code class="docutils literal notranslate"><span class="pre">__shared__</span> <span class="pre">float</span> <span class="pre">tile[tile_dim][tile_dim+1];</span></code>. Effectively this shifts the data in the banks. Hopefully this does not create other banks conflicts!!!!</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">__global__</span> <span class="n">void</span> <span class="n">transpose_SM_nobc_kernel</span><span class="p">(</span><span class="nb">float</span> <span class="o">*</span><span class="ow">in</span><span class="p">,</span> <span class="nb">float</span> <span class="o">*</span><span class="n">out</span><span class="p">,</span> <span class="nb">int</span> <span class="n">width</span><span class="p">,</span>
+                                     <span class="nb">int</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">__shared__</span> <span class="nb">float</span> <span class="n">tile</span><span class="p">[</span><span class="n">tile_dim</span><span class="p">][</span><span class="n">tile_dim</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+
+  <span class="nb">int</span> <span class="n">x_tile_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">tile_dim</span><span class="p">;</span>
+  <span class="nb">int</span> <span class="n">y_tile_index</span> <span class="o">=</span> <span class="n">blockIdx</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">tile_dim</span><span class="p">;</span>
+
+  <span class="nb">int</span> <span class="n">in_index</span> <span class="o">=</span>
+      <span class="p">(</span><span class="n">y_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">width</span> <span class="o">+</span> <span class="p">(</span><span class="n">x_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">);</span>
+  <span class="nb">int</span> <span class="n">out_index</span> <span class="o">=</span>
+      <span class="p">(</span><span class="n">x_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">*</span> <span class="n">height</span> <span class="o">+</span> <span class="p">(</span><span class="n">y_tile_index</span> <span class="o">+</span> <span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">);</span>
+
+  <span class="n">tile</span><span class="p">[</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">][</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="ow">in</span><span class="p">[</span><span class="n">in_index</span><span class="p">];</span>
+
+  <span class="n">__syncthreads</span><span class="p">();</span>
+
+  <span class="n">out</span><span class="p">[</span><span class="n">out_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">tile</span><span class="p">[</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">x</span><span class="p">][</span><span class="n">threadIdx</span><span class="o">.</span><span class="n">y</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For the optimizations exercise get acquainted with the code, compile them and execute them. For each case try to tune the threads per block (by changing <code class="docutils literal notranslate"><span class="pre">tile_dim</span></code>) and find the configuration which improve the performance  the most and also the ones which do not. As a reference the <code class="docutils literal notranslate"><span class="pre">V100</span></code> has 84 Streaming Multiprocessors (NVIDIA equivalent of CU) and a peak bandwidth of <code class="docutils literal notranslate"><span class="pre">900</span> <span class="pre">GB/s</span></code>.</p>
+<p>In this exercise it is pretty intuitive what is needed to be done to improve the performance.  Measuring the time by events is sufficient, but in general  in order to obtain more information about how various parts of the application behave a <strong>profiler</strong> is recommended. <code class="docutils literal notranslate"><span class="pre">HIP</span></code> does not provide us with profilers, they are provided by the back end on top of which they are running. On Nvidia platforms we can use the tools <a class="reference external" href="https://docs.csc.fi/computing/nsys/">Nsight Systems</a> and <a class="reference external" href="https://docs.csc.fi/computing/ncu/">Nsight Compute</a>. On AMD platforms one can try <a class="reference external" href="https://rocm.docs.amd.com/projects/rocprofiler/en/latest/">rocprof</a> or <a class="reference external" href="https://rocm.docs.amd.com/projects/omniperf/en/latest/">Omniperf</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

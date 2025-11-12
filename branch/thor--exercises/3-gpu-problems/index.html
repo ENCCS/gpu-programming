@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What problems fit to GPU? &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="GPU programming concepts" href="../4-gpu-concepts/" />
+    <link rel="prev" title="The GPU hardware and software ecosystem" href="../2-gpu-ecosystem/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What problems fit to GPU?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-are-gpus-good-for">What are GPUs good for</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-are-gpus-not-good-for">What are GPUs not good for</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-of-gpu-acceleration">Examples of GPU acceleration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#electronic-structure-calculations">Electronic structure calculations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#computational-chemistry">Computational Chemistry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#humanities">Humanities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercises">Exercises</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">What problems fit to GPU?</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/3-gpu-problems.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="what-problems-fit-to-gpu">
+<span id="gpu-problems"></span><h1>What problems fit to GPU?<a class="headerlink" href="#what-problems-fit-to-gpu" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What are the strenghts and weaknesses of GPUs?</p></li>
+<li><p>What makes a particular problem suitable for GPU-porting?</p></li>
+<li><p>Why are GPUs so ubiquitous in machine learning applications?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Get a feeling for the type of use cases that GPUs excel at.</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>10 min teaching</p></li>
+<li><p>10 min exercises</p></li>
+</ul>
+</div>
+<section id="what-are-gpus-good-for">
+<h2>What are GPUs good for<a class="headerlink" href="#what-are-gpus-good-for" title="Permalink to this heading"></a></h2>
+<p>Answer from <a class="reference external" href="https://scicomp.stackexchange.com/questions/943/what-kinds-of-problems-lend-themselves-well-to-gpu-computing">Stack Exchange</a>:</p>
+<blockquote>
+<div><p><em>From a metaphorical point of view, the GPU can be seen as a person lying on a bed
+of nails. The person lying on top is the data and in the base of each nail there
+is a processor, so the nail is actually an arrow pointing from processor to memory.
+All nails are in a regular pattern, like a grid. If the body is well spread,
+it feels good (performance is good), if the body only touches some spots of the
+nail bed, then the pain is bad (bad performance).</em></p>
+</div></blockquote>
+<p>GPU computing is well-suited to problems that involve large amounts of data parallelism.
+Specifically, you can expect good performance on GPUs for:</p>
+<ul class="simple">
+<li><p><strong>Large-scale matrix and vector operations</strong>: Common in machine learning, scientific computing, and image processing.</p></li>
+<li><p><strong>Fourier transforms</strong>: Also common in machine learning, scientific computing, and image processing.</p></li>
+<li><p><strong>Monte Carlo simulations</strong>: Used across finance, physics, and other fields to simulate complex systems.</p></li>
+<li><p><strong>Molecular dynamics simulations</strong>: Used in chemistry, biochemistry and physics.</p></li>
+<li><p><strong>Computational fluid dynamics</strong>: Used in engineering, physics, and other fields.</p></li>
+<li><p><strong>Convolutional neural networks</strong> and <strong>computer vision algorithms</strong>.</p></li>
+<li><p><strong>Big data analytics</strong>: Clustering, classification, regression, etc.</p></li>
+<li><p><strong>Graphics rendering</strong>: Original use-case for GPUs.</p></li>
+</ul>
+</section>
+<section id="what-are-gpus-not-good-for">
+<h2>What are GPUs not good for<a class="headerlink" href="#what-are-gpus-not-good-for" title="Permalink to this heading"></a></h2>
+<p>Not all programming problems can efficiently leverage the parallelism offered by GPUs.
+Some types of problems that do not fit well on a GPU include:</p>
+<ul class="simple">
+<li><p><strong>Sequential tasks</strong>: Problems that require a series of dependent steps,
+where each step relies on the outcome of the previous step, are not well-suited
+for parallel processing. Examples include recursive algorithms, certain dynamic
+programming problems, and some graph traversal algorithms.</p></li>
+<li><p><strong>Fine-grained branching</strong>: GPUs perform best when the code being executed across
+different threads follows a similar control flow. When there is extensive
+branching (i.e., many <code class="docutils literal notranslate"><span class="pre">if</span></code> statements) within a kernel or algorithm, performance
+may suffer due to the divergence in execution paths among the GPU threads.</p></li>
+<li><p><strong>Low arithmetic intensity</strong>: GPUs excel at performing a large number of mathematical
+operations quickly. If a problem has low arithmetic intensity (i.e., a low ratio of
+arithmetic operations to memory accesses), the GPU may not be able to efficiently utilize
+its computational power, leading to underperformance.</p></li>
+<li><p><strong>Small data sets</strong>: If the problem involves a small data set that does not require significant
+parallelism, using a GPU may not result in noticeable performance gains. In such cases,
+the overhead of transferring data between the CPU and GPU, and the time spent initializing the GPU,
+may outweigh any potential benefits.</p></li>
+<li><p><strong>Limited parallelism</strong>: Some algorithms have inherent limitations on the degree of parallelism that can be
+achieved. In these cases, using a GPU may not lead to significant performance improvements.</p></li>
+<li><p><strong>Memory-bound problems</strong>: GPUs generally have less memory available compared to CPUs, and their memory bandwidth
+can be a limiting factor. If a problem requires a large amount of memory or involves memory-intensive operations,
+it may not be well-suited for a GPU.</p></li>
+</ul>
+</section>
+<section id="examples-of-gpu-acceleration">
+<h2>Examples of GPU acceleration<a class="headerlink" href="#examples-of-gpu-acceleration" title="Permalink to this heading"></a></h2>
+<div class="admonition-effect-of-array-size discussion important admonition" id="discussion-0">
+<p class="admonition-title">Effect of array size</p>
+<p>Consider the case of matrix multiplication in the Julia language:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">AMDGPU</span>
+<span class="k">using</span><span class="w"> </span><span class="n">BenchmarkTools</span>
+
+<span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">11</span><span class="p">,</span><span class="w"> </span><span class="mi">12</span><span class="p">]</span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="n">N</span>
+<span class="w">   </span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="n">n</span><span class="p">);</span><span class="w"> </span><span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROCArray</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="w">   </span><span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="p">;</span>
+
+<span class="w">   </span><span class="nd">@btime</span><span class="w"> </span><span class="k">begin</span>
+<span class="w">      </span><span class="o">$</span><span class="n">A_d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="p">;</span>
+<span class="w">      </span><span class="n">AMDGPU</span><span class="o">.</span><span class="n">synchronize</span><span class="p">()</span>
+<span class="w">   </span><span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>How much faster do you think the GPU version is compared to running on a single CPU core?</p></li>
+<li><p>Julia automatically parallelises matrix multiplication over available CPU cores. Will the GPU version be faster than running on 64 cores?</p></li>
+<li><p>Does the size of the array affect how much the performance improves?</p></li>
+</ul>
+<div class="admonition-solution solution important dropdown admonition" id="solution-0">
+<p class="admonition-title">Solution</p>
+<p>Example results from running on LUMI (MI250X AMD GPU, 64-core AMD Trento CPUs):</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">GPU acceleration for matrix multiply in Julia</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Matrix size</p></th>
+<th class="head"><p>1 CPU core</p></th>
+<th class="head"><p>64 CPU cores</p></th>
+<th class="head"><p>1 GPU</p></th>
+<th class="head"><p>GPU speedup</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>(512, 512)</p></td>
+<td><p>5.472 ms</p></td>
+<td><p>517.722 μs</p></td>
+<td><p>115.805 μs</p></td>
+<td><p>~47x / ~5x</p></td>
+</tr>
+<tr class="row-odd"><td><p>(1024, 1024)</p></td>
+<td><p>43.364 ms</p></td>
+<td><p>2.929 ms</p></td>
+<td><p>173.316 μs</p></td>
+<td><p>~250x / ~17x</p></td>
+</tr>
+<tr class="row-even"><td><p>(2048, 2048)</p></td>
+<td><p>344.364 ms</p></td>
+<td><p>30.081 ms</p></td>
+<td><p>866.348 μs</p></td>
+<td><p>~400x / ~35x</p></td>
+</tr>
+<tr class="row-odd"><td><p>(4096, 4096)</p></td>
+<td><p>3.221 s</p></td>
+<td><p>159.563 ms</p></td>
+<td><p>5.910 ms</p></td>
+<td><p>~550x / ~27x</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="electronic-structure-calculations">
+<h3>Electronic structure calculations<a class="headerlink" href="#electronic-structure-calculations" title="Permalink to this heading"></a></h3>
+<p>VASP is a popular software package used for electronic structure calculations. The figures below show the speedup observed in a recent benchmark study on the Perlmutter and Cori supercomputers, along with an analysis of total energy usage.</p>
+<figure class="align-center" id="id2">
+<img alt="../_images/vasp_gpu.png" src="../_images/vasp_gpu.png" />
+<figcaption>
+<p><span class="caption-text">VASP GPU speedup for benchmark Si128 acfdtr. The horizontal axis shows the number of nodes, and the vertical axis shows the GPU speedup of VASP (Time(CPU)/Time(GPU)). (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs).</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id3">
+<img alt="../_images/vasp_energy.png" src="../_images/vasp_energy.png" />
+<figcaption>
+<p><span class="caption-text">Total energy usage comparison when running VASP on Perlmutter and Cori. The vertical axis shows the energy used by VASP benchmark jobs on Perlmutter GPUs (blue bars), CPUs (red bars), Cori KNL (yellow bars), and Cori Haswell (green bars) in ratio to the Cori Haswell usage.  (Recent unpublished benchmarks of VASP on NVIDIA A100 GPUs)</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>To give a flavor of what type of performance gains we can achieve by porting a calculations to a GPU
+(if we’re lucky!), let’s look at a few simple cases:</p>
+</section>
+<section id="computational-chemistry">
+<h3>Computational Chemistry<a class="headerlink" href="#computational-chemistry" title="Permalink to this heading"></a></h3>
+<p>A great deal of computational resources are spent in Quantum Chemical calculations which involve
+the solution of the Hartree-Fock eigenvalue problem, which requires the diagonalization of the
+Fock matrix whose elements are given by:</p>
+<div class="math notranslate nohighlight">
+\[F_{\alpha \beta} = H^{\textrm{core}}_{\alpha \beta} + \sum_{\gamma \delta}D_{\gamma \delta} \left [ (\alpha \beta|\gamma \delta) - \frac{1}{2} (\alpha \delta|\gamma \beta) \right ],\]</div>
+<p>The first term is related to the one electron contributions and the second term is related to the
+electron repulsion integrals (ERIs), in parenthesis, weighted by the by the density matrix
+<span class="math notranslate nohighlight">\(D_{\gamma \delta}\)</span>. One of the most expensive parts in the solution of the Hartree-Fock equations is the
+processing (digestion) of the ERIs, one algorithm to do this task is as follows:</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="../_images/algorithms.svg"><img alt="../_images/algorithms.svg" src="../_images/algorithms.svg" width="200" /></a>
+<figcaption>
+<p><span class="caption-text">Algorithm for processing ERIs [see <a class="reference external" href="https://doi.org/10.1021/acs.jctc.1c00720">JCTC, 17, 7486, (2021)</a> for details]</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>This algorithm is suitable for GPUs as it involves many arithmetic operations. In addition to this,
+there are symmetries and properties of the integrals that could be used to rearrange the loops in
+an efficient manner that fit GPU architectures.</p>
+</section>
+<section id="humanities">
+<h3>Humanities<a class="headerlink" href="#humanities" title="Permalink to this heading"></a></h3>
+<p>A brief introduction into some of the work that is being done in the humanities that can benefit from utilizing GPUs.</p>
+<p><strong>Language models and NLP (natural language processing)</strong></p>
+<p>With the recent popularity of ChatGPT, the use of language models has come into the mainstream,
+however such models have been used in the humanities many years already. One of the biggest goals of humanities
+researchers is working with textual data which has increased exponentially over recent years due to the rise in
+social media. Analyzing such textual data to gain insights into questions of sociology, linguistics and various
+other fields have become increasingly reliant on using language models. Along with language models,
+the need for GPU access has become essential.</p>
+<p><strong>Archeology</strong></p>
+<p>The field of archeology also makes use of GPUs in their 3D modelling
+and rendering work. The biggest problem with archeological sites is that once they are excavated,
+they are destroyed, so any researchers who aren’t present at the site, would lose valuable insights into how
+it looked when it was found. However, with recent developments in technology and accessibility to high-performance
+computing, they are able to generate extremely detailed renderings of the excavation sites which act as a way to
+preserve the site for future researchers to gain critical insights and contribute to the research.</p>
+<p><strong>Cognitive Science</strong></p>
+<p>Techniques such as Markov Chain Monte Carlo (MCMC) sampling have proven to be invaluable in studies that delve into human behavior or population dynamics. MCMC sampling allows researchers to simulate and analyze complex systems by iteratively sampling from a Markov chain, enabling the exploration of high-dimensional parameter spaces. This method is particularly useful when studying human behavior, as it can capture the inherent randomness and interdependencies that characterize social systems. By leveraging MCMC sampling, researchers can gain insights into various aspects of human behavior, such as decision-making, social interactions, and the spread of information or diseases within populations.</p>
+<p>By offloading the computational workload to GPUs, researchers can experience substantial speedup in the execution of MCMC algorithms. This speedup allows for more extensive exploration of parameter spaces and facilitates the analysis of larger datasets, leading to more accurate and detailed insights into human behavior or population dynamics. Examples of studies done using these methods can be found at the <a class="reference external" href="https://chc.au.dk/">Center for Humanities Computing Aarhus</a> (CHCAA) and <a class="reference external" href="https://interactingminds.au.dk/">Interacting Minds Centre</a> (IMC) at Aarhus University.</p>
+</section>
+</section>
+<section id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this heading"></a></h2>
+<div class="admonition-discussion exercise important admonition" id="exercise-0">
+<p class="admonition-title">Discussion</p>
+<ul class="simple">
+<li><p>What type of problems have you used GPUs for?</p></li>
+<li><p>How large was the performance boost?</p></li>
+</ul>
+</div>
+<div class="admonition-good-and-bad-use-cases-for-gpu-porting exercise important admonition" id="exercise-1">
+<p class="admonition-title">Good and bad use cases for GPU porting</p>
+<p>Which of the following computational tasks is likely to gain the least performance benefit from being ported to a GPU?</p>
+<ol class="arabic simple">
+<li><p>Training a large, deep neural network.</p></li>
+<li><p>Performing a Monte Carlo simulation with a large number of independent trials.</p></li>
+<li><p>Executing an algorithm with heavy use of recursion and frequent branching.</p></li>
+<li><p>Processing a large image with a convolutional filter.</p></li>
+</ol>
+<div class="admonition-solution solution important dropdown admonition" id="solution-1">
+<p class="admonition-title">Solution</p>
+<p>The right answer is option 3. GPUs do not handle recursion and branching as effectively as more
+data-heavy algorithms.</p>
+</div>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>GPUs excel in processing tasks with high data parallelism, such as large-scale matrix operations, Fourier transforms, and big data analytics.</p></li>
+<li><p>GPUs struggle with sequential tasks, problems with extensive control flow divergence, low arithmetic intensity tasks, small data sets, and memory-bound problems.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../2-gpu-ecosystem/" class="btn btn-neutral float-left" title="The GPU hardware and software ecosystem" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../4-gpu-concepts/" class="btn btn-neutral float-right" title="GPU programming concepts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
