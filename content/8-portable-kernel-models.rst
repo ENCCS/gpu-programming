@@ -531,9 +531,8 @@ For ease of use, we recommend installing alpaka using CMake as described below. 
    .. code-block:: bash
 
       mkdir build
-      cd build
-      cmake .. -DCMAKE_INSTALL_PREFIX=$ALPAKA_DIR
-      make install
+      cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$ALPAKA_DIR
+      cmake --build build --parallel
 
 4. **Update environment**
 
@@ -567,7 +566,20 @@ The following example demonstrates a ``CMakeLists.txt`` for a single-file projec
         target_link_libraries(myAlpakaApp PRIVATE alpaka::alpaka)
         alpaka_finalize(myAlpakaApp)
 
+Using alpaka on LUMI
+********************
 
+To load the environment for using the AMD GPUs on LUMI with HIP, one can use the following modules -
+
+.. code-block:: console
+
+    $ module load LUMI/24.03 partition/G
+    $ module load rocm/6.0.3
+    $ module load buildtools/24.03
+    $ module load PrgEnv-amd
+    $ module load craype-accel-amd-gfx90a
+
+        
 alpaka Programming
 ~~~~~~~~~~~~~~~~~~
 
@@ -795,6 +807,7 @@ Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first
 
         # use the following in C++ code
         # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::hip, ap::deviceKind::amdGpu);
+        # We use CC to refer to the compiler to work smoothly with the LUMI environment
         CC -I $ALPAKA_DIR/include/ -std=c++20 -x hip --offload-arch=gfx90a main.cpp
         ./a.out
 
@@ -804,6 +817,7 @@ Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first
 
         # use the following in C++ code
         # auto devSelector = ap::onHost::makeDeviceSelector(ap::api::host, ap::deviceKind::cpu);
+        # We use CC to refer to the compiler to work smoothly with the LUMI environment
         CC -I $ALPAKA_DIR/include/ -std=c++20 main.cpp
         ./a.out
 
@@ -987,6 +1001,15 @@ Lambda-based kernel models (Kokkos, SYCL)
     - Less knowledge of the underlying architecture is needed for initial porting.
     - Very nice and readable source code (C++ API).
     - The models are relatively new and not very popular yet.
+
+Functor-based kernel model (alpaka) 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    - Very good portability.
+    - Higher level of abstraction.
+    - Low-level API always awailable which gives more control and allows fine tuning.
+    - User friendly C++ API for both the host and kernel code.
+    - Small community and ecosystem.
     
 Separate-source kernel models (OpenCL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
