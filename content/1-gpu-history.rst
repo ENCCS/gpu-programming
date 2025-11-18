@@ -8,7 +8,7 @@ Why GPUs?
 .. questions::
 
    - What is Moore's law?
-   - What problem do GPUs solve?
+   - What problems do GPUs solve?
 
 .. objectives::
 
@@ -73,8 +73,8 @@ GPUs are based on highly parallel architectures, which allows taking advantage o
 increasing number of transistors.
 
 Using GPUs allows one to achieve extreme performance per node.
-As a result, the single GPU-equipped workstation can outperform small CPU-based clusters 
-for some type of computational tasks. The drawback is: usually major rewrites of programs is required
+As a result, a single GPU-equipped workstation can outperform small CPU-based clusters 
+for some types of computational tasks. The drawback is: usually major rewrites of programs are required
 with an accompanying change in the programming paradigm.
 
 .. callout:: Host vs device
@@ -89,7 +89,7 @@ with an accompanying change in the programming paradigm.
    Figure adapted from the Carpentry `GPU Programming lesson <https://carpentries-incubator.github.io/lesson-gpu-programming/>`__.
 
 
-A look at the Top-500 list
+A look at the TOP500 list
 --------------------------
 
 The `TOP500 project <https://www.top500.org/>`__ ranks and details the 500 most powerful non-distributed computer systems in the world. The project was started in 1993 and publishes an updated list of the supercomputers twice a year. The snapshot below shows the top-5 HPC systems as of June 2025, where the columns show:
@@ -112,7 +112,7 @@ Why GPUs?
 
 - **Speed**: GPU computing can significantly accelerate many types of scientific workloads.
 - **Improved energy efficiency**: Compared to CPUs, GPUs can perform more calculations per watt of power consumed,
-  which can result in significant energy savings. This is indeed evident from the `Green500 list <https://www.top500.org/lists/green500/2025/06/>`__.
+  which can result in significant energy savings. This is indeed evident from the `GREEN500 list <https://www.top500.org/lists/green500/2025/06/>`__.
 - **Cost-effectiveness**: GPUs can be more cost-effective than traditional CPU-based systems for certain workloads.
 
 
