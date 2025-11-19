@@ -77,7 +77,8 @@ c = a + np.sin(b)
 
 ---
 ## Numba
-<img src="https://numba.readthedocs.io/en/stable/_static/numba-white-icon-rgb.svg" width="20%"/>
+
+<img src="https://numba.pydata.org/_static/numba-blue-horizontal-rgb.svg" width="50%"/>
 
 
 - JIT compiler which supports a subset of Python and Numpy
@@ -272,13 +273,15 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 | Low level           | ✅     | 🤷  | ✅    | ✅                 | ✅                 |
 | High level          | ✅     | ✅   | ✅    | ❌                 | ❌                 |
 | Numpy compat        | ✅     | ✅   | ✅    | 🤷                | 🤷                |
-| CUDA/ROCm           | 🤷    | ✅   | ✅    | ✅                 | 🤷                |
+| CUDA/ROCm interoperability         | 🤷    | ✅   | ✅    | ✅                 | 🤷                |
 | Pre-compiled kernel | ❌     | ✅   | ✅    | ❌                 | ❌                 |
 | Custom kernels      | ✅     | ✅   | ✅    | ✅                 | ✅                 |
 
 </div>
 
 ---
+<div class="r-fit-text">
+
 ## Julia
 
 
@@ -290,8 +293,18 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 - CUDA.jl, AMDGPU.jl, oneAPI.jl, Metal.jl
 - KernelAbstractions
 
+</div>
 ---
-## What is high-level programming?
+## About Julia
+
+> Primer on Julia and the Base libary
+
+- First, released in 2012 and inspired by MATLAB, Lua, Lisp, Python ....
+- JIT compiled with its core implemented using C and LLVM
+
+
+---
+## Array programming in Julia
 
 > Primer on Julia and the Base libary
 
