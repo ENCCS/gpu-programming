@@ -1,27 +1,12 @@
 ---
+title: High level language support
+subtitle: '<img src="https://media.enccs.se/2022/12/ENCCS-Logo-Horizontal-Colour-low-res-323.png" width="50%" align="center"/>'
+author: Ashwin Mohanan
+institute: ENCCS/RISE
+date: 2025-11-20
 theme: league
 transition: fade
-highlightTheme: monokai
-css: talk.css
----
-
-
-## High level language support
-
-<img src="https://media.enccs.se/2022/12/ENCCS-Logo-Horizontal-Colour-low-res-323.png" width="50%" align="center"/>
- 
-
-  
-Ashwin Mohanan
-
-ENCCS / RISE
-
-2025-11-20
-
-
-
-
-
+highlightTheme: monokai  # Does not work with pandoc
 ---
 
 # Outline
@@ -76,6 +61,7 @@ c = a + np.sin(b)
 
 
 ---
+
 ## Numba
 
 <img src="https://numba.pydata.org/_static/numba-blue-horizontal-rgb.svg" width="50%"/>
@@ -103,6 +89,7 @@ from numba import hip
 
 
 ---
+
 ## Numba: ufuncs (element-wise vectorized)
 
 ```python
@@ -123,6 +110,7 @@ a_plus_sin_b(vec, vec)
 ```
 
 ---
+
 ## Numba: low-level
 
 Control execution using `numba.cuda.threadIdx`, `blockDim`, `blockIdx`, `gridDim` etc.
@@ -153,6 +141,7 @@ c.copy_to_host()
 ```
 
 ---
+
 ## Jax
 
 <img src="https://docs.jax.dev/en/latest/_static/jax_logo_250px.png" width="20%">
@@ -166,6 +155,7 @@ c.copy_to_host()
  - Interoperable, uses just-in-time XLA compiler to target CPU, GPU (CUDA and ROCm) and TPU.
 
 ---
+
 ## Jax as drop-in replacement for Numpy
 
 ```python
@@ -184,6 +174,7 @@ jnp.nanpercentile(data, 90, axis=0)
 ```
 
 ---
+
 ## Jax as JIT compiler
 
 ```python
@@ -211,6 +202,7 @@ a_plus_sin_b_jax(vec_d, vec_d)  # much faster on GPU
 ```
 
 ---
+
 ## CuPy
 
 <img src="https://cupy.dev/images/cupy.png" width="20%">
@@ -226,6 +218,7 @@ a_plus_sin_b_jax(vec_d, vec_d)  # much faster on GPU
 - [Array API](https://data-apis.org/array-api/2023.12/index.html) support => Cupy arrays can use Numpy functions
 
 ---
+
 ## CuPy as drop-in replacement for Numpy
 
 
@@ -237,6 +230,7 @@ c = a + cp.sin(b)
 ```
 
 ---
+
 ## CuPy as compiler for custom kernels
 
 ```python
@@ -250,6 +244,7 @@ a_plus_sin_b
 ```
 
 ---
+
 ## Libraries for lower level implementation
 
 - CUDA Python
@@ -263,6 +258,7 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 - PyOpenCL
 
 ---
+
 ## Summary of Python libraries
 
 <div class="r-fit-text">
@@ -280,6 +276,7 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 </div>
 
 ---
+
 <div class="r-fit-text">
 
 ## Julia
@@ -294,7 +291,9 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 - KernelAbstractions
 
 </div>
+
 ---
+
 ## About Julia
 
 > Primer on Julia and the Base libary
@@ -304,6 +303,7 @@ HIP Python + `hip-python-as-cuda` makes it interoperable with CUDA Python code
 
 
 ---
+
 ## Array programming in Julia
 
 > Primer on Julia and the Base libary
@@ -319,6 +319,7 @@ c = a .+ sin.(b)
 - Sub-types of arrays: `Vector` (1D), `Matrix` (2D),  `Array` (N-D)
 
 ---
+
 ## CUDA.jl,  AMDGPU.jl, oneAPI.jl, Metal.jl
 
 ```julia
