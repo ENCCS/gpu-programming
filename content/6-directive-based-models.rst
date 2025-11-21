@@ -181,7 +181,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
         - Work group
         - gang/teams
         - teams
-      * - Wrap
+      * - Warp
         - Wavefront
         - worker/simd
         - parallel for simd
