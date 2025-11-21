@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Preparing code for GPU porting &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Recommendations" href="../12-recommendations/" />
+    <link rel="prev" title="Portable kernel-based models" href="../10-portable-kernel-models/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Preparing code for GPU porting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#porting-from-cpu-to-gpu">Porting from CPU to GPU</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#discussion">Discussion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#porting-between-different-gpu-frameworks">Porting between different GPU frameworks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#translating-cuda-to-hip-with-hipify">Translating CUDA to HIP with Hipify</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#hipify-perl">Hipify-perl</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#hipify-clang">Hipify-clang</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#translating-openacc-to-openmp-with-clacc">Translating OpenACC to OpenMP with Clacc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#translating-cuda-to-sycl-dpc-with-syclomatic">Translating CUDA to SYCL/DPC++ with SYCLomatic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Preparing code for GPU porting</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/11-gpu-porting.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="preparing-code-for-gpu-porting">
+<span id="gpu-porting"></span><h1>Preparing code for GPU porting<a class="headerlink" href="#preparing-code-for-gpu-porting" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What are the key steps involved in porting code to take advantage of GPU parallel processing capability?</p></li>
+<li><p>How can I identify the computationally intensive parts of my code that can benefit from GPU acceleration?</p></li>
+<li><p>What are the considerations for refactoring loops to suit the GPU architecture and improve memory access patterns?</p></li>
+<li><p>Are there any tools that can translate automatically between different frameworks?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Getting familiarized the steps involved in porting code to GPUs to take advantage of parallel processing capabilities.</p></li>
+<li><p>Giving some idea about refactoring loops and modifying operations to suit the GPU architecture and improve memory access patterns.</p></li>
+<li><p>Learn to use automatic translation tools to port from CUDA to HIP and from OpenACC to OpenMP</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>30 min teaching</p></li>
+<li><p>20 min exercises</p></li>
+</ul>
+</div>
+<section id="porting-from-cpu-to-gpu">
+<h2>Porting from CPU to GPU<a class="headerlink" href="#porting-from-cpu-to-gpu" title="Permalink to this heading"></a></h2>
+<p>When porting code to take advantage of the parallel processing capability of GPUs, several steps need to be followed and some additional work is required before writing actual parallel code to be executed on the GPUs:</p>
+<ul class="simple">
+<li><p><strong>Identify Targeted Parts</strong>: Begin by identifying the parts of the code that contribute significantly to the execution time. These are often computationally intensive sections such as loops or matrix operations. The Pareto principle suggests that roughly 10% of the code accounts for 90% of the execution time.</p></li>
+<li><p><strong>Equivalent GPU Libraries</strong>: If the original code uses CPU libraries like BLAS, FFT, etc, it’s crucial to identify the equivalent GPU libraries. For example, <cite>cuBLAS</cite> or <cite>hipBLAS</cite> can replace CPU-based BLAS libraries. Utilizing GPU-specific libraries ensures efficient GPU utilization.</p></li>
+<li><p><strong>Refactor Loops</strong>: When porting loops directly to GPUs, some refactoring is necessary to suit the GPU architecture. This typically involves splitting the loop into multiple steps or modifying operations to exploit the independence between iterations and improve memory access patterns. Each step of the original loop can be mapped to a kernel, executed by multiple GPU threads, with each thread corresponding to an iteration.</p></li>
+<li><p><strong>Memory Access Optimization</strong>: Consider the memory access patterns in the code. GPUs perform best when memory access is coalesced and aligned. Minimizing global memory accesses and maximizing utilization of shared memory or registers can significantly enhance performance. Review the code to ensure optimal memory access for GPU execution.</p></li>
+</ul>
+<section id="discussion">
+<h3>Discussion<a class="headerlink" href="#discussion" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><div class="admonition-how-would-this-be-ported exercise important admonition" id="exercise-0">
+<p class="admonition-title">How would this be ported?</p>
+<blockquote>
+<div><p>Inspect the following Fortran code (if you don’t read Fortran: do-loops == for-loops)</p>
+<div class="highlight-Fortran notranslate"><div class="highlight"><pre><span></span><span class="n">k2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_sites</span>
+<span class="w">  </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_neigh</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="w">    </span><span class="n">k2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">    </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="n">counter2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="w">    </span><span class="k">do </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n_max</span>
+<span class="w">      </span><span class="k">do </span><span class="n">np</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">n_max</span>
+<span class="w">        </span><span class="k">do </span><span class="n">l</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">l_max</span>
+<span class="w">          </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">skip_soap_component</span><span class="p">(</span><span class="n">l</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="k">cycle</span>
+
+<span class="k">          </span><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter</span><span class="o">+</span><span class="mi">1</span>
+<span class="w">          </span><span class="k">do </span><span class="n">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">l</span>
+<span class="w">            </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">l</span><span class="o">*</span><span class="p">(</span><span class="n">l</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">m</span>
+<span class="w">            </span><span class="n">counter2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">counter2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="w">            </span><span class="n">multiplicity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">multiplicity_array</span><span class="p">(</span><span class="n">counter2</span><span class="p">)</span>
+<span class="w">            </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">multiplicity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="w"> </span><span class="n">cnk_rad_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk_rad_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">multiplicity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="w"> </span><span class="n">cnk_azi_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk_azi_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="p">)</span>
+<span class="w">            </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">multiplicity</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="w"> </span><span class="n">cnk_pol_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cnk</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">conjg</span><span class="p">(</span><span class="n">cnk_pol_der</span><span class="p">(</span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="p">)</span>
+<span class="w">          </span><span class="k">end do</span>
+<span class="k">        end do</span>
+<span class="k">      end do</span>
+<span class="k">    end do</span>
+
+<span class="k">    </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dot_product</span><span class="p">(</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dot_product</span><span class="p">(</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">sqrt_dot_p</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dot_product</span><span class="p">(</span><span class="w"> </span><span class="n">soap</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">),</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">)</span><span class="k">then</span>
+<span class="k">      </span><span class="n">k3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">k2</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="k">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rjs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rjs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rjs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">phis</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rjs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_azi_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">dcos</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_rad_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">dsin</span><span class="p">(</span><span class="n">thetas</span><span class="p">(</span><span class="n">k2</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rjs</span><span class="p">(</span><span class="n">k2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">soap_pol_der</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">      </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k3</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">soap_cart_der</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">n_soap</span><span class="p">,</span><span class="w"> </span><span class="n">k2</span><span class="p">)</span>
+<span class="w">    </span><span class="k">end if</span>
+<span class="k">  end do</span>
+<span class="k">end do</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>Some steps at first glance:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>the code could (has to) be splitted in 3 kernels. Why?</p></li>
+<li><p>check if there are any variables that could lead to false dependencies between iterations, like the index <cite>k2</cite></p></li>
+<li><p>is it efficient for GPUs to split the work over the index <cite>i</cite>? What about the memory access? Note the arrays are <cite>2D</cite> in Fortran</p></li>
+<li><p>is it possible to collapse some loops? Combining nested loops can reduce overhead and improve memory access patterns, leading to better GPU performance.</p></li>
+<li><p>what is the best memory access in a GPU? Review memory access patterns in the code. Minimize global memory access by utilizing shared memory or registers where appropriate. Ensure memory access is coalesced and aligned, maximizing GPU memory throughput</p></li>
+</ul>
+</div></blockquote>
+</div>
+</div></blockquote>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>Identify equivalent GPU libraries for CPU-based libraries and utilizing them to ensure efficient GPU utilization.</p></li>
+<li><p>Importance of identifying the computationally intensive parts of the code that contribute significantly to the execution time.</p></li>
+<li><p>The need to refactor loops to suit the GPU architecture.</p></li>
+<li><p>Significance of memory access optimization for efficient GPU execution, including coalesced and aligned memory access patterns.</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="porting-between-different-gpu-frameworks">
+<h2>Porting between different GPU frameworks<a class="headerlink" href="#porting-between-different-gpu-frameworks" title="Permalink to this heading"></a></h2>
+<p>You might also find yourself in a situation where you need to port a code from one particular
+GPU framework to another. This section gives an overview of different tools that enable converting CUDA and
+OpenACC codes to HIP and OpenMP, respectively. This conversion process enables an application to target various
+GPU architectures, specifically, NVIDIA and AMD GPUs. Here we focus on
+<a class="reference external" href="https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html">hipify</a> and
+<a class="reference external" href="https://csmd.ornl.gov/project/clacc">clacc</a> tools.
+This guide is adapted from the <a class="reference external" href="https://documentation.sigma2.no/code_development/guides/cuda_translating-tools.html">NRIS documentation</a>.</p>
+<section id="translating-cuda-to-hip-with-hipify">
+<h3>Translating CUDA to HIP with Hipify<a class="headerlink" href="#translating-cuda-to-hip-with-hipify" title="Permalink to this heading"></a></h3>
+<p>In this section, we cover the use of <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> and <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> tools to translate a CUDA code to HIP.</p>
+<section id="hipify-perl">
+<h4>Hipify-perl<a class="headerlink" href="#hipify-perl" title="Permalink to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> tool is a script based on perl that translates CUDA syntax into HIP syntax
+(see .e.g. <a class="reference external" href="https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl">here</a> for more details).
+For instance, in a CUDA code that incorporates the CUDA functions <code class="docutils literal notranslate"><span class="pre">cudaMalloc`</span></code> and <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code>, the tool will substitute <code class="docutils literal notranslate"><span class="pre">cudaMalloc</span></code> with the HIP function <code class="docutils literal notranslate"><span class="pre">hipMalloc</span></code>. Similarly the CUDA function <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize</span></code> will be substituted with the HIP function <code class="docutils literal notranslate"><span class="pre">hipDeviceSynchronize</span></code>. We list below the basic steps to run <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> on LUMI-G.</p>
+<ul>
+<li><p><strong>Step 1</strong>: Generating <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> script</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>module<span class="w"> </span>load<span class="w"> </span>rocm
+<span class="gp">$ </span>hipify-clang<span class="w"> </span>--perl
+</pre></div>
+</div>
+</li>
+<li><p><strong>Step 2</strong>: Running the generated <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code></p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hipify-perl<span class="w"> </span>program.cu<span class="w"> </span>&gt;<span class="w"> </span>program.cu.hip
+</pre></div>
+</div>
+</li>
+<li><p><strong>Step 3</strong>: Compiling with <code class="docutils literal notranslate"><span class="pre">hipcc</span></code> the generated HIP code</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hipcc<span class="w"> </span>--offload-arch<span class="o">=</span>gfx90a<span class="w"> </span>-o<span class="w"> </span>program.hip.exe<span class="w"> </span>program.cu.hip
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Despite the simplicity of the use of <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code>, the tool might not be suitable for large applications, as it relies heavily on substituting CUDA strings with HIP strings (e.g. it substitutes <code class="docutils literal notranslate"><span class="pre">*cuda*</span></code> with <code class="docutils literal notranslate"><span class="pre">*hip*</span></code>).
+In addition, <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> lacks the ability of <a class="reference external" href="https://docs.amd.com/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl">distinguishing device/host function calls</a>.
+The alternative here is to use the <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> tool as will be described in the next section.</p>
+</section>
+<section id="hipify-clang">
+<h4>Hipify-clang<a class="headerlink" href="#hipify-clang" title="Permalink to this heading"></a></h4>
+<p>As described in the <a class="reference external" href="https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html#perl">HIPIFY documentation</a>,
+the <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> tool is based on clang for translating CUDA sources into HIP sources.
+The tool is more robust for translating CUDA codes compared to the <code class="docutils literal notranslate"><span class="pre">hipify-perl</span></code> tool.
+Furthermore, it facilitates the analysis of the code by providing assistance.</p>
+<p>In short, <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> requires <code class="docutils literal notranslate"><span class="pre">LLVM+CLANG</span></code> and <code class="docutils literal notranslate"><span class="pre">CUDA</span></code>. Details about building <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> can be found <a class="reference external" href="https://github.com/ROCm-Developer-Tools/HIPIFY">here</a>. Note that <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> is available on LUMI-G.
+The issue however might be related to the installation of CUDA-toolkit.
+To avoid any eventual issues with the installation procedure we opt for CUDA singularity container. Here we present a step-by-step guide for running <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code>:</p>
+<ul>
+<li><p><strong>Step 1</strong>: Pulling a CUDA singularity container e.g.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>singularity<span class="w"> </span>pull<span class="w"> </span>docker://nvcr.io/nvidia/cuda:11.4.3-devel-ubuntu20.04
+</pre></div>
+</div>
+</li>
+<li><p><strong>Step 2</strong>: Loading a rocm module and launching the CUDA singularity</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>module<span class="w"> </span>load<span class="w"> </span>rocm
+<span class="gp">$ </span>singularity<span class="w"> </span>shell<span class="w"> </span>-B<span class="w"> </span><span class="nv">$PWD</span>,/opt:/opt<span class="w"> </span>cuda_11.4.0-devel-ubuntu20.04.sif
+</pre></div>
+</div>
+<p>where the current directory <code class="docutils literal notranslate"><span class="pre">$PWD</span></code> in the host is mounted to that of the container, and the directory <code class="docutils literal notranslate"><span class="pre">/opt</span></code> in the host is mounted to the that inside the container.</p>
+</li>
+<li><p><strong>Step 3</strong>: Setting the environment variable <code class="docutils literal notranslate"><span class="pre">$PATH</span></code>.
+In order to run <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code> from inside the container, one can set the environment variable <code class="docutils literal notranslate"><span class="pre">$PATH</span></code> that defines tha path to look for the binary <code class="docutils literal notranslate"><span class="pre">hipify-clang</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/opt/rocm-5.2.3/bin:<span class="nv">$PATH</span>
+</pre></div>
+</div>
+<p>Note that the rocm version we used is <code class="docutils literal notranslate"><span class="pre">``rocm-5.2.3``</span></code>.</p>
+</li>
+<li><p><strong>Step 4</strong>: Running <code class="docutils literal notranslate"><span class="pre">``hipify-clang``</span></code> from inside the singularity container</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hipify-clang<span class="w"> </span>program.cu<span class="w"> </span>-o<span class="w"> </span>hip_program.cu.hip<span class="w"> </span>--cuda-path<span class="o">=</span>/usr/local/cuda-11.4<span class="w"> </span>-I<span class="w"> </span>/usr/local/cuda-11.4/include
+</pre></div>
+</div>
+<p>Here the cuda path and the path to the <code class="docutils literal notranslate"><span class="pre">*includes*</span></code> and <code class="docutils literal notranslate"><span class="pre">*defines*</span></code> files should be specified. The CUDA source code and the generated output code are <cite>program.cu</cite> and <cite>hip_program.cu.hip</cite>, respectively.</p>
+<p>The syntax for the compilation process of the generated hip code is similar to the one described in the previous section (see the <strong>Step 3</strong> in the hipify-perl section).</p>
+</li>
+</ul>
+<p>Exercises for how to use <code class="docutils literal notranslate"><span class="pre">Hipify-perl</span></code> and <code class="docutils literal notranslate"><span class="pre">Hipify-clang</span></code> tools can be accessed <a class="reference external" href="examples/exercise_hipify">here</a>.</p>
+</section>
+</section>
+<section id="translating-openacc-to-openmp-with-clacc">
+<h3>Translating OpenACC to OpenMP with Clacc<a class="headerlink" href="#translating-openacc-to-openmp-with-clacc" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://github.com/llvm-doe-org/llvm-project/tree/clacc/main">Clacc</a> is a tool to translate an OpenACC
+application to OpenMP offloading with the Clang/LLVM compiler environment.
+Note that the tool is specific to OpenACC C, while OpenACC fortran is already supported on AMD GPU.
+As indicated in the <a class="reference external" href="https://github.com/llvm-doe-org/llvm-project/tree/clacc/main">GitHub repository</a> the compiler <code class="docutils literal notranslate"><span class="pre">Clacc</span></code> is the <code class="docutils literal notranslate"><span class="pre">Clang</span></code>’s executable in the subdirectory <code class="docutils literal notranslate"><span class="pre">\bin</span></code> of the <code class="docutils literal notranslate"><span class="pre">\install</span></code> directory as described below.</p>
+<p>In the following we present a step-by-step guide for building and using <cite>Clacc</cite>:</p>
+<ul>
+<li><p><strong>Step 1</strong>: Building and installing <a class="reference external" href="https://github.com/llvm-doe-org/llvm-project/tree/clacc/main">Clacc</a>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>clacc/main<span class="w"> </span>https://github.com/llvm-doe-org/llvm-project.git
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>llvm-project
+<span class="gp">$ </span>mkdir<span class="w"> </span>build<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>build
+<span class="gp">$ </span>cmake<span class="w"> </span>-DCMAKE_INSTALL_PREFIX<span class="o">=</span>../install<span class="w">     </span><span class="se">\</span>
+<span class="w">   </span>-DCMAKE_BUILD_TYPE<span class="o">=</span>Release<span class="w">            </span><span class="se">\</span>
+<span class="w">   </span>-DLLVM_ENABLE_PROJECTS<span class="o">=</span><span class="s2">&quot;clang;lld&quot;</span><span class="w">    </span><span class="se">\</span>
+<span class="w">   </span>-DLLVM_ENABLE_RUNTIMES<span class="o">=</span>openmp<span class="w">         </span><span class="se">\</span>
+<span class="w">   </span>-DLLVM_TARGETS_TO_BUILD<span class="o">=</span><span class="s2">&quot;host;AMDGPU&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">   </span>-DCMAKE_C_COMPILER<span class="o">=</span>gcc<span class="w">                </span><span class="se">\</span>
+<span class="w">   </span>-DCMAKE_CXX_COMPILER<span class="o">=</span>g++<span class="w">              </span><span class="se">\</span>
+<span class="w">   </span>../llvm
+<span class="gp">$ </span>make
+<span class="gp">$ </span>make<span class="w"> </span>install
+</pre></div>
+</div>
+</li>
+<li><p><strong>Step 2</strong>: Setting up environment variables to be able to work from the <code class="docutils literal notranslate"><span class="pre">/install</span></code> directory, which is the simplest way. We assume that the <code class="docutils literal notranslate"><span class="pre">/install</span></code> directory is located in the path <code class="docutils literal notranslate"><span class="pre">/project/project_xxxxxx/Clacc/llvm-project</span></code>.</p></li>
+</ul>
+<p>For more advanced usage, which includes for instance modifying <code class="docutils literal notranslate"><span class="pre">Clacc</span></code>, we refer readers to <a class="reference external" href="https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md">“Usage from Build directory”</a></p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/project/project_xxxxxx/Clacc/llvm-project/install/bin:<span class="nv">$PATH</span>
+<span class="gp">$ </span><span class="nb">export</span><span class="w"> </span><span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span>/project/project_xxxxxx/Clacc/llvm-project/install/lib:<span class="nv">$LD_LIBRARY_PATH</span>
+</pre></div>
+</div>
+</div></blockquote>
+<ul>
+<li><p><strong>Step 3</strong>: Source to source conversion of the <cite>openACC_code.c</cite> code to be printed out to the file <cite>openMP_code.c</cite>:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>clang<span class="w"> </span>-fopenacc-print<span class="o">=</span>omp<span class="w"> </span>-fopenacc-structured-ref-count-omp<span class="o">=</span>no-ompx-hold<span class="w"> </span>openACC_code.c<span class="w"> </span>&gt;<span class="w"> </span>openMP_code.c
+</pre></div>
+</div>
+<p>Here the flag <code class="docutils literal notranslate"><span class="pre">-fopenacc-structured-ref-count-omp=no-ompx-hold</span></code> is introduced to disable the <code class="docutils literal notranslate"><span class="pre">ompx_hold</span></code> map type modifier, which is used by the OpenACC <code class="docutils literal notranslate"><span class="pre">copy</span></code> clause translation. The <code class="docutils literal notranslate"><span class="pre">ompx_hold</span></code> is an OpenMP extension that might not be supported yet by other compilers.</p>
+</li>
+<li><p><strong>Step 4</strong> Compiling the code with the <a class="reference external" href="https://docs.lumi-supercomputer.eu/development/compiling/prgenv/">cc compiler wrapper</a></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">CrayEnv</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">PrgEnv</span><span class="o">-</span><span class="n">cray</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">craype</span><span class="o">-</span><span class="n">accel</span><span class="o">-</span><span class="n">amd</span><span class="o">-</span><span class="n">gfx90a</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">rocm</span>
+
+<span class="n">cc</span> <span class="o">-</span><span class="n">fopenmp</span> <span class="o">-</span><span class="n">o</span> <span class="n">executable</span> <span class="n">openMP_code</span><span class="o">.</span><span class="n">c</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Exercises for how to use <code class="docutils literal notranslate"><span class="pre">Clacc</span></code> tool can be accessed <a class="reference external" href="examples/exercise_clacc">here</a>.</p>
+</section>
+<section id="translating-cuda-to-sycl-dpc-with-syclomatic">
+<h3>Translating CUDA to SYCL/DPC++ with SYCLomatic<a class="headerlink" href="#translating-cuda-to-sycl-dpc-with-syclomatic" title="Permalink to this heading"></a></h3>
+<p>Intel offers a tool for CUDA-to-SYCL code migration, included in the Intel oneAPI Basekit.</p>
+<p>It is not installed on LUMI, but the general workflow is similar to the HIPify Clang and also requires an existing CUDA installation:</p>
+<blockquote>
+<div><div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dpct<span class="w"> </span>program.cu
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>dpct_output/
+<span class="gp">$ </span>icpx<span class="w"> </span>-fsycl<span class="w"> </span>program.dp.cpp
+</pre></div>
+</div>
+</div></blockquote>
+<p>SYCLomatic can migrate larger projects by using <code class="docutils literal notranslate"><span class="pre">-in-root</span></code> and <code class="docutils literal notranslate"><span class="pre">-out-root</span></code> flags to process directories recursively. It can also
+use compilation database (supported by CMake and other build systems) to deal with more complex project layouts.</p>
+<p>Please note that the code generated by SYCLomatic relies on oneAPI-specific extensions, and thus cannot be directly used with other
+SYCL implementations, such as hipSYCL. The <code class="docutils literal notranslate"><span class="pre">--no-incremental-migration</span></code> flag can be added to <code class="docutils literal notranslate"><span class="pre">dpct</span></code> command to minimize, but not
+completely avoid, the use of this compatibility layer. That would require manual effort, since some CUDA concepts cannot be directly
+mapped to SYCL.</p>
+<p>Additionally, CUDA applications might assume certain hardware behavior, such as 32-wide warps. If the target hardware is different
+(e.g., AMD MI250 GPUs, used in LUMI, have warp size of 64), the algorithms might need to be adjusted manually.</p>
+</section>
+<section id="conclusion">
+<h3>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h3>
+<p>This concludes a brief overview of the usage of available tools to convert CUDA codes to HIP and SYCL, and OpenACC codes to OpenMP offloading. In general the translation process for large applications might be incomplete and thus requires manual modification to complete the porting process. It is however worth noting that the accuracy of the translation process requires that applications are written correctly according to the CUDA and OpenACC syntaxes.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/ROCm-Developer-Tools/HIPIFY">Hipify GitHub</a></p></li>
+<li><p><a class="reference external" href="https://docs.amd.com/en-US/bundle/HIPify-Reference-Guide-v5.1/page/HIPify.html">HIPify Reference Guide v5.1</a></p></li>
+<li><p><a class="reference external" href="https://github.com/olcf-tutorials/simple_HIP_examples/tree/master/vector_addition">HIP example</a></p></li>
+<li><p><a class="reference external" href="https://www.admin-magazine.com/HPC/Articles/Porting-CUDA-to-HIP">Porting CUDA to HIP</a></p></li>
+<li><p><a class="reference external" href="https://github.com/llvm-doe-org/llvm-project/blob/clacc/main/README.md">Clacc Main repository README</a></p></li>
+<li><p><a class="reference external" href="https://www.intel.com/content/www/us/en/developer/articles/technical/syclomatic-new-cuda-to-sycl-code-migration-tool.html">SYCLomatic main mage</a></p></li>
+<li><p><a class="reference external" href="https://oneapi-src.github.io/SYCLomatic/get_started/index.html">SYCLomatic documentation</a></p></li>
+</ul>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-1">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>Useful tools exist to automatically translate tools from CUDA to HIP and SYCL and from OpenACC to OpenMP, but they may require manual modifications.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../10-portable-kernel-models/" class="btn btn-neutral float-left" title="Portable kernel-based models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../12-recommendations/" class="btn btn-neutral float-right" title="Recommendations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
