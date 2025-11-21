@@ -578,8 +578,9 @@ To load the environment for using the AMD GPUs on LUMI with HIP, one can use the
     $ module load buildtools/24.03
     $ module load PrgEnv-amd
     $ module load craype-accel-amd-gfx90a
+    $ export CXX=hipcc
 
-        
+
 alpaka Programming
 ~~~~~~~~~~~~~~~~~~
 
@@ -753,7 +754,7 @@ The following example works on systems with CMake 3.25+ and an appropriate C++ c
 
    .. code-block:: bash
 
-      cmake -B build -S .
+      cmake -B build -S . -Dalpaka_DEP_HIP=ON
       cmake --build build --parallel
 
 5. Run the executable:
