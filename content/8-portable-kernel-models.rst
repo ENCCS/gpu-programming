@@ -922,6 +922,7 @@ Exercise
 
     .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd-cmake.txt
         :language: cmake
+        :caption: CMakeLists.txt
         :emphasize-lines: 12,19
 
 
@@ -929,6 +930,7 @@ Exercise
     
     .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd.cpp
         :language: c++
+        :caption: main.cpp
         :emphasize-lines: 35
 
     To set up our project, we create a folder and place our CMakeLists.txt and main.cpp in there.
@@ -938,7 +940,7 @@ Exercise
         $ mkdir alpakaExercise && cd alpakaExercise
         $ vim CMakeLists.txt
         and now paste the CMakeLsits here (Press i, followed by Ctrl+Shift+V)
-        Press esc and then :q to exit vim
+        Press esc and then :wq to exit vim
         $ vim main.cpp
         Similarly, paste the C++ code here
     
