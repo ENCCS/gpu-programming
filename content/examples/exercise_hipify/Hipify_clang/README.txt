@@ -13,7 +13,7 @@ The folder "/exercise_hipify/Hipify_clang" contains a cuda example named "vec_ad
 Here are the step-by-step guide to convert CUDA code to HIP
 
 
-- Step 0: copy the folder /project/project_465000485/exercise_hipify/Hipify_clang to your path
+- Step 0: copy the folder /project/project_465002387/exercise_hipify/Hipify_clang to your path
 
 - Step 1: Convert CUDA code "vec_add_cuda.cu" to HIP code "vec_add_cuda.cu.hip"
   ./run_hipify-clang

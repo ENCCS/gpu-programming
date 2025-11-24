@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --job-name=test.hip
-#SBATCH --account=project_465000485
+#SBATCH --account=project_465002387
 #SBATCH --time=00:10:00
 #SBATCH --partition=eap
 #SBATCH --nodes=1

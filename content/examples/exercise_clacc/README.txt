@@ -12,7 +12,7 @@ The folder /exercise_clacc contains a OpenACC code (named openACC_code.c) and th
 Here are the step-by-step guide to convert OpenACC code to OpenMP
 
 
-- Step 0: copy the folder /project/project_465000485/exercise_clacc to your path
+- Step 0: copy the folder /project/project_465002387/exercise_clacc to your path
 
 - Step 1: Convert OpenACC code to OpenMP
   cd exercise_clacc
