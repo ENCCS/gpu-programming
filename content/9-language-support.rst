@@ -426,7 +426,120 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
    for multidimensional data where thread blocks can be organised into 1D, 2D or 3D arrays of 
    threads.
 
+Writing protable kernels
+^^^^^^^^^^^^^^^^^^^^^^^^
 
+`KernelAbstractions.jl <https://github.com/JuliaGPU/KernelAbstractions.jl>`__  allows you to write
+generic GPU code and run it on GPUs from Nvidia, AMD, Intel or Apple, similar to alpaka and Kokkos
+for C++. The backend is the object that decides where the code will be executed. A specific 
+backend such as ``ROCBackend()`` becomes available when the corresponding package is loaded.
+
+.. tabs::
+
+   .. group-tab:: NVIDIA
+
+      .. code-block:: julia
+      
+         using KernelAbstractions
+
+         using CUDA
+         backend = CUDABackend()
+
+         @kernel function vadd!(C, @Const(A), @Const(B))
+            i = @index(Global)
+            if i <= length(A)
+               @inbounds C[i] = A[i] + B[i]
+            end
+         end
+
+         A = KernelAbstractions.ones(backend, Float64, 2^9)*2;
+         B = KernelAbstractions.ones(backend, Float64, 2^9)*3;
+         C = similar(A)
+
+         kernel! = vadd!(backend)
+         kernel!(C, A, B, ndrange=size(C))
+         KernelAbstractions.synchronize(backend)
+
+         @assert all(Array(C) .== 5.0)
+
+   .. group-tab:: AMD
+
+      .. code-block:: julia
+      
+         using KernelAbstractions
+
+         using AMDGPU
+         backend = ROCBackend()
+
+         @kernel function vadd!(C, @Const(A), @Const(B))
+            i = @index(Global)
+            if i <= length(A)
+               @inbounds C[i] = A[i] + B[i]
+            end
+         end
+
+         A = KernelAbstractions.ones(backend, Float64, 2^9)*2;
+         B = KernelAbstractions.ones(backend, Float64, 2^9)*3;
+         C = similar(A)
+
+         kernel! = vadd!(backend)
+         kernel!(C, A, B, ndrange=size(C))
+         KernelAbstractions.synchronize(backend)
+
+         @assert all(Array(C) .== 5.0)
+
+   .. group-tab:: Intel
+
+      .. code-block:: julia
+
+         using KernelAbstractions
+
+         using oneAPI
+         backend = oneAPIBackend()
+
+         @kernel function vadd!(C, @Const(A), @Const(B))
+            i = @index(Global)
+            if i <= length(A)
+               @inbounds C[i] = A[i] + B[i]
+            end
+         end
+
+         A = KernelAbstractions.ones(backend, Float64, 2^9)*2;
+         B = KernelAbstractions.ones(backend, Float64, 2^9)*3;
+         C = similar(A)
+
+         kernel! = vadd!(backend)
+         kernel!(C, A, B, ndrange=size(C))
+         KernelAbstractions.synchronize(backend)
+
+         @assert all(Array(C) .== 5.0)
+
+   .. group-tab:: Apple
+
+      .. code-block:: julia
+      
+         
+         using KernelAbstractions
+
+         using Metal
+         backend = MetalBackend()
+
+         @kernel function vadd!(C, @Const(A), @Const(B))
+            i = @index(Global)
+            if i <= length(A)
+               @inbounds C[i] = A[i] + B[i]
+            end
+         end
+
+         A = KernelAbstractions.ones(backend, Float64, 2^9)*2;
+         B = KernelAbstractions.ones(backend, Float64, 2^9)*3;
+         C = similar(A)
+
+         kernel! = vadd!(backend)
+         kernel!(C, A, B, ndrange=size(C))
+         KernelAbstractions.synchronize(backend)
+
+         @assert all(Array(C) .== 5.0)
 
 Python
 ------
