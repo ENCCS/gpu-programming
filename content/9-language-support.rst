@@ -357,7 +357,7 @@ Here's an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GP
          numblocks = cld(length(A), nthreads)
       
          # run using 256 threads
-         @roc threads=nthreads blocks=numblocks vadd!(C, A, B)
+         @roc groupsize=nthreads gridsize=numblocks vadd!(C, A, B)
 
          @assert all(Array(C) .== 5.0)
 
