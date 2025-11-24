@@ -876,6 +876,99 @@ Alternatively, `click here <https://godbolt.org/z/69exnG4xb>`__ to try the first
         ./a.out
 
 
+Exercise
+~~~~~~~~
+
+.. exercise:: Exercise: Write a vector add kernel in alpaka
+
+    In this exercise we would like to write (fill-in-the-blanks) a simple kernel to add two vectors.
+    
+    To compile and run the code interactively, first we first need to get an allocation on a GPU node and load the modules for alpaka:
+
+    .. code-block:: console
+    
+        $ srun -p dev-g --gpus 1 -N 1 -n 1 --time=00:20:00 --account=project_465002387 --pty bash
+        ....
+        srun: job 1234 queued and waiting for resources
+        srun: job 1234 has been allocated resources
+
+        $ module load LUMI/24.03 partition/G
+        $ module load rocm/6.0.3
+        $ module load buildtools/24.03
+        $ module load PrgEnv-amd
+        $ module load craype-accel-amd-gfx90a
+        $ export CXX=hipcc
+
+    Now you can run a simple device-detection utility to check that a GPU is available (note ``srun``):
+
+    .. code-block:: console
+
+      $ rocm-smi
+
+      ======================================= ROCm System Management Interface =======================================
+      ================================================= Concise Info =================================================
+      Device  [Model : Revision]    Temp    Power  Partitions      SCLK    MCLK     Fan  Perf    PwrCap  VRAM%  GPU%  
+              Name (20 chars)       (Edge)  (Avg)  (Mem, Compute)                                                     
+      ================================================================================================================
+      0       [0x0b0c : 0x00]       45.0°C  N/A    N/A, N/A        800Mhz  1600Mhz  0%   manual  0.0W      0%   0%    
+              AMD INSTINCT MI200 (                                                                                    
+      ================================================================================================================
+      ============================================= End of ROCm SMI Log ==============================================
+
+
+    Now, let's look at the code to set up the exercise:
+    
+    Below we use fetch content with our CMake to get started with alpaka quickly.
+
+    .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd-cmake.txt
+        :language: cmake
+        :emphasize-lines: 12,19
+
+
+    Below we have the main alpaka code doing a vector addition on device using a high level transform function
+    
+    .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd.cpp
+        :language: c++
+        :emphasize-lines: 35
+
+    To set up our project, we create a folder and place our CMakeLists.txt and main.cpp in there.
+    
+    .. code-block:: console
+    
+        $ mkdir alpakaExercise && cd alpakaExercise
+        $ vim CMakeLists.txt
+        and now paste the CMakeLsits here (Press i, followed by Ctrl+Shift+V)
+        Press esc and then :q to exit vim
+        $ vim main.cpp
+        Similarly, paste the C++ code here
+    
+    To compile and run the code, use the following commands:
+
+    .. code-block:: console
+    
+        configure step, we additionaly specify that HIP is available
+        $ cmake -B build -S . -Dalpaka_DEP_HIP=ON
+        build
+        $ cmake --build build --parallel
+        run
+        $ ./build/vectorAdd
+        Using alpaka device: AMD Instinct MI250X id=0
+        c[0] = 1
+        c[1] = 2
+        c[2] = 3
+        c[3] = 4
+        c[4] = 5
+
+    Now your task will be to write and launch your first alpaka kernel.
+    This kernel will do the vector addition and we will use this instead of the transform helper. 
+
+    .. solution:: Writing the vector add kernel
+    
+        .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd-solution.cpp
+            :language: c++
+            :emphasize-lines: 5,6,7,8,9,10,11,12,13,14,15,46,48,49
+    
+
 Examples
 ^^^^^^^^
 
