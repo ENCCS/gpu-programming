@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --job-name=setDevice_acc
-#SBATCH --account=project_465000485
+#SBATCH --account=project_465002387
 #SBATCH --time=00:10:00
 #SBATCH --partition=dev-g
 #SBATCH --nodes=1

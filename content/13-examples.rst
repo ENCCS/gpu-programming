@@ -161,7 +161,7 @@ If we assume the grid point values to be truly independent *for a single time st
    
    .. code-block:: console
 
-      salloc -A project_465001310 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
+      salloc -A project_465002387 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
 
       module load LUMI/24.03
       module load partition/G
@@ -299,7 +299,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
    
    .. code-block:: console
 
-      # salloc -A project_465001310 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
+      # salloc -A project_465002387 -p small-g -N 1 -c 8 -n 1 --gpus-per-node=1 -t 1:00:00
       
       module load LUMI/24.03
       module load partition/G
@@ -574,7 +574,7 @@ To run the example on LUMI CPU partition, type:
 .. code-block:: console
 
    $ # interactive CPU node
-   $ srun --account=project_465001310 --partition=standard --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
+   $ srun --account=project_465002387 --partition=standard --nodes=1 --cpus-per-task=32 --ntasks-per-node=1 --time=01:00:00 --pty bash
    $ # load Julia env
    $ module purge
    $ module use /appl/local/csc/modulefiles
@@ -588,7 +588,7 @@ To run on the GPU partition, use instead the ``srun`` command
 
 .. code-block:: console
 
-   $ srun --account=project_465001310 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+   $ srun --account=project_465002387 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
 
 
 .. callout:: Optional dependency

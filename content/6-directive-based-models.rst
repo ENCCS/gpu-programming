@@ -214,7 +214,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+                salloc -A project_465002387 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
 
                 module load LUMI/24.03
                 module load partition/G
@@ -233,7 +233,7 @@ OpenMP offloading offers multiple levels of parallelism as well:
 
              .. code-block:: bash
 
-                salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+                salloc -A project_465002387 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
 
                 module load LUMI/24.03
                 module load partition/G

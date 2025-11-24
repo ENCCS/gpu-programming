@@ -16,7 +16,7 @@ Interactive job, 1 node, 1 GPU, 1 hour:
 
 .. code-block:: console
 
-   $ salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+   $ salloc -A project_465002387 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
    $ srun <some-command>
 
 Exit interactive allocation with ``exit``.
@@ -25,7 +25,7 @@ Interacive terminal session on compute node:
 
 .. code-block:: console
 
-   $ srun --account=project_465001310 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
+   $ srun --account=project_465002387 --partition=standard-g --nodes=1 --cpus-per-task=1 --ntasks-per-node=1 --gpus-per-node=1 --time=1:00:00 --pty bash
    $ <some-command>
 
 Corresponding batch script ``submit.sh``:
@@ -33,7 +33,7 @@ Corresponding batch script ``submit.sh``:
 .. code-block:: bash
 
    #!/bin/bash -l
-   #SBATCH --account=project_465001310
+   #SBATCH --account=project_465002387
    #SBATCH --job-name=example-job
    #SBATCH --output=examplejob.o%j
    #SBATCH --error=examplejob.e%j

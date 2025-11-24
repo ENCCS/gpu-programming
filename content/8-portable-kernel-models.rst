@@ -432,7 +432,7 @@ Exercise
 
    .. code-block:: console
 
-      $ salloc -A project_465001310 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
+      $ salloc -A project_465002387 -N 1 -t 1:00:00 -p standard-g --gpus-per-node=1
       ....
       salloc: Granted job allocation 123456
 

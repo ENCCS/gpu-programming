@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MyDir=/scratch/project_465000485
+MyDir=/scratch/project_465002387
 MyContainer=${MyDir}/Container/cuda_11.4.3-devel-ubuntu20.04.sif
 
 module load rocm/5.2.3

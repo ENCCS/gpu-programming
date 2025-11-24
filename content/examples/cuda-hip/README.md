@@ -18,7 +18,7 @@ Alternatively, when available,  one could use `Makefile` set to use the [cray co
 In order to execute the HIP application on GPU nodes we submit it to the partition `dev-g` (`-p` flag). We have specify as well the running options like number of GPUs needed, MPI tasks and CPU core per MPI task. Below we have an example of a job with 2 GPUs (`--gpus`, 1 node (`-N`), 2 MPI tasks (`-n`)  and 7 cores per MPI task (`-c`):
 
 ``` 
-srun -p dev-g --gpus 2 -N 1 -n 2 -c 7 --time=00:10:00 --account=project_465001310 ./a.out
+srun -p dev-g --gpus 2 -N 1 -n 2 -c 7 --time=00:10:00 --account=project_465002387 ./a.out
 ``` 
 Modify this according to the needs of the job. Note that the modules should be loaded in the terminal which is used for launching the job.
 

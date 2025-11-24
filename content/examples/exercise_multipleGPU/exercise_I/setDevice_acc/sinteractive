@@ -1,1 +1,1 @@
-salloc -A project_465000485 -t 00:05:00 -p dev-g -N 1 --gpus 4 --gpus-per-node 4 --ntasks-per-node 4
+salloc -A project_465002387 -t 00:05:00 -p dev-g -N 1 --gpus 4 --gpus-per-node 4 --ntasks-per-node 4
