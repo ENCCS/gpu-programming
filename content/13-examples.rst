@@ -578,7 +578,8 @@ To run the example on LUMI CPU partition, type:
    $ # load Julia env
    $ module purge
    $ module use /appl/local/csc/modulefiles
-   $ module load julia/1.9.0
+   $ module load julia
+   $ module load julia-amdgpu
    $ # in directory with Project.toml and source files, instantiate an environment to install packages
    $ julia --project -e "using Pkg ; Pkg.instantiate()"
    $ # finally run
