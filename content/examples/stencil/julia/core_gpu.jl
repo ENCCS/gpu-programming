@@ -82,7 +82,7 @@ function simulate!(curr::Field, prev::Field, nsteps)
             nx, ny = size(curr.data) .- 2   
             xthreads = ythreads = 16
             xblocks, yblocks = cld(curr.nx, xthreads), cld(curr.ny, ythreads)
-            @roc threads=(xthreads, ythreads) blocks = (xblocks, yblocks) evolve_rocm!(curr.data, prev.data, curr.dx^2, curr.dy^2, nx, ny, a, dt)
+            @roc groupsize=(xthreads, ythreads) gridsize = (xblocks, yblocks) evolve_rocm!(curr.data, prev.data, curr.dx^2, curr.dy^2, nx, ny, a, dt)
         else
             evolve!(curr, prev, a, dt)
         end
