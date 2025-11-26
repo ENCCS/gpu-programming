@@ -95,14 +95,6 @@ In `an earlier episode <https://enccs.github.io/gpu-programming/7-non-portable-k
 Another point to note is that even if the solution is propagated in small time steps, not every step might actually be needed for output. Once some *local* region of the field is updated, mathematically nothing prevents it from being updated for the second time step -- even if the rest of the field is still being recalculated -- as long as :math:`t = m-1` values for the region boundary are there when needed. (Of course, this is more complicated to implement and would only give benefits in certain cases.)
 
 
-.. challenge:: Poll: which programming model/ framework are you most interested in today?
-
-   - OpenMP offloading (C++)
-   - SYCL (C++)
-   - *Python* (``numba``/CUDA)
-   - Julia
-
-
 The following table will aid you in navigating the rest of this section:
 
 .. admonition:: Episode guide
