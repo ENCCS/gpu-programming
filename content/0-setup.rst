@@ -102,6 +102,8 @@ An example of the ``script.jl`` code is provided below.
 Running Python
 --------------
 
+.. _setup-python-lumi-gpu:
+
 On LUMI
 ^^^^^^^
 
@@ -110,12 +112,16 @@ To launch the container and the ``IPython`` interpreter within it, do as follows
 
 .. code-block:: console
 
-   $ salloc -p dev-g -A project_465002387 -t 1:00:00 -N 1 --gpus=1
-   $ cd /scratch/project_465002387/containers/gpu-programming/python-from-docker
-   $ srun --pty singularity exec --no-home container_numba_hip_fixed.sif bash
-   Singularity> . $HOME/.local/bin/env
+   $ salloc -p small-g -A project_465002387 -t 1:00:00 -N 1 --gpus=1
+   $ srun --pty \
+        singularity exec --no-home \
+        -B $PWD:/work \
+        /scratch/project_465002387/containers/gpu-programming/python-from-docker/container.sif \
+        bash
+
+   Singularity> cd /work
    Singularity> . /.venv/bin/activate 
-   Singularity> ipython
+   Singularity> python  # or ipython
 
 
 .. admonition:: Recipe for creating the container
@@ -168,7 +174,14 @@ To launch the container and the ``IPython`` interpreter within it, do as follows
 
       export SINGULARITY_CACHEDIR="$PWD/singularity/cache"
       export SINGULARITY_TMPDIR="$FLASH/$USER/singularity/tmp"
-      singularity build -B "$PWD":/tmp/envs --fix-perms --sandbox container_numba_hip_fixed.sif build_singularity.def
+      singularity build -B "$PWD":/tmp/envs --fix-perms container.sif build_singularity.def
+
+   .. tip::
+       
+      You can also interactively build using::
+        
+        singularity build --sandbox <other flags> container-sandbox build_singularity.def
+        singularity shell --writable container-sandbox
       
    and finally a ``requirements.txt`` file::
 
@@ -187,6 +200,43 @@ To launch the container and the ``IPython`` interpreter within it, do as follows
           numba-hip[rocm-6-4-4] @ git+https://github.com/ROCm/numba-hip.git
 
 
+.. _setup-python-lumi-gpu-jax:
+
+LUMI also has official singularity images for Jax. These can be found under the path::
+
+    /appl/local/containers/sif-images/
+
+.. code-block:: console
+
+   $ srun --pty \
+        singularity exec -B $PWD:/work \
+        /appl/local/containers/sif-images/lumi-jax-rocm-6.2.4-python-3.12-jax-0.4.35.sif \
+        bash
+   Singularity> cd /work
+   Singularity> $WITH_CONDA
+   Singularity> python
+   Python 3.12.9 | packaged by Anaconda, Inc. | (main, Feb  6 2025, 18:56:27) [GCC 11.2.0] on linux
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>> import jax
+   >>> jax.devices()
+   [RocmDevice(id=0)]
+
+
+
+.. _setup-python-lumi-cpu:
+On LUMI (only CPU)
+^^^^^^^^^^^^^^^^^^
+
+On LUMI, you can set up Python distribution as following:
+
+.. code-block:: console
+
+   $ module load cray-python/3.9.13.1
+   $ # install needed dependencies locally
+   $ pip3 install --user numpy numba matplotlib
+
+
+.. _setup-google-colab:
 On Google Colab
 ^^^^^^^^^^^^^^^
 

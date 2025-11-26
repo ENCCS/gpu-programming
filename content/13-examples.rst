@@ -407,7 +407,7 @@ Changes of stencil update code as well as the main program are shown in tabs bel
 
    .. tab:: Python
 
-         .. literalinclude:: examples/stencil/python/core_cuda.py
+         .. literalinclude:: examples/stencil/python-numba/core_cuda.py
                         :language: py
                         :lines: 6-34
                         :emphasize-lines: 14-16,18
@@ -462,14 +462,14 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/9-language-sup
 
    .. tab:: Stencil update
 
-         .. literalinclude:: examples/stencil/python/core.py
+         .. literalinclude:: examples/stencil/python-numba/core.py
                         :language: py
                         :lines: 6-29
                         :emphasize-lines: 17
    
    .. tab:: Data generation
 
-         .. literalinclude:: examples/stencil/python/heat.py
+         .. literalinclude:: examples/stencil/python-numba/heat.py
                         :language: py
                         :lines: 57-78
                         :emphasize-lines: 1
@@ -479,17 +479,33 @@ The alternative approach would be to rewrite stencil update code in NumPy style,
 
 .. callout:: Trying out Python examples
 
-   You can run provided code examples on Google Colab using instructions provided in the `Setup <https://enccs.github.io/gpu-programming/0-setup/#running-on-google-colab>`_, your local machine, or LUMI node (non-GPU variants). On LUMI, you can set up Python distribution as following:
-   
+   You can run follow the links below for instructions from the :doc:`0-setup`
+   episode. You may choose to run the provided code examples either on 
+
+   - on a :ref:`LUMI GPU node <setup-python-lumi-gpu>`, or
+   - your local machine, or :ref:`LUMI CPU node <setup-python-lumi-cpu>`, or
+   - :ref:`Google Colab <setup-google-colab>`.
+
+   To run the example in a GPU node via the container,
+
    .. code-block:: console
 
-      $ module load cray-python/3.9.13.1
-      (install needed dependencies locally)
-      $ pip3 install --user numba matplotlib
-      $ cd ../python/
-      (make sure you have active allocation)
-      $ srun python3 main.py
+      $ # skip the git clone step, if you have done that already
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ # allocate a GPU node using `salloc`
+      $ # execute the `srun --pty singularity exec ...` command
+      Singularity> cd /work/gpu-programming/content/examples/stencil/python-numba
+      Singularity> . /.venv/bin/activate 
+      Singularity> python3 main.py
 
+   To run the example in a CPU node,
+
+   .. code-block:: console
+
+      $ git clone https://github.com/ENCCS/gpu-programming.git
+      $ cd gpu-programming/content/examples/stencil/python-numba
+      $ # make sure you have active allocation
+      $ srun python3 main.py
 
 Short summary of a typical Colab run is provided below:
 
