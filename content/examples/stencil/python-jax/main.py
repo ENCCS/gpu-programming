@@ -15,7 +15,7 @@ plt.rcParams['image.cmap'] = 'BrBG'
 
 def field_write(heat, iter):
     plt.gca().clear()
-    plt. imshow(heat.data)
+    plt.imshow(heat.data)
     plt.axis('off')
     plt.savefig('heat_{0:03d}.png'.format(iter))
 
