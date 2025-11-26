@@ -275,15 +275,19 @@ Similarly, SYCL programming model offers convenient ways to define execution ker
 
 Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
+`stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`_
+
 .. tabs::
 
    .. tab:: OpenMP (naive)
+            **base/core-off.cpp**
 
          .. literalinclude:: examples/stencil/base/core-off.cpp 
                         :language: cpp
                         :emphasize-lines: 25-26
          
    .. tab:: SYCL (naive)
+            **sycl/core-naive.cpp**
 
          .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
@@ -313,10 +317,10 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       $ cd ../sycl/
       (give the following lines some time, probably a couple of min)
       $ acpp -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
-      $ acpp -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
+      $ acpp -O2 -o stencil_data core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
       $ srun stencil_naive
-      $ srun stencil
+      $ srun stencil_data
 
    If everything works well, the output should look similar to this:
    
@@ -327,7 +331,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
       Iterations took 2.086 seconds.
-      $ srun stencil
+      $ srun stencil_data
       Average temperature, start: 59.763305
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
@@ -386,39 +390,38 @@ But overhead can be reduced by taking care to minimize data transfers between *h
 - only copy the data from GPU to CPU when we need it,
 - swap the GPU buffers between timesteps, like we do with CPU buffers. (OpenMP does this automatically.)
 
-Changes of stencil update code as well as the main program are shown in tabs below. 
+Changes of stencil update code as well as the main program are shown in tabs below: 
+
+`stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`__
 
 .. tabs::
 
    .. tab:: OpenMP
+            **base/core-data.cpp**
 
          .. literalinclude:: examples/stencil/base/core-data.cpp
                         :language: cpp
                         :emphasize-lines: 25,40-75
    
    .. tab:: SYCL
+            **sycl/core.cpp**
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
                         :emphasize-lines: 13-14,25,40-50
 
    .. tab:: Python
+            **python-numba/core_cuda.py**
 
          .. literalinclude:: examples/stencil/python-numba/core_cuda.py
                         :language: py
                         :lines: 6-34
                         :emphasize-lines: 14-16,18
 
-   .. tab:: main() (SYCL)
-
-         .. literalinclude:: examples/stencil/sycl/main.cpp 
-                        :language: cpp
-                        :emphasize-lines: 38-39,44-45,51,56,59,75-77
-
 
 .. challenge:: Exercise: updated GPU ports
 
-   Test your compiled executables ``base/stencil_data`` and ``sycl/stencil``. Try changing problem size parameters:
+   Test your compiled executables ``base/stencil_data`` and ``sycl/stencil_data``. Try changing problem size parameters:
    
    - ``srun stencil 2000 2000 5000``
    
