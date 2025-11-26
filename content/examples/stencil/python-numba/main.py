@@ -1,5 +1,15 @@
 # Main routine for heat equation solver in 2D.
 # (c) 2023 ENCCS, CSC and the contributors
+
+# For AMD
+try:
+    from numba import hip
+except ImportError:
+    print("No numba-hip extension. Trying to use CUDA")
+else:
+    print("Using numba-hip. Trying to use AMD GPU")
+    hip.pose_as_cuda()
+
 from core import *
 
 # io.py
