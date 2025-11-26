@@ -1,5 +1,5 @@
 #!/bin/bash
 
-module load rocm/6.0.3
+module load rocm
 
 hipify-clang --perl
