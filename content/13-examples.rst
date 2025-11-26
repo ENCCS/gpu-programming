@@ -126,21 +126,23 @@ Sequential and thread-parallel program in C++
 
 If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straightforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP ``#pragma``:
 
+`stencil/base/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`_
+
 .. tabs::
 
-   .. tab:: Stencil update
+   .. tab:: Stencil update <br>(core.cpp)
 
          .. literalinclude:: examples/stencil/base/core.cpp 
                         :language: cpp
                         :emphasize-lines: 25
 
-   .. tab:: Main function
+   .. tab:: Main function <br>(main.cpp)
 
          .. literalinclude:: examples/stencil/base/main.cpp 
                         :language: cpp
                         :emphasize-lines: 37
  
-   .. tab:: Default params
+   .. tab:: Default params <br>(heat.h)
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
