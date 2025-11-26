@@ -390,7 +390,7 @@ But overhead can be reduced by taking care to minimize data transfers between *h
 - only copy the data from GPU to CPU when we need it,
 - swap the GPU buffers between timesteps, like we do with CPU buffers. (OpenMP does this automatically.)
 
-Changes of stencil update code as well as the main program are shown in tabs below: 
+Changes of stencil update code are shown in tabs below (also check out the respective main() functions for calls to persistent GPU buffer creation, access, and deletion): 
 
 `stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`__
 
@@ -409,14 +409,6 @@ Changes of stencil update code as well as the main program are shown in tabs bel
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
                         :emphasize-lines: 13-14,25,40-50
-
-   .. tab:: Python
-            **python-numba/core_cuda.py**
-
-         .. literalinclude:: examples/stencil/python-numba/core_cuda.py
-                        :language: py
-                        :lines: 6-34
-                        :emphasize-lines: 14-16,18
 
 
 .. challenge:: Exercise: updated GPU ports
@@ -458,9 +450,12 @@ Python: JIT and GPU acceleration
 
 As mentioned `previously <https://enccs.github.io/gpu-programming/9-language-support/#numba>`_, Numba package allows developers to just-in-time (JIT) compile Python code to run fast on CPUs, but can also be used for JIT compiling for (NVIDIA) GPUs. JIT seems to work well on loop-based, computationally heavy functions, so trying it out is a nice choice for initial source version:
 
+`stencil/python-numba <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/python-numba/>`_
+
 .. tabs::
 
    .. tab:: Stencil update
+            **core.py**
 
          .. literalinclude:: examples/stencil/python-numba/core.py
                         :language: py
@@ -468,11 +463,20 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/9-language-sup
                         :emphasize-lines: 17
    
    .. tab:: Data generation
+            **heat.py**
 
          .. literalinclude:: examples/stencil/python-numba/heat.py
                         :language: py
                         :lines: 57-78
                         :emphasize-lines: 1
+
+   .. tab:: Stencil update in GPU
+            **core_cuda.py**
+
+         .. literalinclude:: examples/stencil/python-numba/core_cuda.py
+                        :language: py
+                        :lines: 6-34
+                        :emphasize-lines: 14-16,18
 
 
 The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
@@ -536,7 +540,7 @@ Short summary of a typical Colab run is provided below:
 
 Numba's ``@vectorize`` and ``@guvectorize`` decorators offer an interface to create CPU- (or GPU-) accelerated *Python* functions without explicit implementation details. However, such functions become increasingly complicated to write (and optimize by the compiler) with increasing complexity of the computations within.
 
-Numba also offers direct CUDA-based kernel programming, which can be the best choice for those already familiar with CUDA. Example for stencil update written in Numba CUDA is shown in the `data movement section <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_, tab "Python". In this case, data transfer functions ``devdata = cuda.to_device(data)`` and ``devdata.copy_to_host(data)`` (see ``main_cuda.py``) are already provided by Numba package.
+Numba also offers direct CUDA-based kernel programming, which can be the best choice for those already familiar with CUDA. Example for stencil update written in Numba CUDA is shown in the above section, tab "Stencil update in GPU". In this case, data transfer functions ``devdata = cuda.to_device(data)`` and ``devdata.copy_to_host(data)`` (see ``main_cuda.py``) are already provided by Numba package.
 
 
 .. challenge:: Exercise: CUDA acceleration in Python
