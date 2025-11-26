@@ -553,7 +553,7 @@ CuPy
 CuPy is a NumPy/SciPy-compatible data array library used on GPU. It has been developed for NVIDIA GPUs 
 but as experimental support for AMD GPUs. 
 CuPy has a highly compatible interface with NumPy and SciPy. As stated on its official website, 
-"All you need to do is just replace *numpy* and *scipy* with *cupy* and *cupyx.scipy* in your Python code." 
+"All you need to do is just replace ``numpy`` and ``scipy`` with ``cupy`` and ``cupyx.scipy`` in your Python code." 
 If you know NumPy, CuPy is a very easy way to get started on the GPU.
 
 
@@ -581,9 +581,20 @@ Numba allows users to just-in-time (JIT) compile Python code to run fast on CPUs
 be used for JIT compiling for GPUs.
 In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.
 
-.. callout:: AMD support deprecated
+.. callout:: Using Numba in AMD GPUs
 
-   Numba supported AMD GPUs up until version 0.53 but has since deprecated the support. 
+   To use Numba with AMD GPUs ``numba-hip`` extension can be used.
+   By adding the following lines in the beginning of the code, a
+   single-source code can be made to work in both Nvidia and AMD GPUs::
+        
+        try:
+            from numba import hip
+        except ImportError:
+            pass
+        else:
+            hip.pose_as_cuda()
+
+   Read more how to install and use it `here <https://github.com/ROCm/numba-hip>`__.
 
 Numba supports GPU programming by directly compiling a restricted subset of Python code 
 into kernels and device functions following the execution model. 
@@ -610,33 +621,31 @@ Examples
 
    .. tabs::
 
-      .. tab:: python
+      .. group-tab:: Python
 
          .. literalinclude:: examples/numba/math_cpu.py
             :language: python
 
-      .. tab:: Numba ufunc cpu
+      .. group-tab:: Numba ufunc cpu
 
          .. literalinclude:: examples/numba/math_numba_cpu.py
             :language: python
 
-      .. tab:: Numba ufunc gpu
+      .. group-tab:: Numba ufunc gpu
 
          .. literalinclude:: examples/numba/math_numba_gpu.py
             :language: python
 
 
-   Let's benchmark:
+   To benchmark, first initialize::
+
+      import numpy as np
+      x = np.random.rand(10_000_000)
+      res = np.random.rand(10_000_000)
 
    .. tabs::
 
-      .. tab:: python
-
-	 .. code-block:: python
-
-            import numpy as np
-	    x = np.random.rand(10000000)
-	    res = np.random.rand(10000000)
+      .. group-tab:: Python
 
 	 .. code-block:: ipython
 
@@ -645,28 +654,17 @@ Examples
                 res[i]=f(x[i], x[i])
                 # 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)
 
-      .. tab:: Numba cpu
+      .. group-tab:: Numba ufunc cpu
 
 	 .. code-block:: ipython
 
-            import numpy as np
-            import numba
-
-	    x = np.random.rand(10000000)
-	    res = np.random.rand(10000000)
 
 	    %timeit res=f_numba_cpu(x, x)
             # 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)
 
-      .. tab:: Numba gpu
+      .. group-tab:: Numba ufunc gpu
 
 	 .. code-block:: ipython
-
-            import numpy as np
-            import numba
-
-            x = np.random.rand(10000000)
-	    res = np.random.rand(10000000)
 
 	    %timeit res=f_numba_gpu(x, x)
             # 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
@@ -686,49 +684,49 @@ Numba ``@vectorize`` is limited to scalar arguments in the core function, for mu
 
    .. tabs::
 
-      .. tab:: python
+      .. group-tab:: Python
 
          .. literalinclude:: examples/numba/matmul_cpu.py
             :language: python
 
-      .. tab:: numba gufunc cpu
+      .. group-tab:: Numba gufunc cpu
 
          .. literalinclude:: examples/numba/matmul_numba_cpu.py
             :language: python
 
-      .. tab:: numba gufunc gpu
+      .. group-tab:: Numba gufunc gpu
 
          .. literalinclude:: examples/numba/matmul_numba_gpu.py
             :language: python
 
 
-   Benchmark:
+   To benchmark, first, initialize some arrays::
+
+          import numpy as np
+          N = 50
+          A = np.random.rand(N,N)
+          B = np.random.rand(N,N)
+          C = np.random.rand(N,N)
 
    .. tabs::
 
-      .. tab:: Numba gufunc cpu
+      .. group-tab:: Python
 
 	 .. code-block:: ipython
 
-                import numpy as np
-                import numba
-		N = 50
-		A = np.random.rand(N,N)
-		B = np.random.rand(N,N)
-		C = np.random.rand(N,N)
+		%timeit matmul_cpu(A,B,C)
+
+      .. group-tab:: Numba gufunc cpu
+
+	 .. code-block:: ipython
+
 		%timeit matmul_numba_cpu(A,B,C)
 		
 
-      .. tab:: Numba gufunc gpu
+      .. group-tab:: Numba gufunc gpu
 
 	 .. code-block:: ipython
 
-                import numpy as np
-                import numba
-		N = 50
-		A = np.random.rand(N,N)
-		B = np.random.rand(N,N)
-		C = np.random.rand(N,N)
 		%timeit matmul_numba_gpu(A,B,C)
 
 
@@ -756,7 +754,7 @@ Exercises
 
    Are you a Julian or a Pythonista? Maybe neither, but take a pick between Python and Julia and play around with the code examples provided above. 
 
-   You can find instructions for running Julia on LUMI and Python on Google Colab in the :doc:`0-setup` episode.
+   You can find instructions for running Julia on LUMI and Python on LUMI / Google Colab in the :doc:`0-setup` episode.
 
 
 
