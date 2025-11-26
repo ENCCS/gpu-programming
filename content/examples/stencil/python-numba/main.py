@@ -1,6 +1,16 @@
 # Main routine for heat equation solver in 2D.
 # (c) 2023 ENCCS, CSC and the contributors
-from core_cuda import *
+
+# For AMD
+try:
+    from numba import hip
+except ImportError:
+    print("No numba-hip extension. Trying to use CUDA")
+else:
+    print("Using numba-hip. Trying to use AMD GPU")
+    hip.pose_as_cuda()
+
+from core import *
 
 # io.py
 
@@ -46,20 +56,13 @@ def main(args):
 
     # Start timer
     start_clock = start_time()
-    # Allocate and transfer device buffers, add them to the field object
-    current.dev = cuda.to_device(current.data)
-    previous.dev = cuda.to_device(previous.data)
     # Time evolution
     for iter in range(1,nsteps+1):
         evolve(current, previous, a, dt)
         if (iter % output_interval == 0):
-            # Update data on host for output
-            current.dev.copy_to_host(current.data)
             field_write(current, iter)
         # Swap current and previous fields for next iteration step
         current, previous = previous, current
-    # Copy data back to host
-    previous.dev.copy_to_host(previous.data)
     # Stop timer
     stop_clock = stop_time()
 
@@ -86,14 +89,13 @@ if __name__ == '__main__':
                         help='number of time steps')
     
     args = parser.parse_args()
-
+    
     ### NOTE FOR COLAB / JUPYTER NOTEBOOK USERS:
     #   * Use lines below to change default arguments
     #   * First-time runs are routinely slower; run main cell twice to get timings
     #   * Google machine runs out of system RAM around 15000x15000 grid size
     #args = parser.parse_args(args=[])
-    #args.rows, args.cols, args.nsteps = 2000, 2000, 500
-
+    #args.rows, args.cols, args.nsteps = 2000, 2000, 500    
+    
     main(args)
- 
- 
+    
