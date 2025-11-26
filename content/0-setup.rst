@@ -118,10 +118,10 @@ To launch the container and the ``IPython`` interpreter within it, do as follows
    Singularity> ipython
 
 
-.. admonition:: Recipe for creating the docker image
+.. admonition:: Recipe for creating the container
    :class: dropdown
 
-   For reference, the following files were used to create the above docker image.
+   For reference, the following files were used to create the above singularity container.
    First a singularity def file,
 
    .. code-block:: singularity
