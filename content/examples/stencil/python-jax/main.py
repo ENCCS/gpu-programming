@@ -65,7 +65,7 @@ def main(args):
     field_write(previous, nsteps)
 
     # Determine the computation time used for all the iterations
-    print("Iterations took %. 3f seconds." % (stop_clock - start_clock))
+    print("Iterations took %.3f seconds." % (stop_clock - start_clock))
 
 
 if __name__ == '__main__':

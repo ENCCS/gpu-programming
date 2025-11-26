@@ -56,7 +56,6 @@ def field_average(heat):
     return float(jnp.mean(heat.data[1:-1, 1:-1]))
 
 
-@jax.jit
 def _generate(data, nx, ny):
     # Radius of the source disc
     radius = nx / 6.0
