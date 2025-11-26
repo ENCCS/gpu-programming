@@ -4,3 +4,4 @@
 .jupyter_cache
 jupyter_execute
 .idea
+__pycache__
