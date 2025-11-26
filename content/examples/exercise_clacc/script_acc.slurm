@@ -13,7 +13,7 @@ module purge
 module load CrayEnv
 module load PrgEnv-cray
 module load craype-accel-amd-gfx90a
-module load rocm
+module load rocm/6.0.3
 
 #set env. var for clang
 #export PATH=/scratch/project_465002387/clacc/llvm-project/install/bin:$PATH

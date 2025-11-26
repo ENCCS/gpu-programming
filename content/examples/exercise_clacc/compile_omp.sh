@@ -1,11 +1,11 @@
 #!/bin/bash -l
 
-#load modules
+# load modules
 module purge
 module load CrayEnv
 module load PrgEnv-cray
 module load craype-accel-amd-gfx90a
-module load rocm
+module load rocm/6.0.3
 
 # compile with cc
 cc -fopenmp -o executable.omp.exe openMP_code.c

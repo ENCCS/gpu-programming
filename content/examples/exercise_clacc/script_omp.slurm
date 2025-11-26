@@ -12,7 +12,7 @@
 module load CrayEnv
 module load PrgEnv-cray
 module load craype-accel-amd-gfx90a
-module load rocm
+module load rocm/6.0.3
 
 export LD_LIBRARY_PATH=/scratch/project_465002387/clacc/llvm-project/install/lib:$LD_LIBRARY_PATH
 

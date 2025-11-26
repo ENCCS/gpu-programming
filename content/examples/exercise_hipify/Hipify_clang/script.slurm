@@ -12,6 +12,6 @@
 module load CrayEnv
 module load PrgEnv-cray
 module load craype-accel-amd-gfx90a
-module load rocm
+module load rocm/6.0.3
 
 srun ./executable.hip.exe
