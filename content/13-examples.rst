@@ -1,6 +1,6 @@
 .. _example-heat:
 
-GPU programming example: stencil computation
+Example: putting it all together
 ============================================
 
 .. questions::
