@@ -1,4 +1,4 @@
-# Main routine for heat equation solver in 2D. 
+# Main routine for heat equation solver in 2D.
 # (c) 2023 ENCCS, CSC and the contributors
 from core import *
 
@@ -88,3 +88,4 @@ if __name__ == '__main__':
     #args.rows, args.cols, args.nsteps = 2000, 2000, 500    
     
     main(args)
+
