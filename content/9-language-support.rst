@@ -581,9 +581,20 @@ Numba allows users to just-in-time (JIT) compile Python code to run fast on CPUs
 be used for JIT compiling for GPUs.
 In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.
 
-.. callout:: AMD support deprecated
+.. callout:: Using Numba in AMD GPUs
 
-   Numba supported AMD GPUs up until version 0.53 but has since deprecated the support. 
+   To use Numba with AMD GPUs ``numba-hip`` extension can be used.
+   By adding the following lines in the beginning of the code, a
+   single-source code can be made to work in both Nvidia and AMD GPUs::
+        
+        try:
+            from numba import hip
+        except ImportError:
+            pass
+        else:
+            hip.pose_as_cuda()
+
+   Read more how to install and use it `here <https://github.com/ROCm/numba-hip>`__.
 
 Numba supports GPU programming by directly compiling a restricted subset of Python code 
 into kernels and device functions following the execution model. 
