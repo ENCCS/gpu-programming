@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --job-name=gpuaware-mpiacc
-#SBATCH --account=project_465000485
+#SBATCH --account=project_465002387
 #SBATCH --time=00:05:00
 #SBATCH --partition=standard-g
 #SBATCH --nodes=1
@@ -9,11 +9,9 @@
 #SBATCH --gpus-per-node=4
 #SBATCH -o %x-%j.out
 
-module load CrayEnv
-module load PrgEnv-cray
-module load cray-mpich
-module load craype-accel-amd-gfx90a
-module load rocm
+#Load the LUMI software stack
+module load LUMI/24.03 partition/G
+module load cpeCray
 
 #To enable GPU-aware MPI
 export MPICH_GPU_SUPPORT_ENABLED=1

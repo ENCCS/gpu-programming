@@ -1,11 +1,8 @@
 #!/bin/bash 
 
-#load modules
-ml CrayEnv
-ml PrgEnv-cray
-ml cray-mpich
-ml rocm
-ml craype-accel-amd-gfx90a
+#Load the LUMI software stack
+module load LUMI/24.03 partition/G
+module load cpeCray
 
 #compile
 ftn -hacc -o assignDevice.acc.exe assignDevice_acc.f90
