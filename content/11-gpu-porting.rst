@@ -220,7 +220,7 @@ For instance, in a CUDA code that incorporates the CUDA functions ``cudaMalloc``
 
   .. code-block:: console
 
-           $ module load rocm/5.2.3
+           $ module load rocm/6.0.3
            $ hipify-clang --perl
 
 - **Step 2**: Running the generated ``hipify-perl``
@@ -261,7 +261,7 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
 
   .. code-block:: console
 
-           $ module load rocm/5.2.3
+           $ module load rocm/6.0.3
            $ singularity shell -B $PWD,/opt:/opt cuda_11.4.0-devel-ubuntu20.04.sif
 
   where the current directory ``$PWD`` in the host is mounted to that of the container, and the directory ``/opt`` in the host is mounted to the that inside the container.
@@ -271,9 +271,9 @@ To avoid any eventual issues with the installation procedure we opt for CUDA sin
 
   .. code-block:: console
 
-           $ export PATH=/opt/rocm-5.2.3/bin:$PATH
+           $ export PATH=/opt/rocm-6.0.3/bin:$PATH
 
-  Note that the rocm version we used is ``rocm-5.2.3``.
+  Note that the rocm version we used is ``rocm-6.0.3``.
 
 - **Step 4**: Running ``hipify-clang`` from inside the singularity container
 
@@ -342,8 +342,8 @@ For more advanced usage, which includes for instance modifying ``Clacc``, we ref
 
   .. code-block:: console
 
-           $ export PATH=/project/project_xxxxxx/Clacc/llvm-project/install/bin:$PATH
-           $ export LD_LIBRARY_PATH=/project/project_xxxxxx/Clacc/llvm-project/install/lib:$LD_LIBRARY_PATH
+           $ export PATH=/scratch/project_465002387/clacc/llvm-project/install/bin:$PATH
+           $ export LD_LIBRARY_PATH=/scratch/project_465002387/clacc/llvm-project/install/lib:$LD_LIBRARY_PATH
 
 - **Step 3**: Source to source conversion of the `openACC_code.c` code to be printed out to the file `openMP_code.c`:
 
@@ -360,7 +360,7 @@ For more advanced usage, which includes for instance modifying ``Clacc``, we ref
            module load CrayEnv
            module load PrgEnv-cray
            module load craype-accel-amd-gfx90a
-           module load rocm/5.2.3
+           module load rocm/6.0.3
 
            cc -fopenmp -o executable openMP_code.c
 
