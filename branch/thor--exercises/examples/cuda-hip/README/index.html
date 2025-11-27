@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compiling on LUMI &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script src="../../../_static/clipboard.min.js"></script>
+        <script src="../../../_static/copybutton.js"></script>
+        <script src="../../../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../../../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../../../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Compiling on LUMI</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/examples/cuda-hip/README.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>This folder contains several examples in CUDA and HIP that can be used for the hands on based on the episode <a class="reference external" href="https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/">Non-portable kernel-based models</a>.</p>
+<section id="compiling-on-lumi">
+<h1>Compiling on LUMI<a class="headerlink" href="#compiling-on-lumi" title="Permalink to this heading"></a></h1>
+<p>First load the modules:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">module</span> <span class="n">load</span> <span class="n">LUMI</span><span class="o">/</span><span class="mf">22.08</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">partition</span><span class="o">/</span><span class="n">G</span>
+<span class="n">module</span> <span class="n">load</span> <span class="n">rocm</span><span class="o">/</span><span class="mf">5.3.3</span>
+</pre></div>
+</div>
+<p>This will load the newest ROCm on LUMI.
+Alternatively one could use <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> in the folder which are set to use the <a class="reference external" href="https://docs.lumi-supercomputer.eu/development/compiling/prgenv/#using-hipcc">cray compilers</a>.</p>
+</section>
+<section id="running">
+<h1>Running<a class="headerlink" href="#running" title="Permalink to this heading"></a></h1>
+<p>In order to execute the HIP application on GPU nodes we submit it to the partition <code class="docutils literal notranslate"><span class="pre">standard-g</span></code> (<code class="docutils literal notranslate"><span class="pre">-p</span></code> flag). We have specify as well the running options like number of gpus needed, mpi tasks and CPU core per MPI taks. Below we have an example of a job with 2GPUs, 1 node, 2 MPI tasks and 4 cores per MPI task:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">srun</span> <span class="o">-</span><span class="n">p</span> <span class="n">standard</span><span class="o">-</span><span class="n">g</span> <span class="o">--</span><span class="n">gpus</span> <span class="mi">2</span> <span class="o">-</span><span class="n">N</span> <span class="mi">1</span> <span class="o">-</span><span class="n">n</span> <span class="mi">2</span> <span class="o">-</span><span class="n">c</span> <span class="mi">4</span> <span class="o">--</span><span class="n">time</span><span class="o">=</span><span class="mi">00</span><span class="p">:</span><span class="mi">10</span> <span class="o">--</span><span class="n">account</span><span class="o">=</span><span class="n">project_465000485</span> <span class="o">./</span><span class="n">a</span><span class="o">.</span><span class="n">out</span>
+</pre></div>
+</div>
+<p>Modify this according to the neeeds of the job. Note that the modules should be loaded in the terminal which is used for launching the job.</p>
+</section>
+<section id="exercises-instructions">
+<h1>Exercises instructions<a class="headerlink" href="#exercises-instructions" title="Permalink to this heading"></a></h1>
+<p>The best way to learn programming is to get our hands dirty. Use the example codes in this folder to repoduce the problems presented in the <a class="reference external" href="https://enccs.github.io/gpu-programming/9-non-portable-kernel-models/">Non-portable kernel-based models</a> episode.</p>
+<p>Here are some suggestions for playing around:</p>
+<ul class="simple">
+<li><p>check the GPU assignment in the “Hello World” example.</p>
+<ul>
+<li><p>try  1 MPI taks with multiple GPUs and set the code to use something different from the default <code class="docutils literal notranslate"><span class="pre">device</span> <span class="pre">0</span></code></p></li>
+<li><p>try P nodes with N(&lt;=8)  MPI tasks per node with each MPI task being assigned a different GPU.</p></li>
+</ul>
+</li>
+<li><p>check the vector addition with device memory and with unified memory</p></li>
+<li><p>implement the matrix transpose and compute the effective bandwidths achieved on LUMI GPUs</p></li>
+<li><p>implement a code using 1 GPU and do a reduction on a vector</p></li>
+<li><p>based on the <a class="reference external" href="https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf">CUDA blog</a> try to implement a code using <a class="reference external" href="https://docs.amd.com/bundle/4.5-HIP-API/page/group___stream.html">HIP streams</a>  to perform the vector addition problem or reduction.</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

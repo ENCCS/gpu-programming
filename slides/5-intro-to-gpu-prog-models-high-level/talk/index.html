@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Outline &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/togglebutton.css?v=13237357" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_lesson.css?v=e9df6548" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/term_role_formatting.css?v=4194e21c" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_rtd_theme_ext_color_contrast.css?v=8e8ea19f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/overrides.css?v=eafd8254" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=187304be"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../../../_static/copybutton.js?v=f281be69"></script>
+      <script src="../../../_static/minipres.js?v=a0d29692"></script>
+      <script>let toggleHintShow = 'Click to show';</script>
+      <script>let toggleHintHide = 'Click to hide';</script>
+      <script>let toggleOpenOnPrint = 'true';</script>
+      <script src="../../../_static/togglebutton.js?v=4a39c7ea"></script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+      <script data-domain="enccs.github.io/gpu-programming" defer="defer" src="https://plausible.io/js/script.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../../../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../6-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../7-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../8-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../9-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../10-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../13-examples/">Example: putting it all together</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../guide/">Instructor’s guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">About</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://enccs.se/lessons/">All lessons</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://enccs.se/">ENCCS</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Outline</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/slides/5-intro-to-gpu-prog-models-high-level/talk.md" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="outline">
+<h1>Outline<a class="headerlink" href="#outline" title="Link to this heading"></a></h1>
+<p>Introduce different libraries, show similarities and differences in capabilities</p>
+<ul>
+<li><p>GPU programming with Python</p>
+<p>Numba, Cupy, Jax, PyCUDA/PyOpenCL, CUDA Python / HIP Python</p>
+</li>
+<li><p>GPU programming with Julia</p>
+<p>CUDA.jl / AMDGPU.jl / oneAPI.jl / Metal.jl and KernelAbstractions</p>
+</li>
+</ul>
+<hr class="docutils" />
+<section id="what-is-high-level-programming">
+<h2>What is high-level programming?<a class="headerlink" href="#what-is-high-level-programming" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>Primer on Python and Numpy</p>
+</div></blockquote>
+<p>Either use simple data structures in Python’s standard library and for-loops</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="c1"># Element-wise sum of two &quot;arrays&quot; represented as lists</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1000</span><span class="p">)]</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">a_i</span><span class="p">,</span> <span class="n">b_i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a_i</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b_i</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="id1">
+<h2>What is high-level programming?<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>Primer on Python and Numpy</p>
+</div></blockquote>
+<p>… or you use <strong>efficient data structures</strong> and <strong>vectorized operations</strong></p>
+<p>with expressive syntax!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="numba">
+<h2>Numba<a class="headerlink" href="#numba" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<img alt="https://numba.pydata.org/_static/numba-blue-horizontal-rgb.svg" src="https://numba.pydata.org/_static/numba-blue-horizontal-rgb.svg" />
+</figure>
+<ul>
+<li><p>JIT compiler which supports a subset of Python and Numpy</p></li>
+<li><p><strong>CPU</strong> execution</p>
+<p>via LLVM using <code class="docutils literal notranslate"><span class="pre">llvmlite</span></code> and a C compiler</p>
+</li>
+<li><p><strong>GPU</strong> execution</p>
+<p>via CUDA using <code class="docutils literal notranslate"><span class="pre">nvcc</span></code> and <code class="docutils literal notranslate"><span class="pre">nvrtc</span></code> / <code class="docutils literal notranslate"><span class="pre">cudatoolkit</span></code></p>
+</li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="id2">
+<h2>Numba<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Experimental AMD GPU support through <code class="docutils literal notranslate"><span class="pre">numba-hip</span></code> extension</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numba</span><span class="w"> </span><span class="kn">import</span> <span class="n">hip</span>
+<span class="c1"># Use `@hip.jit` decorator, or</span>
+<span class="c1"># Call `hip.pose_as_cuda()` and use `@cuda.jit`</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="numba-ufuncs-element-wise-vectorized">
+<h2>Numba: ufuncs (element-wise vectorized)<a class="headerlink" href="#numba-ufuncs-element-wise-vectorized" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span>
+	<span class="p">[</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span> 
+	<span class="n">target</span><span class="o">=</span><span class="s2">&quot;cuda&quot;</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">a_plus_sin_b</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10_000_000</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="n">a_plus_sin_b</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="numba-low-level">
+<h2>Numba: low-level<a class="headerlink" href="#numba-low-level" title="Link to this heading"></a></h2>
+<p>Control execution using <code class="docutils literal notranslate"><span class="pre">numba.cuda.threadIdx</span></code>, <code class="docutils literal notranslate"><span class="pre">blockDim</span></code>, <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code>, <code class="docutils literal notranslate"><span class="pre">gridDim</span></code> etc.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numba</span>
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">a_plus_sin_b</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GPU vectorized addition. Computes C = A + B&quot;&quot;&quot;</span>
+    <span class="c1"># like threadIdx.x + (blockIdx.x * blockDim.x)</span>
+    <span class="n">thread_id</span> <span class="o">=</span> <span class="n">numba</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">ndim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">thread_id</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">:</span>
+        <span class="n">c</span><span class="p">[</span><span class="n">thread_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">thread_id</span><span class="p">]</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">thread_id</span><span class="p">])</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10_000_000</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">numba</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_device</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">numba</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">to_device</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">N</span><span class="p">))</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">numba</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">device_array_like</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">grid_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">a_plus_sin_b</span><span class="o">.</span><span class="n">forall</span><span class="p">(</span><span class="n">grid_size</span><span class="p">)(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">copy_to_host</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="jax">
+<h2>Jax<a class="headerlink" href="#jax" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<img alt="https://docs.jax.dev/en/latest/_static/jax_logo_250px.png" src="https://docs.jax.dev/en/latest/_static/jax_logo_250px.png" />
+</figure>
+<ul>
+<li><p>Support a subset of Python and Numpy</p></li>
+<li><p>Drop-in replacement for Numpy</p>
+<p><code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">jax.numpy</span> <span class="pre">as</span> <span class="pre">jnp</span></code></p>
+</li>
+<li><p>Interoperable, uses just-in-time XLA compiler to target CPU, GPU (CUDA and ROCm) and TPU.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="jax-as-drop-in-replacement-for-numpy">
+<h2>Jax as drop-in replacement for Numpy<a class="headerlink" href="#jax-as-drop-in-replacement-for-numpy" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10_000</span><span class="p">))</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">42</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="n">data</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">1111</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+<span class="c1"># compute 90th percentile ignoring NaNs, </span>
+<span class="c1"># and along the rows of an array</span>
+<span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="n">jnp</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="jax-as-jit-compiler">
+<h2>Jax as JIT compiler<a class="headerlink" href="#jax-as-jit-compiler" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax</span><span class="w"> </span><span class="kn">import</span> <span class="n">jit</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">a_plus_sin_b_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="nd">@jit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">a_plus_sin_b_jax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">jnp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">N</span> <span class="o">=</span> <span class="mi">10_000_000</span>
+<span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">)</span>
+<span class="n">a_plus_sin_b_numpy</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>
+<span class="n">a_plus_sin_b_jax</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">vec</span><span class="p">)</span>  <span class="c1"># slightly faster on CPU</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">jax</span><span class="o">.</span><span class="n">devices</span><span class="p">())</span>  <span class="c1"># check for CUDA</span>
+<span class="n">vec_d</span> <span class="o">=</span> <span class="n">jax</span><span class="o">.</span><span class="n">device_put</span><span class="p">(</span><span class="n">mx</span><span class="p">)</span>
+
+<span class="n">a_plus_sin_b_jax</span><span class="p">(</span><span class="n">vec_d</span><span class="p">,</span> <span class="n">vec_d</span><span class="p">)</span>  <span class="c1"># much faster on GPU</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cupy">
+<h2>CuPy<a class="headerlink" href="#cupy" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<img alt="https://cupy.dev/images/cupy.png" src="https://cupy.dev/images/cupy.png" />
+</figure>
+<ul>
+<li><p>Supports a subset of Python, Numpy and Scipy</p></li>
+<li><p>Precompiled wheels for CUDA and ROCm</p></li>
+<li><p>Drop-in support for Numpy and Scipy</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cupyx.scipy.fft</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cufft</span>
+</pre></div>
+</div>
+</li>
+<li><p>JIT compilation</p></li>
+<li><p><a class="reference external" href="https://data-apis.org/array-api/2023.12/index.html">Array API</a> support =&gt; Cupy arrays can use Numpy functions</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="cupy-as-drop-in-replacement-for-numpy">
+<h2>CuPy as drop-in replacement for Numpy<a class="headerlink" href="#cupy-as-drop-in-replacement-for-numpy" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">cp</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">cp</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="cupy-as-compiler-for-custom-kernels">
+<h2>CuPy as compiler for custom kernels<a class="headerlink" href="#cupy-as-compiler-for-custom-kernels" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a_plus_sin_b</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">ElementwiseKernel</span><span class="p">(</span>
+   <span class="s1">&#39;float64 a, float64 b&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;float64 c&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;c = a + sin(b)&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;a_plus_sin_b&#39;</span>
+<span class="p">)</span>
+<span class="n">a_plus_sin_b</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="libraries-for-lower-level-implementation">
+<h2>Libraries for lower level implementation<a class="headerlink" href="#libraries-for-lower-level-implementation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>CUDA Python</p></li>
+<li><p>HIP Python</p></li>
+</ul>
+<p>HIP Python + <code class="docutils literal notranslate"><span class="pre">hip-python-as-cuda</span></code> makes it interoperable with CUDA Python code</p>
+<p><strong>Third-party implementations</strong></p>
+<ul class="simple">
+<li><p>PyCUDA</p></li>
+<li><p>PyOpenCL</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="summary-of-python-libraries">
+<h2>Summary of Python libraries<a class="headerlink" href="#summary-of-python-libraries" title="Link to this heading"></a></h2>
+<div class="r-fit-text">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Numba</p></th>
+<th class="head"><p>Jax</p></th>
+<th class="head"><p>CuPy</p></th>
+<th class="head"><p>Cuda / HIP Python</p></th>
+<th class="head"><p>PyCUDA / PyOpenCL</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Low level</p></td>
+<td><p>✅</p></td>
+<td><p>🤷</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>High level</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p>Numpy compat</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>🤷</p></td>
+<td><p>🤷</p></td>
+</tr>
+<tr class="row-odd"><td><p>CUDA/ROCm interoperability</p></td>
+<td><p>🤷</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>🤷</p></td>
+</tr>
+<tr class="row-even"><td><p>Pre-compiled kernel</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-odd"><td><p>Custom kernels</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<div class="r-fit-text">
+</section>
+<section id="julia">
+<h2>Julia<a class="headerlink" href="#julia" title="Link to this heading"></a></h2>
+<figure class="align-default">
+<img alt="https://julialang.org/assets/infra/logo.svg" src="https://julialang.org/assets/infra/logo.svg" />
+</figure>
+<figure class="align-default">
+<img alt="https://cuda.juliagpu.org/dev/assets/logo.png" src="https://cuda.juliagpu.org/dev/assets/logo.png" />
+</figure>
+<ul class="simple">
+<li><p>Base arrays</p></li>
+<li><p>JuliaGPU project</p></li>
+<li><p>CUDA.jl, AMDGPU.jl, oneAPI.jl, Metal.jl</p></li>
+<li><p>KernelAbstractions</p></li>
+</ul>
+</div>
+</section>
+<hr class="docutils" />
+<section id="about-julia">
+<h2>About Julia<a class="headerlink" href="#about-julia" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>Primer on Julia and the Base libary</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>First, released in 2012 and inspired by MATLAB, Lua, Lisp, Python ….</p></li>
+<li><p>JIT compiled with its core implemented using C and LLVM</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="array-programming-in-julia">
+<h2>Array programming in Julia<a class="headerlink" href="#array-programming-in-julia" title="Link to this heading"></a></h2>
+<blockquote>
+<div><p>Primer on Julia and the Base libary</p>
+</div></blockquote>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+
+<span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">.+</span><span class="w"> </span><span class="n">sin</span><span class="o">.</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Batteries included with <code class="docutils literal notranslate"><span class="pre">AbstractArray</span></code> and Base.Array</p></li>
+<li><p>Sub-types of arrays: <code class="docutils literal notranslate"><span class="pre">Vector</span></code> (1D), <code class="docutils literal notranslate"><span class="pre">Matrix</span></code> (2D),  <code class="docutils literal notranslate"><span class="pre">Array</span></code> (N-D)</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="cuda-jl-amdgpu-jl-oneapi-jl-metal-jl">
+<h2>CUDA.jl,  AMDGPU.jl, oneAPI.jl, Metal.jl<a class="headerlink" href="#cuda-jl-amdgpu-jl-oneapi-jl-metal-jl" title="Link to this heading"></a></h2>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">CUDA</span><span class="w">  </span><span class="c"># or AMDGPU or oneAPI or Metal</span>
+
+<span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">);</span>
+<span class="n">a_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CuArray</span><span class="p">(</span><span class="n">a</span><span class="p">);</span><span class="w">  </span><span class="c"># or ROCArray, oneArray, MtlArray</span>
+
+<span class="n">b_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="c"># Same builtin function from Base can be used</span>
+<span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a_d</span><span class="w"> </span><span class="o">.+</span><span class="w"> </span><span class="n">sin</span><span class="o">.</span><span class="p">(</span><span class="n">b_d</span><span class="p">)</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<div class="r-fit-text">
+<h2>KernelAbstractions for generic functions</h2>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">KernelAbstractions</span>
+
+<span class="nd">@kernel</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="n">a_plus_sin_b!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="nd">@Const</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="w"> </span><span class="nd">@Const</span><span class="p">(</span><span class="n">B</span><span class="p">))</span>
+<span class="w">	 </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nd">@index</span><span class="p">(</span><span class="n">Global</span><span class="p">)</span><span class="w">  </span><span class="c"># get threadIdx</span>
+<span class="w">	 </span><span class="nd">@inbounds</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sin</span><span class="p">(</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">CUDA</span>
+<span class="n">a_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">b_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">c_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">similar</span><span class="p">(</span><span class="n">a_d</span><span class="p">)</span>
+
+<span class="n">backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_backend</span><span class="p">(</span><span class="n">a_d</span><span class="p">)</span>
+<span class="n">a_plus_sin_b!</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span><span class="w"> </span><span class="n">size</span><span class="p">(</span><span class="n">c_d</span><span class="p">))(</span>
+<span class="w">	</span><span class="n">c_d</span><span class="p">,</span><span class="w"> </span><span class="n">a_d</span><span class="p">,</span><span class="w"> </span><span class="n">b_d</span><span class="p">,</span><span class="w"> </span><span class="n">ndrange</span><span class="o">=</span><span class="n">size</span><span class="p">(</span><span class="n">c_d</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

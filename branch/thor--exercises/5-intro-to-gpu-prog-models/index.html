@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to GPU programming models &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="High-level language support" href="../6-language-support/" />
+    <link rel="prev" title="GPU programming concepts" href="../4-gpu-concepts/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to GPU programming models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#standard-c-fortran">Standard C++/Fortran</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#directive-based-programming">Directive-based programming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openacc">OpenACC</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openmp">OpenMP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#non-portable-kernel-based-models-native-programming-models">Non-portable kernel-based models (native programming models)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cuda">CUDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hip">HIP</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#portable-kernel-based-models-cross-platform-portability-ecosystems">Portable kernel-based models (cross-platform portability ecosystems)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Kokkos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">OpenCL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">SYCL</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#high-level-language-support">High-level language support</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python">Python</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#julia">Julia</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exercises">Exercises</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Introduction to GPU programming models</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/5-intro-to-gpu-prog-models.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction-to-gpu-programming-models">
+<span id="intro-to-gpu-prog-models"></span><h1>Introduction to GPU programming models<a class="headerlink" href="#introduction-to-gpu-programming-models" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What are the key differences between different GPU programming approaches?</p></li>
+<li><p>How should I choose which framework to use for my project?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Understand the  basic ideas in different GPU programming frameworks</p></li>
+<li><p>Perform a quick cost-benefit analysis in the context of own code projects</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>20 min teaching</p></li>
+<li><p>0 min exercises</p></li>
+</ul>
+</div>
+<p>There are different ways to use GPUs for computations. In the best case, when someone has already written the code, one only needs to set the parameters and initial configurations in order to get started. Or in some cases the problem is in such a way that it is only needed to use a library to solve the most intensive part of the code.
+However these are quite limited cases and in general some programming might be needed. There are several GPU programming software environments and APIs available such as, <strong>directive-based models</strong>, <strong>non-portable kernel-based models</strong>, and <strong>portable kernel-based models</strong>, as well as high-level frameworks and libraries.</p>
+<section id="standard-c-fortran">
+<h2>Standard C++/Fortran<a class="headerlink" href="#standard-c-fortran" title="Permalink to this heading"></a></h2>
+<p>Programs written in standard C++ and Fortran languages can now take advantage of NVIDIA GPUs without
+depending of any external library. This is possible thanks to the <a class="reference external" href="https://developer.nvidia.com/hpc-sdk">NVIDIA SDK</a>
+suite of compilers that translates and optimizes the code for running on GPUs. Guidelines for writing C++ code
+can be found <a class="reference external" href="https://developer.nvidia.com/blog/accelerating-standard-c-with-gpus-using-stdpar/">here</a> while
+those for Fortran code can be found <a class="reference external" href="https://developer.nvidia.com/blog/accelerating-fortran-do-concurrent-with-gpus-and-the-nvidia-hpc-sdk/">here</a>.
+The performance of these two approaches is promising as it can be seen in the examples provided in those
+guidelines.</p>
+</section>
+<section id="directive-based-programming">
+<h2>Directive-based programming<a class="headerlink" href="#directive-based-programming" title="Permalink to this heading"></a></h2>
+<p>A fast and cheap way is to use <strong>directive based</strong> approaches. In this case the existing <em>serial</em> code is annotated with <em>hints</em> which indicate to the compiler which loops and regions should be executed on the GPU. In the absence of the API the directives are treated as comments and the code will just be executed as a usual serial code. This approach is focused on productivity and easy usage (but to the detriment of performance), and allows employing accelerators with minimum programming effort by adding parallelism to existing code without the need to write accelerator-specific code. There are two common ways to program using directives, namely <strong>OpenACC</strong> and <strong>OpenMP</strong>.</p>
+<section id="openacc">
+<h3>OpenACC<a class="headerlink" href="#openacc" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://www.openacc.org/">OpenACC</a> is developed by a consortium formed in 2010 with the goal of developing a standard, portable, and scalable programming model for accelerators, including GPUs. Members of the OpenACC consortium include GPU vendors, such as NVIDIA and AMD, as well as leading supercomputing centers, universities, and software companies. Until recently it was supporting only NVIDIA GPUs, but now there is effort to support more and more devices and architectures.</p>
+</section>
+<section id="openmp">
+<h3>OpenMP<a class="headerlink" href="#openmp" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://www.openmp.org/">OpenMP</a> starts a multi-platform, shared-memory parallel programming API for multi-core CPUs and adds relatively recently support for GPU offloading. It aims to support various types of GPUs.</p>
+<p>In theory the directive based approaches should work with both C/C++ and FORTRAN codes and third party extensions are available for other languages.</p>
+</section>
+</section>
+<section id="non-portable-kernel-based-models-native-programming-models">
+<h2>Non-portable kernel-based models (native programming models)<a class="headerlink" href="#non-portable-kernel-based-models-native-programming-models" title="Permalink to this heading"></a></h2>
+<p>When doing direct GPU programming the developer has a large level of control by writing low-level code that directly communicates with the GPU and its hardware. Theoretically direct GPU programming methods provide the ability to write low-level, GPU-accelerated code that can provide significant performance improvements over CPU-only code. However, they also require a deeper understanding of the GPU architecture and its capabilities, as well as the specific programming method being used. Multiple examples of CUDA/HIP code are available in the <a class="reference external" href="https://github.com/ENCCS/gpu-programming/tree/main/content/examples/cuda-hip">content/examples/cuda-hip</a> directory of this repository.</p>
+<section id="cuda">
+<h3>CUDA<a class="headerlink" href="#cuda" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://developer.nvidia.com/cuda-toolkit">CUDA</a> is a parallel computing platform and API developed by NVIDIA. It is historically the first mainstream GPU programming framework. It allows developers to write C++-like code that is executed on the GPU. CUDA provides a set of libraries and tools for low-level GPU programming and provides a performance boost for demanding computationally-intensive applications. While there is an extensive ecosystem, CUDA is restricted to NVIDIA hardware.</p>
+</section>
+<section id="hip">
+<h3>HIP<a class="headerlink" href="#hip" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://github.com/ROCm-Developer-Tools/HIP">HIP</a> (Heterogeneous Interface for Portability) is an API developed by AMD that provides a low-level interface for GPU programming. HIP is designed to provide a single source code that can be used on both NVIDIA and AMD GPUs. It is based on the CUDA programming model and provides an almost identical programming interface to CUDA.</p>
+</section>
+</section>
+<section id="portable-kernel-based-models-cross-platform-portability-ecosystems">
+<h2>Portable kernel-based models (cross-platform portability ecosystems)<a class="headerlink" href="#portable-kernel-based-models-cross-platform-portability-ecosystems" title="Permalink to this heading"></a></h2>
+<p>Cross-platform portability ecosystems typically provide a higher-level abstraction layer which provide a convenient and portable programming model for GPU programming. They can help reduce the time and effort required to maintain and deploy GPU-accelerated applications. The goal of these ecosystems is achieving performance portability with a single-source application. In C++, the most notable cross-platform portability ecosystems are <a class="reference external" href="https://alpaka.readthedocs.io/">Alpaka</a>, <a class="reference external" href="https://github.com/kokkos/kokkos">Kokkos</a>, <a class="reference external" href="https://www.khronos.org/opencl/">OpenCL</a> (C and C++ APIs), <a class="reference external" href="https://github.com/LLNL/RAJA">RAJA</a>, and <a class="reference external" href="https://www.khronos.org/sycl/">SYCL</a>.</p>
+<section id="id5">
+<h3>Kokkos<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://github.com/kokkos/kokkos">Kokkos</a> is an open-source performance portable programming model for heterogeneous parallel computing that has been so far mostly developed at Sandia National Laboratories. It is a C++-based ecosystem that provides a programming model for developing efficient and scalable parallel applications that run on many-core architectures such as CPUs, GPUs, and FPGAs. The Kokkos ecosystem consists of several components, such as the Kokkos core library, which provides parallel execution and memory abstraction, the Kokkos kernels library, which provides math kernels for linear algebra and graph algorithms, and the Kokkos tools library, which provides profiling and debugging tools. Kokkos components integrate well with other software libraries and technologies, such as MPI and OpenMP. Furthermore, the project collaborates with other projects, in order to provide interoperability and standardization for portable C++ programming.</p>
+</section>
+<section id="id7">
+<h3>OpenCL<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://www.khronos.org/opencl/">OpenCL</a> (Open Computing Language) is a cross-platform, open-standard API for general-purpose parallel computing on CPUs, GPUs and FPGAs. It supports a wide range of hardware from multiple vendors. OpenCL provides a low-level programming interface for GPU programming and enables developers to write programs that can be executed on a variety of platforms. Unlike programming models such as CUDA, HIP, Kokkos, and SYCL, OpenCL uses a separate-source model. Recent versions of the OpenCL standard added C++ support for both API and the kernel code, but the C-based interface is still more widely used.
+The OpenCL Working Group doesn’t provide any frameworks of its own. Instead, vendors who produce OpenCL-compliant devices release frameworks as part of their software development kits (SDKs). The two most popular OpenCL SDKs are released by NVIDIA and AMD. In both cases, the development kits are free and contain the libraries and tools that make it possible to build OpenCL applications</p>
+</section>
+<section id="id9">
+<h3>SYCL<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<p><a class="reference external" href="https://www.khronos.org/sycl/">SYCL</a> is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. Originally SYCL was developed on top of OpenCL, however it is not limited to just that. It can be implemented on top of other low-level heterogeneous computing APIs, such as CUDA or HIP, enabling developers to write programs that can be executed on a variety of platforms. Note that while SYCL is relatively high-level model, the developers are still required to write GPU kernels explicitly.</p>
+<p>While Alpaka, Kokkos, and RAJA refer to specific projects, SYCL itself is only a standard, for which several implementations exist. For GPU programming, <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel oneAPI DPC++</a> (supporting Intel GPUs natively, and NVIDIA and AMD GPUs with <a class="reference external" href="https://codeplay.com/solutions/oneapi/">Codeplay oneAPI plugins</a>) and <a class="reference external" href="https://github.com/OpenSYCL/OpenSYCL">hipSYCL</a> (also known as Open SYCL, supporting NVIDIA and AMD GPUs, with experimental Intel GPU support available in combination with Intel oneAPI DPC++) are the most widely used. Other implementations of note are <a class="reference external" href="https://github.com/triSYCL/triSYCL">triSYCL</a> and <a class="reference external" href="https://developer.codeplay.com/products/computecpp/ce/home/">ComputeCPP</a>.</p>
+</section>
+</section>
+<section id="high-level-language-support">
+<h2>High-level language support<a class="headerlink" href="#high-level-language-support" title="Permalink to this heading"></a></h2>
+<section id="python">
+<h3>Python<a class="headerlink" href="#python" title="Permalink to this heading"></a></h3>
+<p>Python offers support for GPU programming through several libraries, including:</p>
+<p><strong>CuPy</strong></p>
+<p>CuPy is a GPU-based data array library compatible with NumPy/SciPy. It offers a highly
+similar interface to NumPy and SciPy, making it easy for developers to transition to GPU computing.
+To utilize CuPy, simply replace ‘numpy’ and ‘scipy’ with ‘cupy’ and ‘cupyx.scipy’ in your Python code.</p>
+<p><strong>cuDF</strong></p>
+<p>RAPIDS is a high level package collections which implement CUDA functionalities and API with
+Python bindings. cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU.
+cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work
+without knowing too much CUDA programming.</p>
+<p><strong>PyCUDA</strong></p>
+<p>PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA’s CUDA API from Python.
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.</p>
+<p><strong>Numba</strong></p>
+<p>Similarly as for CPUs, Numba allows users to JIT compile Python code to work on GPU as well. Numba supports GPUs from NVIDIA and will likely support AMD GPUs in the future.</p>
+</section>
+<section id="julia">
+<h3>Julia<a class="headerlink" href="#julia" title="Permalink to this heading"></a></h3>
+<p>Julia has first-class support for GPU programming through the following
+packages that target GPUs from all three major vendors:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://cuda.juliagpu.org/stable/">CUDA.jl</a> for NVIDIA GPUs</p></li>
+<li><p><a class="reference external" href="https://amdgpu.juliagpu.org/stable/">AMDGPU.jl</a> for AMD GPUs</p></li>
+<li><p><a class="reference external" href="https://github.com/JuliaGPU/oneAPI.jl">oneAPI.jl</a> for Intel GPUs</p></li>
+<li><p><a class="reference external" href="https://github.com/JuliaGPU/Metal.jl">Metal.jl</a> for Apple M-series GPUs</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA.jl</span></code> is the most mature, <code class="docutils literal notranslate"><span class="pre">AMDGPU.jl</span></code> is somewhat behind but still
+ready for general use, while <code class="docutils literal notranslate"><span class="pre">oneAPI.jl</span></code> and <code class="docutils literal notranslate"><span class="pre">Metal.jl</span></code> are functional but might
+contain bugs, miss some features and provide suboptimal performance.
+Their respective APIs are however completely analogous
+and translation between libraries is straightforward.</p>
+<p>All packages offer both high-level abstractions that require
+very little programming effort and a lower level approach for writing kernels
+for fine-grained control.</p>
+<div class="dropdown admonition">
+<p class="admonition-title">In short</p>
+<ul class="simple">
+<li><p><strong>Directive-based Programming:</strong></p>
+<ul>
+<li><p>Existing serial code is annotated with directives to indicate which parts should be executed on the GPU.</p></li>
+<li><p>OpenACC and OpenMP are common directive-based programming models.</p></li>
+<li><p>Productivity and easy usage are prioritized over performance.</p></li>
+<li><p>Minimum programming effort is required to add parallelism to existing code.</p></li>
+</ul>
+</li>
+<li><p><strong>Non-portable Kernel-based Models:</strong></p>
+<ul>
+<li><p>Low-level code is written to directly communicate with the GPU.</p></li>
+<li><p>CUDA is NVIDIA’s parallel computing platform and API for GPU programming.</p></li>
+<li><p>HIP is an API developed by AMD that provides a similar programming interface to CUDA for both NVIDIA and AMD GPUs.</p></li>
+<li><p>Deeper understanding of GPU architecture and programming methods is needed.</p></li>
+</ul>
+</li>
+<li><p><strong>Portable Kernel-based Models:</strong></p>
+<ul>
+<li><p>Higher-level abstractions for GPU programming that provide portability.</p></li>
+<li><p>Examples include Alpaka, Kokkos, OpenCL, RAJA, and SYCL.</p></li>
+<li><p>Aim to achieve performance portability with a single-source application.</p></li>
+<li><p>Can run on various GPUs and platforms, reducing the effort required to maintain and deploy GPU-accelerated applications.</p></li>
+</ul>
+</li>
+<li><p><strong>High-level Language Support:</strong></p>
+<ul>
+<li><p>Python libraries like CuPy, cuDF, PyCUDA, and Numba offer GPU programming capabilities.</p></li>
+<li><p>Julia has packages such as CUDA.jl, AMDGPU.jl, oneAPI.jl, and Metal.jl for GPU programming.</p></li>
+<li><p>These libraries provide high-level abstractions and interfaces for GPU programming in their respective languages.</p></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Permalink to this heading"></a></h2>
+<p>Each of these GPU programming environments has its own strengths and weaknesses,
+and the best choice for a given project will depend on a range of factors, including:</p>
+<ul class="simple">
+<li><p>the hardware platforms being targeted</p></li>
+<li><p>the type of computation being performed, and</p></li>
+<li><p>the developer’s experience and preferences.</p></li>
+</ul>
+<p><strong>High-level and productivity-focused APIs</strong> provide a simplified programming model and maximize code portability,
+while <strong>low-level and performance-focused APIs</strong> provide a high level of control over the GPU’s hardware but also
+require more coding effort and expertise.</p>
+</section>
+<section id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this heading"></a></h2>
+<div class="admonition-discussion exercise important admonition" id="exercise-0">
+<p class="admonition-title">Discussion</p>
+<ul class="simple">
+<li><p>Which GPU programming frameworks have you used previously, if any?</p></li>
+<li><p>What did you find most challenging? What was most useful?</p></li>
+</ul>
+</div>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>GPU programming approaches can be split into 1) directive-based, 2) non-portable kernel-based, 3) portable kernel-based, and 4) high-level language support.</p></li>
+<li><p>There are multiple frameworks/languages available for each approach, each with pros and cons.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../4-gpu-concepts/" class="btn btn-neutral float-left" title="GPU programming concepts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../6-language-support/" class="btn btn-neutral float-right" title="High-level language support" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Introduction to GPU hardware &mdash; GPU programming: why, when and how?  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="What problems fit to GPU?" href="../3-gpu-problems/" />
+    <link rel="prev" title="Why GPUs?" href="../1-gpu-history/" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../" class="icon icon-home"> GPU programming: why, when and how?
+          
+
+          
+            
+            <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to GPU hardware</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview-of-gpu-hardware">Overview of GPU hardware</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-do-gpus-differ-from-cpus">How do GPUs differ from CPUs?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#summary">Summary</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-gpu-software/">GPU software environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-gpu-levels/">GPU programming types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-examples/">Problem example: heat equation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Introduction to GPU hardware</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/ENCCS/GPU-programming/blob/main/content/2-gpu-hardware.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <section id="introduction-to-gpu-hardware">
+<span id="gpu-hardware"></span><h1>Introduction to GPU hardware<a class="headerlink" href="#introduction-to-gpu-hardware" title="Permalink to this heading">¶</a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>q1</p></li>
+<li><p>q2</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>o1</p></li>
+<li><p>o2</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>X min teaching</p></li>
+<li><p>X min exercises</p></li>
+</ul>
+</div>
+<section id="overview-of-gpu-hardware">
+<h2>Overview of GPU hardware<a class="headerlink" href="#overview-of-gpu-hardware" title="Permalink to this heading">¶</a></h2>
+<figure class="align-center" id="id1">
+<img alt="../_images/CPUAndGPU.png" src="../_images/CPUAndGPU.png" />
+<figcaption>
+<p><span class="caption-text">A comparison of the CPU and GPU architecture.
+CPU (left) has complex core structure and pack several cores on a single chip.
+GPU cores are very simple in comparison, they also share data and control between each other.
+This allows to pack more cores on a single chip, thus achieving very high compute density.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</figcaption>
+</figure>
+<p>One of the most important features that allows the accelerators to reach this high performance is their scalability.
+Computational cores on accelerators are usually grouped into multiprocessors.
+The multiprocessors share the data and logical elements.
+This alows to achieve a very high density of a compute elements on a GPU.
+This also allows for better scaling: more multiprocessors means more raw performance and this is very easy to achieve with more transistors available.</p>
+<p>Accelerators are a separate main circuit board with the processor, memory, power management, etc.
+It is connected to the motherboard with CPUs via PCIe bus.
+Having its own memory means that the data has to be copied to and from it.
+CPU acts as a main processor, controlling the execution workflow.
+It copies the data from its own memory to the GPU memory, executes the program and copies the results back.
+GPUs runs tens of thousands of threads simultaneously on thousands of cores and does not do much of the data management.
+With many cores trying to access the memory simultaneously and with little cache available, the accelerator can run out of memory very quickly.
+This makes the data management and its access pattern is essential on the GPU.
+Accelerators like to be overloaded with the number of threads, because they can switch between threads very quickly.
+This allows to hide the memory operations: while some threads wait, others can compute.</p>
+<section id="how-do-gpus-differ-from-cpus">
+<h3>How do GPUs differ from CPUs?<a class="headerlink" href="#how-do-gpus-differ-from-cpus" title="Permalink to this heading">¶</a></h3>
+<p>CPUs and GPUs were designed with different goals in mind. While the CPU
+is designed to excel at executing a sequence of operations, called a thread,
+as fast as possible and can execute a few tens of these threads in parallel,
+the GPU is designed to excel at executing many thousands of them in parallel.
+GPUs were initially developed for highly-parallel task of graphic processing
+and therefore designed such that more transistors are devoted to data processing
+rather than data caching and flow control. More transistors dedicated to
+data processing is beneficial for highly parallel computations; the GPU can
+hide memory access latencies with computation, instead of relying on large data caches
+and complex flow control to avoid long memory access latencies,
+both of which are expensive in terms of transistors.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>CPU</p></th>
+<th class="head"><p>GPU</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>General purpose</p></td>
+<td><p>Highly specialized for parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Good for serial processing</p></td>
+<td><p>Good for parallel processing</p></td>
+</tr>
+<tr class="row-even"><td><p>Great for task parallelism</p></td>
+<td><p>Great for data parallelism</p></td>
+</tr>
+<tr class="row-odd"><td><p>Low latency per thread</p></td>
+<td><p>High-throughput</p></td>
+</tr>
+<tr class="row-even"><td><p>Large area dedicated cache and control</p></td>
+<td><p>Hundreds of floating-point execution units</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>GPUs are highly parallel devices that can execute certain parts of the program in many parallel threads.</p></li>
+<li><p>CPU controls the works flow and makes all the allocations and data transfers.</p></li>
+<li><p>In order to use the GPU efficiently, one has to split their the problem  in many parts that can run simultaneously.</p></li>
+</ul>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>k1</p></li>
+<li><p>k2</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../3-gpu-problems/" class="btn btn-neutral float-right" title="What problems fit to GPU?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../1-gpu-history/" class="btn btn-neutral float-left" title="Why GPUs?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2022, The contributors.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

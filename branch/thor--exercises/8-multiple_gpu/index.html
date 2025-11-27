@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiple GPU programming with MPI &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Non-portable kernel-based models" href="../9-non-portable-kernel-models/" />
+    <link rel="prev" title="Directive-based models" href="../7-directive-based-models/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Multiple GPU programming with MPI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#assigning-mpi-ranks-to-gpu-devices">Assigning MPI-ranks to GPU-devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hybrid-mpi-openacc-openmp-without-gpu-awareness-approach">Hybrid MPI-OpenACC/OpenMP without GPU-awareness approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hybrid-mpi-openacc-openmp-with-gpu-awareness-approach">Hybrid MPI-OpenACC/OpenMP with GPU-awareness approach</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compilation-process">Compilation process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#exercises">Exercises</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Multiple GPU programming with MPI</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/8-multiple_gpu.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="multiple-gpu-programming-with-mpi">
+<span id="multiple-gpus"></span><h1>Multiple GPU programming with MPI<a class="headerlink" href="#multiple-gpu-programming-with-mpi" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>What approach should be adopted to extend the synchronous OpenACC and OpenMP offloading models to utilise multiple GPUs across multiple nodes?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>To learn about combining MPI with either OpenACC or OpenMP offloading models.</p></li>
+<li><p>To learn about implementing GPU-awareness MPI approach.</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>30 min teaching</p></li>
+<li><p>30 min exercises</p></li>
+</ul>
+</div>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>Exploring multiple GPUs (Graphics Processing Units) across distributed nodes offers the potential to fully leveraging the capacity of modern HPC (High-Performance Computing) systems at a large scale. Here one of the approaches to accelerate computing on distributed systems is to combine MPI (Message Passing Interface) with a GPU programming model such as OpenACC and OpenMP application programming interfaces (APIs). This combination is motivated by both the simplicity of these APIs, and the widespread use of MPI.</p>
+<p>In this guide we provide readers, who are familiar with MPI, with insighits on implementing a hybrid model in which the MPI communication framework is combined with either OpenACC or OpenMP APIs. A special focus will be on performing point-to-point (e.g. <cite>MPI_Send</cite> and <cite>MPI_Recv</cite>) and collective operations (e.g. <cite>MPI_Allreduce</cite>) from OpenACC and OpenMP APIs. Here we address two scenarios: (i) a scenario in which MPI operations are performed in the CPU-host followed by an offload to the GPU-device; and (ii) a scenario in which MPI operations are performed between a pair of GPUs without involving the CPU-host memory. The latter scenario is referred to as GPU-awareness MPI, and has the advantage of reducing the computing time caused by transferring data via the host-memory during heterogenous communications, thus rendering HPC applications efficient.</p>
+<p>This guide is organized as follows: we first introduce how to assign each MPI rank to a GPU device within the same node. We consider a situation in which the host and the device have a distinct memory. This is followed by a presentation on the hybrid MPI-OpenACC/OpenMP offloading with and without the GPU-awareness MPI. Exercises to help understanding these concepts are provided at the end.</p>
+</section>
+<section id="assigning-mpi-ranks-to-gpu-devices">
+<h2>Assigning MPI-ranks to GPU-devices<a class="headerlink" href="#assigning-mpi-ranks-to-gpu-devices" title="Permalink to this heading"></a></h2>
+<p>Accelerating MPI applications to utilise multiple GPUs on distributed nodes requires as a first step assigning each MPI rank to a GPU device, such that two MPI ranks do not use the same GPU device. This is necessarily in order to prevent the application from a potential crash. This is because GPUs are designed to handle multiple threading tasks, but not multiple MPI ranks.</p>
+<p>One of the way to ensure that two MPI ranks do not use the same GPU, is to determine which MPI processes run on the same node, such that each process can be assigned to a GPU device within the same node. This can be done, for instance, by splitting the world communicator into sub-groups of communicators (or sub-communicators) using the routine <cite>MPI_COMM_SPLIT_TYPE()</cite>.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">Splitting communicator in MPI</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">! Split the world communicator into subgroups of commu, each of which</span>
+<span class="w">    </span><span class="c">! contains processes that run on the same node, and which can create a</span>
+<span class="w">    </span><span class="c">! shared memory region (via the type MPI_COMM_TYPE_SHARED).</span>
+<span class="w">    </span><span class="c">! The call returns a new communicator &quot;host_comm&quot;, which is created by</span>
+<span class="w">    </span><span class="c">! each subgroup.        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SPLIT_TYPE</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_TYPE_SHARED</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,&amp;</span>
+<span class="w">                            </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">host_comm</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">host_comm</span><span class="p">,</span><span class="w"> </span><span class="n">host_rank</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<p>Here, the size of each sub-communicator corresponds to the number of GPUs per node (which is also the number of tasks per node), and each sub-communicator contains a list of processes indicated by a rank. These processes have a shared-memory region defined by the argument <cite>MPI_COMM_TYPE_SHARED</cite> (see the <a class="reference external" href="https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf">MPI report</a>) for more details). Calling the routine <cite>MPI_COMM_SPLIT_TYPE()</cite> returns a sub-communicator labelled in the code above <em>”host_comm”</em>, and in which MPI-ranks are ranked from 0 to number of processes per node -1. These MPI ranks are in turn assigned to different GPU devices within the same node. This procedure is done according to which directive-based model is implemented. The retrieved MPI ranks are then stored in the variable <strong>myDevice</strong>. The variable is passed to an OpenACC or OpenMP routine as indicated in the code below.</p>
+<div class="admonition-example-assign-device typealong toggle-shown dropdown admonition" id="typealong-0">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">Assign</span> <span class="pre">device</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">OpenACC</button><button aria-controls="panel-1-1-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-1-1-1" name="1-1" role="tab" tabindex="-1">OpenMP</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">myDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host_rank</span>
+
+<span class="w">    </span><span class="c">! Sets the device number and the device type to be used</span>
+<span class="w">    </span><span class="k">call </span><span class="n">acc_set_device_num</span><span class="p">(</span><span class="n">myDevice</span><span class="p">,</span><span class="w"> </span><span class="n">acc_get_device_type</span><span class="p">())</span>
+
+<span class="w">    </span><span class="c">! Returns the number of devices available on the host</span>
+<span class="w">    </span><span class="n">numDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">acc_get_num_devices</span><span class="p">(</span><span class="n">acc_get_device_type</span><span class="p">())</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-1-1" class="sphinx-tabs-panel" hidden="true" id="panel-1-1-1" name="1-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="n">myDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host_rank</span>
+
+<span class="w">    </span><span class="c">! Sets the device number to use in device constructs by setting the initial value of the default-device-var </span>
+<span class="w">    </span><span class="k">call </span><span class="n">omp_set_default_device</span><span class="p">(</span><span class="n">myDevice</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Returns the number of devices available for offloading.</span>
+<span class="w">    </span><span class="n">numDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_devices</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Another useful function for retrieving the device number of a specific device, which is useful, e.g., to map data to a specific device is</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">OpenACC</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">OpenMP</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">acc_get_device_num</span><span class="p">()</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="n">omp_get_device_num</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></div>
+<p>The syntax of assigning MPI ranks to GPU devices is summarised below</p>
+<div class="admonition-example-set-device typealong toggle-shown dropdown admonition" id="typealong-1">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">Set</span> <span class="pre">device</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">MPI-OpenACC</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">MPI-OpenMP</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">! Initialise MPI communication      </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="c">! Identify the ID rank (process)        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">myid</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">! Get number of active processes (from 0 to nproc-1)        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">nproc</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Split the world communicator into subgroups of commu, each of which</span>
+<span class="w">    </span><span class="c">! contains processes that run on the same node, and which can create a</span>
+<span class="w">    </span><span class="c">! shared memory region (via the type MPI_COMM_TYPE_SHARED).</span>
+<span class="w">    </span><span class="c">! The call returns a new communicator &quot;host_comm&quot;, which is created by</span>
+<span class="w">    </span><span class="c">! each subgroup.        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SPLIT_TYPE</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_TYPE_SHARED</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,&amp;</span>
+<span class="w">                            </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">host_comm</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">host_comm</span><span class="p">,</span><span class="w"> </span><span class="n">host_rank</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Gets the node name</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_GET_PROCESSOR_NAME</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">resulten</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">myDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host_rank</span>
+
+<span class="w">    </span><span class="c">! Sets the device number and the device type to be used</span>
+<span class="w">    </span><span class="k">call </span><span class="n">acc_set_device_num</span><span class="p">(</span><span class="n">myDevice</span><span class="p">,</span><span class="w"> </span><span class="n">acc_get_device_type</span><span class="p">())</span>
+
+<span class="w">    </span><span class="c">! Returns the number of devices available on the host</span>
+<span class="w">    </span><span class="n">numDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">acc_get_num_devices</span><span class="p">(</span><span class="n">acc_get_device_type</span><span class="p">())</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">! Initialise MPI communication      </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_Init</span><span class="p">(</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="c">! Identify the ID rank (process)        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">myid</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">! Get number of active processes (from 0 to nproc-1)        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SIZE</span><span class="p">(</span><span class="w"> </span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">nproc</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Split the world communicator into subgroups of commu, each of which</span>
+<span class="w">    </span><span class="c">! contains processes that run on the same node, and which can create a</span>
+<span class="w">    </span><span class="c">! shared memory region (via the type MPI_COMM_TYPE_SHARED).</span>
+<span class="w">    </span><span class="c">! The call returns a new communicator &quot;host_comm&quot;, which is created by</span>
+<span class="w">    </span><span class="c">! each subgroup.        </span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_SPLIT_TYPE</span><span class="p">(</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">MPI_COMM_TYPE_SHARED</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,&amp;</span>
+<span class="w">                            </span><span class="n">MPI_INFO_NULL</span><span class="p">,</span><span class="w"> </span><span class="n">host_comm</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_COMM_RANK</span><span class="p">(</span><span class="n">host_comm</span><span class="p">,</span><span class="w"> </span><span class="n">host_rank</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Gets the node name</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_GET_PROCESSOR_NAME</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">resulten</span><span class="p">,</span><span class="w"> </span><span class="n">ierror</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">myDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">host_rank</span>
+
+<span class="w">    </span><span class="c">! Sets the device number to use in device constructs by setting the initial value of the default-device-var </span>
+<span class="w">    </span><span class="k">call </span><span class="n">omp_set_default_device</span><span class="p">(</span><span class="n">myDevice</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">! Returns the number of devices available for offloading.</span>
+<span class="w">    </span><span class="n">numDevice</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">omp_get_num_devices</span><span class="p">()</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+</section>
+<section id="hybrid-mpi-openacc-openmp-without-gpu-awareness-approach">
+<h2>Hybrid MPI-OpenACC/OpenMP without GPU-awareness approach<a class="headerlink" href="#hybrid-mpi-openacc-openmp-without-gpu-awareness-approach" title="Permalink to this heading"></a></h2>
+<p>After covering how to assign each MPI-rank to a GPU device, we now address the concept of combining MPI with either
+OpenACC or OpenMP offloading. In this approach, calling an MPI routine from an OpenACC or OpenMP API requires updating the data in the CPU host before and after an MPI call. In this scenario, the data is copied back and forth between the host and the device before and after each MPI call. In the hybrid MPI-OpenACC model, the procedure is defined by specifying the directive <cite>update host()</cite> for copying the data from the device to the host before an MPI call; and by the directive <cite>update device()</cite> specified after an MPI call for copying the data back to the device. Similarly in the hybrid MPI-OpenMP. Here, updating the data in the host can be done by specifying the OpenMP directives <cite>update device() from()</cite> and <cite>update device() to()</cite>, respectively, for copying the data from the device to the host and back to the device.</p>
+<p>To illustrate the concept of the hybrid MPI-OpenACC/OpenMP, we show below an example of an implementation that involves the MPI functions <cite>MPI_Send()</cite> and <cite>MPI_Recv()</cite>.</p>
+<div class="admonition-example-update-host-device-directives typealong toggle-shown dropdown admonition" id="typealong-2">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">Update</span> <span class="pre">host/device</span> <span class="pre">directives</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0">MPI-OpenACC</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1">MPI-OpenMP</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$acc enter data copyin(f)</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from GPU to CPU</span>
+<span class="w">    </span><span class="c">!$acc update host(f)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from CPU to GPU</span>
+<span class="w">    </span><span class="c">!$acc update device(f)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$omp target enter data device(myDevice) map(to:f)</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from GPU to CPU</span>
+<span class="w">    </span><span class="c">!$omp target update device(myDevice) from(f)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from CPU to GPU</span>
+<span class="w">    </span><span class="c">!$omp target update device(myDevice) to(f)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Here we present a code example that combines MPI with OpenACC/OpenMP API.</p>
+<div class="admonition-example-update-host-device-directives typealong toggle-shown dropdown admonition" id="typealong-3">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">Update</span> <span class="pre">host/device</span> <span class="pre">directives</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-5-5-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-5-5-0" name="5-0" role="tab" tabindex="0">MPI-OpenACC</button><button aria-controls="panel-5-5-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-1" name="5-1" role="tab" tabindex="-1">MPI-OpenMP</button></div><div aria-labelledby="tab-5-5-0" class="sphinx-tabs-panel" id="panel-5-5-0" name="5-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">call </span><span class="n">MPI_Scatter</span><span class="p">(</span><span class="n">f_send</span><span class="p">,</span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$acc enter data copyin(f)</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from GPU to CPU</span>
+<span class="w">    </span><span class="c">!$acc update host(f)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from CPU to GPU</span>
+<span class="w">    </span><span class="c">!$acc update device(f)</span>
+
+<span class="w">    </span><span class="c">!do something .e.g.</span>
+<span class="w">    </span><span class="c">!$acc kernels</span>
+<span class="w">    </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="o">/</span><span class="mf">2.</span>
+<span class="w">    </span><span class="c">!$acc end kernels</span>
+
+<span class="w">    </span><span class="n">SumToT</span><span class="o">=</span><span class="mi">0</span><span class="n">d0</span>
+<span class="w">    </span><span class="c">!$acc parallel loop reduction(+:SumToT)</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">SumToT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SumToT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$acc end parallel loop</span>
+
+<span class="w">    </span><span class="c">!SumToT is by default copied back to the CPU</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!$acc exit data delete(f)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-1" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-1" name="5-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">call </span><span class="n">MPI_Scatter</span><span class="p">(</span><span class="n">f_send</span><span class="p">,</span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$omp target enter data device(myDevice) map(to:f)</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from GPU to CPU</span>
+<span class="w">    </span><span class="c">!$omp target update device(myDevice) from(f)</span>
+
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="w">    </span><span class="c">!update f: copy f from CPU to GPU</span>
+<span class="w">    </span><span class="c">!$omp target update device(myDevice) to(f)</span>
+
+<span class="w">    </span><span class="c">!do something .e.g.</span>
+<span class="w">    </span><span class="c">!$omp target teams distribute parallel do</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do</span>
+
+<span class="w">    </span><span class="n">SumToT</span><span class="o">=</span><span class="mi">0</span><span class="n">d0</span>
+<span class="w">    </span><span class="c">!$omp target teams distribute parallel do reduction(+:SumToT)</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">SumToT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SumToT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do  </span>
+
+<span class="w">    </span><span class="c">!SumToT is by default copied back to the CPU</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!$omp target exit data map(delete:f)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Despite the simplicity of implementing the hybrid MPI-OpenACC/OpenMP offloading, it suffers from a low performance caused by an explicit transfer of data between the host and the device before and after calling an MPI routine. This constitutes a bottleneck in GPU-programming. To improve the performance affected by the host staging during the data transfer, one can implement the GPU-awareness MPI approach as described in the following section.</p>
+</section>
+<section id="hybrid-mpi-openacc-openmp-with-gpu-awareness-approach">
+<h2>Hybrid MPI-OpenACC/OpenMP with GPU-awareness approach<a class="headerlink" href="#hybrid-mpi-openacc-openmp-with-gpu-awareness-approach" title="Permalink to this heading"></a></h2>
+<p>The concept of the GPU-aware MPI enables an MPI library to directly access the GPU-device memory without necessarily using the CPU-host memory as an intermediate buffer (see e.g. <a class="reference external" href="https://docs.open-mpi.org/en/v5.0.0rc9/networking/cuda.html">here</a>). This offers the benefit of transferring data from one GPU to another GPU without the involvement of the CPU-host memory.</p>
+<p>To be specific, in the GPU-awareness approach, the device pointers point to the data allocated in the GPU memory space (data should be present in the GPU device). Here, the pointers are passed as arguments to an MPI routine that is supported by the GPU memory. As MPI routines can directly access GPU memory, it offers the possibility of communicating between pairs of GPUs without transferring data back to the host.</p>
+<p>In the hybrid MPI-OpenACC model, the concept is defined by combining the directive <cite>host_data</cite> together with the clause
+<cite>use_device(list_array)</cite>. This combination enables the access to the arrays listed in the clause <cite>use_device(list_array)</cite> from the host (see <a class="reference external" href="https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf">here</a>). The list of arrays, which are already present in the GPU-device memory, are directly passed to an MPI routine without a need of a staging host-memory for copying the data. Note that for initially copying data to GPU, we use unstructured data blocks characterized by the directives <cite>enter data</cite> and <cite>exit data</cite>. The unstructured data has the advantage of allowing to allocate and deallocate arrays within a data region.</p>
+<p>To illustarte the concept of the GPU-awareness MPI, we show below two examples that make use of point-to-point and collective operations from OpenACC and OpenMP APIs. In the first code example, the device pointer <strong>f</strong> is passed to the MPI functions <cite>MPI_Send()</cite> and <cite>MP_Recv()</cite>; and in the second one, the pointer <strong>SumToT</strong> is passed to the MPI function <cite>MPI_Allreduce</cite>. Here, the MPI operations <cite>MPI_Send</cite> and <cite>MPI_Recv</cite> as well as <cite>MPI_Allreduce</cite> are performed between a pair of GPUs without passing through the CPU-host memory.</p>
+<div class="admonition-example-gpu-awareness-mpi-send-mpi-recv typealong toggle-shown dropdown admonition" id="typealong-4">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">GPU-awareness:</span> <span class="pre">MPI_Send</span> <span class="pre">&amp;</span> <span class="pre">MPI_Recv</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-6-6-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-6-6-0" name="6-0" role="tab" tabindex="0">GPU-aware MPI with OpenACC</button><button aria-controls="panel-6-6-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-1" name="6-1" role="tab" tabindex="-1">GPU-aware MPI with OpenMP</button></div><div aria-labelledby="tab-6-6-0" class="sphinx-tabs-panel" id="panel-6-6-0" name="6-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!Device pointer f will be passed to MPI_send &amp; MPI_recv</span>
+<span class="w">    </span><span class="c">!$acc host_data use_device(f)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="w">    </span><span class="c">!$acc end host_data</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-1" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-1" name="6-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!Device pointer f will be passed to MPI_send &amp; MPI_recv</span>
+<span class="w">    </span><span class="c">!$omp target data use_device_ptr(f)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="w">    </span><span class="c">!$omp end target data</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition-example-gpu-awareness-mpi-allreduce typealong toggle-shown dropdown admonition" id="typealong-5">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">GPU-awareness:</span> <span class="pre">MPI_Allreduce</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-7-7-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-7-7-0" name="7-0" role="tab" tabindex="0">GPU-aware MPI with OpenACC</button><button aria-controls="panel-7-7-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-1" name="7-1" role="tab" tabindex="-1">GPU-aware MPI with OpenMP</button></div><div aria-labelledby="tab-7-7-0" class="sphinx-tabs-panel" id="panel-7-7-0" name="7-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!$acc data copy(SumToT)</span>
+<span class="w">    </span><span class="c">!$acc host_data use_device(SumToT)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!$acc end host_data</span>
+<span class="w">    </span><span class="c">!$acc end data</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-1" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-1" name="7-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="c">!$omp target enter data device(myDevice) map(to:SumToT)</span>
+<span class="w">    </span><span class="c">!$omp target data use_device_ptr(SumToT)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!$omp end target data</span>
+<span class="w">    </span><span class="c">!$omp target exit data map(from:SumToT)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>We provide below a code example that illustrates the implementation of the MPI functions <cite>MPI_Send()</cite>, <cite>MPI_Recv()</cite> and <cite>MPI_Allreduce()</cite> within an OpenACC/OpenMP API. This implementation is specifically designed to support GPU-aware MPI operations.</p>
+<div class="admonition-example-gpu-awareness-approach typealong toggle-shown dropdown admonition" id="typealong-6">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">GPU-awareness</span> <span class="pre">approach</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-8-8-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-8-8-0" name="8-0" role="tab" tabindex="0">GPU-aware MPI with OpenACC</button><button aria-controls="panel-8-8-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-1" name="8-1" role="tab" tabindex="-1">GPU-aware MPI with OpenMP</button></div><div aria-labelledby="tab-8-8-0" class="sphinx-tabs-panel" id="panel-8-8-0" name="8-0" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">call </span><span class="n">MPI_Scatter</span><span class="p">(</span><span class="n">f_send</span><span class="p">,</span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$acc enter data copyin(f)</span>
+
+<span class="w">    </span><span class="c">!Device pointer f will be passed to MPI_send &amp; MPI_recv</span>
+<span class="w">    </span><span class="c">!$acc host_data use_device(f)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="w">    </span><span class="c">!$acc end host_data</span>
+
+<span class="w">    </span><span class="c">!do something .e.g.</span>
+<span class="w">    </span><span class="c">!$acc kernels</span>
+<span class="w">    </span><span class="n">f</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="o">/</span><span class="mf">2.</span>
+<span class="w">    </span><span class="c">!$acc end kernels</span>
+
+<span class="w">    </span><span class="n">SumToT</span><span class="o">=</span><span class="mi">0</span><span class="n">d0</span>
+<span class="w">    </span><span class="c">!$acc parallel loop reduction(+:SumToT)</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">SumToT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SumToT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$acc end parallel loop</span>
+
+<span class="w">    </span><span class="c">!SumToT is by default copied back to the CPU</span>
+
+<span class="w">    </span><span class="c">!$acc data copy(SumToT)</span>
+<span class="w">    </span><span class="c">!$acc host_data use_device(SumToT)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!$acc end host_data</span>
+<span class="w">    </span><span class="c">!$acc end data</span>
+
+<span class="w">    </span><span class="c">!$acc exit data delete(f)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-1" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-1" name="8-1" role="tabpanel" tabindex="0"><div class="highlight-fortran notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="k">call </span><span class="n">MPI_Scatter</span><span class="p">(</span><span class="n">f_send</span><span class="p">,</span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="w"> </span><span class="n">np</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c">!offload f to GPUs</span>
+<span class="w">    </span><span class="c">!$omp target enter data device(myDevice) map(to:f)</span>
+
+<span class="w">    </span><span class="c">!Device pointer f will be passed to MPI_send &amp; MPI_recv</span>
+<span class="w">    </span><span class="c">!$omp target data use_device_ptr(f)</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">lt</span><span class="p">.</span><span class="n">nproc</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Send</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">np</span><span class="p">:</span><span class="n">np</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+
+<span class="k">    if</span><span class="p">(</span><span class="n">myid</span><span class="p">.</span><span class="n">gt</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">then</span>
+<span class="k">        call </span><span class="n">MPI_Recv</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">myid</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">tag</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="n">ierr</span><span class="p">)</span>
+<span class="w">    </span><span class="k">endif</span>
+<span class="w">    </span><span class="c">!$omp end target data</span>
+
+<span class="w">    </span><span class="c">!do something .e.g.</span>
+<span class="w">    </span><span class="c">!$omp target teams distribute parallel do</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="o">/</span><span class="mf">2.</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do</span>
+
+<span class="w">    </span><span class="n">SumToT</span><span class="o">=</span><span class="mi">0</span><span class="n">d0</span>
+<span class="w">    </span><span class="c">!$omp target teams distribute parallel do reduction(+:SumToT)</span>
+<span class="w">    </span><span class="k">do </span><span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">np</span>
+<span class="w">        </span><span class="n">SumToT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SumToT</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<span class="w">    </span><span class="k">enddo</span>
+<span class="w">    </span><span class="c">!$omp end target teams distribute parallel do  </span>
+
+<span class="w">    </span><span class="c">!SumToT is by default copied back to the CPU</span>
+
+<span class="w">    </span><span class="c">!$omp target enter data device(myDevice) map(to:SumToT)</span>
+<span class="w">    </span><span class="c">!$omp target data use_device_ptr(SumToT)</span>
+<span class="w">    </span><span class="k">call </span><span class="n">MPI_ALLREDUCE</span><span class="p">(</span><span class="n">MPI_IN_PLACE</span><span class="p">,</span><span class="n">SumToT</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">MPI_DOUBLE_PRECISION</span><span class="p">,</span><span class="n">MPI_SUM</span><span class="p">,</span><span class="n">MPI_COMM_WORLD</span><span class="p">,</span><span class="n">ierr</span><span class="w"> </span><span class="p">)</span>
+<span class="w">    </span><span class="c">!$omp end target data</span>
+<span class="w">    </span><span class="c">!$omp target exit data map(from:SumToT)</span>
+
+<span class="w">    </span><span class="c">!$omp target exit data map(delete:f)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>The GPU-aware MPI with OpenACC/OpenMP APIs has the capability of directly communicating between a pair of GPUs within a single node. However, performing the GPU-to-GPU communication across multiple nodes requires the the GPUDirect RDMA (Remote Direct Memory Access) technology. This technology can further improve performance by reducing latency.</p>
+</section>
+<section id="compilation-process">
+<h2>Compilation process<a class="headerlink" href="#compilation-process" title="Permalink to this heading"></a></h2>
+<p>The compilation process of the hybrid MPI-OpenACC and MPI-OpenMP offloading is described below. This description is given for a Cray compiler of the wrapper <cite>ftn</cite>. On LUMI-G, the following modules may be necessary before compiling (see the <a class="reference external" href="https://docs.lumi-supercomputer.eu/development/compiling/prgenv/">LUMI documentation</a> for further details about the available programming environments):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ml</span> <span class="n">CrayEnv</span>
+<span class="n">ml</span> <span class="n">PrgEnv</span><span class="o">-</span><span class="n">cray</span>
+<span class="n">ml</span> <span class="n">cray</span><span class="o">-</span><span class="n">mpich</span>
+<span class="n">ml</span> <span class="n">rocm</span>
+<span class="n">ml</span> <span class="n">craype</span><span class="o">-</span><span class="n">accel</span><span class="o">-</span><span class="n">amd</span><span class="o">-</span><span class="n">gfx90a</span>
+</pre></div>
+</div>
+<div class="admonition-example-compilation-process typealong toggle-shown dropdown admonition" id="typealong-7">
+<p class="admonition-title">Example: <code class="docutils literal notranslate"><span class="pre">Compilation</span> <span class="pre">process</span></code></p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-9-9-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-9-9-0" name="9-0" role="tab" tabindex="0">Compiling MPI-OpenACC</button><button aria-controls="panel-9-9-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-9-9-1" name="9-1" role="tab" tabindex="-1">Compiling MPI-OpenMP</button></div><div aria-labelledby="tab-9-9-0" class="sphinx-tabs-panel" id="panel-9-9-0" name="9-0" role="tabpanel" tabindex="0"><p>$ ftn -hacc -o mycode.mpiacc.exe mycode_mpiacc.f90</p>
+</div><div aria-labelledby="tab-9-9-1" class="sphinx-tabs-panel" hidden="true" id="panel-9-9-1" name="9-1" role="tabpanel" tabindex="0"><p>$ ftn -homp -o mycode.mpiomp.exe mycode_mpiomp.f90</p>
+</div></div>
+</div>
+<p>Here, the flags <cite>hacc</cite> and <cite>homp</cite> enable the OpenACC and OpenMP directives in the hybrid MPI-OpenACC and MPI-OpenMP applications, respectively.</p>
+<p><strong>Enabling GPU-aware support</strong></p>
+<p>To enable the GPU-aware support in MPICH library, one needs to set the following environment variable before running the application.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ export MPICH_GPU_SUPPORT_ENABLED=1
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
+<p>In conclusion, we have presented an overview of a GPU-hybrid programming by integrating GPU-directive models, specifically OpenACC and OpenMP APIs, with the MPI library. The approach adopted here allows us to utilise multiple GPU-devices not only within a single node but it extends to distributed nodes. In particular, we have addressed GPU-aware MPI approach, which has the advantage of enabling a direct interaction between an MPI library and a GPU-device memory. In other words, it permits performing MPI operations between a pair of GPUs, thus reducing the computing time caused by the data locality.</p>
+</section>
+<section id="exercises">
+<h2>Exercises<a class="headerlink" href="#exercises" title="Permalink to this heading"></a></h2>
+<p>We consider an MPI fortran code that solves a 2D-Laplace equation, and which is partially accelerated. The focus of the exercises is to complete the acceleration using either OpenACC or OpenMP API by following these steps.</p>
+<div class="admonition-access-exercise-material callout admonition" id="callout-0">
+<p class="admonition-title">Access exercise material</p>
+<p>Code examples for the exercises below can be accessed in the <cite>content/examples/exercise_multipleGPU</cite> subdirectory of this repository. To access them, you need to clone the repository:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/ENCCS/gpu-programming.git
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>gpu-programming/content/examples/exercise_multipleGPU
+<span class="gp">$ </span>ls
+</pre></div>
+</div>
+</div>
+<div class="admonition-exercise-i-set-a-gpu-device exercise important admonition" id="exercise-0">
+<p class="admonition-title">Exercise I: Set a GPU device</p>
+<ol class="arabic simple">
+<li><p>Implement OpenACC/OpenMP functions that enable assigning each MPI rank to a GPU device.</p></li>
+</ol>
+<p>1.1 Compile and run the code on multiple GPUs.</p>
+</div>
+<div class="admonition-exercise-ii-apply-traditional-mpi-openacc-openmp exercise important admonition" id="exercise-1">
+<p class="admonition-title">Exercise II: Apply traditional MPI-OpenACC/OpenMP</p>
+<p>2.1 Incoporate the OpenACC directives <cite>*update host()*</cite> and <cite>*update device()*</cite> before and after calling an MPI function, respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The OpenACC directive <cite>*update host()*</cite> is used to transfer data from GPU to CPU within a data region; while the directive <cite>*update device()*</cite> is used to transfer the data from CPU to GPU.</p>
+</div>
+<p>2.2 Incorporate the OpenMP directives <cite>*update device() from()*</cite> and <cite>*update device() to()*</cite> before and after calling an MPI function, respectively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The OpenMP directive <cite>*update device() from()*</cite> is used to transfer data from GPU to CPU within a data region; while the directive <cite>*update device() to()*</cite> is used to transfer the data from CPU to GPU.</p>
+</div>
+<p>2.3 Compile and run the code on multiple GPUs.</p>
+</div>
+<div class="admonition-exercise-iii-implement-gpu-aware-support exercise important admonition" id="exercise-2">
+<p class="admonition-title">Exercise III: Implement GPU-aware support</p>
+<p>3.1 Incorporate the OpenACC directive <cite>*host_data use_device()*</cite> to pass a device pointer to an MPI function.</p>
+<p>3.2 Incorporate the OpenMP directive <cite>*data use_device_ptr()*</cite> to pass a device pointer to an MPI function.</p>
+<p>3.3 Compile and run the code on multiple GPUs.</p>
+</div>
+<div class="admonition-exercise-iv-evaluate-the-performance exercise important admonition" id="exercise-3">
+<p class="admonition-title">Exercise IV: Evaluate the performance</p>
+<ol class="arabic simple">
+<li><p>Evaluate the execution time of the accelerated codes in the exercises <strong>II</strong> and <strong>III</strong>, and compare it with that of a pure MPI implementation.</p></li>
+</ol>
+</div>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://documentation.sigma2.no/code_development/guides/gpuaware_mpi.html">GPU-aware MPI</a>.</p></li>
+<li><p><a class="reference external" href="https://www.mpi-forum.org/docs/mpi-4.0/mpi40-report.pdf">MPI documentation</a>.</p></li>
+<li><p><a class="reference external" href="https://www.openacc.org/sites/default/files/inline-images/Specification/OpenACC-3.2-final.pdf">OpenACC specification</a>.</p></li>
+<li><p><a class="reference external" href="https://www.openmp.org/wp-content/uploads/OpenMP-API-Specification-5-2.pdf">OpenMP specification</a>.</p></li>
+<li><p><a class="reference external" href="https://docs.lumi-supercomputer.eu/development/compiling/prgenv/">LUMI documentation</a>.</p></li>
+<li><p><a class="reference external" href="https://documentation.sigma2.no/code_development/guides/converting_acc2omp/openacc2openmp.html">OpenACC vs OpenMP offloading</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/HichamAgueny/GPU-course">OpenACC course</a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../7-directive-based-models/" class="btn btn-neutral float-left" title="Directive-based models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../9-non-portable-kernel-models/" class="btn btn-neutral float-right" title="Non-portable kernel-based models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

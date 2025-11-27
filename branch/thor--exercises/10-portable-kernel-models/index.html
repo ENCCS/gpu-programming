@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portable kernel-based models &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Preparing code for GPU porting" href="../11-gpu-porting/" />
+    <link rel="prev" title="Non-portable kernel-based models" href="../9-non-portable-kernel-models/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Portable kernel-based models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#kokkos">Kokkos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#kokkos-compilation">Kokkos compilation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kokkos-programming">Kokkos programming</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#opencl">OpenCL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#opencl-compilation">OpenCL compilation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#opencl-programming">OpenCL programming</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#sycl">SYCL</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#sycl-compilation">SYCL compilation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Intel oneAPI DPC++</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">hipSYCL</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#using-sycl-on-lumi">Using SYCL on LUMI</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#sycl-programming">SYCL programming</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-for-with-unified-memory">Parallel for with Unified Memory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parallel-for-with-gpu-buffers">Parallel for with GPU buffers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#asynchronous-parallel-for-kernels">Asynchronous parallel for kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reduction">Reduction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pros-and-cons-of-cross-platform-portability-ecosystems">Pros and cons of cross-platform portability ecosystems</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#general-observations">General observations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lambda-based-kernel-models-kokkos-sycl">Lambda-based kernel models (Kokkos, SYCL)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#separate-source-kernel-models-opencl">Separate-source kernel models (OpenCL)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Portable kernel-based models</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/10-portable-kernel-models.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="portable-kernel-based-models">
+<span id="portable-kernel-models"></span><h1>Portable kernel-based models<a class="headerlink" href="#portable-kernel-based-models" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>q1</p></li>
+<li><p>q2</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>o1</p></li>
+<li><p>o2</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>45 min teaching</p></li>
+<li><p>30 min exercises</p></li>
+</ul>
+</div>
+<p>The goal of the cross-platform portability ecosystems is to allow the same code to run on multiple architectures, therefore reducing code duplication. They are usually based on C++, and use function objects/lambda functions to define the loop body (i.e., the kernel), which can run on multiple architectures like CPU, GPU, and FPGA from different vendors. An exception to this is OpenCL, which originally offered only a C API (although currently also C++ API is available), and uses a separate-source model for the kernel code. However, unlike in many conventional CUDA or HIP implementations, the portability ecosystems require kernels to be written only once if one prefers to run it on CPU and GPU for example. Some notable cross-platform portability ecosystems are Alpaka, Kokkos, OpenCL, RAJA, and SYCL. Alpaka, Kokkos and RAJA are individual projects whereas OpenCL and SYCL are standards followed by several projects implementing (and extending) them. For example, some notable SYCL implementations include <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel oneAPI DPC++</a>, <a class="reference external" href="https://github.com/OpenSYCL/OpenSYCL">hipSYCL</a> (also known as Open SYCL), <a class="reference external" href="https://github.com/triSYCL/triSYCL">triSYCL</a>, and <a class="reference external" href="https://developer.codeplay.com/products/computecpp/ce/home/">ComputeCPP</a>.</p>
+<section id="kokkos">
+<h2>Kokkos<a class="headerlink" href="#kokkos" title="Permalink to this heading"></a></h2>
+<p>Kokkos is an open-source performance portability ecosystem for parallelization on large heterogeneous hardware architectures of which development has mostly taken place on Sandia National Laboratories. The project started in 2011 as a parallel C++ programming model, but have since expanded into a more broad ecosystem including Kokkos Core (the programming model), Kokkos Kernels (math library), and Kokkos Tools (debugging, profiling and tuning tools). By preparing proposals for the C++ standard committee, the project also aims to influence the ISO/C++ language standard such that, eventually, Kokkos capabilities will become native to the language standard. A more detailed introduction is found <a class="reference external" href="https://www.sandia.gov/news/publications/hpc-annual-reports/article/kokkos/">HERE</a>.</p>
+<p>The Kokkos library provides an abstraction layer for a variety of different custom or native languages such as OpenMP, CUDA, and HIP. Therefore, it allows better portability across different hardware manufactured by different vendors, but introduces an additional dependency to the software stack. For example, when using CUDA, only CUDA installation is required, but when using Kokkos with NVIDIA GPUs, Kokkos and CUDA installation are both required. Kokkos is not a very popular choice for parallel programming, and therefore, learning and using Kokkos can be more difficult compared to more established programming models such as CUDA, for which a much larger amount of search results and Stack Overflow discussions can be found.</p>
+<section id="kokkos-compilation">
+<h3>Kokkos compilation<a class="headerlink" href="#kokkos-compilation" title="Permalink to this heading"></a></h3>
+<p>Furthermore, one challenge with some cross-platform portability libraries is that even on the same system, different projects may require different combinations of compilation settings for the portability library. For example, in Kokkos, one project may wish the default execution space to be a CUDA device, whereas another requires a CPU. Even if the projects prefer the same execution space, one project may desire the Unified Memory to be the default memory space and the other may wish to use pinned GPU memory. It may be burdensome to maintain a large number of library instances on a single system.</p>
+<p>However, Kokkos offers a simple way to compile Kokkos library simultaneously with the user project. This is achieved by specifying Kokkos compilation settings (see <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Compiling.html">HERE</a>) and including the Kokkos Makefile in the user Makefile. CMake is also supported. This way, the user application and Kokkos library are compiled together. The following is an example Makefile for a single-file Kokkos project (hello.cpp) that uses CUDA (Volta architecture) as the backend (default execution space) and Unified Memory as the default memory space:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-0-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-0-0-0" name="0-0" role="tab" tabindex="0">Makefile for hello.cpp</button></div><div aria-labelledby="tab-0-0-0" class="sphinx-tabs-panel" id="panel-0-0-0" name="0-0" role="tabpanel" tabindex="0"><div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="nf">default</span><span class="o">:</span><span class="w"> </span><span class="n">build</span>
+
+<span class="c"># Set compiler</span>
+<span class="nv">KOKKOS_PATH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">$(</span>shell<span class="w"> </span><span class="nb">pwd</span><span class="k">)</span>/kokkos
+<span class="nv">CXX</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="si">${</span><span class="nv">KOKKOS_PATH</span><span class="si">}</span>/bin/nvcc_wrapper
+
+<span class="c"># Variables for the Makefile.kokkos</span>
+<span class="nv">KOKKOS_DEVICES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Cuda&quot;</span>
+<span class="nv">KOKKOS_ARCH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Volta70&quot;</span>
+<span class="nv">KOKKOS_CUDA_OPTIONS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;enable_lambda,force_uvm&quot;</span>
+
+<span class="c"># Include Makefile.kokkos</span>
+<span class="cp">include $(KOKKOS_PATH)/Makefile.kokkos</span>
+
+<span class="nf">build</span><span class="o">:</span><span class="w"> </span><span class="k">$(</span><span class="nv">KOKKOS_LINK_DEPENDS</span><span class="k">)</span> <span class="k">$(</span><span class="nv">KOKKOS_CPP_DEPENDS</span><span class="k">)</span> <span class="n">hello</span>.<span class="n">cpp</span>
+<span class="w"> </span><span class="k">$(</span>CXX<span class="k">)</span><span class="w"> </span><span class="k">$(</span>KOKKOS_CPPFLAGS<span class="k">)</span><span class="w"> </span><span class="k">$(</span>KOKKOS_CXXFLAGS<span class="k">)</span><span class="w"> </span><span class="k">$(</span>KOKKOS_LDFLAGS<span class="k">)</span><span class="w"> </span><span class="k">$(</span>KOKKOS_LIBS<span class="k">)</span><span class="w"> </span>hello.cpp<span class="w"> </span>-o<span class="w"> </span>hello
+</pre></div>
+</div>
+</div></div>
+<p>To build a <strong>hello.cpp</strong> project with the above Makefile, no steps other than cloning the Kokkos project into the current directory is required.</p>
+</section>
+<section id="kokkos-programming">
+<h3>Kokkos programming<a class="headerlink" href="#kokkos-programming" title="Permalink to this heading"></a></h3>
+<p>When starting to write a project using Kokkos, the first step is understand Kokkos initialization and finalization. Kokkos must be initialized by calling <code class="docutils literal notranslate"><span class="pre">Kokkos::initialize(int&amp;</span> <span class="pre">argc,</span> <span class="pre">char*</span> <span class="pre">argv[])</span></code> and finalized by calling <code class="docutils literal notranslate"><span class="pre">Kokkos::finalize()</span></code>. More details are given in <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Initialization.html">HERE</a>.</p>
+<p>Kokkos uses an execution space model to abstract the details of parallel hardware. The execution space instances map to the available backend options such as CUDA, OpenMP, HIP, or SYCL. If the execution space is not explicitly chosen by the programmer in the source code, the default execution space <code class="docutils literal notranslate"><span class="pre">Kokkos::DefaultExecutionSpace</span></code> is used. This is chosen when the Kokkos library is compiled. The Kokkos execution space model is described in more detail in <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-spaces">HERE</a>.</p>
+<p>Similarly, Kokkos uses a memory space model for different types of memory, such as host memory or device memory. If not defined explicitly, Kokkos uses the default memory space specified during Kokkos compilation as described <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/Machine-Model.html#kokkos-memory-spaces">HERE</a>.</p>
+<p>The following is an example of a Kokkos program that initializes Kokkos and prints the execution space and memory space instances:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-1-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-1-1-0" name="1-0" role="tab" tabindex="0">hello.cpp</button></div><div aria-labelledby="tab-1-1-0" class="sphinx-tabs-panel" id="panel-1-1-0" name="1-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Kokkos_Core.hpp&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;iostream&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Execution Space: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">    </span><span class="k">typeid</span><span class="p">(</span><span class="n">Kokkos</span><span class="o">::</span><span class="n">DefaultExecutionSpace</span><span class="p">).</span><span class="n">name</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Memory Space: &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span>
+<span class="w">    </span><span class="k">typeid</span><span class="p">(</span><span class="n">Kokkos</span><span class="o">::</span><span class="n">DefaultExecutionSpace</span><span class="o">::</span><span class="n">memory_space</span><span class="p">).</span><span class="n">name</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div></div>
+<p>With Kokkos, the data can be accessed either through raw pointers or through Kokkos Views. With raw pointers, the memory allocation into the default memory space can be done using <code class="docutils literal notranslate"><span class="pre">Kokkos::kokkos_malloc(n</span> <span class="pre">*</span> <span class="pre">sizeof(int))</span></code>. Kokkos Views are a data type that provides a way to access data more efficiently in memory corresponding to a certain Kokkos memory space, such as host memory or device memory. A 1-dimensional view of type int* can be created by <code class="docutils literal notranslate"><span class="pre">Kokkos::View&lt;int*&gt;</span> <span class="pre">a(&quot;a&quot;,</span> <span class="pre">n)</span></code>, where <code class="docutils literal notranslate"><span class="pre">&quot;a&quot;</span></code> is a label, and <code class="docutils literal notranslate"><span class="pre">n</span></code> is the size of the allocation in the number of integers. Kokkos determines the optimal layout for the data at compile time for best overall performance as a function of the computer architecture. Furthermore, Kokkos handles the deallocation of such memory automatically. More details about Kokkos Views are found <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/View.html">HERE</a>.</p>
+<p>Finally, Kokkos provides three different parallel operations: <code class="docutils literal notranslate"><span class="pre">parallel_for</span></code>, <code class="docutils literal notranslate"><span class="pre">parallel_reduce</span></code>, and <code class="docutils literal notranslate"><span class="pre">parallel_scan</span></code>. The <code class="docutils literal notranslate"><span class="pre">parallel_for</span></code> operation is used to execute a loop in parallel. The <code class="docutils literal notranslate"><span class="pre">parallel_reduce</span></code> operation is used to execute a loop in parallel and reduce the results to a single value. The <code class="docutils literal notranslate"><span class="pre">parallel_scan</span></code> operation is used to execute a loop in parallel and scan the results. The usage of <code class="docutils literal notranslate"><span class="pre">parallel_for</span></code> and <code class="docutils literal notranslate"><span class="pre">parallel_reduce</span></code> are demonstrated in the examples later in this chapter. More detail about the parallel operations are found <a class="reference external" href="https://kokkos.github.io/kokkos-core-wiki/ProgrammingGuide/ParallelDispatch.html">HERE</a>.</p>
+</section>
+</section>
+<section id="opencl">
+<h2>OpenCL<a class="headerlink" href="#opencl" title="Permalink to this heading"></a></h2>
+<p>OpenCL is a cross-platform, open-standard API for writing parallel programs that execute across heterogeneous platforms consisting of CPUs, GPUs, FPGAs and other devices. The first version of OpenCL (1.0) was released in December 2008, and the latest version of OpenCL (3.0) was released in September 2020. OpenCL is supported by a number of vendors, including AMD, ARM, Intel, NVIDIA, and Qualcomm. It is a royalty-free standard, and the OpenCL specification is maintained by the Khronos Group. OpenCL provides a low-level programming interface initially based on C, but more recently also a C++ interface has become available.</p>
+<section id="opencl-compilation">
+<h3>OpenCL compilation<a class="headerlink" href="#opencl-compilation" title="Permalink to this heading"></a></h3>
+<p>OpenCL supports two modes for compiling the programs: online and offline. Online compilation occurs at runtime, when the host program calls a function to compile the source code. Online mode allows dynamic generation and loading of kernels, but may incur some overhead due to compilation time and possible errors. Offline compilation occurs before runtime, when the source code of a kernel is compiled into a binary format that can be loaded by the host program. This mode allows faster execution and better optimization of kernels, but may limit the portability of the program, because the binary can only run on the architectures it was compiled for.</p>
+<p>OpenCL comes bundled with several parallel programming ecosystems, such as NVIDIA CUDA and Intel oneAPI. For example, after successfully installing such packages and setting up the environment, one may simply compile an OpenCL program by the commands such as <code class="docutils literal notranslate"><span class="pre">icx</span> <span class="pre">cl_devices.c</span> <span class="pre">-lOpenCL</span></code> (Intel oneAPI) or <code class="docutils literal notranslate"><span class="pre">nvcc</span> <span class="pre">cl_devices.c</span> <span class="pre">-lOpenCL</span></code> (NVIDIA CUDA), where <code class="docutils literal notranslate"><span class="pre">cl_devices.c</span></code> is the compiled file. Unlike most other programming models, OpenCL stores kernels as text and compiles them for the device in runtime (JIT-compilation), and thus does not require any special compiler support: one can compile the code using simply <code class="docutils literal notranslate"><span class="pre">gcc</span> <span class="pre">cl_devices.c</span> <span class="pre">-lOpenCL</span></code> (or <code class="docutils literal notranslate"><span class="pre">g++</span></code> when using C++ API), as long as the required libraries and headers are installed in a standard locations.</p>
+</section>
+<section id="opencl-programming">
+<h3>OpenCL programming<a class="headerlink" href="#opencl-programming" title="Permalink to this heading"></a></h3>
+<p>OpenCL programs consist of two parts: a host program that runs on the host device (usually a CPU) and one or more kernels that run on compute devices (such as GPUs). The host program is responsible for the tasks such as managing the devices for the selected platform, allocating memory objects, building and enqueueing kernels, and managing memory objects.</p>
+<p>The first steps when writing an OpenCL program are to initialize the OpenCL environment by selecting the platform and devices, creating a context or contexts associated with the selected device(s), and creating a command queue for each device. A simple example of selecting the default device, creating a context and a queue associated with the device is show below.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-2-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-2-2-0" name="2-0" role="tab" tabindex="0">OpenCL initialization (C++ API)</button><button aria-controls="panel-2-2-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-2-2-1" name="2-1" role="tab" tabindex="-1">OpenCL initialization (C API)</button></div><div aria-labelledby="tab-2-2-0" class="sphinx-tabs-panel" id="panel-2-2-0" name="2-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Initialize OpenCL</span>
+<span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="o">::</span><span class="n">getDefault</span><span class="p">();</span>
+<span class="n">cl</span><span class="o">::</span><span class="n">Context</span><span class="w"> </span><span class="nf">context</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="w"> </span><span class="nf">queue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-2-1" class="sphinx-tabs-panel" hidden="true" id="panel-2-2-1" name="2-1" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="c1">// Initialize OpenCL</span>
+<span class="n">cl_int</span><span class="w"> </span><span class="n">err</span><span class="p">;</span><span class="w"> </span><span class="c1">// Error code returned by API calls</span>
+<span class="n">cl_platform_id</span><span class="w"> </span><span class="n">platform</span><span class="p">;</span>
+<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clGetPlatformIDs</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">platform</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">CL_SUCCESS</span><span class="p">);</span><span class="w"> </span><span class="c1">// Checking error codes is skipped later for brevity</span>
+<span class="n">cl_device_id</span><span class="w"> </span><span class="n">device</span><span class="p">;</span>
+<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clGetDeviceIDs</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span><span class="w"> </span><span class="n">CL_DEVICE_TYPE_GPU</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="n">cl_context</span><span class="w"> </span><span class="n">context</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateContext</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+<span class="n">cl_command_queue</span><span class="w"> </span><span class="n">queue</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateCommandQueue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+</pre></div>
+</div>
+</div></div>
+<p>OpenCL provides two main programming models to manage the memory hierarchy of host and accelerator devices: buffers and shared virtual memory (SVM). Buffers are the traditional memory model of OpenCL, where the host and the devices have separate address spaces and the programmer has to explicitly specify the memory allocations and how and where the memory is accessed. This can be done with class <code class="docutils literal notranslate"><span class="pre">cl::Buffer</span></code> and functions such as <code class="docutils literal notranslate"><span class="pre">cl::CommandQueue::enqueueReadBuffer()</span></code>. Buffers are supported since early versions of OpenCL, and work well across different architectures. Buffers can also take advantage of device-specific memory features, such as constant or local memory.</p>
+<p>SVM is a newer memory model of OpenCL, introduced in version 2.0, where the host and the devices share a single virtual address space. Thus, the programmer can use the same pointers to access the data from host and devices simplifying the programming effort. In OpenCL, SVM comes in different levels such as coarse-grained buffer SVM, fine-grained buffer SVM, and fine-grained system SVM. All levels allow using the same pointers across a host and devices, but they differ in their granularity and synchronization requirements for the memory regions. Furthermore, the support for SVM is not universal across all OpenCL platforms and devices, and for example, GPUs such as NVIDIA V100 and A100 only support the coarse-grained SVM buffer. This level requires explicit synchronization for memory accesses from a host and devices (using functions such as <code class="docutils literal notranslate"><span class="pre">cl::CommandQueue::enqueueMapSVM()</span></code> and <code class="docutils literal notranslate"><span class="pre">cl::CommandQueue::enqueueUnmapSVM()</span></code>), making the usage of SVM less convenient. It is further noted that this is unlike the regular Unified Memory offered by CUDA, which is closer to the fine-grained system SVM level in OpenCL.</p>
+<p>OpenCL uses a separate-source kernel model where the kernel code is often kept in separate files that may be compiled during runtime. The model allows the kernel source code to be passed as a string to the OpenCL driver after which the program object can be executed on a specific device. Although referred to as the separate-source kernel model, the kernels can still be defined as a string in the host program compilation units as well, which may be a more convenient approach in some cases.</p>
+<p>The online compilation with the separate-source kernel model has several advantages over the binary model, which requires offline compilation of kernels into device-specific binaries that can are loaded by the application at runtime. Online compilation preserves the portability and flexibility of OpenCL, as the same kernel source code can run on any supported device. Furthermore, dynamic optimization of kernels based on runtime information, such as input size, work-group size, or device capabilities, is possible. An example of an OpenCL kernel, defined by a string in the host compilation unit, and assigning the global thread index into a global device memory is shown below.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">OpenCL kernel example</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">kernel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span>
+<span class="s">  __kernel void dot(__global int *a) {</span>
+<span class="s">    int i = get_global_id(0);</span>
+<span class="s">    a[i] = i;</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></div>
+<p>The above kernel named <code class="docutils literal notranslate"><span class="pre">dot</span></code> and stored in the string <code class="docutils literal notranslate"><span class="pre">kernel_source</span></code> can be set to build in the host code as follows:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-4-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-4-4-0" name="4-0" role="tab" tabindex="0">OpenCL kernel build example (C++ API)</button><button aria-controls="panel-4-4-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-4-4-1" name="4-1" role="tab" tabindex="-1">OpenCL kernel build example (C API)</button></div><div aria-labelledby="tab-4-4-0" class="sphinx-tabs-panel" id="panel-4-4-0" name="4-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="n">cl</span><span class="o">::</span><span class="n">Program</span><span class="w"> </span><span class="nf">program</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">kernel_source</span><span class="p">);</span>
+<span class="n">program</span><span class="p">.</span><span class="n">build</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="n">cl</span><span class="o">::</span><span class="n">Kernel</span><span class="w"> </span><span class="n">kernel_dot</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dot&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-4-1" class="sphinx-tabs-panel" hidden="true" id="panel-4-4-1" name="4-1" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">cl_int</span><span class="w"> </span><span class="n">err</span><span class="p">;</span>
+<span class="n">cl_program</span><span class="w"> </span><span class="n">program</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateProgramWithSource</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">kernel_source</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+<span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clBuildProgram</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span>
+<span class="n">cl_kernel</span><span class="w"> </span><span class="n">kernel_dot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">clCreateKernel</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;vector_add&quot;</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">err</span><span class="p">);</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+</section>
+<section id="sycl">
+<h2>SYCL<a class="headerlink" href="#sycl" title="Permalink to this heading"></a></h2>
+<p><a class="reference external" href="https://www.khronos.org/sycl/">SYCL</a> is a royalty-free, open-standard C++ programming model for multi-device programming. It provides a high-level, single-source programming model for heterogeneous systems, including GPUs. There are several implementations of the standard. For GPU programming, <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/dpc-compiler.html">Intel oneAPI DPC++</a> and <a class="reference external" href="https://github.com/OpenSYCL/OpenSYCL">hipSYCL</a> are the most popular for desktop and HPC GPUs; <a class="reference external" href="https://developer.codeplay.com/products/computecpp/ce/home/">ComputeCPP</a> is a good choice for embedded devices. The same standard-compliant SYCL code should work with any implementation, but they are not binary-compatible.</p>
+<p>The most recent version of the SYCL standard is SYCL 2020, and it is the version we will be using in this course.</p>
+<section id="sycl-compilation">
+<h3>SYCL compilation<a class="headerlink" href="#sycl-compilation" title="Permalink to this heading"></a></h3>
+<section id="id1">
+<h4>Intel oneAPI DPC++<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h4>
+<p>For targeting Intel GPUs, it is enough to install <a class="reference external" href="https://www.intel.com/content/www/us/en/developer/tools/oneapi/base-toolkit.html">Intel oneAPI Base Toolkit</a>. Then, the compilation is as simple as <code class="docutils literal notranslate"><span class="pre">icpx</span> <span class="pre">-fsycl</span> <span class="pre">file.cpp</span></code>.</p>
+<p>It is also possible to use oneAPI for NVIDIA and AMD GPUs. In addition to oneAPI Base Toolkit, the vendor-provided runtime (CUDA or HIP) and the corresponding <a class="reference external" href="https://codeplay.com/solutions/oneapi/">Codeplay oneAPI plugin</a> must be installed.
+Then, the code can be compiled using Intel LLVM compiler bundled with oneAPI:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">clang++</span> <span class="pre">-fsycl</span> <span class="pre">-fsycl-targets=nvptx64-nvidia-cuda</span> <span class="pre">-Xsycl-target-backend=nvptx64-nvidia-cuda</span> <span class="pre">--offload-arch=sm_86</span> <span class="pre">file.cpp</span></code> for targeting CUDA 8.6 NVIDIA GPU,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clang++</span> <span class="pre">-fsycl</span> <span class="pre">-fsycl-targets=amdgcn-amd-amdhsa</span> <span class="pre">-Xsycl-target-backend=amdgcn-amd-amdhsa</span> <span class="pre">--offload-arch=gfx90a</span></code> for targeting GFX90a AMD GPU.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h4>hipSYCL<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h4>
+<p>Using hipSYCL for NVIDIA or AMD GPUs also requires having CUDA or HIP installed first. Then <code class="docutils literal notranslate"><span class="pre">syclcc</span></code> can be used for compiling the code, specifying the target devices. For example, here is how to compile the program supporting an AMD and an NVIDIA device:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">syclcc</span> <span class="pre">--hipsycl-targets='hip:gfx90a;cuda:sm_70'</span> <span class="pre">file.cpp</span></code></p></li>
+</ul>
+</section>
+<section id="using-sycl-on-lumi">
+<h4>Using SYCL on LUMI<a class="headerlink" href="#using-sycl-on-lumi" title="Permalink to this heading"></a></h4>
+<p>LUMI does not have a system-wide installation of any SYCL framework. For this course, an installation
+of hipSYCL 0.9.4 was prepared, which can be loaded as:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>module<span class="w"> </span>load<span class="w"> </span>LUMI/22.08<span class="w"> </span>partition/G
+<span class="gp">$ </span>module<span class="w"> </span>load<span class="w"> </span>rocm/5.3.3
+<span class="gp">$ </span>module<span class="w"> </span>use<span class="w"> </span>/project/project_465000485/Easy_Build_Installations/modules/LUMI/22.08/partition/G/
+<span class="gp">$ </span>module<span class="w"> </span>load<span class="w"> </span>hipSYCL
+</pre></div>
+</div>
+<p>The default compilation target is preset to MI250 GPUs, so to compile a single C++ file it is enought to call <code class="docutils literal notranslate"><span class="pre">syclcc</span> <span class="pre">-O2</span> <span class="pre">file.cpp</span></code>.</p>
+</section>
+</section>
+<section id="sycl-programming">
+<h3>SYCL programming<a class="headerlink" href="#sycl-programming" title="Permalink to this heading"></a></h3>
+<p>SYCL is, in many aspects, similar to OpenCL, but uses, like Kokkos, a single-source model with kernel lambdas.</p>
+<p>To submit a task to device, first a <cite>sycl::queue</cite> must be created, which is used as a way to manage the
+task scheduling and execution. In the simplest case, that’s all the initialization one needs:</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Create an out-of-order queue on the default device:</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">// Now we can submit tasks to q!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If one wants more control, the device can be explicitly specified, or additional properties can be passed to
+a queue:</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Iterate over all available devices</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">device</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">device</span><span class="o">::</span><span class="n">get_devices</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Print the device name</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;Creating a queue on &quot;</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">device</span><span class="p">.</span><span class="n">get_info</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">info</span><span class="o">::</span><span class="n">device</span><span class="o">::</span><span class="n">name</span><span class="o">&gt;</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="c1">// Create an in-order queue for the current device</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="nf">q</span><span class="p">(</span><span class="n">device</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="n">sycl</span><span class="o">::</span><span class="n">property</span><span class="o">::</span><span class="n">queue</span><span class="o">::</span><span class="n">in_order</span><span class="p">()});</span>
+<span class="w">  </span><span class="c1">// Now we can submit tasks to q!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Memory management can be done in two different ways: <em>buffer-accessor</em> model and <em>unified shared memory</em> (USM).
+The choice of the memory management models also influences how the GPU tasks are synchronized.</p>
+<p>In the <em>buffer-accessor</em> model, a <code class="docutils literal notranslate"><span class="pre">sycl::buffer</span></code> objects are used to represent arrays of data. A buffer is
+not mapped to any single one memory space, and can be migrated between the GPU and the CPU memory
+transparently. The data in <code class="docutils literal notranslate"><span class="pre">sycl::buffer</span></code> cannot be read or written directly, an accessor must be created.
+<code class="docutils literal notranslate"><span class="pre">sycl::accessor</span></code> objects specify the location of data access (host or a certain GPU kernel) and the access
+mode (read-only, write-only, read-write).
+Such approach allows optimizing task scheduling by building a directed acyclic graph (DAG) of data dependencies:
+if kernel <em>A</em> creates a write-only accessor to a buffer, and then kernel <em>B</em> is submitted with a read-only
+accessor to the same buffer, and then a host-side read-only accessor is requested, then it can be deduced that
+<em>A</em> must complete before <em>B</em> is launched and also that the results must be copied to the host
+before the host task can proceed, but the host task can run in parallel with kernel <em>B</em>.
+Since the dependencies between tasks can be built automatically, by default SYCL uses <em>out-of-order queues</em>:
+when two tasks are submitted to the same <code class="docutils literal notranslate"><span class="pre">sycl::queue</span></code>, it is not guaranteed that the second one will launch
+only after the first one completes.
+When launching a kernel, accessors must be created:</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a buffer of n integers</span>
+<span class="k">auto</span><span class="w"> </span><span class="n">buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">buffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+<span class="c1">// Submit a kernel into a queue; cgh is a helper object</span>
+<span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">handler</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cgh</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Create write-only accessor for buf</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">buf</span><span class="p">.</span><span class="n">get_access</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">access_mode</span><span class="o">::</span><span class="n">write</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cgh</span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// Define a kernel: n threads execute the following lambda</span>
+<span class="w">  </span><span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">KernelName</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// The data is written to the buffer via acc</span>
+<span class="w">      </span><span class="n">acc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/*...*/</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+<span class="cm">/* If we now submit another kernel with accessor to buf, it will not</span>
+<span class="cm"> * start running until the kernel above is done */</span>
+</pre></div>
+</div>
+<p>Buffer-accessor model simplifies many aspects of heterogeneous programming and prevents many synchronization-related
+bugs, but it only allows very coarse control of data movement and kernel execution.</p>
+<p>The <em>USM</em> model is similar to how NVIDIA CUDA or AMD HIP manage memory. The programmer has to explicitly allocate
+the memory on the device (<code class="docutils literal notranslate"><span class="pre">sycl::malloc_device</span></code>), on the host (<code class="docutils literal notranslate"><span class="pre">sycl::malloc_host</span></code>), or in the shared memory
+space (<code class="docutils literal notranslate"><span class="pre">sycl::malloc_shared</span></code>). Despite its name, unified shared memory, and the similarity to OpenCL’s SVM, not
+all USM allocations are shared: for example, a memory allocated by <code class="docutils literal notranslate"><span class="pre">sycl::malloc_device</span></code> cannot be accessed
+from the host. The allocation functions return memory pointers that can be used directly, without accessors.
+This means that the programmer have to ensure the correct synchronization between host and device tasks to avoid
+data races. With USM, it is often convenient to use <em>in-order queues</em> with USM, instead of the default <em>out-of-order</em> queues.
+More information on USM can be found in the <a class="reference external" href="https://registry.khronos.org/SYCL/specs/sycl-2020/html/sycl-2020.html#sec:usm">Section 4.8 of SYCL 2020 specification</a>.</p>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create a shared (migratable) allocation of n integers</span>
+<span class="c1">// Unlike with buffers, we need to specify a queue (or, explicitly, a device and a context)</span>
+<span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+<span class="c1">// Submit a kernel into a queue; cgh is a helper object</span>
+<span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">handler</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cgh</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Define a kernel: n threads execute the following lambda</span>
+<span class="w">  </span><span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">KernelName</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// The data is directly written to v</span>
+<span class="w">      </span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="cm">/*...*/</span>
+<span class="w">  </span><span class="p">});</span>
+<span class="p">});</span>
+<span class="c1">// If we want to access v, we have to ensure that the kernel has finished</span>
+<span class="n">q</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
+<span class="c1">// After we&#39;re done, the memory must be deallocated</span>
+<span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<section id="parallel-for-with-unified-memory">
+<h3>Parallel for with Unified Memory<a class="headerlink" href="#parallel-for-with-unified-memory" title="Permalink to this heading"></a></h3>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-5-5-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-5-5-0" name="5-0" role="tab" tabindex="0">Kokkos</button><button aria-controls="panel-5-5-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-1" name="5-1" role="tab" tabindex="-1">OpenCL</button><button aria-controls="panel-5-5-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-2" name="5-2" role="tab" tabindex="-1">SYCL</button><button aria-controls="panel-5-5-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-3" name="5-3" role="tab" tabindex="-1">CUDA</button><button aria-controls="panel-5-5-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-4" name="5-4" role="tab" tabindex="-1">HIP</button></div><div aria-labelledby="tab-5-5-0" class="sphinx-tabs-panel" id="panel-5-5-0" name="5-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Kokkos_Core.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Allocate on Kokkos default memory space (Unified Memory)</span>
+<span class="w">    </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_malloc</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_malloc</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_malloc</span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Initialize values on host</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">      </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Run element-wise multiplication on device</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">KOKKOS_LAMBDA</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="c1">// Kokkos synchronization</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">fence</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Print results</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="c1">// Free Kokkos allocation (Unified Memory)</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_free</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_free</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_free</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Finalize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-1" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-1" name="5-1" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// We&#39;re using OpenCL C++ API here; there is also C API in &lt;CL/cl.h&gt;</span>
+<span class="cp">#define CL_HPP_MINIMUM_OPENCL_VERSION 200</span>
+<span class="cp">#define CL_HPP_TARGET_OPENCL_VERSION 200</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/opencl.hpp&gt;</span>
+
+<span class="c1">// For larger kernels, we can store source in a separate file</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">kernel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span>
+<span class="s">  __kernel void dot(__global const int *a, __global const int *b, __global int *c) {</span>
+<span class="s">    int i = get_global_id(0);</span>
+<span class="s">    c[i] = a[i] * b[i];</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize OpenCL</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="o">::</span><span class="n">getDefault</span><span class="p">();</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="w"> </span><span class="n">queue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// This is needed to avoid bug in coarse grain SVMAllocator::allocate()</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="o">::</span><span class="n">setDefault</span><span class="p">(</span><span class="n">queue</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Compile OpenCL program for found device.</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Program</span><span class="w"> </span><span class="n">program</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">kernel_source</span><span class="p">);</span>
+<span class="w">  </span><span class="n">program</span><span class="p">.</span><span class="n">build</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Kernel</span><span class="w"> </span><span class="n">kernel_dot</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dot&quot;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set problem dimensions</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create SVM buffer objects on host side</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMAllocator</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMTraitReadOnly</span><span class="o">&lt;&gt;&gt;</span><span class="w"> </span><span class="n">svmAllocRead</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">svmAllocRead</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">svmAllocRead</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMAllocator</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMTraitWriteOnly</span><span class="o">&lt;&gt;&gt;</span><span class="w"> </span><span class="n">svmAllocWrite</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">svmAllocWrite</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Pass arguments to device kernel</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">);</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">);</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Create mappings for host and initialize values</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueMapSVM</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MAP_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueMapSVM</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MAP_WRITE</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">      </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueUnmapSVM</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueUnmapSVM</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// We don&#39;t need to apply any offset to thread IDs</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueNDRangeKernel</span><span class="p">(</span><span class="n">kernel_dot</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NDRange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Create mapping for host and print results</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueMapSVM</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MAP_READ</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueUnmapSVM</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Free SVM buffers</span>
+<span class="w">    </span><span class="n">svmAllocRead</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">svmAllocRead</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">svmAllocWrite</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-2" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-2" name="5-2" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sycl/sycl.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Allocate shared memory (Unified Shared Memory)</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Initialize values on host</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Run element-wise multiplication on device</span>
+<span class="w">  </span><span class="n">q</span><span class="p">.</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">  </span><span class="p">}).</span><span class="n">wait</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Print results</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Free shared memory allocation (Unified Memory)</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-3" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-3" name="5-3" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-4" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-4" name="5-4" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="parallel-for-with-gpu-buffers">
+<h3>Parallel for with GPU buffers<a class="headerlink" href="#parallel-for-with-gpu-buffers" title="Permalink to this heading"></a></h3>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-6-6-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-6-6-0" name="6-0" role="tab" tabindex="0">Kokkos</button><button aria-controls="panel-6-6-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-1" name="6-1" role="tab" tabindex="-1">OpenCL</button><button aria-controls="panel-6-6-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-2" name="6-2" role="tab" tabindex="-1">SYCL</button><button aria-controls="panel-6-6-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-3" name="6-3" role="tab" tabindex="-1">CUDA</button><button aria-controls="panel-6-6-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-4" name="6-4" role="tab" tabindex="-1">HIP</button></div><div aria-labelledby="tab-6-6-0" class="sphinx-tabs-panel" id="panel-6-6-0" name="6-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Kokkos_Core.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Allocate space for 5 ints on Kokkos host memory space</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">HostSpace</span><span class="o">&gt;</span><span class="w"> </span><span class="n">h_a</span><span class="p">(</span><span class="s">&quot;h_a&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">HostSpace</span><span class="o">&gt;</span><span class="w"> </span><span class="n">h_b</span><span class="p">(</span><span class="s">&quot;h_b&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*</span><span class="p">,</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">HostSpace</span><span class="o">&gt;</span><span class="w"> </span><span class="n">h_c</span><span class="p">(</span><span class="s">&quot;h_c&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Allocate space for 5 ints on Kokkos default memory space (eg, GPU memory)</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">b</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">View</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="w"> </span><span class="n">c</span><span class="p">(</span><span class="s">&quot;c&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Initialize values on host</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="n">h_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">      </span><span class="n">h_b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Copy from host to device</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">deep_copy</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">h_a</span><span class="p">);</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">deep_copy</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="n">h_b</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Run element-wise multiplication on device</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">KOKKOS_LAMBDA</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">});</span>
+
+<span class="w">    </span><span class="c1">// Copy from device to host</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">deep_copy</span><span class="p">(</span><span class="n">h_c</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Print results</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">h_c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Finalize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-1" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-1" name="6-1" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// We&#39;re using OpenCL C++ API here; there is also C API in &lt;CL/cl.h&gt;</span>
+<span class="cp">#define CL_HPP_MINIMUM_OPENCL_VERSION 110</span>
+<span class="cp">#define CL_HPP_TARGET_OPENCL_VERSION 110</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/opencl.hpp&gt;</span>
+
+<span class="c1">// For larger kernels, we can store source in a separate file</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">kernel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span>
+<span class="s">  __kernel void dot(__global const int *a, __global const int *b, __global int *c) {</span>
+<span class="s">    int i = get_global_id(0);</span>
+<span class="s">    c[i] = a[i] * b[i];</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize OpenCL</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="o">::</span><span class="n">getDefault</span><span class="p">();</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="w"> </span><span class="n">queue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Compile OpenCL program for found device.</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Program</span><span class="w"> </span><span class="n">program</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">kernel_source</span><span class="p">);</span>
+<span class="w">  </span><span class="n">program</span><span class="p">.</span><span class="n">build</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Kernel</span><span class="w"> </span><span class="n">kernel_dot</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;dot&quot;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set problem dimensions</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">b</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">c</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Initialize values on host</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">      </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Create buffers and copy input data to device.</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">Buffer</span><span class="w"> </span><span class="n">dev_a</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MEM_READ_ONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CL_MEM_COPY_HOST_PTR</span><span class="p">,</span>
+<span class="w">                     </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="n">a</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">Buffer</span><span class="w"> </span><span class="n">dev_b</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MEM_READ_ONLY</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CL_MEM_COPY_HOST_PTR</span><span class="p">,</span>
+<span class="w">                     </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">Buffer</span><span class="w"> </span><span class="n">dev_c</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MEM_WRITE_ONLY</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Pass arguments to device kernel</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">dev_a</span><span class="p">);</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">dev_b</span><span class="p">);</span>
+<span class="w">    </span><span class="n">kernel_dot</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">dev_c</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// We don&#39;t need to apply any offset to thread IDs</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueNDRangeKernel</span><span class="p">(</span><span class="n">kernel_dot</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NDRange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Read result</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueReadBuffer</span><span class="p">(</span><span class="n">dev_c</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="n">c</span><span class="p">.</span><span class="n">data</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// Print results</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-2" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-2" name="6-2" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sycl/sycl.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Allocate space for 5 ints</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">a_buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">buffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">b_buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">buffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">c_buf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">buffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">n</span><span class="p">));</span>
+
+<span class="w">  </span><span class="c1">// Initialize values</span>
+<span class="w">  </span><span class="c1">// We should use curly braces to limit host accessors&#39; lifetime</span>
+<span class="w">  </span><span class="c1">//    and indicate when we&#39;re done working with them:</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">a_host_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a_buf</span><span class="p">.</span><span class="n">get_host_access</span><span class="p">();</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">b_host_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_buf</span><span class="p">.</span><span class="n">get_host_access</span><span class="p">();</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">a_host_acc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">      </span><span class="n">b_host_acc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Submit a SYCL kernel into a queue</span>
+<span class="w">  </span><span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">handler</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cgh</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create read accessors over a_buf and b_buf</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">a_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a_buf</span><span class="p">.</span><span class="n">get_access</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">access_mode</span><span class="o">::</span><span class="n">read</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cgh</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">b_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b_buf</span><span class="p">.</span><span class="n">get_access</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">access_mode</span><span class="o">::</span><span class="n">read</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cgh</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Create write accesor over c_buf</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">c_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c_buf</span><span class="p">.</span><span class="n">get_access</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">access_mode</span><span class="o">::</span><span class="n">write</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cgh</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// Run element-wise multiplication on device</span>
+<span class="w">    </span><span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="o">&lt;</span><span class="k">class</span><span class="w"> </span><span class="nc">vec_add</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">c_acc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a_acc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">b_acc</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">});</span>
+
+<span class="w">  </span><span class="c1">// No need to synchronize, creating the accessor for c_buf will do it automatically</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">c_host_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c_buf</span><span class="p">.</span><span class="n">get_host_access</span><span class="p">();</span>
+<span class="w">      </span><span class="c1">// Print results</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;c[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">c_host_acc</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-3" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-3" name="6-3" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-4" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-4" name="6-4" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="asynchronous-parallel-for-kernels">
+<h3>Asynchronous parallel for kernels<a class="headerlink" href="#asynchronous-parallel-for-kernels" title="Permalink to this heading"></a></h3>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-7-7-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-7-7-0" name="7-0" role="tab" tabindex="0">Kokkos</button><button aria-controls="panel-7-7-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-1" name="7-1" role="tab" tabindex="-1">OpenCL</button><button aria-controls="panel-7-7-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-2" name="7-2" role="tab" tabindex="-1">SYCL</button><button aria-controls="panel-7-7-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-3" name="7-3" role="tab" tabindex="-1">CUDA</button><button aria-controls="panel-7-7-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-4" name="7-4" role="tab" tabindex="-1">HIP</button></div><div aria-labelledby="tab-7-7-0" class="sphinx-tabs-panel" id="panel-7-7-0" name="7-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Kokkos_Core.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Allocate on Kokkos default memory space (Unified Memory)</span>
+<span class="w">    </span><span class="kt">int</span><span class="o">*</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_malloc</span><span class="p">(</span><span class="n">nx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+
+<span class="w">    </span><span class="c1">// Create &#39;n&#39; execution space instances (maps to streams in CUDA/HIP)</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">ex</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">Experimental</span><span class="o">::</span><span class="n">partition_space</span><span class="p">(</span>
+<span class="w">      </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">DefaultExecutionSpace</span><span class="p">(),</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Launch &#39;n&#39; potentially asynchronous kernels</span>
+<span class="w">    </span><span class="c1">// Each kernel has their own execution space instances</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">Kokkos</span><span class="o">::</span><span class="n">RangePolicy</span><span class="o">&lt;</span><span class="n">Kokkos</span><span class="o">::</span><span class="n">DefaultExecutionSpace</span><span class="o">&gt;</span><span class="p">(</span><span class="n">ex</span><span class="p">[</span><span class="n">region</span><span class="p">],</span>
+<span class="w">        </span><span class="n">nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">region</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="n">region</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">)),</span><span class="w"> </span><span class="n">KOKKOS_LAMBDA</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">        </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Sync execution space instances (maps to streams in CUDA/HIP)</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">ex</span><span class="p">[</span><span class="n">region</span><span class="p">].</span><span class="n">fence</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Print results</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nx</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;a[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="c1">// Free Kokkos allocation (Unified Memory)</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">kokkos_free</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Finalize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-1" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-1" name="7-1" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// We&#39;re using OpenCL C++ API here; there is also C API in &lt;CL/cl.h&gt;</span>
+<span class="cp">#define CL_HPP_MINIMUM_OPENCL_VERSION 200</span>
+<span class="cp">#define CL_HPP_TARGET_OPENCL_VERSION 200</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/opencl.hpp&gt;</span>
+
+<span class="c1">// For larger kernels, we can store source in a separate file</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">kernel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span>
+<span class="s">  __kernel void async(__global int *a) {</span>
+<span class="s">    int i = get_global_id(0);</span>
+<span class="s">    int region = i / get_global_size(0);</span>
+<span class="s">    a[i] = region + i;</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize OpenCL</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="o">::</span><span class="n">getDefault</span><span class="p">();</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="w"> </span><span class="n">queue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// This is needed to avoid bug in coarse grain SVMAllocator::allocate()</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="o">::</span><span class="n">setDefault</span><span class="p">(</span><span class="n">queue</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Compile OpenCL program for found device.</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Program</span><span class="w"> </span><span class="n">program</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">kernel_source</span><span class="p">);</span>
+<span class="w">  </span><span class="n">program</span><span class="p">.</span><span class="n">build</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Kernel</span><span class="w"> </span><span class="n">kernel_async</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;async&quot;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set problem dimensions</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create SVM buffer object on host side</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMAllocator</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">SVMTraitWriteOnly</span><span class="o">&lt;&gt;&gt;</span><span class="w"> </span><span class="n">svmAlloc</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">svmAlloc</span><span class="p">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">nx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Pass arguments to device kernel</span>
+<span class="w">    </span><span class="n">kernel_async</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Launch multiple potentially asynchronous kernels on different parts of the array</span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueNDRangeKernel</span><span class="p">(</span><span class="n">kernel_async</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NDRange</span><span class="p">(</span><span class="n">nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">region</span><span class="p">),</span>
+<span class="w">        </span><span class="n">cl</span><span class="o">::</span><span class="n">NDRange</span><span class="p">(</span><span class="n">nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="c1">// Create mapping for host and print results</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueMapSVM</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MAP_READ</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nx</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">      </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;a[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueUnmapSVM</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Free SVM buffer</span>
+<span class="w">    </span><span class="n">svmAlloc</span><span class="p">.</span><span class="n">deallocate</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">nx</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-2" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-2" name="7-2" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sycl/sycl.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Allocate shared memory (Unified Shared Memory)</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">malloc_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Launch multiple potentially asynchronous kernels on different parts of the array</span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">n</span><span class="p">;</span><span class="w"> </span><span class="n">region</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">q</span><span class="p">.</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">iShifted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">nx</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">region</span><span class="p">;</span>
+<span class="w">      </span><span class="n">a</span><span class="p">[</span><span class="n">iShifted</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">region</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">iShifted</span><span class="p">;</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Synchronize</span>
+<span class="w">  </span><span class="n">q</span><span class="p">.</span><span class="n">wait</span><span class="p">();</span>
+
+<span class="w">  </span><span class="c1">// Print results</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nx</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;a[%d] = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="w">  </span><span class="c1">// Free shared memory allocation (Unified Memory)</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">free</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">q</span><span class="p">);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-3" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-3" name="7-3" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-4" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-4" name="7-4" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="reduction">
+<h3>Reduction<a class="headerlink" href="#reduction" title="Permalink to this heading"></a></h3>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-8-8-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-8-8-0" name="8-0" role="tab" tabindex="0">Kokkos</button><button aria-controls="panel-8-8-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-1" name="8-1" role="tab" tabindex="-1">OpenCL</button><button aria-controls="panel-8-8-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-2" name="8-2" role="tab" tabindex="-1">SYCL</button><button aria-controls="panel-8-8-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-3" name="8-3" role="tab" tabindex="-1">CUDA</button><button aria-controls="panel-8-8-4" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-4" name="8-4" role="tab" tabindex="-1">HIP</button></div><div aria-labelledby="tab-8-8-0" class="sphinx-tabs-panel" id="panel-8-8-0" name="8-0" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;Kokkos_Core.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">initialize</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Initialize sum variable</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Run sum reduction kernel</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">parallel_reduce</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">KOKKOS_LAMBDA</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lsum</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">lsum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">    </span><span class="p">},</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Kokkos synchronization</span>
+<span class="w">    </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">fence</span><span class="p">();</span>
+
+<span class="w">    </span><span class="c1">// Print results</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;sum = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">// Finalize Kokkos</span>
+<span class="w">  </span><span class="n">Kokkos</span><span class="o">::</span><span class="n">finalize</span><span class="p">();</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-1" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-1" name="8-1" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// We&#39;re using OpenCL C++ API here; there is also C API in &lt;CL/cl.h&gt;</span>
+<span class="cp">#define CL_HPP_MINIMUM_OPENCL_VERSION 110</span>
+<span class="cp">#define CL_HPP_TARGET_OPENCL_VERSION 110</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CL/opencl.hpp&gt;</span>
+
+<span class="c1">// For larger kernels, we can store source in a separate file</span>
+<span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">kernel_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="sa">R</span><span class="s">&quot;</span><span class="dl">(</span>
+<span class="s">  __kernel void reduce(__global int* sum, __local int* local_mem) {</span>
+
+<span class="s">    // Get work group and work item information</span>
+<span class="s">    int gsize = get_global_size(0); // global work size</span>
+<span class="s">    int gid = get_global_id(0); // global work item index</span>
+<span class="s">    int lsize = get_local_size(0); // local work size</span>
+<span class="s">    int lid = get_local_id(0); // local work item index</span>
+
+<span class="s">    // Store reduced item into local memory</span>
+<span class="s">    local_mem[lid] = gid; // initialize local memory</span>
+<span class="s">    barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory</span>
+
+<span class="s">    // Perform reduction across the local work group</span>
+<span class="s">    for (int s = 1; s &lt; lsize; s *= 2) { // loop over local memory with stride doubling each iteration</span>
+<span class="s">      if (lid % (2 * s) == 0) {</span>
+<span class="s">        local_mem[lid] += local_mem[lid + s];</span>
+<span class="s">      }</span>
+<span class="s">      barrier(CLK_LOCAL_MEM_FENCE); // synchronize local memory</span>
+<span class="s">    }</span>
+
+<span class="s">    if (lid == 0) { // only one work item per work group</span>
+<span class="s">      atomic_add(sum, local_mem[0]); // add partial sum to global sum atomically</span>
+<span class="s">    }</span>
+<span class="s">  }</span>
+<span class="dl">)</span><span class="s">&quot;</span><span class="p">;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+
+<span class="w">  </span><span class="c1">// Initialize OpenCL</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="w"> </span><span class="n">device</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">Device</span><span class="o">::</span><span class="n">getDefault</span><span class="p">();</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Context</span><span class="w"> </span><span class="n">context</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">CommandQueue</span><span class="w"> </span><span class="n">queue</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">device</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">// Compile OpenCL program for found device</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Program</span><span class="w"> </span><span class="n">program</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">kernel_source</span><span class="p">);</span>
+<span class="w">  </span><span class="n">program</span><span class="p">.</span><span class="n">build</span><span class="p">(</span><span class="n">device</span><span class="p">);</span>
+<span class="w">  </span><span class="n">cl</span><span class="o">::</span><span class="n">Kernel</span><span class="w"> </span><span class="n">kernel_reduce</span><span class="p">(</span><span class="n">program</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;reduce&quot;</span><span class="p">);</span>
+
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Set problem dimensions</span>
+<span class="w">    </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Initialize sum variable</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+
+<span class="w">    </span><span class="c1">// Create buffer for sum</span>
+<span class="w">    </span><span class="n">cl</span><span class="o">::</span><span class="n">Buffer</span><span class="w"> </span><span class="n">buffer</span><span class="p">(</span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">CL_MEM_READ_WRITE</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">CL_MEM_COPY_HOST_PTR</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sum</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Pass arguments to device kernel</span>
+<span class="w">    </span><span class="n">kernel_reduce</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">buffer</span><span class="p">);</span><span class="w"> </span><span class="c1">// pass buffer to device</span>
+<span class="w">    </span><span class="n">kernel_reduce</span><span class="p">.</span><span class="n">setArg</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="nb">NULL</span><span class="p">);</span><span class="w"> </span><span class="c1">// allocate local memory</span>
+
+<span class="w">    </span><span class="c1">// Enqueue kernel</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueNDRangeKernel</span><span class="p">(</span><span class="n">kernel_reduce</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">,</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NDRange</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">cl</span><span class="o">::</span><span class="n">NullRange</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Read result</span>
+<span class="w">    </span><span class="n">queue</span><span class="p">.</span><span class="n">enqueueReadBuffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">CL_TRUE</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">sum</span><span class="p">);</span>
+
+<span class="w">    </span><span class="c1">// Print result</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;sum = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-2" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-2" name="8-2" role="tabpanel" tabindex="0"><div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="c1">// We use built-in sycl::reduction mechanism in this example.</span>
+<span class="c1">// The manual implementation of the reduction kernel can be found in</span>
+<span class="c1">// the &quot;Non-portable kernel models&quot; chapter.</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sycl/sycl.hpp&gt;</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">sycl</span><span class="o">::</span><span class="n">queue</span><span class="w"> </span><span class="n">q</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="w">  </span><span class="c1">// Initialize sum</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Create a buffer for sum to get the reduction results</span>
+<span class="w">    </span><span class="n">sycl</span><span class="o">::</span><span class="n">buffer</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sum_buf</span><span class="p">{</span><span class="o">&amp;</span><span class="n">sum</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+
+<span class="w">    </span><span class="c1">// Submit a SYCL kernel into a queue</span>
+<span class="w">    </span><span class="n">q</span><span class="p">.</span><span class="n">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">handler</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cgh</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// Create temporary object describing variables with reduction semantics</span>
+<span class="w">      </span><span class="k">auto</span><span class="w"> </span><span class="n">sum_acc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum_buf</span><span class="p">.</span><span class="n">get_access</span><span class="o">&lt;</span><span class="n">sycl</span><span class="o">::</span><span class="n">access_mode</span><span class="o">::</span><span class="n">read_write</span><span class="o">&gt;</span><span class="p">(</span><span class="n">cgh</span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// We can use built-in reduction primitive</span>
+<span class="w">      </span><span class="k">auto</span><span class="w"> </span><span class="n">sum_reduction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">reduction</span><span class="p">(</span><span class="n">sum_acc</span><span class="p">,</span><span class="w"> </span><span class="n">sycl</span><span class="o">::</span><span class="n">plus</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">());</span>
+
+<span class="w">      </span><span class="c1">// A reference to the reducer is passed to the lambda</span>
+<span class="w">      </span><span class="n">cgh</span><span class="p">.</span><span class="n">parallel_for</span><span class="p">(</span><span class="n">sycl</span><span class="o">::</span><span class="n">range</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">{</span><span class="n">n</span><span class="p">},</span><span class="w"> </span><span class="n">sum_reduction</span><span class="p">,</span>
+<span class="w">                      </span><span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="n">sycl</span><span class="o">::</span><span class="n">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="w"> </span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">reducer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">reducer</span><span class="p">.</span><span class="n">combine</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="w"> </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}).</span><span class="n">wait</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">// The contents of sum_buf are copied back to sum by the destructor of sum_buf</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// Print results</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;sum = %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-3" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-3" name="8-3" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-4" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-4" name="8-4" role="tabpanel" tabindex="0"><div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">WRITEME</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+</section>
+<section id="pros-and-cons-of-cross-platform-portability-ecosystems">
+<h2>Pros and cons of cross-platform portability ecosystems<a class="headerlink" href="#pros-and-cons-of-cross-platform-portability-ecosystems" title="Permalink to this heading"></a></h2>
+<section id="general-observations">
+<h3>General observations<a class="headerlink" href="#general-observations" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>The amount of code duplication is minimized</p></li>
+<li><p>The same code can be compiled to multiple architectures from different vendors</p></li>
+<li><p>Limited learning resources compared to CUDA (Stack Overflow, course material, documentation)</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="lambda-based-kernel-models-kokkos-sycl">
+<h3>Lambda-based kernel models (Kokkos, SYCL)<a class="headerlink" href="#lambda-based-kernel-models-kokkos-sycl" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Higher level of abstraction</p></li>
+<li><p>Less knowledge of the underlying architecture is needed</p></li>
+<li><p>Very nice and readable source code (C++ API)</p></li>
+<li><p>The models are relatively new and not very popular yet</p></li>
+</ul>
+</div></blockquote>
+</section>
+<section id="separate-source-kernel-models-opencl">
+<h3>Separate-source kernel models (OpenCL)<a class="headerlink" href="#separate-source-kernel-models-opencl" title="Permalink to this heading"></a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p>Very good portability</p></li>
+<li><p>Matured ecosystem</p></li>
+<li><p>Low-level API gives more control and allows fine tuning</p></li>
+<li><p>Both C, and C++ APIs available (C++ API is less mature)</p></li>
+<li><p>The low-level API and separate-source kernel model are less user friendly</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition-keypoints keypoints admonition" id="keypoints-0">
+<p class="admonition-title">Keypoints</p>
+<ul class="simple">
+<li><p>k1</p></li>
+<li><p>k2</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../9-non-portable-kernel-models/" class="btn btn-neutral float-left" title="Non-portable kernel-based models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../11-gpu-porting/" class="btn btn-neutral float-right" title="Preparing code for GPU porting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

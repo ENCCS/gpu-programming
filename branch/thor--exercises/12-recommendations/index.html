@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recommendations &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="GPU programming example: stencil computation" href="../13-examples/" />
+    <link rel="prev" title="Preparing code for GPU porting" href="../11-gpu-porting/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../6-language-support/">High-level language support</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Recommendations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#portability">Portability</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#programming-effort">Programming Effort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#performance-requirements">Performance Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cost-benefit-analysis">Cost-benefit Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choosing-between-frameworks">Choosing Between Frameworks</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Recommendations</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/12-recommendations.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="recommendations">
+<h1>Recommendations<a class="headerlink" href="#recommendations" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>Which GPU programming framework is right for me and my project?</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>30 min teaching</p></li>
+<li><p>15 min exercises</p></li>
+</ul>
+</div>
+<section id="portability">
+<h2>Portability<a class="headerlink" href="#portability" title="Permalink to this heading"></a></h2>
+<p>One of the critical factors when diving into GPU programming is the portability of the chosen framework.
+It’s crucial to ensure that the framework you decide to utilize is compatible with the GPU or GPUs you intend
+to use. This might seem like a basic step, but it’s essential to avoid unnecessary hardware-software mismatches
+that could lead to performance bottlenecks or, worse, a complete failure of the system.</p>
+<p>Moreover, if you’re targeting multiple platforms or GPUs, it’s wise to consider using frameworks that support
+portable kernel-based models or those that come with high-level language support.
+The benefit of these frameworks is that they allow for efficient execution of your code on a variety of
+hardware configurations without needing significant alterations.</p>
+</section>
+<section id="programming-effort">
+<h2>Programming Effort<a class="headerlink" href="#programming-effort" title="Permalink to this heading"></a></h2>
+<p>The amount of programming effort required is another factor to consider when choosing a GPU programming framework.
+It’s advisable to select a framework that supports the programming language you’re comfortable with.
+This consideration will ensure a smoother learning curve and a more efficient development process.</p>
+<p>Furthermore, it’s important to check the availability of supportive resources for the chosen framework.
+Comprehensive documentation, illustrative examples, and an active community are important when learning
+a new framework or troubleshooting issues. They not only minimize the time spent on resolving bugs but also
+foster continuous learning and mastery of the framework.</p>
+</section>
+<section id="performance-requirements">
+<h2>Performance Requirements<a class="headerlink" href="#performance-requirements" title="Permalink to this heading"></a></h2>
+<p>Every application or project has unique performance requirements. Therefore, it’s crucial to evaluate the
+performance characteristics and optimization capabilities of the potential frameworks before choosing one.
+Some frameworks offer extensive optimization features and can automatically tune your code to maximize its
+performance. Knowing how well a framework can handle your specific workload requirements can save you
+considerable time and resources in the long run.</p>
+</section>
+<section id="cost-benefit-analysis">
+<h2>Cost-benefit Analysis<a class="headerlink" href="#cost-benefit-analysis" title="Permalink to this heading"></a></h2>
+<p>Before finalizing your choice of a GPU programming framework, it’s recommended to perform a cost-benefit analysis.
+Consider the specific requirements of your project, like the processing power needed, the complexity of the tasks,
+the amount of data to be processed, and the cost associated with the potential framework.
+Understanding these factors will help you determine the most suitable and cost-effective framework for your needs.</p>
+</section>
+<section id="choosing-between-frameworks">
+<h2>Choosing Between Frameworks<a class="headerlink" href="#choosing-between-frameworks" title="Permalink to this heading"></a></h2>
+<p>The decision of choosing between different GPU programming frameworks often depends on several factors, including:</p>
+<ul class="simple">
+<li><p><strong>The specifics of the problem</strong>: Different problems might need different computational capabilities.
+Understand your problem thoroughly and evaluate which framework is best equipped to handle it.</p></li>
+<li><p><strong>Starting point</strong>: If you’re starting from scratch, you might have more flexibility in choosing your framework than
+if you’re building on top of existing code.</p></li>
+<li><p><strong>Background knowledge of the programmer</strong>: The familiarity of the programmer with certain programming languages or
+frameworks plays a big role in the decision-making process.</p></li>
+<li><p><strong>Time investment</strong>: Some frameworks may have a steeper learning curve but offer more extensive capabilities,
+while others might be easier to grasp but provide limited features.</p></li>
+<li><p><strong>Performance needs</strong>: Some applications require maximum computational power, while others might not.
+The performance capabilities of the framework should align with the needs of your project.</p></li>
+</ul>
+<p>By keeping these considerations in mind, you can make a more informed decision and choose a GPU programming
+framework that best suits your needs.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../11-gpu-porting/" class="btn btn-neutral float-left" title="Preparing code for GPU porting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../13-examples/" class="btn btn-neutral float-right" title="GPU programming example: stencil computation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

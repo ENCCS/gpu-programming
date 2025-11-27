@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>High-level language support &mdash; GPU programming: why, when and how?  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/togglebutton.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_lesson.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sphinx_rtd_theme_ext_color_contrast.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/tabs.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/minipres.js"></script>
+        <script src="../_static/tabs.js"></script>
+        <script>let toggleHintShow = 'Click to show';</script>
+        <script>let toggleHintHide = 'Click to hide';</script>
+        <script>let toggleOpenOnPrint = 'true';</script>
+        <script src="../_static/togglebutton.js"></script>
+        <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="Directive-based models" href="../7-directive-based-models/" />
+    <link rel="prev" title="Introduction to GPU programming models" href="../5-intro-to-gpu-prog-models/" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../" class="icon icon-home">
+            GPU programming: why, when and how?
+              <img src="../_static/ENCCS.jpg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search/" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Prerequisites</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../0-setup/">Setup</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">The lesson</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../1-gpu-history/">Why GPUs?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../2-gpu-ecosystem/">The GPU hardware and software ecosystem</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../3-gpu-problems/">What problems fit to GPU?</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../4-gpu-concepts/">GPU programming concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../5-intro-to-gpu-prog-models/">Introduction to GPU programming models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">High-level language support</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#julia">Julia</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-array-interface">The array interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vendor-libraries">Vendor libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#higher-order-abstractions">Higher-order abstractions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#writing-your-own-kernels">Writing your own kernels</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#python">Python</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cupy">CuPy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cudf">cuDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pycuda">PyCUDA</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#numba">Numba</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ufunc-gufunc-decorator">ufunc (gufunc) decorator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../7-directive-based-models/">Directive-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../8-multiple_gpu/">Multiple GPU programming with MPI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../9-non-portable-kernel-models/">Non-portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../10-portable-kernel-models/">Portable kernel-based models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../11-gpu-porting/">Preparing code for GPU porting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../12-recommendations/">Recommendations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../13-examples/">GPU programming example: stencil computation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../quick-reference/">Quick Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary/">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../guide/">Instructor’s guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../">GPU programming: why, when and how?</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">High-level language support</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/ENCCS/gpu-programming/blob/main/content/6-language-support.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="high-level-language-support">
+<h1>High-level language support<a class="headerlink" href="#high-level-language-support" title="Permalink to this heading"></a></h1>
+<div class="admonition-questions questions admonition" id="questions-0">
+<p class="admonition-title">Questions</p>
+<ul class="simple">
+<li><p>Can I port code in high-level languages to run on GPUs?</p></li>
+</ul>
+</div>
+<div class="admonition-objectives objectives admonition" id="objectives-0">
+<p class="admonition-title">Objectives</p>
+<ul class="simple">
+<li><p>Get an overview of libraries for GPU programming in Python and Julia</p></li>
+</ul>
+</div>
+<div class="admonition-instructor-note instructor-note admonition" id="instructor-note-0">
+<p class="admonition-title">Instructor note</p>
+<ul class="simple">
+<li><p>25 min teaching</p></li>
+<li><p>15 min exercises</p></li>
+</ul>
+</div>
+<section id="julia">
+<h2>Julia<a class="headerlink" href="#julia" title="Permalink to this heading"></a></h2>
+<p>Julia has first-class support for GPU programming through the following
+packages that target GPUs from all three major vendors:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://cuda.juliagpu.org/stable/">CUDA.jl</a> for NVIDIA GPUs</p></li>
+<li><p><a class="reference external" href="https://amdgpu.juliagpu.org/stable/">AMDGPU.jl</a> for AMD GPUs</p></li>
+<li><p><a class="reference external" href="https://github.com/JuliaGPU/oneAPI.jl">oneAPI.jl</a> for Intel GPUs</p></li>
+<li><p><a class="reference external" href="https://github.com/JuliaGPU/Metal.jl">Metal.jl</a> for Apple M-series GPUs</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">CUDA.jl</span></code> is the most mature, <code class="docutils literal notranslate"><span class="pre">AMDGPU.jl</span></code> is somewhat behind but still
+ready for general use, while <code class="docutils literal notranslate"><span class="pre">oneAPI.jl</span></code> and <code class="docutils literal notranslate"><span class="pre">Metal.jl</span></code> are functional but might
+contain bugs, miss some features and provide suboptimal performance.</p>
+<p>The APIs of these libraries are completely analogous and translation between them is
+normally straightforward. The libraries offer both user-friendly <strong>high-level abstractions</strong>
+(the array interface and higher-level abstractions) that require little programming effort,
+and a <strong>lower level</strong> approach for writing kernels for fine-grained control.</p>
+<p>Installing these packages is done with the Julia package manager:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-0-TlZJRElB" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-0-TlZJRElB" name="TlZJRElB" role="tab" tabindex="0">NVIDIA</button><button aria-controls="panel-0-QU1E" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-QU1E" name="QU1E" role="tab" tabindex="-1">AMD</button><button aria-controls="panel-0-SW50ZWw=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-SW50ZWw=" name="SW50ZWw=" role="tab" tabindex="-1">Intel</button><button aria-controls="panel-0-QXBwbGU=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-0-QXBwbGU=" name="QXBwbGU=" role="tab" tabindex="-1">Apple</button></div><div aria-labelledby="tab-0-TlZJRElB" class="sphinx-tabs-panel group-tab" id="panel-0-TlZJRElB" name="TlZJRElB" role="tabpanel" tabindex="0"><p>Installing <code class="docutils literal notranslate"><span class="pre">CUDA.jl</span></code>:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;CUDA&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-QU1E" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-QU1E" name="QU1E" role="tabpanel" tabindex="0"><p>Installing <code class="docutils literal notranslate"><span class="pre">AMDGPU.jl</span></code>:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;AMDGPU&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-SW50ZWw=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-SW50ZWw=" name="SW50ZWw=" role="tabpanel" tabindex="0"><p>Installing <code class="docutils literal notranslate"><span class="pre">oneAPI.jl</span></code>:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;oneAPI&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-0-QXBwbGU=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-0-QXBwbGU=" name="QXBwbGU=" role="tabpanel" tabindex="0"><p>Installing <code class="docutils literal notranslate"><span class="pre">Metal.jl</span></code>:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">Pkg</span>
+<span class="n">Pkg</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;Metal&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<p>To use the Julia GPU stack, one needs to have the relevant GPU drivers and
+programming toolkits installed. GPU drivers are already installed on HPC systems
+while on your own machine you will need to install them yourself (see e.g. these
+<a class="reference external" href="https://www.nvidia.com/Download/index.aspx">instructions from NVIDIA</a>).
+Programming toolkits for CUDA can be installed automatically through
+Julia’s artifact system upon the first usage:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">CUDA</span>
+<span class="n">CUDA</span><span class="o">.</span><span class="n">versioninfo</span><span class="p">()</span>
+</pre></div>
+</div>
+<section id="the-array-interface">
+<h3>The array interface<a class="headerlink" href="#the-array-interface" title="Permalink to this heading"></a></h3>
+<p>GPU programming with Julia can be as simple as using a different array type
+instead of regular <code class="docutils literal notranslate"><span class="pre">Base.Array</span></code> arrays:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">CuArray</span></code> from CUDA.jl for NVIDIA GPUs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ROCArray</span></code> from AMDGPU.jl for AMD GPUs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">oneArray</span></code> from oneAPI.jl for Intel GPUs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MtlArray</span></code> from Metal.jl for Apple GPUs</p></li>
+</ul>
+<p>These array types closely resemble <code class="docutils literal notranslate"><span class="pre">Base.Array</span></code> which enables
+us to write generic code which works on both types.</p>
+<p>The following code copies an array to the GPU and executes a simple operation on
+the GPU:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-1-TlZJRElB" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-1-TlZJRElB" name="TlZJRElB" role="tab" tabindex="0">NVIDIA</button><button aria-controls="panel-1-QU1E" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-QU1E" name="QU1E" role="tab" tabindex="-1">AMD</button><button aria-controls="panel-1-SW50ZWw=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-SW50ZWw=" name="SW50ZWw=" role="tab" tabindex="-1">Intel</button><button aria-controls="panel-1-QXBwbGU=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-1-QXBwbGU=" name="QXBwbGU=" role="tab" tabindex="-1">Apple</button></div><div aria-labelledby="tab-1-TlZJRElB" class="sphinx-tabs-panel group-tab" id="panel-1-TlZJRElB" name="TlZJRElB" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">CUDA</span>
+
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CuArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">.+=</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-QU1E" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-QU1E" name="QU1E" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">AMDGPU</span>
+
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROCArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">.+=</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-SW50ZWw=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-SW50ZWw=" name="SW50ZWw=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">oneAPI</span>
+
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oneArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">.+=</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-1-QXBwbGU=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-1-QXBwbGU=" name="QXBwbGU=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">Metal</span>
+
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MtlArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">])</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">.+=</span><span class="w"> </span><span class="mi">1</span>
+</pre></div>
+</div>
+</div></div>
+<p>Moving an array back from the GPU to the CPU is simple:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">Array</span><span class="p">(</span><span class="n">A_d</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Let’s have a look at a more realistic example: matrix multiplication. We
+create two random arrays, one on the CPU and one on the GPU, and compare the
+performance using the <a class="reference external" href="https://github.com/JuliaCI/BenchmarkTools.jl">BenchmarkTools package</a>:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-TlZJRElB" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-2-TlZJRElB" name="TlZJRElB" role="tab" tabindex="0">NVIDIA</button><button aria-controls="panel-2-QU1E" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-QU1E" name="QU1E" role="tab" tabindex="-1">AMD</button><button aria-controls="panel-2-SW50ZWw=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-SW50ZWw=" name="SW50ZWw=" role="tab" tabindex="-1">Intel</button><button aria-controls="panel-2-QXBwbGU=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-2-QXBwbGU=" name="QXBwbGU=" role="tab" tabindex="-1">Apple</button></div><div aria-labelledby="tab-2-TlZJRElB" class="sphinx-tabs-panel group-tab" id="panel-2-TlZJRElB" name="TlZJRElB" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">BenchmarkTools</span>
+<span class="k">using</span><span class="w"> </span><span class="n">CUDA</span>
+
+<span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CuArray</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="p">;</span>
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="p">;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-QU1E" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-QU1E" name="QU1E" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">BenchmarkTools</span>
+<span class="k">using</span><span class="w"> </span><span class="n">AMDGPU</span>
+
+<span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROCArray</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="p">;</span>
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="p">;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-SW50ZWw=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-SW50ZWw=" name="SW50ZWw=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">BenchmarkTools</span>
+<span class="k">using</span><span class="w"> </span><span class="n">oneAPI</span>
+
+<span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oneArray</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="p">;</span>
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="p">;</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-QXBwbGU=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-2-QXBwbGU=" name="QXBwbGU=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">using</span><span class="w"> </span><span class="n">BenchmarkTools</span>
+<span class="k">using</span><span class="w"> </span><span class="n">Metal</span>
+
+<span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+<span class="n">A_d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MtlArray</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A</span><span class="p">;</span>
+<span class="nd">@btime</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="o">$</span><span class="n">A_d</span><span class="p">;</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="vendor-libraries">
+<h3>Vendor libraries<a class="headerlink" href="#vendor-libraries" title="Permalink to this heading"></a></h3>
+<p>Support for using GPU vendor libraries from Julia is currently only supported on
+NVIDIA GPUs. NVIDIA libraries contain precompiled kernels for common
+operations like matrix multiplication (<cite>cuBLAS</cite>), fast Fourier transforms
+(<cite>cuFFT</cite>), linear solvers (<cite>cuSOLVER</cite>), etc. These kernels are wrapped
+in <code class="docutils literal notranslate"><span class="pre">CUDA.jl</span></code> and can be used directly with <code class="docutils literal notranslate"><span class="pre">CuArrays</span></code>:</p>
+<div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="c"># create a 100x100 Float32 random array and an uninitialized array</span>
+<span class="n">A</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+<span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kt">CuArray</span><span class="p">{</span><span class="kt">Float32</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">}(</span><span class="nb">undef</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">);</span>
+
+<span class="c"># regular matrix multiplication uses cuBLAS under the hood</span>
+<span class="n">A</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">A</span>
+
+<span class="c"># use LinearAlgebra for matrix multiplication</span>
+<span class="k">using</span><span class="w"> </span><span class="n">LinearAlgebra</span>
+<span class="n">mul!</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">)</span>
+
+<span class="c"># use cuSOLVER for QR factorization</span>
+<span class="n">qr</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="c"># solve equation A*X == B</span>
+<span class="n">A</span><span class="w"> </span><span class="o">\</span><span class="w"> </span><span class="n">B</span>
+
+<span class="c"># use cuFFT for FFT</span>
+<span class="k">using</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">CUFFT</span>
+<span class="n">fft</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="higher-order-abstractions">
+<h3>Higher-order abstractions<a class="headerlink" href="#higher-order-abstractions" title="Permalink to this heading"></a></h3>
+<p>A powerful way to program GPUs with arrays is through Julia’s higher-order array
+abstractions. The simple element-wise addition we saw above, <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">.+=</span> <span class="pre">1</span></code>, is
+an example of this, but more general constructs can be created with
+<code class="docutils literal notranslate"><span class="pre">broadcast</span></code>, <code class="docutils literal notranslate"><span class="pre">map</span></code>, <code class="docutils literal notranslate"><span class="pre">reduce</span></code>, <code class="docutils literal notranslate"><span class="pre">accumulate</span></code> etc:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-3-3-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-3-3-0" name="3-0" role="tab" tabindex="0">broadcast</button><button aria-controls="panel-3-3-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-1" name="3-1" role="tab" tabindex="-1">map</button><button aria-controls="panel-3-3-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-2" name="3-2" role="tab" tabindex="-1">reduce</button><button aria-controls="panel-3-3-3" aria-selected="false" class="sphinx-tabs-tab" id="tab-3-3-3" name="3-3" role="tab" tabindex="-1">accumulate</button></div><div aria-labelledby="tab-3-3-0" class="sphinx-tabs-panel" id="panel-3-3-0" name="3-0" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">broadcast</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="n">x</span>
+<span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-1" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-1" name="3-1" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">map</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="n">x</span>
+<span class="w">    </span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span>
+<span class="k">end</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-2" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-2" name="3-2" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">reduce</span><span class="p">(</span><span class="o">+</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-3-3-3" class="sphinx-tabs-panel" hidden="true" id="panel-3-3-3" name="3-3" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="n">accumulate</span><span class="p">(</span><span class="o">+</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+</section>
+<section id="writing-your-own-kernels">
+<h3>Writing your own kernels<a class="headerlink" href="#writing-your-own-kernels" title="Permalink to this heading"></a></h3>
+<p>Not all algorithms can be made to work with the higher-level abstractions
+in <code class="docutils literal notranslate"><span class="pre">CUDA.jl</span></code>. In such cases it’s necessary to explicitly write our own GPU kernel.</p>
+<p>Similarly to writing kernels in CUDA or HIP, we use a special function to
+return the index of the GPU thread which executes it (e.g., <code class="docutils literal notranslate"><span class="pre">threadIdx().x</span></code> for NVIDIA
+and <code class="docutils literal notranslate"><span class="pre">workitemIdx().x</span></code> for AMD), and two additional functions to parallelise over multiple blocks
+(e.g., <code class="xref py py-meth docutils literal notranslate"><span class="pre">blockDim().x()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">blockIdx().x()</span></code> for NVIDIA, and <code class="xref py py-meth docutils literal notranslate"><span class="pre">workgroupDim().x()</span></code> and
+<code class="xref py py-meth docutils literal notranslate"><span class="pre">workgroupIdx().x()</span></code> for AMD).</p>
+<figure class="align-center">
+<img alt="../_images/MappingBlocksToSMs.png" src="../_images/MappingBlocksToSMs.png" />
+</figure>
+<p>Here’s an example of vector addition kernels for NVIDIA, AMD, Intel and Apple GPUs:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-4-TlZJRElB" aria-selected="true" class="sphinx-tabs-tab group-tab" id="tab-4-TlZJRElB" name="TlZJRElB" role="tab" tabindex="0">NVIDIA</button><button aria-controls="panel-4-QU1E" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-QU1E" name="QU1E" role="tab" tabindex="-1">AMD</button><button aria-controls="panel-4-SW50ZWw=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-SW50ZWw=" name="SW50ZWw=" role="tab" tabindex="-1">Intel</button><button aria-controls="panel-4-QXBwbGU=" aria-selected="false" class="sphinx-tabs-tab group-tab" id="tab-4-QXBwbGU=" name="QXBwbGU=" role="tab" tabindex="-1">Apple</button></div><div aria-labelledby="tab-4-TlZJRElB" class="sphinx-tabs-panel group-tab" id="panel-4-TlZJRElB" name="TlZJRElB" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadIdx</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">blockIdx</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">blockDim</span><span class="p">()</span><span class="o">.</span><span class="n">x</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">length</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@inbounds</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="k">end</span>
+
+<span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">CUDA</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">;</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">similar</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span>
+<span class="c"># smallest integer larger than or equal to length(A)/threads</span>
+<span class="n">numblocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cld</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="w"> </span><span class="n">nthreads</span><span class="p">)</span>
+
+<span class="c"># run using 256 threads</span>
+<span class="nd">@cuda</span><span class="w"> </span><span class="n">threads</span><span class="o">=</span><span class="n">nthreads</span><span class="w"> </span><span class="n">blocks</span><span class="o">=</span><span class="n">numblocks</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+
+<span class="nd">@assert</span><span class="w"> </span><span class="n">all</span><span class="p">(</span><span class="kt">Array</span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="o">.==</span><span class="w"> </span><span class="mf">5.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-QU1E" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-QU1E" name="QU1E" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="c"># WARNING: this is still untested on AMD GPUs</span>
+<span class="k">function</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">workitemIdx</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">workgroupIdx</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">workgroupDim</span><span class="p">()</span><span class="o">.</span><span class="n">x</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@inbounds</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="k">end</span>
+
+<span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ROCArray</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">ROCArray</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">similar</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span>
+<span class="c"># smallest integer larger than or equal to length(A)/threads</span>
+<span class="n">numblocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cld</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">A_d</span><span class="p">),</span><span class="w"> </span><span class="n">nthreads</span><span class="p">)</span>
+
+<span class="c"># run using 256 threads</span>
+<span class="nd">@roc</span><span class="w"> </span><span class="n">groupsize</span><span class="o">=</span><span class="n">nthreads</span><span class="w"> </span><span class="n">blocks</span><span class="o">=</span><span class="n">numblocks</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+
+<span class="nd">@assert</span><span class="w"> </span><span class="n">all</span><span class="p">(</span><span class="kt">Array</span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="o">.==</span><span class="w"> </span><span class="mf">5.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-SW50ZWw=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-SW50ZWw=" name="SW50ZWw=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="c"># WARNING: this is still untested on Intel GPUs</span>
+<span class="k">function</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_global_id</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="w">        </span><span class="n">c</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="k">end</span>
+
+<span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">oneArray</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">oneArray</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">similar</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span>
+<span class="c"># smallest integer larger than or equal to length(A)/threads</span>
+<span class="n">numgroups</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cld</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="mi">256</span><span class="p">)</span>
+
+<span class="nd">@oneapi</span><span class="w"> </span><span class="n">items</span><span class="o">=</span><span class="n">nthreads</span><span class="w"> </span><span class="n">groups</span><span class="o">=</span><span class="n">numgroups</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">)</span>
+
+<span class="nd">@assert</span><span class="w"> </span><span class="n">all</span><span class="p">(</span><span class="kt">Array</span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="o">.==</span><span class="w"> </span><span class="mf">5.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-4-QXBwbGU=" class="sphinx-tabs-panel group-tab" hidden="true" id="panel-4-QXBwbGU=" name="QXBwbGU=" role="tabpanel" tabindex="0"><div class="highlight-julia notranslate"><div class="highlight"><pre><span></span><span class="k">function</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+<span class="w">    </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">thread_position_in_grid_1d</span><span class="p">()</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">length</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="w">        </span><span class="nd">@inbounds</span><span class="w"> </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="w">    </span><span class="k">end</span>
+<span class="w">    </span><span class="k">return</span>
+<span class="k">end</span>
+
+<span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">MtlArray</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="kt">Float32</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span><span class="w"> </span><span class="n">MtlArray</span><span class="p">(</span><span class="kt">Float32</span><span class="p">,</span><span class="w"> </span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="o">^</span><span class="mi">9</span><span class="p">)</span><span class="o">*</span><span class="mi">3</span><span class="p">);</span>
+<span class="n">C</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">similar</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+
+<span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">256</span>
+<span class="c"># smallest integer larger than or equal to length(A)/threads</span>
+<span class="n">numblocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cld</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="w"> </span><span class="n">nthreads</span><span class="p">)</span>
+
+<span class="c"># run using 256 threads</span>
+<span class="nd">@metal</span><span class="w"> </span><span class="n">threads</span><span class="o">=</span><span class="n">nthreads</span><span class="w"> </span><span class="n">grid</span><span class="o">=</span><span class="n">numblocks</span><span class="w"> </span><span class="n">vadd!</span><span class="p">(</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">B</span><span class="p">)</span>
+
+<span class="nd">@assert</span><span class="w"> </span><span class="n">all</span><span class="p">(</span><span class="kt">Array</span><span class="p">(</span><span class="n">C</span><span class="p">)</span><span class="w"> </span><span class="o">.==</span><span class="w"> </span><span class="mf">5.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<div class="admonition-restrictions-in-kernel-programming callout admonition" id="callout-0">
+<p class="admonition-title">Restrictions in kernel programming</p>
+<p>Within kernels, most of the Julia language is supported with the exception of functionality
+that requires the Julia runtime library. This means one cannot allocate memory or perform
+dynamic function calls, both of which are easy to do accidentally!</p>
+</div>
+<div class="admonition-d-2d-and-3d callout admonition" id="callout-1">
+<p class="admonition-title">1D, 2D and 3D</p>
+<p>CUDA.jl and AMDGPU.jl support indexing in up to 3 dimensions (x, y and z, e.g.
+<code class="docutils literal notranslate"><span class="pre">threadIdx().x</span></code> and <code class="docutils literal notranslate"><span class="pre">workitemIdx().x</span></code>). This is convenient
+for multidimensional data where thread blocks can be organised into 1D, 2D or 3D arrays of
+threads.</p>
+</div>
+</section>
+</section>
+<section id="python">
+<h2>Python<a class="headerlink" href="#python" title="Permalink to this heading"></a></h2>
+<p>There has been a lot of progress in GPU programming using Python and the ecosystem is still evolving.
+There are a couple of options available to work with GPU.</p>
+<section id="cupy">
+<h3>CuPy<a class="headerlink" href="#cupy" title="Permalink to this heading"></a></h3>
+<p>CuPy is a NumPy/SciPy-compatible data array library used on GPU. It has been developed for NVIDIA GPUs
+but as experimental support for AMD GPUs.
+CuPy has a highly compatible interface with NumPy and SciPy. As stated on its official website,
+“All you need to do is just replace <em>numpy</em> and <em>scipy</em> with <em>cupy</em> and <em>cupyx.scipy</em> in your Python code.”
+If you know NumPy, CuPy is a very easy way to get started on the GPU.</p>
+</section>
+<section id="cudf">
+<h3>cuDF<a class="headerlink" href="#cudf" title="Permalink to this heading"></a></h3>
+<p>RAPIDS is a high level packages collections which implement CUDA functionalities and API with Python bindings.
+It only supports NVIDIA GPUs.
+cuDF belongs to RAPIDS and is the library for manipulating data frames on GPU.
+cuDF provides a pandas-like API, so if you are familiar with Pandas, you can accelerate your work
+without knowing too much CUDA programming.</p>
+</section>
+<section id="pycuda">
+<h3>PyCUDA<a class="headerlink" href="#pycuda" title="Permalink to this heading"></a></h3>
+<p>PyCUDA is a Python programming environment for CUDA. It allows users to access to NVIDIA’s CUDA API from Python.
+PyCUDA is powerful library but only runs on NVIDIA GPUs. Knowledge of CUDA programming is needed.</p>
+</section>
+<section id="numba">
+<h3>Numba<a class="headerlink" href="#numba" title="Permalink to this heading"></a></h3>
+<p>Numba allows users to just-in-time (JIT) compile Python code to run fast on CPUs, but can also
+be used for JIT compiling for GPUs.
+In the following we will focus on using Numba, which supports GPUs from both NVIDIA and AMD.</p>
+<div class="admonition-amd-support-deprecated callout admonition" id="callout-2">
+<p class="admonition-title">AMD support deprecated</p>
+<p>Numba supported AMD GPUs up until version 0.53 but has since deprecated the support.</p>
+</div>
+<p>Numba supports GPU programming by directly compiling a restricted subset of Python code
+into kernels and device functions following the execution model.
+Kernels written in Numba appear to have direct access to NumPy arrays.
+NumPy arrays are transferred between the CPU and the GPU automatically.</p>
+<section id="ufunc-gufunc-decorator">
+<h4>ufunc (gufunc) decorator<a class="headerlink" href="#ufunc-gufunc-decorator" title="Permalink to this heading"></a></h4>
+<p>Using ufuncs (and generalized ufuncs) is the easiest way to run on a GPU with Numba,
+and it requires minimal understanding of GPU programming. Numba <code class="docutils literal notranslate"><span class="pre">&#64;vectorize</span></code>
+will produce a ufunc-like object. This object is a close analog but not fully compatible
+with a regular NumPy ufunc. Generating a ufunc for GPU requires the explicit
+type signature and  target attribute.</p>
+</section>
+<section id="examples">
+<h4>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h4>
+<div class="admonition-demo-numba-ufunc demo admonition" id="demo-0">
+<p class="admonition-title">Demo: Numba ufunc</p>
+<p>Let’s revisit our example during the episode of optimization.</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-5-5-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-5-5-0" name="5-0" role="tab" tabindex="0">python</button><button aria-controls="panel-5-5-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-1" name="5-1" role="tab" tabindex="-1">Numba ufunc cpu</button><button aria-controls="panel-5-5-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-5-5-2" name="5-2" role="tab" tabindex="-1">Numba ufunc gpu</button></div><div aria-labelledby="tab-5-5-0" class="sphinx-tabs-panel" id="panel-5-5-0" name="5-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-1" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-1" name="5-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">vectorize</span><span class="p">([</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">f_numba_cpu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-5-5-2" class="sphinx-tabs-panel" hidden="true" id="panel-5-5-2" name="5-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+
+<span class="nd">@numba</span><span class="o">.</span><span class="n">vectorize</span><span class="p">([</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">)],</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">f_numba_gpu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="mf">3.0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+</div>
+</div></div>
+<p>Let’s benchmark</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-6-6-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-6-6-0" name="6-0" role="tab" tabindex="0">python</button><button aria-controls="panel-6-6-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-1" name="6-1" role="tab" tabindex="-1">Numba cpu</button><button aria-controls="panel-6-6-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-6-6-2" name="6-2" role="tab" tabindex="-1">Numba gpu</button></div><div aria-labelledby="tab-6-6-0" class="sphinx-tabs-panel" id="panel-6-6-0" name="6-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>it -r 1
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000000</span><span class="p">):</span>
+    <span class="n">res</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">=</span><span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="c1"># 6.75 s ± 0 ns per loop (mean ± std. dev. of 1 run, 1 loop each)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-1" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-1" name="6-1" role="tabpanel" tabindex="0"><div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+<span class="o">%</span><span class="k">timeit</span> res=f_numba_cpu(x, x)
+<span class="c1"># 734 ms ± 435 µs per loop (mean ± std. dev. of 7 runs, 1 loop each)</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-6-6-2" class="sphinx-tabs-panel" hidden="true" id="panel-6-6-2" name="6-2" role="tabpanel" tabindex="0"><div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">10000000</span><span class="p">)</span>
+<span class="o">%</span><span class="k">timeit</span> res=f_numba_gpu(x, x)
+<span class="c1"># 78.4 ms ± 6.71 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)</span>
+</pre></div>
+</div>
+</div></div>
+</div>
+<p>Numba <code class="docutils literal notranslate"><span class="pre">&#64;vectorize</span></code> is limited to scalar arguments in the core function, for multi-dimensional arrays arguments,
+<code class="docutils literal notranslate"><span class="pre">&#64;guvectorize</span></code> is used. Consider the following example which does matrix multiplication.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You should never implement such things like matrix multiplication by yourself,
+there are plenty of existing libraries available.</p>
+</div>
+<div class="admonition-numba-gufunc demo admonition" id="demo-1">
+<p class="admonition-title">Numba gufunc</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-7-7-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-7-7-0" name="7-0" role="tab" tabindex="0">python</button><button aria-controls="panel-7-7-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-1" name="7-1" role="tab" tabindex="-1">numba gufunc cpu</button><button aria-controls="panel-7-7-2" aria-selected="false" class="sphinx-tabs-tab" id="tab-7-7-2" name="7-2" role="tab" tabindex="-1">numba gufunc gpu</button></div><div aria-labelledby="tab-7-7-0" class="sphinx-tabs-panel" id="panel-7-7-0" name="7-0" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">matmul_cpu</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">tmp</span><span class="o">=</span><span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">tmp</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tmp</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-1" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-1" name="7-1" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+
+<span class="c1">#@numba.guvectorize([&#39;(float64[:,:], float64[:,:], float64[:,:])&#39;], &#39;(m,l),(l,n)-&gt;(m,n)&#39;, target=&#39;cpu&#39;)</span>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">([</span><span class="n">numba</span><span class="o">.</span><span class="n">void</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:])],</span> <span class="s1">&#39;(m,l),(l,n)-&gt;(m,n)&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">matmul_numba_cpu</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">tmp</span><span class="o">=</span><span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">tmp</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tmp</span>
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-7-7-2" class="sphinx-tabs-panel" hidden="true" id="panel-7-7-2" name="7-2" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+
+<span class="c1">#@numba.guvectorize([&#39;(float64[:,:], float64[:,:], float64[:,:])&#39;], &#39;(m,l),(l,n)-&gt;(m,n)&#39;, target=&#39;cuda&#39;)</span>
+<span class="nd">@numba</span><span class="o">.</span><span class="n">guvectorize</span><span class="p">([</span><span class="n">numba</span><span class="o">.</span><span class="n">void</span><span class="p">(</span><span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:],</span> <span class="n">numba</span><span class="o">.</span><span class="n">float64</span><span class="p">[:,:])],</span> <span class="s1">&#39;(m,l),(l,n)-&gt;(m,n)&#39;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">matmul_numba_gpu</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">,</span><span class="n">C</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">tmp</span><span class="o">=</span><span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="n">tmp</span> <span class="o">+=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+            <span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">tmp</span>
+</pre></div>
+</div>
+</div></div>
+<p>Benchmark:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-8-8-0" aria-selected="true" class="sphinx-tabs-tab" id="tab-8-8-0" name="8-0" role="tab" tabindex="0">Numba gufunc cpu</button><button aria-controls="panel-8-8-1" aria-selected="false" class="sphinx-tabs-tab" id="tab-8-8-1" name="8-1" role="tab" tabindex="-1">Numba gufunc gpu</button></div><div aria-labelledby="tab-8-8-0" class="sphinx-tabs-panel" id="panel-8-8-0" name="8-0" role="tabpanel" tabindex="0"><div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="o">%</span><span class="k">timeit</span> matmul_numba_cpu(A,B,C)
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-8-8-1" class="sphinx-tabs-panel" hidden="true" id="panel-8-8-1" name="8-1" role="tabpanel" tabindex="0"><div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numba</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="n">B</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="n">C</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">)</span>
+<span class="o">%</span><span class="k">timeit</span> matmul_numba_gpu(A,B,C)
+</pre></div>
+</div>
+</div></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Numba automatically did a lot of things for us:</p>
+<ul class="simple">
+<li><p>Memory was allocated on GPU</p></li>
+<li><p>Data was copied from CPU and GPU</p></li>
+<li><p>The kernel was configured and launched</p></li>
+<li><p>Data was copied back from GPU to CPU</p></li>
+</ul>
+</div>
+<p>Using ufuncs (or gfuncs) for GPU processing can be straightforward, but this approach may not always yield
+optimal performance due to automatic handling of data transfer to and from the GPU, as well as kernel launching.
+Additionally, in practice, not every function can be constructed as a ufunc. To gain greater control and
+flexibility, one may need to craft their own kernels and manually manage data transfer. Refer to the
+<em>Python for HPDA</em> resource linked below for guidance on implementing such techniques using Numba.</p>
+</section>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://enccs.github.io/hpda-python/parallel-computing/">Python for HPDA (ENCCS)</a></p></li>
+<li><p><a class="reference external" href="https://uppmax.github.io/HPC-python/">Python in HPC (UPPMAX-HPC2N)</a></p></li>
+<li><p><a class="reference external" href="https://enccs.github.io/julia-for-hpc/">Julia for HPC</a></p></li>
+<li><p><a class="reference external" href="https://cupy.dev/">CuPy</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../5-intro-to-gpu-prog-models/" class="btn btn-neutral float-left" title="Introduction to GPU programming models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../7-directive-based-models/" class="btn btn-neutral float-right" title="Directive-based models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, The contributors.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
