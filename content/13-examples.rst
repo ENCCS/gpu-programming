@@ -1,6 +1,6 @@
 .. _example-heat:
 
-GPU programming example: stencil computation
+Example: putting it all together
 ============================================
 
 .. questions::
@@ -95,14 +95,6 @@ In `an earlier episode <https://enccs.github.io/gpu-programming/7-non-portable-k
 Another point to note is that even if the solution is propagated in small time steps, not every step might actually be needed for output. Once some *local* region of the field is updated, mathematically nothing prevents it from being updated for the second time step -- even if the rest of the field is still being recalculated -- as long as :math:`t = m-1` values for the region boundary are there when needed. (Of course, this is more complicated to implement and would only give benefits in certain cases.)
 
 
-.. challenge:: Poll: which programming model/ framework are you most interested in today?
-
-   - OpenMP offloading (C++)
-   - SYCL (C++)
-   - *Python* (``numba``/CUDA)
-   - Julia
-
-
 The following table will aid you in navigating the rest of this section:
 
 .. admonition:: Episode guide
@@ -134,21 +126,26 @@ Sequential and thread-parallel program in C++
 
 If we assume the grid point values to be truly independent *for a single time step*, stencil application procedure may be straightforwardly written as a loop over the grid points, as shown below in tab "Stencil update". (General structure of the program and the default parameter values for the problem model are also provided for reference.) CPU-thread parallelism can then be enabled by a single OpenMP ``#pragma``:
 
+`stencil/base/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`_
+
 .. tabs::
 
-   .. tab:: Stencil update
+   .. tab:: Stencil update 
+            **core.cpp**
 
          .. literalinclude:: examples/stencil/base/core.cpp 
                         :language: cpp
                         :emphasize-lines: 25
 
-   .. tab:: Main function
+   .. tab:: Main function 
+            **main.cpp**
 
          .. literalinclude:: examples/stencil/base/main.cpp 
                         :language: cpp
                         :emphasize-lines: 37
  
-   .. tab:: Default params
+   .. tab:: Default params 
+            **heat.h**
 
          .. literalinclude:: examples/stencil/base/heat.h 
                         :language: cpp
@@ -278,15 +275,19 @@ Similarly, SYCL programming model offers convenient ways to define execution ker
 
 Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
 
+`stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`_
+
 .. tabs::
 
    .. tab:: OpenMP (naive)
+            **base/core-off.cpp**
 
          .. literalinclude:: examples/stencil/base/core-off.cpp 
                         :language: cpp
                         :emphasize-lines: 25-26
          
    .. tab:: SYCL (naive)
+            **sycl/core-naive.cpp**
 
          .. literalinclude:: examples/stencil/sycl/core-naive.cpp 
                         :language: cpp
@@ -316,10 +317,10 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       $ cd ../sycl/
       (give the following lines some time, probably a couple of min)
       $ acpp -O2 -o stencil_naive core-naive.cpp io.cpp main-naive.cpp pngwriter.c setup.cpp utilities.cpp
-      $ acpp -O2 -o stencil core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
+      $ acpp -O2 -o stencil_data core.cpp io.cpp main.cpp pngwriter.c setup.cpp utilities.cpp
       
       $ srun stencil_naive
-      $ srun stencil
+      $ srun stencil_data
 
    If everything works well, the output should look similar to this:
    
@@ -330,7 +331,7 @@ Changes of stencil update code for OpenMP and SYCL are shown in the tabs below:
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
       Iterations took 2.086 seconds.
-      $ srun stencil
+      $ srun stencil_data
       Average temperature, start: 59.763305
       Average temperature at end: 59.281239
       Control temperature at end: 59.281239
@@ -389,39 +390,30 @@ But overhead can be reduced by taking care to minimize data transfers between *h
 - only copy the data from GPU to CPU when we need it,
 - swap the GPU buffers between timesteps, like we do with CPU buffers. (OpenMP does this automatically.)
 
-Changes of stencil update code as well as the main program are shown in tabs below. 
+Changes of stencil update code are shown in tabs below (also check out the respective main() functions for calls to persistent GPU buffer creation, access, and deletion): 
+
+`stencil/ <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/base/>`__
 
 .. tabs::
 
    .. tab:: OpenMP
+            **base/core-data.cpp**
 
          .. literalinclude:: examples/stencil/base/core-data.cpp
                         :language: cpp
                         :emphasize-lines: 25,40-75
    
    .. tab:: SYCL
+            **sycl/core.cpp**
 
          .. literalinclude:: examples/stencil/sycl/core.cpp
                         :language: cpp
                         :emphasize-lines: 13-14,25,40-50
 
-   .. tab:: Python
-
-         .. literalinclude:: examples/stencil/python-numba/core_cuda.py
-                        :language: py
-                        :lines: 6-34
-                        :emphasize-lines: 14-16,18
-
-   .. tab:: main() (SYCL)
-
-         .. literalinclude:: examples/stencil/sycl/main.cpp 
-                        :language: cpp
-                        :emphasize-lines: 38-39,44-45,51,56,59,75-77
-
 
 .. challenge:: Exercise: updated GPU ports
 
-   Test your compiled executables ``base/stencil_data`` and ``sycl/stencil``. Try changing problem size parameters:
+   Test your compiled executables ``base/stencil_data`` and ``sycl/stencil_data``. Try changing problem size parameters:
    
    - ``srun stencil 2000 2000 5000``
    
@@ -458,9 +450,12 @@ Python: JIT and GPU acceleration
 
 As mentioned `previously <https://enccs.github.io/gpu-programming/9-language-support/#numba>`_, Numba package allows developers to just-in-time (JIT) compile Python code to run fast on CPUs, but can also be used for JIT compiling for (NVIDIA) GPUs. JIT seems to work well on loop-based, computationally heavy functions, so trying it out is a nice choice for initial source version:
 
+`stencil/python-numba <https://github.com/ENCCS/gpu-programming/tree/main/content/examples/stencil/python-numba/>`_
+
 .. tabs::
 
    .. tab:: Stencil update
+            **core.py**
 
          .. literalinclude:: examples/stencil/python-numba/core.py
                         :language: py
@@ -468,11 +463,20 @@ As mentioned `previously <https://enccs.github.io/gpu-programming/9-language-sup
                         :emphasize-lines: 17
    
    .. tab:: Data generation
+            **heat.py**
 
          .. literalinclude:: examples/stencil/python-numba/heat.py
                         :language: py
                         :lines: 57-78
                         :emphasize-lines: 1
+
+   .. tab:: Stencil update in GPU
+            **core_cuda.py**
+
+         .. literalinclude:: examples/stencil/python-numba/core_cuda.py
+                        :language: py
+                        :lines: 6-34
+                        :emphasize-lines: 14-16,18
 
 
 The alternative approach would be to rewrite stencil update code in NumPy style, exploiting loop vectorization.
@@ -536,7 +540,7 @@ Short summary of a typical Colab run is provided below:
 
 Numba's ``@vectorize`` and ``@guvectorize`` decorators offer an interface to create CPU- (or GPU-) accelerated *Python* functions without explicit implementation details. However, such functions become increasingly complicated to write (and optimize by the compiler) with increasing complexity of the computations within.
 
-Numba also offers direct CUDA-based kernel programming, which can be the best choice for those already familiar with CUDA. Example for stencil update written in Numba CUDA is shown in the `data movement section <https://enccs.github.io/gpu-programming/13-examples/#gpu-parallelization-data-movement>`_, tab "Python". In this case, data transfer functions ``devdata = cuda.to_device(data)`` and ``devdata.copy_to_host(data)`` (see ``main_cuda.py``) are already provided by Numba package.
+Numba also offers direct CUDA-based kernel programming, which can be the best choice for those already familiar with CUDA. Example for stencil update written in Numba CUDA is shown in the above section, tab "Stencil update in GPU". In this case, data transfer functions ``devdata = cuda.to_device(data)`` and ``devdata.copy_to_host(data)`` (see ``main_cuda.py``) are already provided by Numba package.
 
 
 .. challenge:: Exercise: CUDA acceleration in Python
