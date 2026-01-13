@@ -1,0 +1,98 @@
+/*
+ * colors = ['#0271AE', '#DC2830', '#FFC438',  # blue, red, light orange
+ *           '#6E3B87', '#008D5D', '#FA902D',  # purple, green, orange
+ *           '#0095B7', '#CB0C7B', '#F7E43C',  # cyan, magenta, yellow
+ *           '#88B93B', '#444F95', '#F16232']  # pea green, dark blue, dark orange
+ *
+ * To use them in rST, you need to define a command in the epilog, see conf.py
+ */
+.blue {color: #0271AE;}
+.red {color: #DC2830;}
+.orange {color: #FFC438;}
+.purple {color: #633B87;}
+.green {color: #008D5D;}
+.dkorange {color: #FA902D;}
+.cyan {color: #0095B7;}
+.magenta {color: #CB0C8B;}
+.yellow {color: #F7E43C;}
+.peagreen {color: #88B93B;}
+.darkblue {color: #444F95;}
+.darkorange {color: #F16232;}
+
+/* override colors in sphinx_lesson.css with the schemes here: https://personal.sron.nl/~pault/#sec:qualitative */
+
+/* instructor-note */
+.rst-content .instructor-note {
+    background: #DDDDDD;
+}
+.rst-content .instructor-note > .admonition-title {
+    background: #BBBBBB;
+}
+.rst-content .instructor-note > .admonition-title::before {
+    content: "";
+}
+
+/* callout */
+.rst-content .callout {
+    background: #EEEEBB;
+}
+.rst-content .callout > .admonition-title {
+    background: #BBCC33;
+}
+
+/* questions */
+.rst-content .questions {
+    background: rgba(253, 219, 199, 0.3);
+}
+.rst-content .questions > .admonition-title {
+    background: rgba(204, 51, 17, 0.5);
+}
+
+/* discussion */
+.rst-content .discussion {
+    background: rgba(231, 212, 232 0.3);
+}
+.rst-content .discussion > .admonition-title {
+    background: rgba(194, 165, 207, 0.5);
+}
+
+/* signature */
+.rst-content .signature {
+    background: rgba(217, 240, 211, 0.3);
+}
+.rst-content .signature > .admonition-title {
+    background: rgba(172, 211, 158, 0.5);
+}
+.rst-content .signature > .admonition-title::before {
+    content: "\01F527";
+}
+
+/* parameters */
+.rst-content .parameters {
+    background: rgba(217, 240, 211, 0.0);
+}
+.rst-content .parameters > .admonition-title {
+    background: rgba(172, 211, 158, 0.5);
+}
+.rst-content .parameters > .admonition-title::before {
+    content: "\01F4BB";
+}
+
+/* typealong */
+.rst-content .typealong {
+    background: rgba(221, 221, 221, 0.3);
+}
+.rst-content .typealong > .admonition-title {
+    background: rgba(187, 187, 187, 1.0);
+}
+.rst-content .typealong > .admonition-title::before {
+    content: "\02328";
+}
+
+/* Equation numbers to the right */
+.math {
+    text-align: left;
+}
+.eqno {
+    float: right;
+}

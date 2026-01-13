@@ -1,0 +1,4 @@
+/* Make terms bold */
+a.reference span.std-term {
+   font-weight: bold;
+}
