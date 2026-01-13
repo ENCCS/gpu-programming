@@ -8,8 +8,6 @@ FetchContent_Declare(alpaka3 GIT_REPOSITORY https://github.com/alpaka-group/alpa
 #Make alpaka3 available for use in this project
 #This downloads, configures, and makes the library targets available
 FetchContent_MakeAvailable(alpaka3)
-#Finalize the alpaka FetchContent setup
-alpaka_FetchContent_Finalize()
 #Create the executable target from the source file
 add_executable(vectorAdd main.cpp)
 #Link the alpaka library to the executable

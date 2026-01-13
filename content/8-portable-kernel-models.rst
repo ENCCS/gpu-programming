@@ -923,7 +923,7 @@ Exercise
     .. literalinclude:: examples/portable-kernel-models/alpaka-exercise-vectorAdd-cmake.txt
         :language: cmake
         :caption: CMakeLists.txt
-        :emphasize-lines: 12,19
+        :emphasize-lines: 17
 
 
     Below we have the main alpaka code doing a vector addition on device using a high level transform function
